@@ -1,4 +1,4 @@
-global std, logger, config, counter
+global std, logger
 
 (*
 	Usage:
@@ -62,8 +62,6 @@ on catch(scriptName, errorNumber, errorMessage)
 	end if
 	
 	if errorMessage contains "is not allowed to send keystrokes" or errorMessage contains "is not allowed assistive access" then
-		_playSound("boing")
-		
 		tell application "System Preferences"
 			activate
 			reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
@@ -80,6 +78,15 @@ on catch(scriptName, errorNumber, errorMessage)
 	logger's fatal(scriptName & ":Error encountered: " & errorMessage)
 	display dialog scriptName & ":Error: " & the errorNumber & ". " & the errorMessage with title "AS: Standard Library(Auto-closes in 10s)" buttons {"OK"} giving up after 10
 end catch
+
+
+on appExists(bundleId)
+	try
+		tell application "Finder" to get application file id bundleId
+		return true
+	end try
+	false
+end appExists
 
 
 on getUsername()
