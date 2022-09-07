@@ -8,14 +8,15 @@ help:
 
 # Simplify to pick all files inside core folder.
 # CORE_LIBS := std config logger plutil string
-CORE_LIBS := std logger config plutil string-builder
+CORE_LIBS := std logger config plutil string-builder string map
 
 _init:
+	mkdir -p ~/Library/Script\ Libraries
 	mkdir -p ~/applescript-core/sounds/
 	mkdir -p ~/applescript-core/logs/
+	./scripts/compile-bundle.sh 'core/Core Text Utilities'
 
 install: _init $(CORE_LIBS)
-	./scripts/compile-bundle.sh 'core/Core Text Utilities'
 	cp plist.template ~/applescript-core/config-default.plist
 	cp plist.template ~/applescript-core/session.plist
 	cp -a assets/sounds/. ~/applescript-core/sounds/

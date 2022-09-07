@@ -1,4 +1,4 @@
-global std, logger, jada
+global std, logger
 
 (*
 	Usage:
@@ -114,6 +114,7 @@ end removeUnicode
 
 
 (* Does not encode the parens () *)
+(* 
 on urlEncode(input)
 	set jqPath to "/opt/homebrew/bin/jq"
 	if jada's isWorkMac() then set jqPath to "/usr/local/bin/jq"
@@ -127,6 +128,7 @@ on urlEncode(input)
 	theEncodedURL as Unicode text
 	*)
 end urlEncode
+*)
 
 
 (* 
@@ -678,5 +680,4 @@ to init()
 
 	set std to script "std"
 	set logger to std's import("logger")
-	set jada to std's import("jada")
 end init
