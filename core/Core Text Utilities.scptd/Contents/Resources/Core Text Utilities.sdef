@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE dictionary SYSTEM "file://localhost/System/Library/DTDs/sdef.dtd">
+<dictionary>
+	<suite name="String Utilities" code="RTSU" description="Commands to edit text">
+		<command name="transform text" code="RTSUTRNS" description="">
+			<direct-parameter type="text" description="The text to transform."/>
+			<parameter name="to" code="ToCs" type="case conversion" description="..."/>
+			<documentation>
+				<html>
+					<![CDATA[<p>transform text "How now brown cow." to upper case<p>]]>]
+				</html>
+			</documentation>
+		</command>
+		<command name="lower" code="RTSULOWR" description="">
+			<direct-parameter type="text" description="The text to change to lower case."/>
+			<parameter name="to" code="ToLo" type="text" description="..."/>
+			<documentation>
+				<html>
+					<![CDATA[<p>lower("How now brown cow.")<p>]]>]
+				</html>
+			</documentation>
+		</command>
+		<command name="upper" code="RTSUUPPR" description="">
+			<direct-parameter type="text" description="The text to change to upper case."/>
+			<parameter name="to" code="ToUp" type="text" description="..."/>
+			<documentation>
+				<html>
+					<![CDATA[<p>upper("How now brown cow.")<p>]]>]
+				</html>
+			</documentation>
+		</command>
+		<command name="format" code="RTSUFRMT" description="">
+			<direct-parameter type="text" description="Python style string interpolation"/>
+			<parameter name="with" code="WiTo" type="list or text" description="..."/>
+			<documentation>
+				<html>
+					<![CDATA[<p>format("Hello {}", "world"R<p>]]>]
+				</html>
+			</documentation>
+		</command>
+		<command name="replace text" code="RTSURPLC" description="">
+			<direct-parameter type="text" description="Simple substring replace"/>
+			<parameter name="substring" code="RtSt" type="text" description="..."/>
+			<parameter name="with" code="RtWi" type="text" description="..."/>
+			<documentation>
+				<html>
+					<![CDATA[<p>replace text "Hello world" substring "world" with "Kansas"<p>]]>]
+				</html>
+			</documentation>
+		</command>
+		<command name="interpolate text" code="RTSUINTP" description="Python style string interpolation">
+			<direct-parameter type="text" description="The text that contains placeholder/s."/>
+			<parameter name="with" code="ToIn" type="list or text" description="..."/>
+			<documentation>
+				<html>
+					<![CDATA[<p>interpolate text "Hello {}" with "World"<p>]]>]
+				</html>
+			</documentation>
+		</command>
+		<enumeration name="case conversion" code="CSEC">
+			<enumerator name="upper case" code="UppC" description=""/>
+			<enumerator name="lower case" code="LowC" description=""/>
+			<enumerator name="word case" code="WrdC" description=""/>
+		</enumeration>
+	</suite>
+</dictionary>
