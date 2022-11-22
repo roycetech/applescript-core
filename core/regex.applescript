@@ -31,7 +31,7 @@ to spotCheck()
 	")
 	
 	set spotLib to std's import("spot")
-	set spot to spotLib's newInstance(thisCaseId, cases)
+	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -245,7 +245,7 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")'s newInstance("regex")
+	set logger to std's import("logger")'s new("regex")
 	set textUtil to std's import("string")
 	set uni to std's import("unicodes")
 end init

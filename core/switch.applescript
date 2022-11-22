@@ -6,7 +6,7 @@ global SWITCHES
 	when its value is set.
 
 	Usage:
-		set yourFlag to newInstance("Flag Name")
+		set yourFlag to new("Flag Name")
 		yourFlag's turnOn()
 *)
 
@@ -39,7 +39,7 @@ on inactive(featureName)
 	not active(featureName)
 end inactive
 
-on newInstance(pFeatureName as text)
+on new(pFeatureName as text)
 	script Instance
 		property featureName : pFeatureName
 		
@@ -71,7 +71,7 @@ on newInstance(pFeatureName as text)
 			SWITCHES's setValue(featureName, boolValue)
 		end setValue
 	end script
-end newInstance
+end new
 
 
 
@@ -100,15 +100,15 @@ to unitTest()
 	set Hook to result
 	
 	set utLib to std's import("unit-test")
-	set ut to utLib's newInstance()
+	set ut to utLib's new()
 	tell ut
 		newMethod("active")
 		
 		Hook's reinit()
 		
-		set sutMissing to my newInstance(UT_KEY_MISSING)
-		set sutOff to my newInstance(UT_KEY_OFF)
-		set sutOn to my newInstance(UT_KEY_ON)
+		set sutMissing to my new(UT_KEY_MISSING)
+		set sutOff to my new(UT_KEY_OFF)
+		set sutOn to my new(UT_KEY_ON)
 		
 		newMethod("active")
 		assertEqual(false, sutMissing's active(), "Non-existent flag name")
@@ -160,7 +160,7 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")'s newInstance("switch")
+	set logger to std's import("logger")'s new("switch")
 	set plutil to std's import("plutil")
-	set SWITCHES to plutil's newInstance("switches")
+	set SWITCHES to plutil's new("switches")
 end init

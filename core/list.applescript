@@ -33,7 +33,7 @@ to spotCheck()
 	")
 	
 	set spotLib to std's import("spot")
-	set spot to spotLib's newInstance(thisCaseId, cases)
+	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -282,7 +282,7 @@ end _replaceAll
 
 to unitTest()
 	set utLib to std's import("unit-test")
-	set ut to utLib's newInstance()
+	set ut to utLib's new()
 	tell ut
 		newMethod("remove")
 		assertEqual({"one", "two"}, my remove({"one", "two", "three"}, "three"), "Happy Case")
@@ -353,6 +353,6 @@ to init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")'s newInstance("list")
+	set logger to std's import("logger")'s new("list")
 	set textUtil to std's import("string")
 end init

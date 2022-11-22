@@ -6,7 +6,7 @@ property plist : missing value
 
 (*
     Usage:
-        set config to std's import("config")'s newInstance()
+        set config to std's import("config")'s new()
         set DEPLOY_DIR to config's getCategoryValue("work", "DEPLOY_DIR")
 *)
 
@@ -24,7 +24,7 @@ on spotCheck()
 end spotCheck
 
 
-on newInstance()
+on new()
 	script ConfigInstance
 		on getBool(configKey)
 			getBool(configKey)
@@ -46,7 +46,7 @@ on newInstance()
 			
 			set computedPlistName to "config-" & theCategory
 			if plist's plistExists(computedPlistName) then
-				set categoryPlist to plist's newInstance(computedPlistName)
+				set categoryPlist to plist's new(computedPlistName)
 				return categoryPlist's getValue(configKey)
 			end if
 			
@@ -85,4 +85,4 @@ on newInstance()
 			getCategoryValue(category, configKey)
 		end getValue
 	end script
-end newInstance
+end new

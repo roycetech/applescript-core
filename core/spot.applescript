@@ -11,7 +11,7 @@ to spotCheck()
 	init()
 	logger's start("spot-spotCheck")
 	
-	set sut to newInstance("spot-spotCheck", {"one", "two", "three", "four", "five"})
+	set sut to new("spot-spotCheck", {"one", "two", "three", "four", "five"})
 	set autoIncrement of sut to true
 	set currentCase to sut's start()
 	
@@ -23,7 +23,7 @@ to spotCheck()
 end spotCheck
 
 
-on newInstance(pCaseId as text, pCases as list)
+on new(pCaseId as text, pCases as list)
 	script CaseInstance
 		property caseId : pCaseId
 		property cases : pCases
@@ -69,7 +69,7 @@ on newInstance(pCaseId as text, pCases as list)
 		
 		
 		to setAutoIncrement(newValue)
-			set incrementSwitch to switch's newInstance("Auto Increment Case Index")
+			set incrementSwitch to switch's new("Auto Increment Case Index")
 			incrementSwitch's setValue(newValue)
 		end setAutoIncrement
 		
@@ -88,10 +88,10 @@ on newInstance(pCaseId as text, pCases as list)
 		end finish
 	end script
 	
-	set incrementSwitch to switch's newInstance("Auto Increment Case Index")
+	set incrementSwitch to switch's new("Auto Increment Case Index")
 	set autoIncrement of CaseInstance to incrementSwitch's active()
 	CaseInstance
-end newInstance
+end new
 
 
 -- Private Codes below =======================================================
@@ -104,7 +104,7 @@ on init()
 	set std to script "std"
 	set logger to std's import("logger")
 	set plist to std's import("plist-flat")
-	set sessionPlist to plist's newInstance("session")
+	set sessionPlist to plist's new("session")
 	
 	set switch to std's import("switch")
 	set pots to std's import("pots")

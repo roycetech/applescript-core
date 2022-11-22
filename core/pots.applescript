@@ -161,7 +161,7 @@ on init()
 	set std to script "std"
 	
 	set my quiet to false
-	set logger to std's import("logger")'s newInstance("pots")
+	set logger to std's import("logger")'s new("pots")
 	set config to std's import("config")
 	set textUtil to std's import("string")
 	set regex to std's import("regex")
@@ -169,7 +169,7 @@ on init()
 	set plutil to std's import("plutil")
 	
 	try
-		set TRANS_CONFIG to plutil's newInstance("custom text-to-speech")
+		set TRANS_CONFIG to plutil's new("custom text-to-speech")
 	on error
 		set TRANS_CONFIG to missing value
 	end try

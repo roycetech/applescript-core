@@ -26,6 +26,10 @@ on spotCheck()
 	end try
 	*)
 	
+	init()
+	logger's info("yo")
+	return
+	
 	assertThat given condition:1 + 3 < 10, messageOnFail:"failed on first assertion"
 	assertThat given condition:1 + 3 < 4, messageOnFail:"failed on second assertion"
 end spotCheck
@@ -59,7 +63,6 @@ on applyMappedOverride(scriptObj)
 		set factory to do shell script "plutil -extract 'logger' raw ~/applescript-core/config-lib-factory.plist"
 	end try
 	if factory is not missing value then
-		log "factory found"
 		set factoryScript to import(factory)
 		return factoryScript's decorate(scriptObj)
 	end if

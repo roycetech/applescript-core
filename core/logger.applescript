@@ -37,7 +37,7 @@ on spotCheck()
 end spotCheck
 
 
-on newInstance(pObjectName)
+on new(pObjectName)
 	script LoggerInstance
 		property objectName : pObjectName
 		on start()
@@ -211,7 +211,7 @@ on newInstance(pObjectName)
 	end script
 	
 	std's applyMappedOverride(result)
-end newInstance
+end new
 
 
 to init()
@@ -219,7 +219,7 @@ to init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set config to std's import("config")'s newInstance()
+	set config to std's import("config")'s new()
 	set textUtil to std's import("string")
 	
 	set logSubDir to config's getDefaultsValue("LOG_SUBDIR")

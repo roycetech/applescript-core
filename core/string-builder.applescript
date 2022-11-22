@@ -17,7 +17,7 @@ to spotCheck()
 	")
 	
 	set spotLib to std's import("spot")
-	set spot to spotLib's newInstance(thisCaseId, cases)
+	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -25,7 +25,7 @@ to spotCheck()
 	end if
 	
 	if caseIndex is 1 then
-		set sut to newInstance("the")
+		set sut to new("the")
 		sut's append(" big")'s append(" brown")'s append(" fox")
 		log sut's toString()
 		
@@ -38,7 +38,7 @@ end spotCheck
 
 
 (*  *)
-to newInstance(initialValue)
+to new(initialValue)
 	script StringBuilderInstance
 		property textValue : initialValue
 		
@@ -51,7 +51,7 @@ to newInstance(initialValue)
 			textValue
 		end toString
 	end script
-end newInstance
+end new
 
 -- Private Codes below =======================================================
 

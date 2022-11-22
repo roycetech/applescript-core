@@ -32,7 +32,7 @@ on spotCheck()
 	
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
-	set config to std's import("config")'s newInstance()
+	set config to std's import("config")'s new()
 	
 	set plistMap to config's getCategoryValue("system", "test map")
 	
@@ -51,7 +51,7 @@ on spotCheck()
 	")
 	
 	set spotLib to std's import("spot")
-	set spot to spotLib's newInstance(thisCaseId, cases)
+	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -395,7 +395,7 @@ to new()
 		on toJsonString()
 			set keyList to getKeys()
 			set nameValueList to {}
-			set mainJsonBuilder to sb's newInstance("{")
+			set mainJsonBuilder to sb's new("{")
 			repeat with i from 1 to count of keyList
 				if i is not 1 then
 					mainJsonBuilder's append(", ")
@@ -580,7 +580,7 @@ end new
 *)
 to unitTest()
 	set utLib to std's import("unit-test")
-	set ut to utLib's newInstance()
+	set ut to utLib's new()
 	tell ut
 		newMethod("newInstanceFromString")
 		set sut to my newInstanceFromString("
@@ -616,7 +616,7 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")'s newInstance("map")
+	set logger to std's import("logger")'s new("map")
 	set listUtil to std's import("list")
 	set sb to std's import("string-builder")
 	set textUtil to std's import("string")

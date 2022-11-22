@@ -10,14 +10,14 @@ global TZ_OFFSET
     	Create new plist in the defalt location with:
 			set plist to std's import("plutil")
 			plist's createNewPList("your-new-plist")  -- don't put the extension.
-			set yourList to plist's newInstance("plistname")
+			set yourList to plist's new("plistname")
 
 	Example 2:
 		set cacheName to format {"dbcache-{}-{}", {env, dbName}}
 		if not plist's plistExists(cacheName) then
 			plist's createNewPList(cacheName)
 		end if
-		set cache to plist's newInstance(cacheName)
+		set cache to plist's new(cacheName)
 
 		set cachedValue to cache's getValue(sqlQuery)
 		if cachedValue is not missing value then
@@ -61,14 +61,14 @@ on spotCheck()
 	")
 	
 	set spotLib to std's import("spot")
-	set spot to spotLib's newInstance(thisCaseId, cases)
+	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
 	
-	set spotPList to newInstance("spot-plist")
+	set spotPList to new("spot-plist")
 	if caseIndex is 1 then
 		unitTest()
 		
@@ -76,7 +76,7 @@ on spotCheck()
 		set plistName to "spot-plist"
 		if not plistExists(plistName) then createNewPList(plistName)
 		
-		set spotPList to newInstance(plistName)
+		set spotPList to new(plistName)
 		set plistKey to "spot1"
 		
 		spotPList's setValue(plistKey, 1)
@@ -87,60 +87,60 @@ on spotCheck()
 		
 	else if caseIndex is 3 then
 		try
-			newInstance("godly")
+			new("godly")
 			tell me to error "Error expected!"
 		end try
 		
 	else if caseIndex is 4 then
-		set sut to newInstance("app-menu-links")
+		set sut to new("app-menu-links")
 		log sut's getValue("Sublime Text")'s toString()
 		
 	else if caseIndex is 5 then
-		set sut to newInstance("config-bss")
+		set sut to new("config-bss")
 		log sut's getString("DB_NAME")
 		
 	else if caseIndex is 6 then
-		set sessionPlist to newInstance("session")
+		set sessionPlist to new("session")
 		set logLiteValue to sessionPlist's getBool("LOG_LITE")
 		log class of logLiteValue
 		log logLiteValue
 		
 	else if caseIndex is 7 then
-		set sessionPlist to newInstance("app-killer")
+		set sessionPlist to new("app-killer")
 		set storedDate to sessionPlist's getDateText("Last Focused-1Password 6")
 		log class of storedDate
 		log storedDate
 		
 	else if caseIndex is 8 then
-		set sessionPlist to newInstance("app-killer")
+		set sessionPlist to new("app-killer")
 		set storedDate to sessionPlist's getDate("Last Focused-1Password 6")
 		log class of storedDate
 		log storedDate
 		
 	else if caseIndex is 9 then
-		set appKiller to newInstance("app-killer")
+		set appKiller to new("app-killer")
 		set storedList to appKiller's getList("Monitored App List")
 		log class of storedList
 		log storedList
 		
 		log "getting zoom.us list"
-		set appMenu to newInstance("app-menu-items")
+		set appMenu to new("app-menu-items")
 		set zoomList to appMenu's getList("zoom.us")
 		log zoomList
 		
 	else if caseIndex is 10 then
-		set sessionPlist to newInstance("session")
+		set sessionPlist to new("session")
 		set storedList to sessionPlist's getValue("Case Labels")
 		log class of storedList
 		log storedList
 		
 	else if caseIndex is 11 then
-		set sessionPlist to newInstance("session")
+		set sessionPlist to new("session")
 		log sessionPlist's debugOn()
 		logger's debug("debug on prints this")
 		
 	else if caseIndex is 12 then
-		set sessionPlist to newInstance("session")
+		set sessionPlist to new("session")
 		log sessionPlist's appendValue("Pinned Notes", "Safari-$Title-udemy.com-AWS Certified Developer - Associate 2020 | Udemy.md")
 		
 	end if
@@ -185,7 +185,7 @@ to createNewPList(plistName)
 end createNewPList
 
 
-to newInstance(pPlistName as text)
+to new(pPlistName as text)
 	set asProjectName to _getAsFolderName()
 	set calcPlistFilename to format {"~/{}/{}.plist", {asProjectName, pPlistName}}
 	
@@ -612,7 +612,7 @@ to newInstance(pPlistName as text)
 			getBool("DEBUG_ON")
 		end debugOn
 	end script
-end newInstance
+end new
 
 
 -- Private Codes below =======================================================
@@ -670,8 +670,8 @@ end _indexOf
 
 to unitTest()
 	set utLib to std's import("unit-test")
-	set ut to utLib's newInstance()
-	set sut to newInstance("spot-plist")
+	set ut to utLib's new()
+	set sut to new("spot-plist")
 	tell ut
 		newMethod("_formatPlistDate +0800") -- Tested against +0800 only.
 		assertEqual("2022-04-04T23:30:45Z", sut's _formatPlistDate(date "Tuesday, April 5, 2022 at 7:30:45 AM"), "Before 8AM")

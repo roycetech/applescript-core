@@ -11,7 +11,7 @@ to spotCheck()
 	init()
 	logger's start()
 	
-	set ut to newInstance()
+	set ut to new()
 	tell ut
 		newMethod("isEven")
 		assertEqual(true, isEven(0), "Happy Case for 0")
@@ -67,7 +67,7 @@ end assert
 
 -- Private Codes below =======================================================
 
-on newInstance()
+on new()
 	script UnitTestInstance
 		property method : missing value
 		property methodCounter : 0
@@ -113,7 +113,7 @@ on newInstance()
 			set caseDescIndexed to format {"{} - Case {}: {}", {method, methodCounter + caseCounter, caseDesc}}
 		end formatCaseIndexed
 	end script
-end newInstance
+end new
 
 
 (* Constructor. When you need to load another library, do it here. *)
@@ -122,5 +122,5 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")'s newInstance("unit-test")
+	set logger to std's import("logger")'s new("unit-test")
 end init

@@ -27,7 +27,7 @@ to spotCheck()
 	")
 	
 	set spotLib to std's import("spot")
-	set spot to spotLib's newInstance(thisCaseId, cases)
+	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -515,7 +515,7 @@ end removeEnding
 
 to unitTest()
 	set utLib to std's import("unit-test")
-	set ut to utLib's newInstance()
+	set ut to utLib's new()
 	tell ut
 		newMethod("ltrim")
 		assertEqual("SELECT", my ltrim("
