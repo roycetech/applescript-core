@@ -9,7 +9,7 @@ property initialized : false
 
 to spotCheck()
 	init()
-	logger's start("spotCheck")
+	logger's start()
 	
 	set ut to newInstance()
 	tell ut
@@ -43,6 +43,28 @@ on isOdd(theNumber)
 end isOdd
 
 
+(* Used for unit testing *)
+on assert(expected, actual, message)
+	init()
+	
+	logger's info(message)
+	
+	if actual is not equal to expected then
+		if expected contains (ASCII character 13) or expected contains return then
+			error (("Assertion failed for \"" & message & "\": 
+Expected: 
+[" & expected as text) & "]
+Actual: 
+[" & actual as text) & "]
+"
+		end if
+		
+		error (("Assertion failed for \"" & message & "\": Expected: [" & expected as text) & "], but got: [" & actual as text) & "]"
+	end if
+end assert
+
+
+
 -- Private Codes below =======================================================
 
 on newInstance()
@@ -59,7 +81,7 @@ on newInstance()
 		
 		to assertEqual(expected, actual, caseDesc)
 			set caseDescIndexed to formatCaseIndexed(caseDesc)
-			std's assert(expected, actual, caseDescIndexed)
+			assert(expected, actual, caseDescIndexed)
 		end assertEqual
 		
 		to assertTrue(actual, caseDesc)
@@ -83,7 +105,7 @@ on newInstance()
 		end assertMissingValue
 		
 		to done()
-			std's utDone()
+			logger's info("All unit test cases passed.")
 		end done
 		
 		on formatCaseIndexed(caseDesc)
@@ -100,5 +122,5 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")
+	set logger to std's import("logger")'s newInstance("unit-test")
 end init

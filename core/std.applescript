@@ -6,6 +6,8 @@ global std, logger
 		
 		IMPORTANT: Do not remove the init() at the start of each handler. This 
 		is critical in this library, because this library is loaded differently from the rest.
+		
+		Do not use logger here because it will result in circular dependency.
 *)
 
 property initialized : false
@@ -49,6 +51,21 @@ on import(moduleName)
 	theScript
 end import
 
+
+on applyMappedOverride(scriptObj)
+	set scriptName to the name of the scriptObj
+	set factory to missing value
+	try
+		set factory to do shell script "plutil -extract 'logger' raw ~/applescript-core/config-lib-factory.plist"
+	end try
+	if factory is not missing value then
+		log "factory found"
+		set factoryScript to import(factory)
+		return factoryScript's decorate(scriptObj)
+	end if
+	
+	scriptObj
+end applyMappedOverride
 
 
 (* My general catch handler for all my scripts. Used as top most only. *)

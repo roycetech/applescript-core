@@ -40,7 +40,7 @@ end spotCheck
 on newInstance(pObjectName)
 	script LoggerInstance
 		property objectName : pObjectName
-		on start()			
+		on start()
 			set theLabel to "Running: [" & my objectName & "]"
 			set theBar to _repeatText("=", count of theLabel)
 			
@@ -55,7 +55,7 @@ on newInstance(pObjectName)
 			set T2s to time of (current date)
 			set elapsed to T2s - startSeconds
 			
-			info("*** End: [" & my name & "] - " & elapsed & "s")
+			info("*** End: [" & my objectName & "] - " & elapsed & "s")
 		end finish
 		
 		
@@ -209,6 +209,8 @@ on newInstance(pObjectName)
 			end repeat
 		end _repeatText
 	end script
+	
+	std's applyMappedOverride(result)
 end newInstance
 
 

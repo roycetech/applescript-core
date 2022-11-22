@@ -1,13 +1,15 @@
-global std, logger, config, textUtil, regex, flag, plist
+global std, logger, config, textUtil, regex, switch
 global TRANS_CONFIG
 
 (*
 	personal ordinary text speaker.
 	Update the "custom text-to-speech.plist" to add customization.
 
+	Use Samantha as the speaker for the bes experience.
+
 TODO: 
 	- Add optional parameter
-*)
+*) 
 
 -- PROPERTIES =================================================================
 property initialized : false
@@ -36,7 +38,7 @@ end spotCheck
 -- HANDLERS =================================================================
 
 to speak(rawText as text)
-	if flag's active("Slack Meeting") then
+	if switch's active("Meeting in Progress") then
 		logger's info("SILENCED: " & rawText)
 		return
 	end if
@@ -45,7 +47,7 @@ to speak(rawText as text)
 	
 	if TRANS_CONFIG is missing value then
 		logger's warn("Text to Speech configuration is missing.")
-	else 
+	else
 		set translatables to TRANS_CONFIG's getValue("raw")
 		set translations to TRANS_CONFIG's getValue("translated")
 	end if
@@ -140,9 +142,6 @@ to unitTest()
 	set case105b to "Case 105b: Whole word selenium match"
 	std's assert("The selenium is not defined", actual105b, case105b)
 	
-	set actual106 to speak("Can�t set window id 3864 to {1146.66666666, 719.0}.")
-	set case106 to "Case 106: .666 to 'and a third'"
-	std's assert("Can't set window id 3864 to {1146 and one third, 719.0}.", actual106, case106)
 	
 	logger's info("All unit test cases passed.")
 	
@@ -166,11 +165,11 @@ on init()
 	set config to std's import("config")
 	set textUtil to std's import("string")
 	set regex to std's import("regex")
-	set flag to std's import("flag")
-	set plist to std's import("plist-flat")
+	set switch to std's import("switch")
+	set plutil to std's import("plutil")
 	
 	try
-		set TRANS_CONFIG to plist's newInstance("custom text-to-speech")
+		set TRANS_CONFIG to plutil's newInstance("custom text-to-speech")
 	on error
 		set TRANS_CONFIG to missing value
 	end try

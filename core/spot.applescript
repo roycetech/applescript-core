@@ -1,4 +1,4 @@
-global std, logger, config, flag, pots, sessionPlist
+global std, logger, config, switch, pots, sessionPlist
 
 use script "RoyceTech String Utilities"
 use scripting additions
@@ -69,8 +69,8 @@ on newInstance(pCaseId as text, pCases as list)
 		
 		
 		to setAutoIncrement(newValue)
-			set incrementFlag to flag's newInstance("Auto Increment Case Index")
-			incrementFlag's setValue(newValue)
+			set incrementSwitch to switch's newInstance("Auto Increment Case Index")
+			incrementSwitch's setValue(newValue)
 		end setAutoIncrement
 		
 		
@@ -88,8 +88,8 @@ on newInstance(pCaseId as text, pCases as list)
 		end finish
 	end script
 	
-	set incrementFlag to flag's newInstance("Auto Increment Case Index")
-	set autoIncrement of CaseInstance to incrementFlag's active()
+	set incrementSwitch to switch's newInstance("Auto Increment Case Index")
+	set autoIncrement of CaseInstance to incrementSwitch's active()
 	CaseInstance
 end newInstance
 
@@ -106,6 +106,6 @@ on init()
 	set plist to std's import("plist-flat")
 	set sessionPlist to plist's newInstance("session")
 	
-	set flag to std's import("flag")
+	set switch to std's import("switch")
 	set pots to std's import("pots")
 end init
