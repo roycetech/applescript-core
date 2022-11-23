@@ -1,4 +1,4 @@
-global std, logger, textUtil
+global std, textUtil
 
 (*
 	Usage:
@@ -6,31 +6,31 @@ global std, logger, textUtil
 *)
 
 property initialized : false
+property logger : missing value
 
 -- spotCheck() -- IMPORTANT: Comment out on deploy
 
 to spotCheck()
 	init()
 	set thisCaseId to "list-spotCheck"
-	logger's start(thisCaseId)
+	logger's start()
 	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
-	
-	set cases to listUtil's splitByLine("
-		Unit Test
-		
+	set cases to splitByLine("
+		Unit Test		
 		Split By Line
 		Trailing emty line
 		Split with trim
 		Split Map
+		
 		Split By Line with Illegal Character
 		Split using /
 		Split Web Domain
 		Split Shell Command Result By Line
 		Split By Line / Index Of 		
+		
 		Split By Line - With Dollar Sign
 	")
+	
 	
 	set spotLib to std's import("spot")
 	set spot to spotLib's new(thisCaseId, cases)
@@ -39,9 +39,6 @@ to spotCheck()
 		logger's finish()
 		return
 	end if
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	if caseIndex is 1 then
 		unitTest()
@@ -108,7 +105,7 @@ two'"
 	end if
 	
 	spot's finish()
-	logger's finish()
+	my logger's finish()
 end spotCheck
 
 
@@ -290,7 +287,9 @@ to unitTest()
 		assertEqual({"two", "three"}, my remove({"one", "two", "three"}, "one"), "Found First")
 		
 		newMethod("indexOf")
-		assertEqual(2, my indexOf({"three", "one", "plus", "one one", "two"}, "one"), "Happy Case")
+		assertEqual(2, my indexOf({"three", "one", "plus", "one one", "two"}, "one"), "Happy Case-Found")
+		assertEqual(0, my indexOf({"a", "b", "c"}, "z"), "Happy Case-Not Found")
+		assertEqual(3, my indexOf({"a", "b", "c"}, "c"), "Happy Case-Not Found")
 		
 		newMethod("splitByLine")
 		assertEqual(4, count of my splitByLine("
@@ -323,28 +322,11 @@ to unitTest()
 		assertTrue(my listEquals({1, 2}, {1, 2}), "Happy")
 		assertFalse(my listEquals({1, 2}, {"1", 2}), "Mistype")
 		
-		ut's done()
+		newMethod("simpleSort")
+		assertEqual({"a", "b", "c"}, my simpleSort({"b", "c", "a"}), "Happy Case")
+		
+		done()
 	end tell
-	
-	
-	set actual101 to indexOf({"a", "b", "c"}, "a")
-	set case101 to "Case 101: Happy Case"
-	std's assert(1, actual101, case101)
-	
-	set actual102 to indexOf({"a", "b", "c"}, "z")
-	set case102 to "Case 102: Not found"
-	std's assert(0, actual102, case102)
-	
-	set actual103 to indexOf({"a", "b", "c"}, "c")
-	set case103 to "Case 103: Last"
-	std's assert(3, actual103, case103)
-	
-	set actual201 to simpleSort({"b", "c", "a"})
-	set case201 to "Case 201: Happy Case"
-	std's assert({"a", "b", "c"}, actual201, case201)
-	
-	
-	logger's info("All unit test cases passed.")
 end unitTest
 
 

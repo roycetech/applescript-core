@@ -1,4 +1,4 @@
-global std, logger, config, textUtil, regex, switch
+global std, config, textUtil, regex, switch
 global TRANS_CONFIG
 
 (*
@@ -13,12 +13,13 @@ TODO:
 
 -- PROPERTIES =================================================================
 property initialized : false
+property logger : missing value
 property quiet : false
 property synchronous : false
 property waitNextWords : false -- Same purpose as speakSynchronously()
 property logging : true
 
--- spotCheck() -- IMPORTANT: Comment out on deploy
+-- spotCheck() -- IMPORTANT: Comment out on deploy 
 
 to spotCheck()
 	init()

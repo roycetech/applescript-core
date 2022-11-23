@@ -1,4 +1,4 @@
-global std, logger
+global std
 
 (*
 	Usage:
@@ -9,13 +9,14 @@ global std, logger
 *)
 
 property initialized : false
+property logger : missing value
 
 -- spotCheck() -- IMPORTANT: Comment out on deploy
 
 to spotCheck()
 	init()
 	set thisCaseId to "string-spotCheck"
-	logger's start(thisCaseId)
+	logger's start()
 	
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
@@ -577,7 +578,7 @@ $('{}') = '{}';", {"a", "hello"})
 		assertEqual("Hell", my removeEnding("Hello", "o"), "Basic")
 		assertEqual("Hello", my removeEnding("Hello", "not found"), "Not found")
 		
-		ut's done()
+		done()
 	end tell
 	
 	return
@@ -616,60 +617,60 @@ $('{}') = '{}';", {"a", "hello"})
 	set actual8 to replace("abcdefgabc", "b", "88")
 	log "Case 8: Replace multiple: " & actual8
 	if actual8 is not "a88cdefga88c" then error "Assertion failed for case 8: " & actual8
-
+	
 	set actual9 to replace("Macintosh HD:Users:cloud.strife:projects:@rt-learn-lang:applescript:DEPLOYED:Common:sublimetext3.applescript", ".applescript", ".scpt")
 	log "Case 9: Replace multiple: " & actual9
 	if actual9 is not "Macintosh HD:Users:cloud.strife:projects:@rt-learn-lang:applescript:DEPLOYED:Common:sublimetext3.scpt" then error "Assertion failed for case 9: " & actual9
-
+	
 	set actual101 to lastIndexOf("/Users/cloud.strife/projects/@rt-learn-lang/applescript/DEPLOYED/Common/sublimetext3.applescript", "*")
 	set case101 to "Case 101: Last Index Of - Not found"
 	std's assert(0, actual101, case101)
-
+	
 	set actual102 to lastIndexOf("/Users/cloud.strife", "/")
 	set case102 to "Case 102: Last Index Of - Found"
 	std's assert(7, actual102, case102)
-
+	
 	set actual201 to rtrim("1234  ")
 	set case201 to "Case 201: Basic scenario"
 	std's assert("1234", actual201, case201)
-
+	
 	set actual202 to rtrim("  ")
 	set case202 to "Case 202: Spaces only"
 	std's assert("", actual202, case202)
-
+	
 	set actual203 to rtrim("1234")
 	set case203 to "Case 203: No trailing space"
 	std's assert("1234", actual203, case203)
-
+	
 	set actual204 to rtrim("1234
 ")
 	set case204 to "Case 204: Space and newline"
 	std's assert("1234", actual204, case204)
-
+	
 	set actual301 to trim("    1234 abc    ")
 	set case301 to "Case 301: Space and newline"
 	std's assert("1234 abc", actual301, case301)
-
+	
 	set actual501 to format("Hello {}", "baby")
 	set case501 to "Case 501: format - Single token"
 	std's assert("Hello baby", actual501, case501)
-
+	
 	set actual502 to format("Hello {}, how are you {}", {"baby", "love"})
 	set case502 to "Case 502: format - Multi token"
 	std's assert("Hello baby, how are you love", actual502, case502)
-
+	
 	set actual503 to format("Hello {}, how are you {}", {"baby", "love/care"})
 	set case503 to "Case 503: format - With forward slash"
 	std's assert("Hello baby, how are you love/care", actual503, case503)
-
+	
 	set actual504 to format(" -i {} ec2-user", "~/.ssh/test.pem")
 	set case504 to "Case 504: format - With forward slash - Actual"
 	std's assert(" -i ~/.ssh/test.pem ec2-user", actual504, case504)
-
+	
 	set actual601 to substringFrom("", 5)
 	set case601 to "Case 601: substringFrom - empty string, postive index"
 	std's assert("", actual601, case601)
-
+	
 	logger's info("All unit test cases passed.")
 end unitTest
 
@@ -677,7 +678,7 @@ end unitTest
 to init()
 	if initialized of me then return
 	set initialized of me to true
-
+	
 	set std to script "std"
-	set logger to std's import("logger")
+	set logger to std's import("logger")'s new("string")
 end init

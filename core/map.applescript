@@ -1,4 +1,4 @@
-global std, logger, config, listUtil, sb, textUtil
+global std, config, listUtil, sb, textUtil
 
 (* 
 	ASDictionary code derived from:
@@ -15,6 +15,7 @@ use script "Core Text Utilities"
 use scripting additions
 
 property initialized : false
+property logger : missing value
 property thisMap : missing value
 
 try

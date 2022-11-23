@@ -1,4 +1,4 @@
-global std, logger, textUtil, uni
+global std, textUtil, uni
 
 (*
 	Usage:
@@ -9,6 +9,7 @@ global std, logger, textUtil, uni
 *)
 
 property initialized : false
+property logger : missing value
 
 -- spotCheck() -- IMPORTANT: Comment out on deploy.
 

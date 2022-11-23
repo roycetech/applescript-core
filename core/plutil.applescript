@@ -1,4 +1,4 @@
-global std, logger, mapLib
+global std, mapLib
 global TZ_OFFSET
 
 (*
@@ -31,6 +31,7 @@ use scripting additions
 
 -- PROPERTIES =================================================================
 property initialized : false
+property logger : missing value
 property homeFolderPath : missing value
 
 

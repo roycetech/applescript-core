@@ -8,7 +8,7 @@ help:
 
 # Simplify to pick all files inside core folder.
 # CORE_LIBS := std config logger plutil string
-CORE_LIBS := std logger config plutil string-builder string map pots regex unicodes switch unit-test
+CORE_LIBS := std logger config plutil string-builder string map pots regex unicodes switch unit-test spot list
 
 _init:
 	mkdir -p ~/Library/Script\ Libraries

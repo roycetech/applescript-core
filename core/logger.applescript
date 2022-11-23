@@ -2,7 +2,7 @@ global std, sessionPlist, textUtil
 
 (*
 	Note: does not print properly when run in ST3.
-	WARNING: Do not use the RoyceTech String Utilities. It results to a not so
+	WARNING: Do not use the Core Text Utilities. It results to a not so
 	visible crash for some scripts that are triggered via Voice Command.
 *)
 
@@ -40,6 +40,7 @@ end spotCheck
 on new(pObjectName)
 	script LoggerInstance
 		property objectName : pObjectName
+		
 		on start()
 			set theLabel to "Running: [" & my objectName & "]"
 			set theBar to _repeatText("=", count of theLabel)
@@ -97,7 +98,7 @@ on new(pObjectName)
 			set the info_log to logFilePath
 			set CR to ASCII character 13
 			
-			set log_message to customDateTime & "> " & thisInfo
+			set log_message to customDateTime & " " & my objectName & "> " & thisInfo
 			log log_message
 			
 			-- do shell script "echo \"" & log_message & "\" > ~/AppleScript/logs/applescript.log" -- hard coded experimental

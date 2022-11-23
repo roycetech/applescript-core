@@ -1,9 +1,10 @@
-global std, logger
+global std
 
 use script "Core Text Utilities"
 use scripting additions
 
 property initialized : false
+property logger : missing value
 
 -- spotCheck() -- IMPORTANT: Comment out on deploy
 

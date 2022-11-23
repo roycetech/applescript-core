@@ -1,6 +1,7 @@
-global std, logger, config
+global std, config
 
 property initialized : false
+property logger : missing value
 
 -- spotCheck() -- IMPORTANT: Comment out on deploy
 

@@ -1,4 +1,4 @@
-global std, logger
+global std
 global SWITCHES
 
 (*
@@ -11,6 +11,7 @@ global SWITCHES
 *)
 
 property initialized : false
+property logger : missing value
 
 -- spotCheck() -- IMPORTANT: Comment out on deploy
 
@@ -148,7 +149,7 @@ to unitTest()
 		sutOn's toggle()
 		assertEqual(false, sutOn's active(), "On turns off")
 		
-		ut's done()
+		done()
 	end tell
 	
 end unitTest

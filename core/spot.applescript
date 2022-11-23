@@ -1,15 +1,16 @@
-global std, logger, config, switch, pots, sessionPlist
+global std, config, switch, pots, sessionPlist
 
-use script "RoyceTech String Utilities"
+use script "Core Text Utilities"
 use scripting additions
 
 property initialized : false
+property logger : missing value
 
 -- spotCheck() -- IMPORTANT: Comment out on deploy
 
 to spotCheck()
 	init()
-	logger's start("spot-spotCheck")
+	logger's start()
 	
 	set sut to new("spot-spotCheck", {"one", "two", "three", "four", "five"})
 	set autoIncrement of sut to true
@@ -102,9 +103,9 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")
-	set plist to std's import("plist-flat")
-	set sessionPlist to plist's new("session")
+	set logger to std's import("logger")'s new("spot")
+	set plutil to std's import("plutil")
+	set sessionPlist to plutil's new("session")
 	
 	set switch to std's import("switch")
 	set pots to std's import("pots")
