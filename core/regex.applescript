@@ -158,8 +158,6 @@ end matches
 
 
 to findFirst(source, pattern)
-	_checkUnicode(source)
-	
 	set escapedPattern to escapePattern(pattern)
 	set escapedSource to escapeSource(source)
 	
@@ -182,60 +180,30 @@ end escapePattern
 	Put the case you are debugging at the top, and move to correct place once verified.
 *)
 to unitTest()
-	set actual101 to findFirst("Badgers + Scrappers Daily Standup at https://awesome.zoom.us/j/123456789. Starts on September 15, 2020 at 8:00:00 AM Philippine Standard Time and ends at 8:15:00 AM Philippine Standard Time.", "https:\\/\\/\\w+\\.\\w+\\.\\w+\\/j\\/\\d+(?:\\?pwd=\\w+)?")
-	set case101 to "Case 101: Found"
-	std's assert("https://awesome.zoom.us/j/123456789", actual101, case101)
-	
-	
-	set actual101 to matched("amazing", "maz")
-	set case101 to "Case 101: Found"
-	std's assert(true, actual101, case101)
-	
-	set actual102 to matched("amazing", "Amaz")
-	set case102 to "Case 102: Not Found"
-	std's assert(false, actual102, case102)
-	
-	set actual103 to matched("amazing", "^maz")
-	set case103 to "Case 103: ^, mismatch"
-	std's assert(false, actual103, case103)
-	
-	set actual104 to matched("amazing", "ing$")
-	set case104 to "Case 104: $, matched"
-	std's assert(true, actual104, case104)
-	
-	set actual105 to matched("amazing ", "ing$")
-	set case105 to "Case 105: $, mismatched"
-	std's assert(false, actual105, case105)
-	
-	set actual106 to matched("session", "\\bse\\b")
-	set case106 to "Case 106: \\b, non-whole word"
-	std's assert(false, actual106, case106)
-	
-	set actual107 to matched("se", "\\bse\\b")
-	set case107 to "Case 107: \\b, whole word"
-	std's assert(true, actual107, case107)
-	
-	set actual201 to replace("These 12 and 354", "(\\d+)", "number(\\1)")
-	-- set actual201 to replace("These 12 and 354", "([[:digit:]]+)", "number(\\1)")
-	set case201 to "Case 201: Replace group"
-	std's assert("These number(12) and number(354)", actual201, case201)
-	
-	-- set actual202 to replace("Email : riojenhbkcm@mailinator.com", "Email : ([[:alnum:]]+@mailinator.com)", "\\1")
-	set actual202 to replace("Email : riojenhbkcm@mailinator.com", "Email : (\\w+@mailinator.com)", "\\1")
-	set case202 to "Case 202: Extracting info"
-	std's assert("riojenhbkcm@mailinator.com", actual202, case202)
-	
-	set actual203 to replace("Can't", "an", "on")
-	set case203 to "Case 203: With illegal quote"
-	std's assert("Con't", actual203, case203)
-	
-	set actual204 to replace("Can't set window id 3864 to {1146.66666666, 719.0}.", "\\.6{3,}7?", " and one third")
-	set case204 to "Case 204: Number with decimal"
-	std's assert("Can't set window id 3864 to {1146 and one third, 719.0}.", actual204, case204)
-	
-	set actual301 to findFirst("Email : riojenhbkcm@mailinator.com", "\\w+@mailinator.com")
-	set case301 to "Case 301: Extracting info"
-	std's assert("riojenhbkcm@mailinator.com", actual301, case301)
+	set utLib to std's import("unit-test")
+	set ut to utLib's new()
+	tell ut
+		newMethod("findFirst")
+		assertEqual("https://awesome.zoom.us/j/123456789", my findFirst("B + S Daily Standup at https://awesome.zoom.us/j/123456789. Starts on September 15, 2020 at 8:00:00 AM Philippine Standard Time and ends at 8:15:00 AM Philippine Standard Time.", "https:\\/\\/\\w+\\.\\w+\\.\\w+\\/j\\/\\d+(?:\\?pwd=\\w+)?"), "Happy: Found")
+		
+		newMethod("matched")
+		assertTrue(my matched("amazing", "maz"), "Found")
+		assertFalse(my matched("amazing", "Amaz"), "Not Found")
+		assertTrue(my matched("amazing", "^amaz"), "Starting with")
+		assertFalse(my matched("amazing", "^maz"), "Not starting with")
+		assertTrue(my matched("amazing", "zing$"), "Ending with")
+		assertFalse(my matched("amazing", "zin$"), "Not ending with")
+		assertTrue(my matched("a maz ing", "\\bmaz\\b"), "Whole word")
+		assertFalse(my matched("amazing", "\\bmaz\\b"), "Not whole word")
+		
+		newMethod("replace")
+		assertEqual("These number(12) and number(354)", my replace("These 12 and 354", "(\\d+)", "number(\\1)"), "Replace a group")
+		assertEqual("riojenhbkcm@mailinator.com", my replace("Email : riojenhbkcm@mailinator.com", "Email : (\\w+@mailinator.com)", "\\1"), "Extract info")
+		assertEqual("Don't", my replace("Can't", "Ca", "Do"), "With a single quote")
+		assertEqual("Can't set window id 3864 to {1146 and one third, 719.0}.", my replace("Can't set window id 3864 to {1146.66666666, 719.0}.", "\\.6{3,}7?", " and one third"), "Number with decimal")
+				
+		done()
+	end tell
 	
 	logger's info("All unit test cases passed.")
 end unitTest
