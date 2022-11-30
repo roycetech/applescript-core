@@ -87,12 +87,12 @@ on new()
 		
 		to assertTrue(actual, caseDesc)
 			set caseDescIndexed to formatCaseIndexed(caseDesc)
-			std's assert(true, actual, caseDescIndexed)
+			assert(true, actual, caseDescIndexed)
 		end assertTrue
 		
 		to assertFalse(actual, caseDesc)
 			set caseDescIndexed to formatCaseIndexed(caseDesc)
-			std's assert(false, actual, caseDescIndexed)
+			assert(false, actual, caseDescIndexed)
 		end assertFalse
 		
 		on assertNotMissingValue(actual, caseDesc)
