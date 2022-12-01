@@ -44,8 +44,9 @@ on new()
 				plist's init()
 			end if
 			
+			set knownPlists to {"config-default", "session", "switches"} -- WET: 1/2
 			set computedPlistName to "config-" & theCategory
-			if plist's plistExists(computedPlistName) then
+			if knownPlists contains computedPlistName or plist's plistExists(computedPlistName) then
 				set categoryPlist to plist's new(computedPlistName)
 				return categoryPlist's getValue(configKey)
 			end if

@@ -1,5 +1,5 @@
 global std, mapLib
-global TZ_OFFSET
+global TZ_OFFSET, AS_CORE_PATH
 
 (*
 	This library is implemented prioritizing minimal dependency to othe libraries.
@@ -40,7 +40,7 @@ property homeFolderPath : missing value
 on spotCheck()
 	init()
 	set thisCaseId to "plutil-spotCheck"
-	logger's start(thisCaseId)
+	logger's start()
 	
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
@@ -69,13 +69,14 @@ on spotCheck()
 		return
 	end if
 	
+	set plistName to "spot-plist"
+	if not plistExists(plistName) then createNewPList(plistName)
 	set spotPList to new("spot-plist")
+	
 	if caseIndex is 1 then
 		unitTest()
 		
 	else if caseIndex is 2 then
-		set plistName to "spot-plist"
-		if not plistExists(plistName) then createNewPList(plistName)
 		
 		set spotPList to new(plistName)
 		set plistKey to "spot1"
@@ -176,8 +177,7 @@ to createNewPList(plistName)
 	do shell script createPlistShellCommand
 	return
 	*)
-	set asProjectName to _getAsFolderName()
-	set calcPlistFile to format {"~/{}/{}.plist", {asProjectName, plistName}}
+	set calcPlistFile to format {"~/applescript-core/{}.plist", {plistName}}
 	tell application "System Events"
 		set theParentDictionary to make new property list item with properties {kind:record}
 		
@@ -187,15 +187,18 @@ end createNewPList
 
 
 to new(pPlistName as text)
-	set asProjectName to _getAsFolderName()
-	set calcPlistFilename to format {"~/{}/{}.plist", {asProjectName, pPlistName}}
+	set calcPlistFilename to format {"~/applescript-core/{}.plist", {pPlistName}}
+	
+	set knownPlists to {"config-default", "session", "switches"} -- WET: 2/2
+	set isKnown to knownPlists contains pPlistName
 	
 	tell application "Finder"
-		if not (exists file (pPlistName & ".plist") of folder "applescript-core" of my _getHomeFolderPath()) then
+		if not isKnown and not (exists file (pPlistName & ".plist") of folder "applescript-core" of my _getHomeFolderPath()) then
 			tell me to error "The plist: " & pPlistName & " could not be found."
 		end if
 		
-		set localPlistPosixPath to text 8 thru -1 of (URL of folder "applescript-core" of my _getHomeFolderPath() as text) & pPlistName & ".plist"
+		set localPlistPosixPath to AS_CORE_PATH & pPlistName & ".plist"
+		-- set localPlistPosixPath to text 8 thru -1 of (URL of folder "applescript-core" of my _getHomeFolderPath() as text) & pPlistName & ".plist"
 	end tell
 	
 	script PlutilInstance
@@ -617,12 +620,6 @@ end new
 
 
 -- Private Codes below =======================================================
-to _getAsFolderName()
-	tell application "Finder" -- Set the project folder name in the correct case
-		name of folder "applescript-core" of my _getHomeFolderPath() as text
-	end tell
-end _getAsFolderName
-
 
 (* Intended to cache the value to reduce events triggered. *)
 on _getHomeFolderPath()
@@ -803,10 +800,12 @@ end unitTest
 on init()
 	if initialized of me then return
 	set initialized of me to true
-
+	
 	set std to script "std"
-	set logger to std's import("logger")
+	set logger to std's import("logger")'s new("plutil")
 	set mapLib to std's import("map")
-
+	
 	set TZ_OFFSET to (do shell script "date +'%z' | cut -c 2,3") as integer
+	
+	set AS_CORE_PATH to "/Users/" & std's getUsername() & "/applescript-core/"
 end init
