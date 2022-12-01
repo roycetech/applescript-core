@@ -95,7 +95,7 @@ on catch(scriptName, errorNumber, errorMessage)
 		return
 	end if
 	
-	logger's fatal(scriptName & ":Error encountered: " & errorMessage)
+	logger's fatal(scriptName & ":Error: " & errorMessage)
 	display dialog scriptName & ":Error: " & the errorNumber & ". " & the errorMessage with title "AS: Standard Library(Auto-closes in 10s)" buttons {"OK"} giving up after 10
 end catch
 
