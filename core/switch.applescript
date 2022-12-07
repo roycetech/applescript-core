@@ -13,7 +13,7 @@ global SWITCHES
 property initialized : false
 property logger : missing value
 
--- spotCheck() -- IMPORTANT: Comment out on deploy
+if name of current application is "Script Editor" then  spotCheck() -- IMPORTANT: Comment out on deploy
 
 to spotCheck()
 	init()

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>$Spot Check</key>
+	<string>Passed ✅</string>
+
+	<key>UNICODE_CANT</key>
+	<string>Can’t</string>
+
+	<key>UNICODE_OMZ_ARROW</key>
+	<string>➜</string>
+
+	<key>UNICODE_ARROW_LEFT</key>
+	<string>←</string>
+
+	<key>UNICODE_ARROW_RIGHT</key>
+	<string>→</string>
+
+	<key>UNICODE_OMZ_GIT_X</key>
+	<string>✗</string>
+
+	<key>UNICODE_ELLIPSIS</key>
+	<string>…</string>
+
+	<key>UNICODE_WIFI</key>
+	<string>Wi‑Fi</string>
+
+
+	<key>UNICODE_SEP</key>
+	<string> — </string>
+	<key>UNICODE_SEP_OUTLOOK</key>
+	<string> • </string>
+
+	<key>UNICODE_MAIL_SUBDASH</key>
+	<string>–</string>
+</dict>
+</plist>

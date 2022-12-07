@@ -11,7 +11,7 @@ global std
 property initialized : false
 property logger : missing value
 
--- spotCheck() -- IMPORTANT: Comment out on deploy
+if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy
 
 to spotCheck()
 	init()
@@ -479,7 +479,8 @@ end ltrim
 
 (* NOTE: For Review! *)
 to trim(theText)
-	do shell script "ruby -e \"p '" & theText & "'.strip\" | sed 's/\"//g'"
+	-- do shell script "ruby -e \"p '" & theText & "'.strip\" | sed 's/\"//g'"
+	do shell script "echo \"" & theText & "\" |  sed 's/ *$//g'  |  sed 's/^ *//g'"
 end trim
 
 

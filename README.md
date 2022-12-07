@@ -24,6 +24,8 @@ The quality of a README description often differentiates a good project from a b
 
 *   [ ] What your application does
 * Provides basic unit testing
+* Quick spot checking
+* Essential 
 
 
 ### Technologies/Libraries
@@ -33,6 +35,7 @@ Include Links
 * Script Editor
 * plutil
 * PlistBuddy
+* JSON Helper - Freely available JSON-AppleScript library.  https://apps.apple.com/us/app/json-helper-for-applescript/id453114608?mt=12.
 
 
 ## Special Gotchas of your projects (Problems you faced, unique elements of your project)
@@ -48,7 +51,7 @@ If your README is very long, you might want to add a table of contents to make i
 ## How to Install and Run the Project
 
 1. Run `make install`. It will install the essential libraries under `~/Library/Script Libraries`. It will also install basic sounds and property files under `~/applescript-core/`.  See the ./Makefile for more information.
-2. To test that it works, open the file hello.applescript using Script Editor and run it.
+2. To test that it works, open the files inside examples using Script Editor and run them.
 3. You will see the output
 
 If you are working on a project that a user needs to install or run locally in a machine like a "POS", you should include the steps required to install your project and also the required dependencies if any.
@@ -56,13 +59,15 @@ If you are working on a project that a user needs to install or run locally in a
 Provide a step-by-step description of how to get the development environment set and running.
 
 
-## How to Use the Project
+## How to Use the Project (Developing)
 
 Provide instructions and examples so users/contributors can use the project. This will make it easy for them in case they encounter a problem – they will always have a place to reference what is expected.
-
 You can also make use of visual aids by including materials like screenshots to show examples of the running project and also the structure and design principles used in your project.
-
 Also if your project will require authentication like passwords or usernames, this is a good section to include the credentials.
+
+You'll need to populate the config-system.plist with some default values:
+*   Project Path - Used to locate the test files for testing.
+
 
 
 ## Credits

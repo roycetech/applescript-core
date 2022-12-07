@@ -3,12 +3,12 @@ global std
 property initialized : false
 property logger : missing value
 
--- spotCheck() -- IMPORTANT: Comment out on deploy
+if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy
 
-to spotCheck()
+on spotCheck()
 	init()
 	set thisCaseId to "string-builder-spotCheck"
-	logger's start(thisCaseId)
+	logger's start()
 	
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
@@ -62,6 +62,6 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")
+	set logger to std's import("logger")'s new("string-builder")
 end init
 

@@ -1,4 +1,4 @@
-global std, config, listUtil, sb, textUtil
+global std, listUtil, sb, textUtil, json
 
 (* 
 	ASDictionary code derived from:
@@ -16,10 +16,10 @@ use scripting additions
 
 property initialized : false
 property logger : missing value
-property thisMap : missing value
+
+if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy
 
 try
-	-- spotCheck() -- IMPORTANT: Comment out on deploy
 on error the errorMessage number the errorNumber
 	logger's finish() -- unlock the script active flag
 	error errorMessage
@@ -29,17 +29,14 @@ end try
 on spotCheck()
 	init()
 	set thisCaseId to "Map-spotCheck"
-	logger's start(thisCaseId)
+	logger's start()
 	
 	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
-	set config to std's import("config")'s new()
-	
-	set plistMap to config's getCategoryValue("system", "test map")
+	set config to std's import("config")'s new("system")
 	
 	set cases to listUtil's splitByLine("
 		Unit Test
-		From PList
+		From PList - Skip this
 		From String
 		From JSON String
 		To String
@@ -63,6 +60,7 @@ on spotCheck()
 		unitTest()
 		
 	else if caseIndex is 2 then
+		set plistMap to config's getCategoryValue("system", "test map")
 		set sut to fromRecord(plistMap)
 		repeat with nextKey in sut's getKeys()
 			log nextKey & " - " & sut's getValue(nextKey)
@@ -189,12 +187,22 @@ on newInstanceFromRecord(theRecord as record)
 end newInstanceFromRecord
 
 
-on newInstanceFromJson(jsonString)
-	if std's appExists("com.vidblishen.jsonhelper") is false then
-		error "The app 'JSON Helper' available in the App Store is required for this operation."
-	end if 
+on hasJsonSupport()
+	if not std's appExists("com.vidblishen.jsonhelper") then return false
+	try
+		set json to std's import("json")
+		return true
+	end try
 	
-	set json to std's import("json")
+	false
+end hasJsonSupport
+
+
+on newInstanceFromJson(jsonString)
+	if hasJsonSupport() is false then
+		error "The app 'JSON Helper' available in the App Store is required for this operation."
+	end if
+	
 	set jsonRecord to json's fromJsonString(jsonString)
 	return newInstanceFromRecord(jsonRecord)
 	
@@ -427,9 +435,9 @@ to new()
 		
 		
 		(* 
-		Private Subroutines
-		All error checking is done before we get to these methods, so these should not be called directly.
-		*)
+				Private Subroutines
+				All error checking is done before we get to these methods, so these should not be called directly.
+				*)
 		
 		-- this is created in __setKeyAndIndexToHash when we actually need it.
 		property __keyIndexHash : {}
@@ -450,9 +458,9 @@ to new()
 		
 		on __makeGlyphNode() -- (void) as node
 			(*
-			index: the index in the key-value pairs list. 0 means there is not a key that exists
-			nodes: the used characters for the keys
-			*)
+					index: the index in the key-value pairs list. 0 means there is not a key that exists
+					nodes: the used characters for the keys
+					*)
 			set nodeList to {}
 			repeat with i from 1 to __unsupported_chr
 				set end of nodeList to missing value

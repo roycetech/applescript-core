@@ -16,24 +16,29 @@ property logLite : missing value
 
 property initialized : false
 
--- spotCheck() -- IMPORTANT: Comment out on deploy
+if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy
 
 on spotCheck()
 	init()
-	start("logger-spotCheck")
 	
-	info("Info Test")
-	infof("Hello {}", "World")
-	debugf("Hello {}", "World")
-	debug("debug Test")
+	set sut to new("logger")
 	
-	-- return
-	
-	set theObj to {name:"This is an object", age:1}
-	info(theObj)
-	logObj("Example", theObj)
-	
-	finish()
+	tell sut
+		start()
+		
+		info("Info Test")
+		infof("Hello {}", "World")
+		debugf("Hello {}", "World")
+		debug("debug Test")
+		
+		-- return
+		
+		set theObj to {name:"This is an object", age:1}
+		info(theObj)
+		logObj("Example", theObj)
+		
+		finish()
+	end tell
 end spotCheck
 
 
@@ -120,6 +125,13 @@ on new(pObjectName)
 		
 		
 		on debug(thisInfo)
+			try
+				sessionPlist
+			on error
+				 set plutil to std's import("plutil")
+				set sessionPlist to plutil's new("session")
+			end try
+		
 			if sessionPlist's debugOn() is false then return
 			
 			-- if config's debugOn() is true then
@@ -220,10 +232,10 @@ to init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set config to std's import("config")'s new()
+	set config to std's import("config")'s new("default")
 	set textUtil to std's import("string")
 	
-	set logSubDir to config's getDefaultsValue("LOG_SUBDIR")
+	set logSubDir to config's getValue("LOG_SUBDIR")
 	if logSubDir is missing value then set logSubDir to "applescript-core:logs:"
 	set logFilePath to (path to home folder as text) & logSubDir & filename
 end init

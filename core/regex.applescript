@@ -11,7 +11,7 @@ global std, textUtil, uni
 property initialized : false
 property logger : missing value
 
--- spotCheck() -- IMPORTANT: Comment out on deploy.
+if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy.
 
 use framework "Foundation"
 use scripting additions
@@ -201,7 +201,7 @@ to unitTest()
 		assertEqual("riojenhbkcm@mailinator.com", my replace("Email : riojenhbkcm@mailinator.com", "Email : (\\w+@mailinator.com)", "\\1"), "Extract info")
 		assertEqual("Don't", my replace("Can't", "Ca", "Do"), "With a single quote")
 		assertEqual("Can't set window id 3864 to {1146 and one third, 719.0}.", my replace("Can't set window id 3864 to {1146.66666666, 719.0}.", "\\.6{3,}7?", " and one third"), "Number with decimal")
-				
+		
 		done()
 	end tell
 	

@@ -17,14 +17,19 @@ _init:
 	./scripts/compile-bundle.sh 'core/Core Text Utilities'
 
 install: _init $(CORE_LIBS)
-	cp plist.template ~/applescript-core/config-default.plist
-	cp plist.template ~/applescript-core/session.plist
-	cp plist.template ~/applescript-core/switches.plist
+	cp  -n config-default.template ~/applescript-core/config-default.plist || true
+	cp  -n plist.template ~/applescript-core/config-system.plist || true
+	cp  -n plist.template ~/applescript-core/session.plist || true
+	cp  -n plist.template ~/applescript-core/switches.plist || true
 	cp -a assets/sounds/. ~/applescript-core/sounds/
 	touch ~/applescript-core/logs/applescript-core.log
 
 $(CORE_LIBS): Makefile
 	./scripts/compile-lib.sh core/$@
+
+# Optional with 3rd party app dependency.
+install-json:
+	./scripts/compile-lib.sh core/json.applescript
 
 
 compile-lib:

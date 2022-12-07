@@ -3,13 +3,13 @@ global std, config
 property initialized : false
 property logger : missing value
 
--- spotCheck() -- IMPORTANT: Comment out on deploy
+if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy
 
 to spotCheck()
 	init()
-	logger's start("spotCheck")
+	logger's start()
 	
-	log my WORK
+	log my SEPARATOR
 	log "App" & my APP_STORE_SPACE & "Store"
 	
 	logger's finish()
@@ -36,15 +36,15 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")
-	set config to std's import("config")
+	set logger to std's import("logger")'s new("unicodes")
+	set config to std's import("config")'s new("default")
 	
-	set WIFI to config's getDefaultsValue("UNICODE_WIFI")
-	set ELLIPSIS to config's getDefaultsValue("UNICODE_ELLIPSIS")
-	set SEPARATOR to config's getDefaultsValue("UNICODE_SEP")
-	set OMZ_ARROW to config's getDefaultsValue("UNICODE_OMZ_ARROW")
-	set ARROW_LEFT to config's getDefaultsValue("UNICODE_ARROW_LEFT")
-	set ARROW_RIGHT to config's getDefaultsValue("UNICODE_ARROW_RIGHT")
-	set OMZ_GIT_X to config's getDefaultsValue("UNICODE_OMZ_GIT_X")
-	set MAIL_SUBDASH to config's getDefaultsValue("UNICODE_MAIL_SUBDASH")
+	set WIFI to config's getValue("UNICODE_WIFI")
+	set ELLIPSIS to config's getValue("UNICODE_ELLIPSIS")
+	set SEPARATOR to config's getValue("UNICODE_SEP")
+	set ARROW_LEFT to config's getValue("UNICODE_ARROW_LEFT")
+	set ARROW_RIGHT to config's getValue("UNICODE_ARROW_RIGHT")
+	set MAIL_SUBDASH to config's getValue("UNICODE_MAIL_SUBDASH")
+	set OMZ_ARROW to config's getValue("UNICODE_OMZ_ARROW")
+	set OMZ_GIT_X to config's getValue("UNICODE_OMZ_GIT_X")
 end init

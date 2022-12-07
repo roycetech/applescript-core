@@ -13,10 +13,9 @@ global std, logger
 property initialized : false
 property username : missing value
 
--- spotCheck() -- IMPORTANT: Comment out on deploy
+if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy
 
 on spotCheck()
-	log getUsername()
 	
 	(*
 	try
@@ -27,7 +26,7 @@ on spotCheck()
 	*)
 	
 	init()
-	logger's info("yo")
+	logger's info(getUsername())
 	return
 	
 	assertThat given condition:1 + 3 < 10, messageOnFail:"failed on first assertion"
@@ -133,4 +132,5 @@ on init()
 	
 	set logger to script "logger"
 	logger's init()
+	set logger to logger's new("std")
 end init

@@ -9,7 +9,7 @@ global TRANS_CONFIG
 
 TODO: 
 	- Add optional parameter
-*) 
+*)
 
 -- PROPERTIES =================================================================
 property initialized : false
@@ -19,11 +19,11 @@ property synchronous : false
 property waitNextWords : false -- Same purpose as speakSynchronously()
 property logging : true
 
--- spotCheck() -- IMPORTANT: Comment out on deploy 
+if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy 
 
 to spotCheck()
 	init()
-	logger's start("spotCheck")
+	logger's start()
 	
 	-- unitTest()
 	
