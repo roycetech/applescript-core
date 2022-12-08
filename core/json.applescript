@@ -1,4 +1,4 @@
-global std, logger, plutil
+global std, logger
 
 (* 
 	Prerequisites:
