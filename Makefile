@@ -17,10 +17,10 @@ _init:
 	./scripts/compile-bundle.sh 'core/Core Text Utilities'
 
 install: _init $(CORE_LIBS)
-	cp  -n config-default.template ~/applescript-core/config-default.plist || true
-	cp  -n plist.template ~/applescript-core/config-system.plist || true
-	cp  -n plist.template ~/applescript-core/session.plist || true
-	cp  -n plist.template ~/applescript-core/switches.plist || true
+	cp -n config-default.template ~/applescript-core/config-default.plist || true
+	cp -n plist.template ~/applescript-core/config-system.plist || true
+	cp -n plist.template ~/applescript-core/session.plist || true
+	cp -n plist.template ~/applescript-core/switches.plist || true
 	cp -a assets/sounds/. ~/applescript-core/sounds/
 	touch ~/applescript-core/logs/applescript-core.log
 

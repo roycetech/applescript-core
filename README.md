@@ -2,12 +2,16 @@
 
 Add a title image if available.
 
+A design for writing AppleScripts that utilizes re-usability of components.
+
 This is the name of the project. It describes the whole project in one sentence, and helps people understand what the main goal and aim of the project is.
 
 
 ## Project Description
 
-This is a collection of AppleScript libraries that we can reuse within user-specific AppleScripts. It provides core functionality like:
+AppleScript Core is a collection of valuable and simple custom AppleScripts that allows you to write automation AppleScripts faster and more efficiently than ever. It provides a variety of ready-to-use script libraries, libraries that provide essential functionalities that you can use in your scripts. It provides application wrapper scripts that can be used to interact with the supported applications. 
+
+It provides core functionality like:
 
 * Import/deployment of another AppleScript library
 * File logging
@@ -17,6 +21,8 @@ This is a collection of AppleScript libraries that we can reuse within user-spec
 * Configuration management
 * Common utilities for string, list, and dictionary.
 * Unit testing
+
+Will use a monorepo approach for the project structure.
 
 Demo(Images, Video Links, Live Demo Links)
 
@@ -91,7 +97,7 @@ Copyright (c) [2022] [Royce Remulla]
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
 in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+to use, copy, modify, merge, publish, distribute, sub-license, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
@@ -127,9 +133,9 @@ Don't know where to get them from? Check out the badges hosted by shields.io. Th
 
 This mostly will be useful if you are developing an open-source project that you will need other developers to contribute to. You will want to add guidelines to let them know how they can contribute to your project.
 
-Also it is important to make sure that the licence you choose for an open-source projects is correct to avoid future conflicts. And adding contribution guidelines will play a big role.
+Also it is important to make sure that the license you choose for an open-source projects is correct to avoid future conflicts. And adding contribution guidelines will play a big role.
 
-Some of the most common guidelines include the Contributor Covenant and the Contributing guide. Thes docs will give you the help you need when setting rules for your project.
+Some of the most common guidelines include the Contributor Covenant and the Contributing guide. These docs will give you the help you need when setting rules for your project.
 
 ### Include Tests
 
@@ -142,5 +148,5 @@ This will help show that you are certain and confident that your project will wo
 
 Here are a few extra points to note when you're writing your README:
 
-*   Keep it up-to-date - It is a good practise to make sure your file is always up-to-date. In case there are changes make sure to update the file where necessary.
+*   Keep it up-to-date - It is a good practice to make sure your file is always up-to-date. In case there are changes make sure to update the file where necessary.
 *   Resources
