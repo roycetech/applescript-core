@@ -1,4 +1,11 @@
 #!/bin/bash
 
-BASEFILENAME=$(echo $1 | awk -F/ '{print $NF}')
-osacompile -o osacompile -o ~/Library/Script\ Libraries/$BASEFILENAME.scpt $1.applescript
+# echo $1 $2 $2
+
+INPUT_FILE_PATH=$(echo "$1 $2 $3" | sed 's/ *$//')
+# echo "INPUT_FILE_PATH: [$INPUT_FILE_PATH]"
+
+BASEFILENAME=$(echo $INPUT_FILE_PATH | awk -F/ '{print $NF}' | sed 's/ *$//')
+# echo "BASEFILENAME: [$BASEFILENAME]"
+
+osacompile -o ~/Library/Script\ Libraries/"$BASEFILENAME.scpt" "${INPUT_FILE_PATH}.applescript"
