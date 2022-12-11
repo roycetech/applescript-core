@@ -3,12 +3,12 @@ help:
 	libraries."
 
 	@echo "make install_core - install the core AppleScript libraries in the current user's Library/Script Library folder"
-	@echo "make compile_library - compiles a script library.  e.g. make compile_lib SOURCE=src/std"
+	@echo "make compile_library - compiles a script library.  e.g. make compile-lib SOURCE=src/std"
 	@echo "-s option hides the Make invocation command."
 
 # Simplify to pick all files inside core folder.
 # CORE_LIBS := std config logger plutil string
-CORE_LIBS := std logger config plutil string-builder string map pots regex unicodes switch unit-test spot list
+CORE_LIBS := std logger config plutil string-builder string map pots regex unicodes switch unit-test spot list datetime idler retry syseve
 
 _init:
 	mkdir -p ~/Library/Script\ Libraries
