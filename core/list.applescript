@@ -8,7 +8,7 @@ global std, textUtil
 property initialized : false
 property logger : missing value
 
-if name of current application is "Script Editor" then  spotCheck() -- IMPORTANT: Comment out on deploy
+if name of current application is "Script Editor" then  spotCheck()
 
 to spotCheck()
 	init()

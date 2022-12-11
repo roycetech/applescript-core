@@ -19,7 +19,7 @@ property synchronous : false
 property waitNextWords : false -- Same purpose as speakSynchronously()
 property logging : true
 
-if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy 
+if name of current application is "Script Editor" then spotCheck() 
 
 to spotCheck()
 	init()

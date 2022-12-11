@@ -13,7 +13,7 @@ global std, logger
 property initialized : false
 property username : missing value
 
-if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy
+if name of current application is "Script Editor" then spotCheck()
 
 on spotCheck()
 	

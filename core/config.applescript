@@ -10,7 +10,7 @@ property plist : missing value
     TODO: Optimize by creating new handlers with type like getValueString.
 *)
 
-if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy
+if name of current application is "Script Editor" then spotCheck()
 
 on spotCheck()
 	log "start"

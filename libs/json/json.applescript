@@ -8,7 +8,7 @@ global std, logger
 
 property initialized : false
 
-if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy
+if name of current application is "Script Editor" then spotCheck()
 
 to spotCheck()
 	init()

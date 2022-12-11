@@ -17,7 +17,7 @@ use scripting additions
 property initialized : false
 property logger : missing value
 
-if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy
+if name of current application is "Script Editor" then spotCheck()
 
 try
 on error the errorMessage number the errorNumber

@@ -11,7 +11,7 @@ global std
 property initialized : false
 property logger : missing value
 
-if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy
+if name of current application is "Script Editor" then spotCheck()
 
 to spotCheck()
 	init()
@@ -679,7 +679,7 @@ end unitTest
 to init()
 	if initialized of me then return
 	set initialized of me to true
-	
+
 	set std to script "std"
 	set logger to std's import("logger")'s new("string")
 end init
