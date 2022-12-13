@@ -8,7 +8,7 @@ property logger : missing value
 
 if name of current application is "Script Editor" then spotCheck()
 
-to spotCheck()
+on spotCheck()
 	init()
 	logger's start()
 	
@@ -74,23 +74,31 @@ on new()
 		property methodCounter : 0
 		property caseCounter : 0
 		
-		to newMethod(pMethod)
+		on newMethod(pMethod)
 			set caseCounter to 0
 			set methodCounter to methodCounter + 100
 			set method to pMethod
 		end newMethod
+
+		on newScenario(pScenario)
+			newMethod(pScenario)
+		end newMethod
+
+		on newFeature(pFeature)
+			newMethod(pFeature)
+		end newMethod
 		
-		to assertEqual(expected, actual, caseDesc)
+		on assertEqual(expected, actual, caseDesc)
 			set caseDescIndexed to formatCaseIndexed(caseDesc)
 			assert(expected, actual, caseDescIndexed)
 		end assertEqual
 		
-		to assertTrue(actual, caseDesc)
+		on assertTrue(actual, caseDesc)
 			set caseDescIndexed to formatCaseIndexed(caseDesc)
 			assert(true, actual, caseDescIndexed)
 		end assertTrue
 		
-		to assertFalse(actual, caseDesc)
+		on assertFalse(actual, caseDesc)
 			set caseDescIndexed to formatCaseIndexed(caseDesc)
 			assert(false, actual, caseDescIndexed)
 		end assertFalse
@@ -105,7 +113,7 @@ on new()
 			if actual is not missing value then error "Assertion failed for \"" & caseDesc & "\": Expected missing value, but got \"" & actual & "\" value instead."
 		end assertMissingValue
 		
-		to done()
+		on done()
 			logger's info("All unit test cases passed.")
 		end done
 		
