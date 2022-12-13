@@ -1,4 +1,5 @@
 global std, sessionPlist, textUtil
+global CR
 
 (*
 	Note: does not print properly when run in ST3.
@@ -101,7 +102,6 @@ on new(pObjectName)
 			
 			-- What's "the"?
 			set the info_log to logFilePath
-			set CR to ASCII character 13
 			
 			set log_message to customDateTime & " " & my objectName & "> " & thisInfo
 			log log_message
@@ -228,6 +228,8 @@ end new
 
 
 to init()
+	set CR to ASCII character 13
+
 	if initialized of me then return
 	set initialized of me to true
 	
