@@ -1,4 +1,4 @@
-global std, logger
+global std
 
 (*
 	Usage:
