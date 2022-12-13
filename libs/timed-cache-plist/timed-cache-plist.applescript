@@ -1,4 +1,4 @@
-global std, logger, config, dt
+global std, config, dt
 global CACHE
 
 (*

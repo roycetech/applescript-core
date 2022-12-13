@@ -1,4 +1,4 @@
-global std, logger
+global std
 
 (* 
 	Prerequisites:
@@ -7,6 +7,7 @@ global std, logger
 *)
 
 property initialized : false
+property logger : missing value
 
 if name of current application is "Script Editor" then spotCheck()
 
