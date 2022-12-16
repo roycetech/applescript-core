@@ -1,6 +1,6 @@
 property filename : "~/applescript-core/config-default.plist"
 property category : "default"
-property plist : missing value
+property plutil : missing value
 
 (*
     Usage:
@@ -67,16 +67,17 @@ on new(pConfigName)
 		on getCategoryValue(theCategory, configKey)
 			set IS_SPOT to (name of current application is "Script Editor")
 			
-			if plist is missing value then
-				set plist to script "plutil"
-				plist's init()
+			if plutil is missing value then
+				set plutilLib to script "plutil"
+				plutilLib's init()
+				set plutil to plutilLib's new()
 			end if
 			
 			
 			set knownPlists to {"config-default", "session", "switches"} -- WET: 1/2
 			set computedPlistName to "config-" & theCategory
-			if knownPlists contains computedPlistName or plist's plistExists(computedPlistName) then
-				set categoryPlist to plist's new(computedPlistName)
+			if knownPlists contains computedPlistName or plutil's plistExists(computedPlistName) then
+				set categoryPlist to plutil's new(computedPlistName)
 				return categoryPlist's getValue(configKey)
 			end if
 			

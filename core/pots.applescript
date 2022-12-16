@@ -167,7 +167,7 @@ on init()
 	set textUtil to std's import("string")
 	set regex to std's import("regex")
 	set switch to std's import("switch")
-	set plutil to std's import("plutil")
+	set plutil to std's import("plutil")'s new()
 	
 	try
 		set TRANS_CONFIG to plutil's new("custom text-to-speech")

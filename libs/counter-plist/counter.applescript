@@ -215,7 +215,7 @@ on init()
 	
 	set std to script "std"
 	set logger to std's import("logger")'s new("counter")
-	set plutil to std's import("plutil")
+	set plutil to std's import("plutil")'s new()
 	
 	set countDailyName to "counter-daily"
 	if not plutil's plistExists(countDailyName) then

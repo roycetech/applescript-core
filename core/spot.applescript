@@ -104,7 +104,7 @@ on init()
 	
 	set std to script "std"
 	set logger to std's import("logger")'s new("spot")
-	set plutil to std's import("plutil")
+	set plutil to std's import("plutil")'s new()
 	set sessionPlist to plutil's new("session")
 	
 	set switch to std's import("switch")

@@ -128,7 +128,7 @@ on new(pObjectName)
 			try
 				sessionPlist
 			on error
-				 set plutil to std's import("plutil")
+				 set plutil to std's import("plutil")'s new()
 				set sessionPlist to plutil's new("session")
 			end try
 		

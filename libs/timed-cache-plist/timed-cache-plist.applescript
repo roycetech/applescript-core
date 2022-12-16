@@ -64,7 +64,6 @@ to new(pExpirySeconds)
 		(* @return missing value if the content has expired, so client can reset it again. *)
 		on getValue(mapKey)
 			set lastRegisteredSeconds to _getRegisteredSeconds(mapKey)
-			
 			if lastRegisteredSeconds is missing value then return missing value
 			
 			set currentSeconds to do shell script "date +%s"
@@ -114,7 +113,7 @@ on init()
 	set logger to std's import("logger")'s new("timed-cache-plist")
 	set dt to std's import("datetime")
 	
-	set plutil to std's import("plutil")
+	set plutil to std's import("plutil")'s new()
 	set cacheName to "timed-cache"
 	if not plutil's plistExists(cacheName) then
 		plutil's createNewPList(cacheName)

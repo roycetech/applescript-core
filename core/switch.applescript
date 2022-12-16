@@ -13,9 +13,9 @@ global SWITCHES
 property initialized : false
 property logger : missing value
 
-if name of current application is "Script Editor" then  spotCheck()
+if name of current application is "Script Editor" then spotCheck()
 
-to spotCheck()
+on spotCheck()
 	init()
 	logger's start()
 	
@@ -162,6 +162,6 @@ on init()
 	
 	set std to script "std"
 	set logger to std's import("logger")'s new("switch")
-	set plutil to std's import("plutil")
+	set plutil to std's import("plutil")'s new()
 	set SWITCHES to plutil's new("switches")
 end init
