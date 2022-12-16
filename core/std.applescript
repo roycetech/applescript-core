@@ -59,7 +59,7 @@ on applyMappedOverride(scriptObj)
 	set scriptName to the name of the scriptObj
 	set factory to missing value
 	try
-		set factory to do shell script "plutil -extract 'logger' raw ~/applescript-core/config-lib-factory.plist"
+		set factory to do shell script "plutil -extract '" & scriptName & "' raw ~/applescript-core/config-lib-factory.plist"
 	end try
 	if factory is not missing value then
 		set factoryScript to import(factory)
