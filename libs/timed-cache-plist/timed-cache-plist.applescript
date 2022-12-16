@@ -24,9 +24,9 @@ to spotCheck()
 	
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
+	set integTest to std's import("unit-test")'s new()
 	set cases to listUtil's splitByLine("
-		Manual Check Not Expired
-		Manual Check After Expiration
+		Integration Testing
 	")
 	
 	set spotLib to std's import("spot")
@@ -39,20 +39,33 @@ to spotCheck()
 	
 	set spotKey to "Spot Timed Key"
 	if caseIndex is 1 then
-		set sut to new(2)
-		sut's setValue(spotKey, "Not expired")
-		log sut's getValue(spotKey) -- should get the newly set value above
+		tell integTest
+			newScenario("Retrieve non-expired value")
+			set sut to my new(2)
+			sut's setValue(spotKey, "Not expired")
+			assertEqual("Not expired", sut's getValue(spotKey), "Retrieve non-expired value")
+			
+			newScenario("Retrieve expired value")
+			logger's info("Sleeping...")
+			delay 3
+			assertMissingValue(sut's getValue(spotKey), "Retrieve expired value")
+			
+			done()
+		end tell
+		
 		
 	else if caseIndex is 2 then
+		
+		done()
+		
 		set sut to new(2)
 		sut's setValue(spotKey, "Will expire")
-		delay 3
 		log sut's getValue(spotKey)
 		log CACHE's getValue(spotKey)
 	end if
 	
 	spot's finish()
-	logger's finish()		
+	logger's finish()
 end spotCheck
 
 
@@ -92,7 +105,7 @@ to new(pExpirySeconds)
 		to _timestampKey(mapKey)
 			mapKey & "-ts"
 		end _timestampKey
-
+		
 		on deleteKey(mapKey)
 			CACHE's deleteKey(mapKey)
 			CACHE's deleteKey(_epochTimestampKey(mapKey))
