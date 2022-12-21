@@ -12,4 +12,4 @@ echo "Command: ${DEPLOY_PATH} -s ${INPUT_FILE_PATH}.applescript"
 
 rm -rf "${DEPLOY_PATH}"
 osacompile -o "${DEPLOY_PATH}" -s "${INPUT_FILE_PATH}.applescript"
-
+#defaults write "$DEPLOY_PATH/Contents/Info.plist" LSUIElement -bool yes
