@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>EMOJI_WHITE_CHECK</key>
+	<string>✅</string>
+
+	<key>EMOJI_TRASH</key>
+	<string>🗑</string>
+
+	<key>EMOJI_HISTORY</key>
+	<string>🕒</string>
+
+	<key>EMOJI_PIN</key>
+	<string>📌</string>
+
+	<key>EMOJI_RED_CROSS</key>
+	<string>❌</string>
+
+	<key>EMOJI_GUARD</key>
+	<string>👮</string>
+
+	<key>EMOJI_PERSON</key>
+	<string>👤</string>
+
+	<key>EMOJI_PHONE</key>
+	<string>📞</string>
+
+	<key>EMOJI_FAUCET</key>
+	<string>🚰</string>
+
+	<key>EMOJI_DOMAIN</key>
+	<string>🌏</string>
+
+	<key>EMOJI_PLUG</key>
+	<string>🔌</string>
+
+	<key>EMOJI_THUNDER</key>
+	<string>⚡️</string>
+
+	<key>EMOJI_CHECK</key>
+	<string>✔︎</string>
+	<key>EMOJI_CLOCK</key>
+	<string>⏰</string>
+	<key>EMOJI_HORN</key>
+	<string>📣</string>
+	<key>EMOJI_MEDAL</key>
+	<string>🥇</string>
+	<key>EMOJI_QA</key>
+	<string>🥇</string>
+	<key>EMOJI_TUBE</key>
+	<string>📺</string>
+	<key>EMOJI_WEB</key>
+	<string>🕸</string>
+	<key>EMOJI_BOT</key>
+	<string>🤖</string>
+	<key>EMOJI_WORK</key>
+	<string>🚧</string>
+	<key>EMOJI_RED_QM</key>
+	<string>❓</string>
+
+	<key>EMOJI_NOTE_BLACK</key>
+	<string>📓</string>
+	<key>EMOJI_NOTE_YELLOW</key>
+	<string>📔</string>
+	<key>EMOJI_INFO</key>
+	<string>ℹ️</string>
+	<key>EMOJI_ANT</key>
+	<string>🐜</string>
+	<key>EMOJI_CHECKBOX</key>
+	<string>☑️</string>
+	<key>EMOJI_PENCIL_FLAT</key>
+	<string>✏︎</string>
+	<key>EMOJI_PENCIL_DOWN</key>
+	<string>✎</string>
+
+	<key>EMOJI_1PWDOT</key>
+	<string>•</string>
+
+	<key>EMOJI_CIRCLE_RED</key>
+	<string>🔴</string>
+
+	<key>EMOJI_CIRCLE_GREEN</key>
+	<string>🟢</string>
+
+	<key>EMOJI_CIRCLE_WHITE</key>
+	<string>⚪️</string>
+
+	<key>EMOJI_SQUARE_RED</key>
+	<string>🟥</string>
+
+	<key>EMOJI_SQUARE_GREEN</key>
+	<string>🟩</string>
+</dict>
+</plist>
