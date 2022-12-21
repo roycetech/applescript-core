@@ -584,6 +584,7 @@ to unitTest()
 		assertEqual(1.5, sut's getReal("spot-float"), "Get real value")
 
 		newMethod("getBool")
+		assertFalse(sut's getBool("spot-none"), "Missing Value is False")
 		assertTrue(sut's getBool("spot-true"), "Verify True")
 		assertFalse(sut's getBool("spot-false"), "Verify False")
 
