@@ -12,9 +12,9 @@ property logger : missing value
 
 if name of current application is "Script Editor" then spotCheck()
 
-to spotCheck()
+on spotCheck()
 	init()
-	set thisCaseId to "controlcenter-spotCheck"
+	set thisCaseId to "control-center-spotCheck"
 	logger's start()
 	
 	-- If you haven't got these imports already.
@@ -26,11 +26,12 @@ to spotCheck()
 		Manual: DND On - From Work Focus
 		DND Off
 		Get DND Status - Manually check 3 cases: none, DND On, Other Focus
+		
 		Switch to AirPods
 		Is Mic In Use
 	")
 	
-	set spotLib to std's import("spot")
+	set spotLib to std's import("spot")'s new()
 	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
@@ -126,7 +127,7 @@ end getDNDStatus
 
 
 -- Private Codes below =======================================================
-to _setDoNotDisturb(newValue as boolean)
+on _setDoNotDisturb(newValue as boolean)
 	tell application "System Events" to tell process "ControlCenter"
 		click (first menu bar item of menu bar 1 whose name starts with "Control Center")
 		

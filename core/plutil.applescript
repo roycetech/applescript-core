@@ -44,24 +44,25 @@ on spotCheck()
 	
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
+	
+	(* Plist creation already tested. *)
 	set cases to listUtil's splitByLine("
 		Unit Test				
-		Create new plist
 		Instantiate non-existent plist
-		Debug Note Menu Links
-		Get String
-		
+		(Broken, unchecked subsequest cases) Debug Note Menu Links 
+		Get String		
 		Get Boolean
+		
 		Get Date - Can't read date as string
 		Get Date
 		Get List
 		Get Value - List
-		
 		Debug ON
+		
 		Append Value Debug
 	")
 	
-	set spotLib to std's import("spot")
+	set spotLib to std's import("spot")'s new()
 	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then

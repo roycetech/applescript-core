@@ -24,7 +24,7 @@ to spotCheck()
 		Date Yesterday SQL
 	")
 	
-	set spotLib to std's import("spot")
+	set spotLib to std's import("spot")'s new()
 	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then

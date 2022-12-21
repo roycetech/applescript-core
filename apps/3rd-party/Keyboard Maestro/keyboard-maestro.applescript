@@ -17,7 +17,7 @@ property logger : missing value
 
 if name of current application is "Script Editor" then spotCheck() -- IMPORTANT: Comment out on deploy
 
-to spotCheck()
+on spotCheck()
 	init()
 	set thisCaseId to "spotCheck-keyboard-maestro"
 	logger's start()
@@ -31,7 +31,7 @@ to spotCheck()
 		Manual: Run Macro
 	")
 	
-	set spotLib to std's import("spot")
+	set spotLib to std's import("spot")'s new()
 	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
@@ -55,14 +55,14 @@ to spotCheck()
 end spotCheck
 
 
-to createTriggerLink(scriptName, params)
+on createTriggerLink(scriptName, params)
 	set encodedName to textUtil's encodeUrl(scriptName)
 	set encodedParam to textUtil's encodeUrl(params)
 	format {"kmtrigger://m={}&value={}", {encodedName, encodedParam}}
 end createTriggerLink
 
 
-to createReadableTriggerLink(scriptName, params)
+on createReadableTriggerLink(scriptName, params)
 	set plusName to textUtil's replace(scriptName, " ", "+")
 	set plusParams to textUtil's replace(params, " ", "+")
 	if scriptName contains "Open in QuickNote" then
@@ -102,7 +102,7 @@ end runScript
 
 
 (**)
-to fetchValue(scriptName)
+on fetchValue(scriptName)
 	tell application "Keyboard Maestro Engine"
 		setvariable "km_result" to "false"
 		do script scriptName
@@ -117,7 +117,7 @@ end fetchValue
 	WARN: Problematic, sends text to address bar.
 	@returns true on successful passing of command. 
 *)
-to sendSafariText(theText as text)
+on sendSafariText(theText as text)
 	setVariable("TypeText", theText)
 	runScript("App Safari Send Text")
 end sendSafariText
@@ -127,7 +127,7 @@ end sendSafariText
 	Note: Still fails silently, retry mitigates the issue.
 	@returns true on successful passing of command.
 *)
-to sendSlackText(theText as text)
+on sendSlackText(theText as text)
 	if runScript("App Slack Prepare For Automation") is false then -- reduce the macro to simply check if input box is ready.
 		set cq to std's import("command-queue")
 		

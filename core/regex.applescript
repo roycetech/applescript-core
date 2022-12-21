@@ -17,7 +17,7 @@ use framework "Foundation"
 use scripting additions
 
 
-to spotCheck()
+on spotCheck()
 	init()
 	set thisCaseId to "regex-spotCheck"
 	logger's start()
@@ -31,7 +31,7 @@ to spotCheck()
 		Case Insensitive Match
 	")
 	
-	set spotLib to std's import("spot")
+	set spotLib to std's import("spot")'s new()
 	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
@@ -63,13 +63,13 @@ to spotCheck()
 end spotCheck
 
 
-to numberOfMatchesInString(pattern as text, searchString as text)
+on numberOfMatchesInString(pattern as text, searchString as text)
 	set regex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
 	return (regex's numberOfMatchesInString:searchString options:0 range:{location:0, |length|:(count searchString)}) as integer
 end numberOfMatchesInString
 
 
-to matchesInString(pattern as text, searchString as text)
+on matchesInString(pattern as text, searchString as text)
 	set anNSString to current application's NSString's stringWithString:searchString
 	set stringLength to anNSString's |length|()
 	set theRegex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
@@ -80,7 +80,7 @@ to matchesInString(pattern as text, searchString as text)
 end matchesInString
 
 
-to firstMatchInString(pattern as text, searchString as text)
+on firstMatchInString(pattern as text, searchString as text)
 	set anNSString to current application's NSString's stringWithString:searchString
 	set stringLength to anNSString's |length|()
 	set theRegex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
@@ -99,7 +99,7 @@ to firstMatchInString(pattern as text, searchString as text)
 end firstMatchInString
 
 
-to firstMatchInStringNoCase(pattern as text, searchString as text)
+on firstMatchInStringNoCase(pattern as text, searchString as text)
 	ignoring case
 		set anNSString to current application's NSString's stringWithString:searchString
 		set stringLength to anNSString's |length|()
@@ -116,7 +116,7 @@ to firstMatchInStringNoCase(pattern as text, searchString as text)
 end firstMatchInStringNoCase
 
 
-to stringByReplacingMatchesInString(pattern, searchString, replacement)
+on stringByReplacingMatchesInString(pattern, searchString, replacement)
 	set searchNSString to current application's NSString's stringWithString:searchString
 	set replaceNSString to current application's NSString's stringWithString:replacement
 	set stringLength to searchNSString's |length|()
@@ -139,7 +139,7 @@ end rangeOfFirstMatchInString
 -- = Recommended Above = -----
 
 (* replace all for initial implementation. *)
-to replace(source, pattern, replacement)
+on replace(source, pattern, replacement)
 	set escapedPattern to escapePattern(pattern)
 	set escapedSource to escapeSource(source)
 	(do shell script "ruby -e \"p '" & escapedSource & "'.gsub(/" & pattern & "/, '" & replacement & "')\" | sed 's/\"//g'")
@@ -152,12 +152,12 @@ to matched(source, pattern)
 end matched
 
 
-to matches(pattern, source)
+on matches(pattern, source)
 	matched(source, pattern)
 end matches
 
 
-to findFirst(source, pattern)
+on findFirst(source, pattern)
 	set escapedPattern to escapePattern(pattern)
 	set escapedSource to escapeSource(source)
 	
@@ -166,12 +166,12 @@ end findFirst
 
 
 -- Private Codes below =======================================================
-to escapeSource(source)
+on escapeSource(source)
 	textUtil's replace(source, "'", "\\'")
 end escapeSource
 
 
-to escapePattern(pattern)
+on escapePattern(pattern)
 	return pattern
 end escapePattern
 
@@ -179,7 +179,7 @@ end escapePattern
 	Handler grouped by hundredths.
 	Put the case you are debugging at the top, and move to correct place once verified.
 *)
-to unitTest()
+on unitTest()
 	set utLib to std's import("unit-test")
 	set ut to utLib's new()
 	tell ut

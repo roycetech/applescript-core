@@ -6,29 +6,41 @@ use scripting additions
 property initialized : false
 property logger : missing value
 
-if name of current application is "Script Editor" then  spotCheck()
+if name of current application is "Script Editor" then spotCheck()
 
-to spotCheck()
+on spotCheck()
 	init()
 	logger's start()
 	
-	set sut to new("spot-spotCheck", {"one", "two", "three", "four", "five"})
+	set sut to new()'s new("spot-spotCheck", {"one", "two", "three", "four", "five"})
 	set autoIncrement of sut to true
 	set currentCase to sut's start()
 	
 	-- do some tests here
-	log currentCase
+	logger's logObj("Current Case", currentCase)
 	
 	sut's finish()
 	logger's finish()
 end spotCheck
 
 
-on new(pCaseId as text, pCases as list)
-	script CaseInstance
-		property caseId : pCaseId
-		property cases : pCases
-		property autoIncrement : false
+
+
+on new()
+	script SpotInstance
+		on setSessionCaseIndex(newCaseIndex)
+			sessionPlist's setValue("Current Case Index", newCaseIndex)
+		end setSessionCaseIndex
+		
+		(* 
+		@pCaseId test case identifier.
+		@pCases the list of test cases usually retrieved from the session.
+	*)
+		on new(pCaseId as text, pCases as list)
+			script SpotCaseInstance
+				property caseId : pCaseId
+				property cases : pCases
+				property autoIncrement : false
 		
 		property _currentCase : 0
 		property _currentCaseCount : 0
@@ -87,13 +99,15 @@ on new(pCaseId as text, pCases as list)
 			end if
 			
 		end finish
+			end script
+			
+			set incrementSwitch to switch's new("Auto Increment Case Index")
+			set autoIncrement of SpotCaseInstance to incrementSwitch's active()
+			SpotCaseInstance
+		end new
 	end script
-	
-	set incrementSwitch to switch's new("Auto Increment Case Index")
-	set autoIncrement of CaseInstance to incrementSwitch's active()
-	CaseInstance
+	std's applyMappedOverride(result)
 end new
-
 
 -- Private Codes below =======================================================
 
