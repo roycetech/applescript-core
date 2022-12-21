@@ -12,7 +12,7 @@ global TZ_OFFSET, AS_CORE_PATH
 			plutil's createNewPList("your-new-plist")  -- don't put the extension.
 			set yourList to plutil's new("plistname")
 
-	Example 2:
+	Example 2: 
 		set cacheName to format {"dbcache-{}-{}", {env, dbName}}
 		if not plutil's  plistExists(cacheName) then
 			plutil's createNewPList(cacheName)
@@ -79,49 +79,39 @@ on spotCheck()
 		unitTest()
 		
 	else if caseIndex is 2 then
-		
-		set spotPList to plutil's new(plistName)
-		set plistKey to "spot1"
-		
-		spotPList's setValue(plistKey, 1)
-		log spotPList's getValue(plistKey)
-		log spotPList's getValue("missing")
-		log spotPList's hasValue("missing")
-		log spotPList's hasValue(plistKey)
-		
-	else if caseIndex is 3 then
 		try
 			plutil's new("godly")
 			tell me to error "Error expected!"
 		end try
+		logger's info("Passed.")
 		
-	else if caseIndex is 4 then
+	else if caseIndex is 3 then
 		set sut to new("app-menu-links")
 		log sut's getValue("Sublime Text")'s toString()
 		
-	else if caseIndex is 5 then
-		set sut to plutil's new("config-bss")
-		log sut's getString("DB_NAME")
+	else if caseIndex is 4 then
+		set sut to plutil's new("config-system")
+		log sut's getString("AppleScript Core Project Path")
 		
-	else if caseIndex is 6 then
+	else if caseIndex is 5 then
 		set sessionPlist to plutil's new("session")
 		set logLiteValue to sessionPlist's getBool("LOG_LITE")
 		log class of logLiteValue
 		log logLiteValue
 		
-	else if caseIndex is 7 then
+	else if caseIndex is 6 then
 		set sessionPlist to plutil's new("app-killer")
 		set storedDate to sessionPlist's getDateText("Last Focused-1Password 6")
 		log class of storedDate
 		log storedDate
 		
-	else if caseIndex is 8 then
+	else if caseIndex is 7 then
 		set sessionPlist to plutil's new("app-killer")
 		set storedDate to sessionPlist's getDate("Last Focused-1Password 6")
 		log class of storedDate
 		log storedDate
 		
-	else if caseIndex is 9 then
+	else if caseIndex is 8 then
 		set appKiller to plutil's new("app-killer")
 		set storedList to appKiller's getList("Monitored App List")
 		log class of storedList
@@ -132,18 +122,18 @@ on spotCheck()
 		set zoomList to appMenu's getList("zoom.us")
 		log zoomList
 		
-	else if caseIndex is 10 then
+	else if caseIndex is 9 then
 		set sessionPlist to plutil's new("session")
 		set storedList to sessionPlist's getValue("Case Labels")
 		log class of storedList
 		log storedList
 		
-	else if caseIndex is 11 then
+	else if caseIndex is 10 then
 		set sessionPlist to plutil's new("session")
 		log sessionPlist's debugOn()
 		logger's debug("debug on prints this")
 		
-	else if caseIndex is 12 then
+	else if caseIndex is 11 then
 		set sessionPlist to plutil's new("session")
 		log sessionPlist's appendValue("Pinned Notes", "Safari-$Title-udemy.com-AWS Certified Developer - Associate 2020 | Udemy.md")
 		
@@ -174,7 +164,7 @@ on new()
 			if plistExists(plistName) then error format {"Can't create plist, file '{}' already exists", plistName}
 			
 			(*
-	Does not work! Says it's readonly!
+	-- Does not work! Says it's readonly!
 	set createPlistShellCommand to format {"plutil -create xml1 {}.plist", plistName}
 	do shell script createPlistShellCommand
 	return
@@ -188,20 +178,30 @@ on new()
 		end createNewPList
 		
 		
-		on new(pPlistName as text)
+		(* 
+			Note: It is very expensive to check that the plist existence here 
+			this is used a lot. Let the client code check it instead and assume
+			it exists at this point. 
+		*)
+		on new(pPlistName)
 			set calcPlistFilename to format {"~/applescript-core/{}.plist", {pPlistName}}
 			
 			set knownPlists to {"config-default", "session", "switches"} -- WET: 2/2
 			set isKnown to knownPlists contains pPlistName
 			
+			-- if not plistExists(pPlistName) then
+			-- 	tell me to error "The plist: " & pPlistName & " could not be found."
+			-- end if
+			
 			tell application "Finder"
-				if not isKnown and not (exists file (pPlistName & ".plist") of folder "applescript-core" of my _getHomeFolderPath()) then
-					tell me to error "The plist: " & pPlistName & " could not be found."
-				end if
+				-- if not isKnown and not (exists file (pPlistName & ".plist") of folder "applescript-core" of my _getHomeFolderPath()) then
+				-- 	tell me to error "The plist: " & pPlistName & " could not be found."
+				-- end if
 				
-				set localPlistPosixPath to AS_CORE_PATH & pPlistName & ".plist"
 				-- set localPlistPosixPath to text 8 thru -1 of (URL of folder "applescript-core" of my _getHomeFolderPath() as text) & pPlistName & ".plist"
 			end tell
+			
+			set localPlistPosixPath to AS_CORE_PATH & pPlistName & ".plist"
 			
 			script PlutilInstance
 				property plistFileName : calcPlistFilename
@@ -665,7 +665,7 @@ on new()
 		end _split
 
 
-		to _indexOf(aList, targetElement)
+		on _indexOf(aList, targetElement)
 			repeat with i from 1 to count of aList
 				set nextElement to item i of aList
 				if nextElement as text is equal to targetElement as text then return i

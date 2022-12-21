@@ -11,6 +11,7 @@ global std
 *)
 
 property initialized : false
+property logger : missing value
 property username : missing value
 
 if name of current application is "Script Editor" then spotCheck()
@@ -26,7 +27,9 @@ on spotCheck()
 	*)
 	
 	init()
-	logger's info(getUsername())
+	logger's infof("Username: {}", getUsername())
+	logger's infof("App Exists no: {}", appExists("Magneto"))
+	logger's infof("App Exists yes: {}", appExists("Script Editor"))
 	return
 	
 	assertThat given condition:1 + 3 < 10, messageOnFail:"failed on first assertion"
@@ -99,9 +102,18 @@ on catch(scriptName, errorNumber, errorMessage)
 end catch
 
 
-on appExists(bundleId)
+-- on appExists(bundleId)
+-- 	try
+-- 		tell application "Finder" to get application file id bundleId
+-- 		return true
+-- 	end try
+-- 	false
+-- end appExists
+
+
+on appExists(appName)
 	try
-		tell application "Finder" to get application file id bundleId
+		do shell script "osascript -e 'id of application \"" & appName & "\"'"
 		return true
 	end try
 	false
