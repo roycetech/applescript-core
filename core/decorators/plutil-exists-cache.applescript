@@ -2,11 +2,14 @@ global std, redis
 global PLIST_EXISTS_CACHE
 
 (* 
+	@Deprecated:
+		Optimizing config.applescript made this component unnecessary.
+
 	Prerequisites:
 		redis
 
 	Compile:
-		make compile-lib SOURCE=core/extensions/plutil-exists-cache
+		make compile-lib SOURCE=core/decorators/plutil-exists-cache
 *)
 
 property initialized : false

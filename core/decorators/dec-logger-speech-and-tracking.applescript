@@ -2,7 +2,7 @@ global std, pots
 
 (*
 	Compile:
-		make compile-lib SOURCE=core/extensions/logger-speech-and-tracking
+		make compile-lib SOURCE=core/decorators/dec-logger-speech-and-tracking
 *)
 
 property initialized : false
