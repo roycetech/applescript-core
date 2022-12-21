@@ -48,7 +48,7 @@ on new(pObjectName)
 		property objectName : pObjectName
 		
 		on start()
-			set theLabel to "Running: [" & my objectName & "]"
+			set theLabel to "Running: [" & objectName & "]"
 			set theBar to _repeatText("=", count of theLabel)
 			
 			info(theBar)
@@ -128,10 +128,10 @@ on new(pObjectName)
 			try
 				sessionPlist
 			on error
-				 set plutil to std's import("plutil")'s new()
+				set plutil to std's import("plutil")'s new()
 				set sessionPlist to plutil's new("session")
 			end try
-		
+			
 			if sessionPlist's debugOn() is false then return
 			
 			-- if config's debugOn() is true then
@@ -229,15 +229,15 @@ end new
 
 to init()
 	set CR to ASCII character 13
-
+	
 	if initialized of me then return
 	set initialized of me to true
 	
 	set std to script "std"
-	set config to std's import("config")'s new("default")
+	set configDefault to std's import("config")'s new("default")
 	set textUtil to std's import("string")
 	
-	set logSubDir to config's getValue("LOG_SUBDIR")
+	set logSubDir to configDefault's getValue("LOG_SUBDIR")
 	if logSubDir is missing value then set logSubDir to "applescript-core:logs:"
 	set logFilePath to (path to home folder as text) & logSubDir & filename
 end init
