@@ -4,6 +4,14 @@ global std, cc, zoomApp
 	This script is very user-specific. For example, it is assumed that a user 
 	uses a particular set of versioned apps. Might be better to leave this out 
 	of this framework but let's give it a try 
+
+	@Usage:
+		set usr to std's import("user")
+		
+	@Deployment:
+		make compile-lib SOURCE=libs/user/user
+
+	Note: we use usr to avoid clash with the built-in AppleScript identifier.
 *)
 
 property initialized : false
@@ -21,9 +29,10 @@ on spotCheck()
 	
 	set cases to listUtil's splitByLine("
 		Manual: In Meeting
-		Manual: In zoom.us meeting
 		Manual: Is Screen Sharing
 		Manual: Get Meeting window
+		Manual: Cue for Touch ID
+		Manual: Done Audible Cue
 	")
 	
 	set spotLib to std's import("spot")'s new()
@@ -34,17 +43,21 @@ on spotCheck()
 		return
 	end if
 	
+	set sut to new()
 	if caseIndex is 1 then
-		logger's infof("In Meeting: {}", isInMeeting())
+		logger's infof("In Meeting: {}", sut's isInMeeting())
 		
 	else if caseIndex is 2 then
-		log isInZoomMeeting()
+		logger's infof("In Meeting: {}", sut's isScreenSharing())
 		
 	else if caseIndex is 3 then
-		log isScreenSharing()
-				
+		logger's logObj("Meeting Window", sut's getMeetingWindow())
+		
 	else if caseIndex is 4 then
-		log getMeetingWindow()
+		sut's cueForTouchId()
+		
+	else if caseIndex is 5 then
+		sut's done()
 		
 	end if
 	
@@ -55,36 +68,34 @@ end spotCheck
 
 on new()
 	script UserInstance
+		on cueForTouchId()
+			do shell script "afplay /System/Library/Sounds/Glass.aiff"
+		end cueForTouchId
+		
+		on done()
+			try
+				do shell script "afplay /System/Library/Sounds/Submarine.aiff"
+			end try
+		end done
+		
+		
 		on isInMeeting()
-			-- if running of application "Microsoft Teams" then return true
-			
-			-- assume, for now, that if mic is in use, that we are in a meeting.
 			return cc's isMicInUse()
-			
-			isInZoomMeeting()
 		end isInMeeting
-
-
+		
+		
 		on isScreenSharing()
-			if _isZoomInstalled() is false then return false
-			
-			zoomApp's isSharing()
+			false
 		end isScreenSharing
-
-
+		
+		
 		(* Currently supports only zoom.us at the moment. *)
 		on getMeetingWindow()
-			if _isZoomInstalled() then
-				tell application "System Events" to tell process "zoom.us"
-					return window "Zoom Meeting"
-				end tell
-			end if
-			
 			missing value
 		end getMeetingWindow
-	end
+	end script
 	std's applyMappedOverride(result)
-end
+end new
 
 
 
