@@ -41,7 +41,7 @@ on inactive(featureName)
 end inactive
 
 on new(pFeatureName as text)
-	script Instance
+	script SwitchInstance
 		property featureName : pFeatureName
 		
 		(*  *)
@@ -56,19 +56,19 @@ on new(pFeatureName as text)
 			not active()
 		end inactive
 		
-		to turnOn()
+		on turnOn()
 			setValue(true)
 		end turnOn
 		
-		to toggle()
+		on toggle()
 			setValue(not active())
 		end toggle
 		
-		to turnOff()
+		on turnOff()
 			setValue(false)
 		end turnOff
 		
-		to setValue(boolValue)
+		on setValue(boolValue)
 			SWITCHES's setValue(featureName, boolValue)
 		end setValue
 	end script
@@ -86,7 +86,7 @@ end new
 	
 	(* TODO: To update the design guide in the notes. *)
 *)
-to unitTest()
+on unitTest()
 	set UT_KEY_MISSING to "$unit-test-missing"
 	set UT_KEY_OFF to "$unit-test-off"
 	set UT_KEY_ON to "$unit-test-on"
