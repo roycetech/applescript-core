@@ -215,6 +215,8 @@ end formatClassic
 *)
 on format(theString, theTokens)
 	if class of theTokens is not list then set theTokens to {theTokens}
+	if theTokens is {} then set theTokens to {{}}
+
 	set oldDelimiters to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to "{}"
 	set theArray to every text item of theString
