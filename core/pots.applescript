@@ -21,7 +21,7 @@ property logging : true
 
 if name of current application is "Script Editor" then spotCheck() 
 
-to spotCheck()
+on spotCheck()
 	init()
 	logger's start()
 	
@@ -38,7 +38,7 @@ end spotCheck
 
 -- HANDLERS =================================================================
 
-to speak(rawText as text)
+on speak(rawText as text)
 	if switch's active("Meeting in Progress") then
 		logger's info("SILENCED: " & rawText)
 		return
@@ -87,7 +87,7 @@ to speak(rawText as text)
 end speak
 
 
-to speakAndLog(rawText as text)
+on speakAndLog(rawText as text)
 	speak(rawText)
 	if synchronous then
 		set prefix to "S+ "
@@ -98,7 +98,7 @@ to speakAndLog(rawText as text)
 end speakAndLog
 
 
-to speakSynchronously(rawText as text)
+on speakSynchronously(rawText as text)
 	if logging then logger's info("S+ " & rawText)
 	
 	set origState to synchronous
@@ -108,7 +108,7 @@ to speakSynchronously(rawText as text)
 end speakSynchronously
 
 
-to speakSynchronouslyWithLogging(rawText as text)
+on speakSynchronouslyWithLogging(rawText as text)
 	logger's info(rawText)
 	speakSynchronously(rawText)
 end speakSynchronouslyWithLogging
@@ -116,7 +116,7 @@ end speakSynchronouslyWithLogging
 
 -- Private Codes below =======================================================
 
-to unitTest()
+on unitTest()
 	set my quiet to true
 	
 	set actual101 to speak("2904")
