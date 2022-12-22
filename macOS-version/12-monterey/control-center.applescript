@@ -179,6 +179,6 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")'s new("controlcenter")
+	set logger to std's import("logger")'s new("control-center")
 	set retryLib to std's import("retry")
 end init
