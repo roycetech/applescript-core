@@ -117,6 +117,14 @@ on new()
 		end pressCommandKey
 		
 		
+		on pressCommandControlKey(keyToPress)
+			tell application "System Events"
+				key code my _charToKeycode(keyToPress) using {command down, control down}
+			end tell
+			delay 0.01
+		
+		end		
+		
 		on pressCommandShiftKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down, shift down}
