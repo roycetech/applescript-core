@@ -47,13 +47,15 @@ on spotCheck()
 	set sut to new()
 	sut's forceQuitApp()
 	
+	set configSystem to std's import("config")'s new("system")
+	
 	if caseIndex is 1 then
 		tell sut
 			launchAndWaitReady()
 			createNewDocument()
 			selectApplicationType()
 			addAppleScriptAction()
-			writeRunScript("/examples/hello.applescript")
+			writeRunScript(configSystem's getValue("AppleScript Core Project Path") & "/examples/hello.applescript")
 			compileScript()
 			triggerSave()
 			waitForSaveReady()
@@ -166,7 +168,7 @@ on new()
 		
 		
 		(* scriptPath *)
-		on writeRunScript(resourcePath)
+		on writeRunScript(filePath)
 			if running of application "Automator" is false then return
 			
 			
@@ -178,12 +180,8 @@ on run {input, parameters}
 	(* Your script goes here *)
 	set std to script \"std\"
 	set fileUtil to std's import(\"file\")
-	set configSystem to std's import(\"config\")'s new(\"system\")
 
-	set projectPath to configSystem's getValue(\"AppleScript Core Project Path\")
-	set deployPosix to text 1 thru -1 of fileUtil's convertPathToPOSIXString(projectPath)
-	set scriptMon to fileUtil's convertPosixToMacOsNotation(deployPosix & \"" & resourcePath & "\")
-
+	set scriptMon to fileUtil's convertPosixToMacOsNotation(\"" & filePath & "\")
 	run script alias scriptMon
 	return input
 end run
