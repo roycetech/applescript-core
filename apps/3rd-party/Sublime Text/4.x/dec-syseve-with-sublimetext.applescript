@@ -1,16 +1,12 @@
 global std
 
 (* 
-	Prerequisites:
+	@Prerequisites:
 		Sublime Text app installed.
 
-	Install:
-		make compile-lib SOURCE=core/decorators/dec-syseve-with-sublimetext
-		plutil -replace 'SysEveInstance' -string 'dec-syseve-with-sublimetext' ~/applescript-core/config-lib-factory.plist
-
-	Uninstall:
-		make remove-lib SOURCE=core/decorators/dec-syseve-with-sublimetext
-		plutil -remove 'SysEveInstance' ~/applescript-core/config-lib-factory.plist
+	@Install/Uninstall:
+		Install/Uninstall this with the other Sublime Text related libraries by 
+		running `make install` or make uninstall in this file's sub directory.
 *)
 
 property initialized : false
