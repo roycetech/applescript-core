@@ -10,7 +10,7 @@ global REDIS_CLI, CR
 		Server must be running, do: `redis-server`
 		
 	Compile:
-		make install
+		make install-redis
 
     	Usage:
 		set redis to std's import("redis")'s new(0) -- 0 for no timeout 
