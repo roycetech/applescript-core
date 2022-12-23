@@ -22,7 +22,7 @@ _init:
 	mkdir -p ~/Library/Script\ Libraries
 	mkdir -p ~/applescript-core/sounds/
 	mkdir -p ~/applescript-core/logs/
-	mkdir -p /Applications/AppleScript/Stay Open/
+	mkdir -p "/Applications/AppleScript/Stay Open/"
 	./scripts/compile-bundle.sh 'core/Core Text Utilities'
 
 install: _init $(CORE_LIBS)
