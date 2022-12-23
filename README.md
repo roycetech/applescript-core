@@ -22,7 +22,7 @@ It provides core functionality like:
 * Common utilities for string, list, and dictionary.
 * Unit testing
 
-Will use a monorepo approach for the project structure.
+This project uses a monorepo approach for the project structure.
 
 Demo(Images, Video Links, Live Demo Links)
 
@@ -47,6 +47,7 @@ Include Links
 ## Special Gotchas of your projects (Problems you faced, unique elements of your project)
 
 [ ] The built-in property list file handling may cause blocking so an alternative approach to use the plutil command line is used.
+[ ] Permission Error. Apps created in some ways are being blocked by Apple regardless if you try to re-create the app. The only solution I found is to rename the script, and recreate in the recommended way found in the script header.
 
 
 ## Table of Contents (Optional)
