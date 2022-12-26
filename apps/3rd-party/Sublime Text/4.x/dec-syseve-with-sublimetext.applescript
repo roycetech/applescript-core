@@ -27,7 +27,7 @@ on spotCheck()
 		Basic Test
 	")
 	
-	set spotLib to std's import("spot")'s new()
+	set spotLib to std's import("spot-test")'s new()
 	set spot to spotLib's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	

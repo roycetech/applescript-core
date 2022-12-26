@@ -1,4 +1,4 @@
-global std, config, switch, pots, sessionPlist
+global std, switch, pots, sessionPlist
 
 use script "Core Text Utilities"
 use scripting additions
@@ -22,8 +22,6 @@ on spotCheck()
 	sut's finish()
 	logger's finish()
 end spotCheck
-
-
 
 
 on new()
@@ -119,7 +117,7 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")'s new("spot")
+	set logger to std's import("logger")'s new("spot-test")
 	set plutil to std's import("plutil")'s new()
 	set sessionPlist to plutil's new("session")
 	

@@ -219,7 +219,7 @@ on init()
 	set uni to std's import("unicodes")
 	set plutil to std's import("plutil")'s new()
 	set sessionPlist to plutil's new("session")
-	set spotLib to std's import("spot")'s new()
+	set spotLib to std's import("spot-test")'s new()
 	spotLib's setSessionCaseIndex(0)
 	
 	sessionPlist's setValue("Current Case Index", 0)

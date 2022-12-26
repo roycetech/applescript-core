@@ -21,7 +21,7 @@ on spotCheck()
 		Manual: Idle in seconds
 	")
 	
-	set spotLib to std's import("spot")'s new()
+	set spotLib to std's import("spot-test")'s new()
 	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
