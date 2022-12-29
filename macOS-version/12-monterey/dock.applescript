@@ -1,8 +1,8 @@
 global std, retryLib
 
 (*
-	NOTE: For some reason, the "dock" when used as global variable name, appears 
-	to be corrupted. That's why I am using "docke" instead.
+	For the Assign to Desktop menu item to appear, there has to be more than one 
+	Desktop "Spaces" available.
 *)
 
 property initialized : false
@@ -18,10 +18,10 @@ on spotCheck()
 	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
-		(Gone) Assign to Desktop 1
-		(Gone) Assign to Desktop 2
-		(Gone) Assign to All
-		(Gone) Assign to None
+		Assign to Desktop 1
+		Assign to Desktop 2
+		Assign to All
+		Assign to None
 		New Safari Window
 		
 		Position
