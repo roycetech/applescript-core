@@ -13,10 +13,11 @@ use scripting additions
 	Compile:
 		make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/scripteditor"
 				
-
 	Usage:
-		set seLib to std's import("script-editor")
+		set seLib to std's import("script-editor")'s new()
 		set seTab to seLib's getFrontTab()
+		or
+		KM Text Expander: sset se 
 *)
 
 property initialized : false
@@ -34,15 +35,13 @@ on spotCheck()
 	set configSystem to std's import("config")'s new("system")
 	
 	set cases to listUtil's splitByLine("
-		Misc
+		Manual: File Info (Core Project, Other Project)
 		Open file
 		Open file with single quote in name
 		Manual: E2E: Find Tab With Name, Focus, and Run(Found/Not Found. Open std.applescript)
 		Manual: Get Front Tab
 		
 		Manual: Focus
-		
-		
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -260,7 +259,10 @@ on new()
 					text 1 thru endIdx of winName
 				end getBaseScriptName
 				
-				(* @deprecated. Broken, because it assumed that the project will always be applescript-core :( *)
+				(* 
+					@Deprecated. 
+					Broken, because it assumed that the project will always be applescript-core :( 
+				*)
 				on getResourcePath()
 					if running of application "Script Editor" is false then return missing value
 					
