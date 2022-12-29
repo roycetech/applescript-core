@@ -74,7 +74,7 @@ end applyMappedOverride
 
 
 (* My general catch handler for all my scripts. Used as top most only. *)
-on catch(scriptName, errorNumber, errorMessage)
+on catch(source, errorNumber, errorMessage)
 	init() -- do not remove.
 	
 	if errorMessage contains "user canceled" or errorMessage contains "abort" then
@@ -97,6 +97,11 @@ on catch(scriptName, errorNumber, errorMessage)
 		return
 	end if
 	
+	if class of source is text then 
+		set scriptName to source
+	else
+		set scriptName to name of source
+	end
 	logger's fatal(scriptName & ":Error: " & errorMessage)
 	display dialog scriptName & ":Error: " & the errorNumber & ". " & the errorMessage with title "AS: Standard Library(Auto-closes in 10s)" buttons {"OK"} giving up after 10
 end catch
