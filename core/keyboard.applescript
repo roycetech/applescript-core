@@ -21,10 +21,12 @@ on spotCheck()
 	
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
+	set emoji to std's import("emoji")
 	
 	-- All spot check cases are manual.
 	set cases to listUtil's splitByLine("
 		Manual Checks
+		Paste Text with Emoji
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -33,54 +35,61 @@ on spotCheck()
 	
 	set sut to new()
 	tell sut
-		(*
-pressKey(0)
-	pressKey(1)
-	pressKey(2)
-	pressKey(3)
-	pressKey(4)
-	pressKey(5)
-	pressKey(6)
-	pressKey(7)
-	pressKey(8)
-	pressKey(9)
-	
-	pressKey("a")
-	pressKey("b")
-	pressKey("c")
-	pressKey("d")
-	pressKey("e")
-	pressKey("f")
-	pressKey("g")
-	pressKey("h")
-	pressKey("i")
-	pressKey("j")
-	pressKey("k")
-	pressKey("l")
-	pressKey("m")
-	pressKey("n")
-	pressKey("o")
-	pressKey("p")
-	pressKey("q")
-	pressKey("r")
-	pressKey("s")
-	pressKey("t")
-	pressKey("u")
-	pressKey("v")
-	pressKey("w")
-	pressKey("x")
-	pressKey("y")
-	pressKey("z")
-*)
+		if caseIndex is 1 then
+			(*
+		pressKey(0)
+		pressKey(1)
+		pressKey(2)
+		pressKey(3)
+		pressKey(4)
+		pressKey(5)
+		pressKey(6)
+		pressKey(7)
+		pressKey(8)
+		pressKey(9)
 		
-		activate application "Terminal"
-		delay 0.1
-		pressControlKey("c")
-		pressControlC()
+		pressKey("a")
+		pressKey("b")
+		pressKey("c")
+		pressKey("d")
+		pressKey("e")
+		pressKey("f")
+		pressKey("g")
+		pressKey("h")
+		pressKey("i")
+		pressKey("j")
+		pressKey("k")
+		pressKey("l")
+		pressKey("m")
+		pressKey("n")
+		pressKey("o")
+		pressKey("p")
+		pressKey("q")
+		pressKey("r")
+		pressKey("s")
+		pressKey("t")
+		pressKey("u")
+		pressKey("v")
+		pressKey("w")
+		pressKey("x")
+		pressKey("y")
+		pressKey("z")
+	*)
+			
+			activate application "Terminal"
+			delay 0.1
+			pressControlKey("c")
+			pressControlC()
+			
+		else if caseIndex is 2 then
+			insertTextByPasting("Hello " & emoji's horn)
+			
+		end if
+		
 	end tell
 	
 	(* Output will vary depending on current system keyboard layout. *)
-	-- Cursor inside bracket: [0123456789axje.uidchtnmbrl'poygk,qf;j]
+	-- Cursor inside bracket: [] -- Manually erase the contents each time
 	
 	spot's finish()
 	logger's finish()
@@ -122,8 +131,8 @@ on new()
 				key code my _charToKeycode(keyToPress) using {command down, control down}
 			end tell
 			delay 0.01
-		
-		end		
+			
+		end pressCommandControlKey
 		
 		on pressCommandShiftKey(keyToPress)
 			tell application "System Events"
@@ -137,7 +146,15 @@ on new()
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {control down}
 			end tell
+			delay 0.01
 		end pressControlKey
+		
+		on pressControlShiftKey(keyToPress)
+			tell application "System Events"
+				key code my _charToKeycode(keyToPress) using {control down, shift down}
+			end tell
+			delay 0.01
+		end pressControlShiftKey
 		
 		on typeText(theText)
 			tell application "System Events" to keystroke theText
@@ -162,16 +179,17 @@ on new()
 					end if
 				end repeat
 				
-				pressPaste()
+				pressCommandKey("v") -- There's issue where incorrect value is 
+				-- getting pasted. We could be restoring the orig value too soon.
+				delay 0.1 -- Increase the value if failure is still encountered.
 				set the clipboard to origClipboard
 			on error
 				set the clipboard to origClipboard
 				typeText(theText)
 			end try
 		end insertTextByPasting
-		
-		
 	end script
+	std's applyMappedOverride(result)
 end new
 
 

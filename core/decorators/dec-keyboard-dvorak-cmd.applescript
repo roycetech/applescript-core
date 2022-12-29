@@ -30,6 +30,7 @@ on spotCheck()
 		Manual: pressControlKey (dvorak/us input);
 		Manual: pressCommandKey (dvorak/us input);
 		Manual: Type Text (dvorak/us input);
+		Manual: pressControlShiftKey (dvorak/us input);
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -91,6 +92,9 @@ on spotCheck()
 		
 	else if caseIndex is 4 then
 		tell sut to typeText("hello")
+
+	else if caseIndex is 5 then
+		tell sut to pressControlShiftKey("c") -- should key code 34 for i.
 	end if
 	
 	spot's finish()
@@ -122,6 +126,15 @@ on decorate(baseScript)
 			continue pressControlKey(dvorakKey)
 		end pressControlKey
 		
+		on pressControlShiftKey(keyToPress)
+			if not isDvorak() then
+				continue pressControlShiftKey(keyToPress)
+				return
+			end if
+			
+			set dvorakKey to _toDvorak(keyToPress)
+			continue pressControlShiftKey(dvorakKey)
+		end pressControlShiftKey
 		
 		on typeText(theText)
 			tell application "System Events" to keystroke theText
