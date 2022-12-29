@@ -74,7 +74,7 @@ on new(pObjectName)
 		
 		
 		(*
-			Used only for debugging.
+			Used only for debugging. Could not print record contents.
 		*)
 		to logObj(label, obj)
 			debug(label & ": " & _toString(obj))
