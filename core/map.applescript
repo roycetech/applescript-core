@@ -399,6 +399,20 @@ to new()
 			end repeat
 			set resultBuilder to resultBuilder & "}"
 		end toString
+
+		on toStringPretty()
+			set resultBuilder to "{
+"
+			repeat with nextKey in getKeys()
+				set isFirst to resultBuilder is equal to "{
+"
+				if not isFirst then set resultBuilder to resultBuilder & ",
+"
+				set resultBuilder to resultBuilder & "  " & nextKey & ": " & getValue(nextKey)
+			end repeat
+			set resultBuilder to resultBuilder & "
+}"
+		end toString
 		
 		
 		on toJsonString()
