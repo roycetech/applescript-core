@@ -7,7 +7,7 @@ global REDIS_CLI, CR
 	
 	Requirements:
 		redis-cli 7.0.5+. Run `redis-cli --version` to check your current version.
-		Server must be running, do: `redis-server`
+		Server must be running, start with: `redis-server`
 		
 	Compile:
 		make install-redis
@@ -126,7 +126,10 @@ on spotCheck()
 end spotCheck
 
 
-to new(pTimeoutSeconds)
+(* 
+	@pTimeoutSeconds - 0 for no expiration.
+*)
+on new(pTimeoutSeconds)
 	script RedisInstance
 		-- 0 for no expiration.
 		property timeoutSeconds : pTimeoutSeconds
