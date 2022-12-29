@@ -9,13 +9,12 @@ property timeBufferMin : 2
 
 if name of current application is "Script Editor" then spotCheck()
 
-to spotCheck()
+on spotCheck()
 	init()
-	set thisCaseId to "datetime-spotCheck"
+	set thisCaseId to "date-time-spotCheck"
 	logger's start()
 	
 	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Run unit tests
@@ -249,7 +248,7 @@ end formatMmDdYyyy
 
 
 
-to formatYyMmDd(pDate as date)
+on formatYyMmDd(pDate as date)
 	set dateString to short date string of pDate
 	
 	set myMonth to (first word of dateString) as integer
@@ -262,7 +261,7 @@ to formatYyMmDd(pDate as date)
 end formatYyMmDd
 
 
-to formatDateSQL(pDate as date)
+on formatDateSQL(pDate as date)
 	set dateString to short date string of pDate
 	
 	set myMonth to (first word of dateString) as integer
@@ -402,7 +401,7 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")'s new("datetime")
+	set logger to std's import("logger")'s new("date-time")
 	set textUtil to std's import("string")
 	set regex to std's import("regex")
 	set listUtil to std's import("list")
