@@ -124,7 +124,7 @@ on init()
 	
 	set std to script "std"
 	set logger to std's import("logger")'s new("timed-cache-plist")
-	set dt to std's import("datetime")
+	set dt to std's import("date-time")
 	
 	set plutil to std's import("plutil")'s new()
 	set cacheName to "timed-cache"
