@@ -1,4 +1,4 @@
-global std, mapLib
+global std, mapLib, regex
 global TZ_OFFSET, AS_CORE_PATH
 
 (*
@@ -184,6 +184,10 @@ on new()
 			it exists at this point. 
 		*)
 		on new(pPlistName)
+			if regex's matches("^(?:[a-zA-Z0-9-]+/)*[a-zA-Z0-9-]+$", pPlistName) is false then
+				error "Invalid PList Name: " & pPlistName
+			end if
+			
 			set calcPlistFilename to format {"~/applescript-core/{}.plist", {pPlistName}}
 			
 			set knownPlists to {"config-default", "session", "switches"} -- WET: 2/2
@@ -832,6 +836,7 @@ on init()
 
 	set logger to std's import("logger")'s new("plutil")
 	set mapLib to std's import("map")
+	set regex to std's import("regex")
 
 	set TZ_OFFSET to (do shell script "date +'%z' | cut -c 2,3") as integer
 end init
