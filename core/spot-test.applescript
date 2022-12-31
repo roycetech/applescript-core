@@ -1,4 +1,4 @@
-global std, switch, pots, sessionPlist
+global std, switch, speech, sessionPlist
 
 use script "Core Text Utilities"
 use scripting additions
@@ -25,7 +25,7 @@ end spotCheck
 
 
 on new()
-	script SpotInstance
+	script SpotTestInstance
 		on setSessionCaseIndex(newCaseIndex)
 			sessionPlist's setValue("Current Case Index", newCaseIndex)
 		end setSessionCaseIndex
@@ -35,7 +35,7 @@ on new()
 		@pCases the list of test cases usually retrieved from the session.
 	*)
 		on new(pCaseId as text, pCases as list)
-			script SpotCaseInstance
+			script SpotTestCaseInstance
 				property caseId : pCaseId
 				property cases : pCases
 				property autoIncrement : false
@@ -59,7 +59,7 @@ on new()
 							sessionPlist's setValue("Current Case Index", 1)
 							set my _valid to false
 							
-							tell pots to speak("Subject Changed, select desired case from menu and re-run")
+							tell speech to speak("Subject Changed, select desired case from menu and re-run")
 							return {0, "Re-run recommended"}
 							
 						else
@@ -102,8 +102,8 @@ on new()
 			end script
 			
 			set incrementSwitch to switch's new("Auto Increment Case Index")
-			set autoIncrement of SpotCaseInstance to incrementSwitch's active()
-			SpotCaseInstance
+			set autoIncrement of SpotTestCaseInstance to incrementSwitch's active()
+			SpotTestCaseInstance
 		end new
 	end script
 	std's applyMappedOverride(result)
@@ -122,5 +122,5 @@ on init()
 	set sessionPlist to plutil's new("session")
 	
 	set switch to std's import("switch")
-	set pots to std's import("pots")
+	set speech to std's import("speech")'s new()
 end init
