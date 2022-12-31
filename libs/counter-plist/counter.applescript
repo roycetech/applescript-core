@@ -34,7 +34,7 @@ property logger : missing value
 
 if name of current application is "Script Editor" then spotCheck()
 
-to spotCheck()
+on spotCheck()
 	init()
 	set thisCaseId to "counter-spotCheck"
 	logger's start()
@@ -93,7 +93,7 @@ to spotCheck()
 end spotCheck
 
 
-to totalToday(theKey as text)
+on totalToday(theKey)
 	set todayDate to _formatDate(short date string of (current date))
 	set keyToday to format {"{}-{}", {theKey, todayDate}}
 	
@@ -104,7 +104,7 @@ to totalToday(theKey as text)
 end totalToday
 
 (**)
-to increment(theKey as text)
+on increment(theKey)
 	init()
 	set todayDate to _formatDate(short date string of (current date))
 	
@@ -131,7 +131,7 @@ to increment(theKey as text)
 end increment
 
 (*  *)
-to totalAll(theKey as text)
+on totalAll(theKey)
 	init()
 	set theCount to countTotal's getInt(theKey)
 	if theCount is missing value then return 0
@@ -145,7 +145,7 @@ end totalAll
 	@nth - a positive integer.	
 	@return boolean.	
 *)
-to isNthRun(theKey as text, nth as integer)
+on isNthRun(theKey as text, nth as integer)
 	init()
 	assertThat of std given condition:nth is greater than 0, messageOnFail:format {"The nth:{} must be a positive integer", nth}
 	
@@ -156,13 +156,14 @@ to isNthRun(theKey as text, nth as integer)
 end isNthRun
 
 
-to clear(theKey)
+on clear(theKey)
 	init()
 	set todayDate to _formatDate(short date string of (current date))
 	set keyToday to format {"{}-{}", {theKey, todayDate}}
 	countTotal's setValue(theKey, 0)
 	countDaily's setValue(keyToday, 0)
 end clear
+
 
 (* TODO: *)
 to clearRun(theKey)
