@@ -10,15 +10,15 @@ property logger : missing value
 
 if name of current application is "Script Editor" then  spotCheck()
 
-to spotCheck()
+on spotCheck()
 	init()
 	set thisCaseId to "list-spotCheck"
 	logger's start()
 	
 	set cases to splitByLine("
 		Unit Test		
-		Split By Line
-		Trailing emty line
+		Split By Line (TODO: presence of single quote results in error)
+		Trailing empty line
 		Split with trim
 		Split Map
 		
@@ -26,7 +26,7 @@ to spotCheck()
 		Split using /
 		Split Web Domain
 		Split Shell Command Result By Line
-		Split By Line / Index Of 		
+		Split By Line / Index Of
 		
 		Split By Line - With Dollar Sign
 	")
@@ -109,7 +109,7 @@ two'"
 end spotCheck
 
 
-to splitString(theString as text)
+on splitString(theString as text)
 	set theDelimiter to ","
 	-- set theList to 
 	_split(theString, theDelimiter)
@@ -125,7 +125,9 @@ to splitString(theString as text)
 end splitString
 
 
-(* Handle special cases like tilde, or when there's single quote in the text. *)
+(* 
+	Handle special cases like tilde, or when there's single quote in the text. 
+*)
 on splitByLine(theString as text)
 	if theString contains (ASCII character 13) then return _split(theString, ASCII character 13) -- assuming this is shell command result, we have to split by CR.
 	
@@ -145,7 +147,7 @@ end splitByLine
 
 
 (* Too Slow! *)
-to splitByLineX(theString as text)
+on splitByLineX(theString as text)
 	set command to "echo \"" & theString & "\" | awk -vORS=, '{$1=$1};1' | sed 's/,,/,/g' | sed 's/^,//' | sed 's/,$//'"
 	set csv to do shell script command
 	if csv ends with "," then set csv to text 1 thru -2 of csv
@@ -167,7 +169,7 @@ on remove(aList, targetElement)
 end remove
 
 
-to indexOf(aList, targetElement)
+on indexOf(aList, targetElement)
 	repeat with i from 1 to count of aList
 		set nextElement to item i of aList
 		if nextElement as text is equal to targetElement then return i

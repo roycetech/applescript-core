@@ -227,7 +227,7 @@ on new(pObjectName)
 end new
 
 
-to init()
+on init()
 	set CR to ASCII character 13
 	
 	if initialized of me then return
