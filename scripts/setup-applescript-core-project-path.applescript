@@ -2,7 +2,8 @@
 
 (* 
 	Browse the AppleScript Core project path so it can referenced by user 
-	scripts for testing. *)
+	scripts for testing. 
+*)
 
 set username to short user name of (system info)
 set PROJECT_PATH_KEY to "AppleScript Core Project Path"
