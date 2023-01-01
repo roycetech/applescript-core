@@ -1,4 +1,4 @@
-global std, logger, syspref, retry
+global std, syspref, retry
 
 (*
 	Prepares the user to update the accessibility settings.
