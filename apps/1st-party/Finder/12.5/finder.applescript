@@ -38,13 +38,15 @@ on spotCheck()
 		Manual: Current POSIX PATH
 		Manual: Folder Name
 		Manual: Create From Template
-		Get File Path
-		Get File List
 		
+		Get File Path
+		Get File List		
 		Move File - (Manually Revert)
 		New Tab for Path
 		Find Tab: Projects
-		Manual: Add to SideBar (Manual: Needs/Doesn't need adding)
+		
+		Manual: Add to SideBar (Manual: Needs/Does not need adding) 
+		Manual: Posix to Folder (View in Replies: User Path, Non-User Path)
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -127,6 +129,9 @@ on spotCheck()
 		set addResult to foundTab's addToSideBar()
 		logger's debugf("addResult: {}", addResult)
 		
+	else if caseIndex is 12 then
+		log sut's posixToFolder("/Users/" & std's getUsername() & "/applescript-core/logs")
+		log sut's posixToFolder("/Applications")
 	end if
 	
 	spot's finish()
@@ -248,7 +253,6 @@ on new()
 		on _new(windowId)
 			script FinderInstance
 				property appWindow : missing value -- not syseve window.
-				
 				
 				(* @returns true if successful in adding. *)
 				on addToSideBar()
@@ -424,6 +428,34 @@ on new()
 			end tell
 			true
 		end createFolderAsNeeded
+		
+		on posixToFolder(posixPath)
+			if posixPath is missing value or posixPath is "" then return missing value
+			
+			if posixPath starts with "/Users/" & std's getUsername() then
+				set userRelativePath to textUtil's stringAfter(posixPath, "/Users/" & std's getUsername() & "/")
+				-- logger's debugf("userRelativePath: {}", userRelativePath)
+				return _posixSubPathToFolder(userRelativePath, path to home folder)
+				
+			else if posixPath starts with "/" then
+				set rootRelativePath to text 2 thru -1 of posixPath
+				return _posixSubPathToFolder(rootRelativePath, path to startup disk)
+				
+			end if			
+		end posixToFolder
+		
+		
+		on _posixSubPathToFolder(subpath, sourceFolder)
+			set calcEndFolder to sourceFolder
+			set pathTokens to textUtil's split(subpath, "/")
+			tell application "Finder"
+				repeat with nextToken in pathTokens
+					set calcEndFolder to folder nextToken of calcEndFolder
+				end repeat
+			end tell
+			
+			calcEndFolder
+		end _posixSubPathToFolder
 	end script
 	std's applyMappedOverride(result)
 end new
