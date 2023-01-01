@@ -1,4 +1,4 @@
-global std, notif, textUtil, MapClass, emoji, listUtil, pots, switch, uni, sessionPlist, spotLib
+global std, notif, textUtil, MapClass, emoji, listUtil, speech, switch, uni, sessionPlist, spotLib
 global SCRIPT_NAME, IDLE_SECONDS, CASES, CASE_ID, CASE_INDEX, AUTO_INCREMENT
 global IS_SPOT
 
@@ -36,8 +36,7 @@ property logger : missing value
 init()
 
 set IDLE_SECONDS to 5
-set IS_SPOT to false
-if name of current application is "Script Editor" then set IS_SPOT to true
+set IS_SPOT to name of current application is "Script Editor"
 
 tell application "System Events" to set SCRIPT_NAME to get name of (path to me)
 logger's start()
@@ -141,7 +140,7 @@ on idle
 	
 	if casesCountChanged or caseIndexChanged or caseIdChanged or autoIncrementChanged then
 		if IS_SPOT is false then makeMenus()
-		if casesCountChanged or caseIdChanged then tell pots to speak("Menu Cases Updated")
+		if casesCountChanged or caseIdChanged then tell speech to speak("Menu Cases Updated")
 		set CASE_ID to sessionPlist's getString("Case ID")
 		set CASE_INDEX to sessionPlist's getInt("Current Case Index")
 		set AUTO_INCREMENT to switch's active("Auto Increment Case Index")
@@ -214,7 +213,7 @@ on init()
 	set MapClass to std's import("Map")
 	set emoji to std's import("emoji")
 	set listUtil to std's import("list")
-	set pots to std's import("pots")
+	set speech to std's import("speech")'s new()
 	set switch to std's import("switch")
 	set uni to std's import("unicodes")
 	set plutil to std's import("plutil")'s new()
