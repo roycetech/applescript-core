@@ -1,4 +1,4 @@
-global std, seLib, pots, retry, sessionPlist, switch, finder
+global std, seLib, speech, retry, sessionPlist, switch, finder
 global SCRIPT_NAME, IS_SPOT
 
 (*
@@ -29,16 +29,17 @@ set logger to std's import("logger")'s new(SCRIPT_NAME)
 set IS_SPOT to false
 if name of current application is "Script Editor" then set IS_SPOT to true
 
-logger's start()
-
 set seLib to std's import("script-editor")'s new()
-set pots to std's import("pots")
+set speech to std's import("speech")'s new()
 set retry to std's import("retry")'s new()
 set plutil to std's import("plutil")'s new()
 set sessionPlist to plutil's new("session")
 
 set switch to std's import("switch")
-set finder to std's import("finder")
+set finder to std's import("finder")'s new()
+
+
+logger's start()
 
 try
 	main()
@@ -57,7 +58,14 @@ on main()
 	end if
 	
 	if IS_SPOT then
-		set seTab to seLib's findTabWithName("Menu Case.applescript")
+		set spotCheckScript to "Menu Notes.applescript"
+		-- set spotCheckScript to "Menu Case.applescript"
+		set seTab to seLib's findTabWithName(spotCheckScript)
+		-- set seTab to seLib's findTabWithName(spotCheckScript)
+		if seTab is missing value then
+			error "You need to manually open the file: " & spotCheckScript
+		end if
+		
 		seTab's focus()
 	else
 		set seTab to seLib's getFrontTab()
@@ -91,6 +99,6 @@ on main()
 	logger's info("Updating Info.plist to hide menu app from dock...")
 	do shell script (format {"defaults write '{}/Contents/Info.plist' LSUIElement -bool yes", posixPath})
 	
-	tell pots to speakSynchronously("Menu app deployed")
+	tell speech to speakSynchronously("Menu app deployed")
 end main
 
