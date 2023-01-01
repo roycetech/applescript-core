@@ -1,4 +1,4 @@
-global std, syseve, retry, km, kb, configSystem
+global std, syseve, retry, kb, configSystem
 
 (* 
 	Previously Bloody Flaky. Let's see if it has improved. This script creates an app for the user and stores it in /Applications/AppleScript folder
@@ -33,10 +33,11 @@ on spotCheck()
 	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
-		Manual: E2E: Create New App Script.
+		Manual: E2E: Create New App Script
+		Manual: E2E: Create Voice Command App
 	")
 	
-	set spotLib to std's import("spot")'s new()
+	set spotLib to std's import("spot-test")'s new()
 	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
@@ -55,7 +56,7 @@ on spotCheck()
 			createNewDocument()
 			selectApplicationType()
 			addAppleScriptAction()
-			writeRunScript(configSystem's getValue("AppleScript Core Project Path") & "/examples/hello.applescript")
+			writeRunScript("AppleScript Core Project Path", "examples/hello.applescript")
 			compileScript()
 			triggerSave()
 			waitForSaveReady()
@@ -64,32 +65,41 @@ on spotCheck()
 			waitForGoToFolderInputField()
 			enterDefaultSavePath()
 			set savePathFound to waitToFindSavePath()
+			
 			if savePathFound is missing value then
 				error "The save path was not found: " & savePath & ". Check config-system['AppleScript Apps path']"
 			end if
 			
 			acceptFoundSavePath()
-			clickSave()
+			
+			tell me to error "abort" -- IS THIS PROMINENT ENOUGH?!!!
+			-- clickSave()
 		end tell
 		tell application "Automator" to quit
 		
 	else if caseIndex is 2 then
-		-- WIP
 		
-		doSelectDictationCommand()
-		doAddAppleScriptAction()
-		doWriteRunScriptNext("deployed/hello.applescript")
-		doClickCommandEnabled()
-		doSetCommandPhrase("Say this")
-		
-		set the clipboard to "Spot Check Only"
-		doCompileScript()
+		(* Commands are similar to when creating a regular app unless specified *)
+		tell sut
+			launchAndWaitReady()
+			createNewDocument()
+			selectDictationCommand()
+			addAppleScriptAction()
+			writeRunScript("AppleScript Core Project Path", "examples/hello.applescript")
+			
+			clickCommandEnabled() -- Voice Specific
+			setCommandPhrase("Say this") -- Voice Specific
+			compileScript()
+			triggerSave()
+			waitForSaveReady()
+			
+			enterScriptName("Spot Check Voice Command")
+			-- Voice: Save destination is not available for voice commands.			
+			clickSave()
+		end tell
 	end if
 	
 	spot's finish()
-	
-	
-	
 	logger's finish()
 end spotCheck
 
@@ -97,7 +107,7 @@ end spotCheck
 on new()
 	(* Note: Handlers are ordered by which step they are called. *)
 	script AutomatorInstance
-		
+		property newWindowName : missing value
 		on launchAndWaitReady()
 			activate application "Automator"
 			script AppWaiter
@@ -135,7 +145,7 @@ on new()
 				kb's pressKey("down")
 				kb's pressKey("return")
 			end tell
-			set my windowName to "Untitled (Dictation Command)"
+			set my newWindowName to "Untitled (Dictation Command)"
 		end selectDictationCommand
 		
 		
@@ -149,7 +159,7 @@ on new()
 				kb's pressKey("right")
 				kb's pressKey("return")
 			end tell
-			set my windowName to "Untitled (Application)"
+			set my newWindowName to "Untitled (Application)"
 		end selectApplicationType
 		
 		
@@ -157,7 +167,6 @@ on new()
 			if running of application "Automator" is false then return
 			
 			activate application "Automator"
-			km's runScript("App Automator Click At Action Filter") -- maybe we can ignore because the input is intermittently focused.
 			tell application "System Events" to tell process "Automator" to keystroke "Run AppleScript"
 			delay 1 -- convert to wait.
 			repeat 2 times
@@ -167,21 +176,26 @@ on new()
 		end addAppleScriptAction
 		
 		
-		(* scriptPath *)
-		on writeRunScript(filePath)
+		(* 
+			@ projectPathKey - this is the key in config-system.plist which points to the path of the project containing the script.
+			@resourcePath - the script path name relative to the project. 
+		*)
+		on writeRunScript(projectPathKey, resourcePath)
 			if running of application "Automator" is false then return
 			
 			
 			tell application "System Events" to tell process "Automator"
 				-- set the code
-				set theCodeTextArea to text area 1 of scroll area 1 of splitter group 1 of group 1 of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my windowName)
+				set theCodeTextArea to text area 1 of scroll area 1 of splitter group 1 of group 1 of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my newWindowName)
 				set value of theCodeTextArea to "
 on run {input, parameters}
 	(* Your script goes here *)
 	set std to script \"std\"
 	set fileUtil to std's import(\"file\")
-
-	set scriptMon to fileUtil's convertPosixToMacOsNotation(\"" & filePath & "\")
+	set configSystem to std's import(\"config\")'s new(\"system\")
+	set projectPath to configSystem's getValue(\"" & projectPathKey & "\")
+	set scriptFilePath to projectPath & \"/" & resourcePath & "\"
+	set scriptMon to fileUtil's convertPosixToMacOsNotation(scriptFilePath)
 	run script alias scriptMon
 	return input
 end run
@@ -194,7 +208,7 @@ end run
 			if running of application "Automator" is false then return
 			
 			tell application "System Events" to tell process "Automator"
-				click button 4 of group 1 of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my windowName)
+				click button 4 of group 1 of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my newWindowName)
 			end tell
 		end compileScript
 		
@@ -202,37 +216,24 @@ end run
 		on setCommandPhrase(commandPhrase)
 			if running of application "Automator" is false then return
 			
-			-- Scroll Up, so UI is visible to km.
 			tell application "System Events" to tell process "Automator"
 				try
-					set value of value indicator 1 of scroll bar 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my windowName) to 0
+					set value of value indicator 1 of scroll bar 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my newWindowName) to 0
 				end try -- Fail if scroll bar is absent, everything is visible.
 			end tell
 			
-			set kmMacroName to "Automator: Click At Command Phrase Input"
-			script WaiterOk
-				km's runScript(kmMacroName)
-			end script
-			set kmResult to exec of retry on result for 5
-			logger's debugf("kmResult: {}", kmResult)
-			if kmResult is false then error "Keyboard Maestro Macro [" & kmMacroName & "] failed."
-			-- syseve's pressRight() -- Simulate physical interaction to trick the app into a state. DOES NOT WORK.
-			
-			syseve's pressSpace() -- Try this instead of above to see if it works.
-			syseve's pressDelete()
-			
 			tell application "System Events" to tell process "Automator"
-				set theTextField to text field 1 of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my windowName)
+				set theTextField to text field 1 of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my newWindowName)
 				set value of theTextField to commandPhrase
 			end tell
 		end setCommandPhrase
 		
-		
+			
 		on clickCommandEnabled()
 			if running of application "Automator" is false then return
 			
 			tell application "System Events" to tell process "Automator"
-				click checkbox "Command Enabled" of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my windowName)
+				click checkbox "Command Enabled" of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my newWindowName)
 			end tell
 		end clickCommandEnabled
 		
@@ -243,7 +244,8 @@ end run
 		on waitForSaveReady()
 			script WaitSaveButton
 				tell application "System Events" to tell process "Automator"
-					if exists (button "Save" of sheet 1 of window "Untitled (Application)") then return true
+					-- if exists (button "Save" of sheet 1 of window "Untitled (Application)") then return true
+					if exists (button "Save" of sheet 1 of window (my newWindowName)) then return true
 				end tell
 			end script
 			exec of retry on result for 10
@@ -347,6 +349,8 @@ end run
 			end tell
 		end forceQuitApp
 	end script
+	
+	std's applyMappedOverride(result)
 end new
 
 
@@ -364,6 +368,5 @@ on init()
 	set retry to std's import("retry")'s new()
 	set kb to std's import("keyboard")'s new()
 	
-	set km to std's import("keyboard-maestro")
 	set configSystem to std's import("config")'s new("system")
 end init

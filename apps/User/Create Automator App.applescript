@@ -1,6 +1,6 @@
-global std, fileUtil, textUtil, syseve, retry, sessionPlist
+global std, fileUtil, textUtil, syseve, retry, sessionPlist, configSystem
 global seLib, automator
-global IS_SPOT, SCRIPT_NAME
+global IS_SPOT, SCRIPT_NAME, CURRENT_AS_PROJECT
 
 (* 
 	This app is used to create an app using automator for the current document that is opened in the Script Editor app. Apps created via automator does not suffer from the problem of permission error as compared to apps exported via Script Editor, or compiled via osacompile.
@@ -17,9 +17,13 @@ global IS_SPOT, SCRIPT_NAME
 		
 	@Session:
 		Sets the new app name into "New Script Name", for easy fetching when you set the permission after creation.
+		Sets the most recent project key (Current AppleScript Project) for easier subsequent deployment.
 	
 	@Testing Notes
 		Open the Run Script Editor.applescript and that will be used to test this script.	
+		
+	@Configurations
+		Reads config-system.plist - AppleScript Projects
 *)
 
 property logger : missing value
@@ -42,7 +46,9 @@ set plutil to std's import("plutil")'s new()
 set sessionPlist to plutil's new("session")
 set seLib to std's import("script-editor")'s new()
 set automator to std's import("automator")'s new()
+set configSystem to std's import("config")'s new("system")
 
+set CURRENT_AS_PROJECT to "Current AppleScript Project"
 try
 	main()
 on error the errorMessage number the errorNumber
@@ -62,8 +68,15 @@ on main()
 	end if
 	
 	set thisAppName to text 1 thru ((offset of "." in SCRIPT_NAME) - 1) of SCRIPT_NAME
-	if IS_SPOT and std's appExists(SCRIPT_NAME) is true then
-		set seTab to seLib's findTabWithName("Run Script Editor.applescript")
+	logger's debugf("thisAppName: {}", thisAppName)
+	
+	if IS_SPOT and std's appExists(thisAppName) is true then
+		set testScriptName to "Run Script Editor 2.applescript"
+		set seTab to seLib's findTabWithName(testScriptName)
+		if seTab is missing value then
+			logger's infof("The test script {} was not found", testScriptName)
+			return
+		end if
 		seTab's focus()
 	else
 		set seTab to seLib's getFrontTab()
@@ -78,17 +91,42 @@ on main()
 	(*
 	set targetMonPath to fileUtil's convertPosixToMacOsNotation(targetPosixPath)
 	logger's info("Target MON path:  " & targetMonPath)
-*)
+	*)
 	
 	logger's info("Conditionally quitting existing automator app...")
 	automator's forceQuitApp()
+	
+	set projectKeys to configSystem's getValue("AppleScript Projects")
+	if projectKeys is missing value then
+		error "Project keys was not found in config-system.plist"
+		return
+	end if
+	
+	set currentAsProjectKey to sessionPlist's getString(CURRENT_AS_PROJECT)
+	if currentAsProjectKey is missing value then
+		set selectedProjectKey to choose from list projectKeys
+	else
+		set selectedProjectKey to choose from list projectKeys with title "Recent Project Key: " & currentAsProjectKey default items {currentAsProjectKey}
+	end if
+	
+	if selectedProjectKey is false then
+		logger's info("User canceled")
+		return
+	end if
+	set selectedProjectKey to first item of selectedProjectKey
+	
+	logger's debugf("selectedProjectKey: {}", selectedProjectKey)
+	sessionPlist's setValue(CURRENT_AS_PROJECT, selectedProjectKey)
+	
+	set projectPath to configSystem's getValue(selectedProjectKey)
+	set resourcePath to textUtil's replace(seTab's getPosixPath(), projectPath & "/", "")
 	
 	tell automator
 		launchAndWaitReady()
 		createNewDocument()
 		selectApplicationType()
 		addAppleScriptAction()
-		writeRunScript(seTab's getPosixPath())
+		writeRunScript(selectedProjectKey, resourcePath)
 		compileScript()
 		triggerSave()
 		waitForSaveReady()
@@ -103,5 +141,5 @@ on main()
 		
 		acceptFoundSavePath()
 		clickSave()
-	end tell	
+	end tell
 end main
