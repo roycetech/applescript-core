@@ -1,4 +1,4 @@
-global std, pots
+global std, speech
 
 (*
 	Compile:
@@ -19,7 +19,7 @@ on decorate(baseScript)
 			continue fatal(logMessage)
 			
 			if logMessage does not contain "User canceled" then
-				if (count of characters of logMessage) is less than 141 then pots's speak(logMessage)
+				if (count of characters of logMessage) is less than 141 then speech's speak(logMessage)
 			end if
 		end fatal
 	end script
@@ -31,5 +31,5 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set pots to std's import("pots")
+	set speech to std's import("speech")'s new()
 end init
