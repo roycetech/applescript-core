@@ -1,4 +1,4 @@
-global std, retry, fileUtil, uni, textUtil, cp, kb
+global std, retry, fileUtil, textUtil, cp, kb, uni
 global RESERVED_DOC_NAMES
 
 (*
@@ -12,6 +12,7 @@ global RESERVED_DOC_NAMES
 		Settings
 		Project - When a project folder is selected on the side bar
 		Project Find Results
+		Welcome Guide
 *)
 
 use script "Core Text Utilities"
@@ -85,6 +86,7 @@ on new()
 				
 				set windowTitle to name of window 1
 			end tell
+			
 			set tokens to textUtil's split(windowTitle, uni's SEPARATOR)
 			
 			set docNameFromTitle to first item of tokens
@@ -220,8 +222,8 @@ end new
 
 (* Constructor. When you need to load another library, do it here. *)
 on init()
-	set RESERVED_DOC_NAMES to {"Settings", "Project", "Project Find Results"}
-
+	set RESERVED_DOC_NAMES to {"Settings", "Project", "Project Find Results", "Welcome Guide"}
+	
 	if initialized of me then return
 	set initialized of me to true
 	
