@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# echo $1 $2 $2
-
 INPUT_FILE_PATH=$(echo "$1 $2 $3" | sed 's/ *$//')
 # echo "INPUT_FILE_PATH: [$INPUT_FILE_PATH]"
 
