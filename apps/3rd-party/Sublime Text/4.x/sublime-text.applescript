@@ -92,7 +92,7 @@ on new()
 		end openFile
 		
 		
-		(* Retrieveds the current document name by parsing the window title. *)
+		(* Retrieves the current document name by parsing the window title. *)
 		on getCurrentDocumentName()
 			if running of application "Sublime Text" is false then return missing value
 			
@@ -175,7 +175,7 @@ on new()
 		
 		
 		(*
-			@deprecated, use getFileType().
+			@deprecated, use getCurrentFileExtension().
 			@returns the extension of the current file, considering special cases.
 		*)
 		on getCurrentFileType()
@@ -400,7 +400,7 @@ end new
 
 
 (* Constructor. When you need to load another library, do it here. *)
-to init()
+on init()
 	set ST_CLI to quoted form of (do shell script "plutil -extract \"Sublime Text CLI\" raw ~/applescript-core/config-system.plist")
 	
 	if initialized of me then return
