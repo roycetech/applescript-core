@@ -250,6 +250,7 @@ on _charToKeycode(key)
 	
 	if key is "esc" then return 53
 	if key is "delete" then return 51
+	if key is "space" then return 49
 	if key is "up" then return 126
 	if key is "down" then return 125
 	if key is "left" then return 123
