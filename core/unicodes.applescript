@@ -1,11 +1,11 @@
-global std, config
+global std
 
 property initialized : false
 property logger : missing value
 
 if name of current application is "Script Editor" then spotCheck()
 
-to spotCheck()
+on spotCheck()
 	init()
 	logger's start()
 	

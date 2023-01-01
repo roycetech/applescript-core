@@ -59,7 +59,8 @@ If your README is very long, you might want to add a table of contents to make i
 
 1. Run `make install`. It will install the essential libraries under `~/Library/Script Libraries`. It will also install basic sounds and property files under `~/applescript-core/`.  See the ./Makefile for more information.
 2. To test that it works, open the files inside examples using Script Editor and run them.
-3. You will see the output
+3. You will see the output.
+
 
 If you are working on a project that a user needs to install or run locally in a machine like a "POS", you should include the steps required to install your project and also the required dependencies if any.
 
