@@ -1,4 +1,4 @@
-global std, textUtil, uni
+global std, textUtil
 
 (*
 	Usage:
@@ -24,6 +24,7 @@ on spotCheck()
 	
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
+	set uni to std's import("unicodes")
 	
 	set cases to listUtil's splitByLine("
 		Unit Test
@@ -216,5 +217,4 @@ on init()
 	set std to script "std"
 	set logger to std's import("logger")'s new("regex")
 	set textUtil to std's import("string")
-	set uni to std's import("unicodes")
 end init
