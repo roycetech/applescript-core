@@ -12,9 +12,9 @@ help:
 
 # Simplify to pick all files inside core folder.
 # CORE_LIBS := std config logger plutil string
-CORE_LIBS := std logger config plutil string-builder string map pots regex \
-unicodes switch unit-test spot list datetime idler retry keyboard file process \
-syseve clipboard emoji
+CORE_LIBS := std logger config plutil string-builder string map speech regex \
+unicodes switch unit-test spot-test list date-time idler retry keyboard file \
+process syseve clipboard emoji window stack dialog
 
 APPS_PATH=/Applications/AppleScript
 
@@ -24,6 +24,7 @@ _init:
 	mkdir -p ~/applescript-core/logs/
 	mkdir -p "/Applications/AppleScript/Stay Open/"
 	./scripts/compile-bundle.sh 'core/Core Text Utilities'
+	plutil -replace 'Project applescript-core' -string "`pwd`" ~/applescript-core/config-system.plist
 
 install: _init $(CORE_LIBS)
 	cp -n config-default.template ~/applescript-core/config-default.plist || true
@@ -31,12 +32,19 @@ install: _init $(CORE_LIBS)
 	cp -n plist.template ~/applescript-core/config-system.plist || true
 	cp -n plist.template ~/applescript-core/session.plist || true
 	cp -n plist.template ~/applescript-core/switches.plist || true
+
+	cp -n plist.template ~/applescript-core/config-user.plist || true
 	cp -a assets/sounds/. ~/applescript-core/sounds/
 	touch ~/applescript-core/logs/applescript-core.log
+	osascript scripts/register-project.applescript
+	./scripts/setup-switches.sh
+	@echo "Installation done"
 
 $(CORE_LIBS): Makefile
 	./scripts/compile-lib.sh core/$@
 
+uninstall:
+	# TODO
 
 compile-lib:
 	./scripts/compile-lib.sh $(SOURCE)
@@ -68,10 +76,20 @@ reveal-stay-open:
 
 
 # Extra Libraries ================================
+# Suggestion: Install related core libraries so that related updates don't
+# require a separate make install.
 
-install-dvorak:
-	compile-lib SOURCE=core/decorators/dec-keyboard-dvorak-cmd
-	plutil -replace 'KeyboardInstance' -string 'dec-keyboard-dvorak-cmd' ~/applescript-core/config-lib-factory.plist
+# 1st Party Apps Library
+install-calendar:
+	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar"
+	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar-event"
+	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/dec-calendar-view"
+
+install-system-preferences:
+	./scripts/compile-lib.sh "apps/1st-party/System Preferences/15.0/system-preferences"
+
+install-safari:
+	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari
 
 install-script-editor:
 	make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
@@ -79,12 +97,36 @@ install-script-editor:
 install-finder:
 	./scripts/compile-lib.sh apps/1st-party/Finder/12.5/finder
 
-install-automator:
-	mkdir -p /Applications/AppleScript
+compile-automator:
 	./scripts/compile-lib.sh apps/1st-party/Automator/2.10/automator
-	cp -n plist.template ~/applescript-core/config-system.plist || true
+
+install-automator: compile-automator
+	mkdir -p /Applications/AppleScript
+	# cp -n plist.template ~/applescript-core/config-system.plist || true
 	osascript scripts/setup-applescript-apps-path.applescript
+
+
+# 3rd Party Apps Library
+install-marked:
+	./scripts/compile-lib.sh apps/3rd-party/Marked/2.6.x/marked
+
+install-atom:
+	./scripts/compile-lib.sh apps/3rd-party/Atom/1.60.0/atom
+
+
+# Library Decorators
+install-dvorak:
+	./scripts/compile-lib.sh core/decorators/dec-keyboard-dvorak-cmd
+	./scripts/compile-lib.sh core/keyboard
+	plutil -replace 'KeyboardInstance' -string 'dec-keyboard-dvorak-cmd' ~/applescript-core/config-lib-factory.plist
+
+
+install-cliclick:
+	./scripts/compile-lib.sh libs/cliclick/cliclick
+	osascript libs/cliclick/setup-cliclick-cli.applescript
+
 
 # Optional with 3rd party app dependency.
 install-json:
 	./scripts/compile-lib.sh core/json.applescript
+
