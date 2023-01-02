@@ -1,5 +1,4 @@
 property filename : "~/applescript-core/config-default.plist"
-property category : "default"
 property plutil : missing value
 
 (*
@@ -53,6 +52,8 @@ on new(pConfigName)
 	
 	script ConfigInstance
 		property configName : localConfigName
+		property categoryPlist : missing value
+		property knownPlists : {"config-default", "session", "switches"} -- WET: 1/2
 		
 		on getBool(configKey)
 			getBool(configKey)
@@ -64,7 +65,7 @@ on new(pConfigName)
 		end getDefaultsValue
 		
 		
-		on getCategoryValue(theCategory, configKey)
+		on getCategoryValue(category, configKey)
 			set IS_SPOT to (name of current application is "Script Editor")
 			
 			if plutil is missing value then
@@ -73,20 +74,28 @@ on new(pConfigName)
 				set plutil to plutilLib's new()
 			end if
 			
-			
-			set knownPlists to {"config-default", "session", "switches"} -- WET: 1/2
-			set computedPlistName to "config-" & theCategory
-			if knownPlists contains computedPlistName or plutil's plistExists(computedPlistName) then
-				set categoryPlist to plutil's new(computedPlistName)
-				return categoryPlist's getValue(configKey)
+			if categoryPlist is missing value then
+				set computedPlistName to "config-" & category
+				if knownPlists contains computedPlistName then
+					set categoryPlist to plutil's new(computedPlistName)
+
+				else if plutil's plistExists(computedPlistName) then
+					set categoryPlist to plutil's new(computedPlistName)
+					set end of knownPlists to computedPlistName
+
+				else 
+					return missing value
+				end if
 			end if
+
+			return categoryPlist's getValue(configKey)
 			
 			if IS_SPOT then
 				set startSeconds to do shell script "date +%s"
-				-- log "measuring..." & theCategory & ":" & configKey
+				-- log "measuring..." & category & ":" & configKey
 			end if
 			
-			set plistItems to {filename, theCategory, 1, configKey}
+			set plistItems to {filename, category, 1, configKey}
 			try
 				set startSeconds to do shell script "date +%s"
 				-- log "measuring..."
