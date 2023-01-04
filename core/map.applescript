@@ -223,6 +223,7 @@ to fromRecord(theRecord as record)
 	
 	repeat with theKey in allKeys
 		set nextValue to (objCDictionary's valueForKey:theKey) as text
+		if theKey as text is equal to "DOMAIN" then set theKey to "domain" -- fix an issue where domain is being converted to upper case automatically.
 		theMap's putValue(theKey as text, nextValue)
 	end repeat
 	
