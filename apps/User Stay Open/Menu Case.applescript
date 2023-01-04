@@ -130,6 +130,7 @@ on idle
 	
 	set currentCases to CASES
 	set retrievedCases to sessionPlist's getList("Case Labels")
+	if retrievedCases is missing value then set retrievedCases to {}
 	
 	set casesCountChanged to (count of currentCases) is not equal to (count of retrievedCases)
 	set caseIndexChanged to CASE_INDEX is not equal to sessionPlist's getInt("Current Case Index")
