@@ -8,7 +8,8 @@ global std, textUtil
 property initialized : false
 property logger : missing value
 
-if name of current application is "Script Editor" then  spotCheck()
+if name of current application is "Script Editor" then spotCheck()
+if name of current application is "osascript" then unitTest()
 
 on spotCheck()
 	init()
@@ -126,7 +127,8 @@ end splitString
 
 
 (* 
-	Handle special cases like tilde, or when there's single quote in the text. 
+	TODO: Handle special cases like tilde, or when there's single quote in the text.
+	dot character breaks it as well. FOOBAR.
 *)
 on splitByLine(theString as text)
 	if theString contains (ASCII character 13) then return _split(theString, ASCII character 13) -- assuming this is shell command result, we have to split by CR.
@@ -235,6 +237,21 @@ on listEquals(list1, list2)
 	true
 end listEquals
 
+(*
+	Fills an array with elements.
+*)
+on newWithElements(element, elementCount)
+	if elementCount is less than 1 then error "Elemen Count " & elementCount & " is not a valid count"
+	
+	set array to {}
+	repeat with i from 1 to elementCount
+		set end of array to element
+	end repeat
+	
+	array
+end newWithElements
+
+
 (* What's the benefit of this over _split? *)
 on split(theString, theDelimiter)
 	if theString contains "$" and theString contains "'" then error "Sorry, but you can't have a dollar sign and a single quote in your string"
@@ -273,13 +290,13 @@ on _split(theString, theDelimiter)
 end _split
 
 
-to _replaceAll(sourceText, substring, replacement)
+on _replaceAll(sourceText, substring, replacement)
 	set theList to split(sourceText, substring)
 	join(theList, replacement)
 end _replaceAll
 
 
-to unitTest()
+on unitTest()
 	set utLib to std's import("unit-test")
 	set ut to utLib's new()
 	tell ut
@@ -326,6 +343,14 @@ to unitTest()
 		
 		newMethod("simpleSort")
 		assertEqual({"a", "b", "c"}, my simpleSort({"b", "c", "a"}), "Happy Case")
+		
+		newMethod("newWithElements")
+		try
+			assertMissingValue(my newWithElements("b", 0), "Invalid count")
+			assertFail("Expected error was not thrown")
+		end try
+		assertEqual({"b", "b"}, my newWithElements("b", 2), "Happy case")
+		assertEqual({"b"}, my newWithElements("b", 1), "Happy case")
 		
 		done()
 	end tell
