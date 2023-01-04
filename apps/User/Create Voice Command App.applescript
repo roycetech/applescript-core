@@ -1,4 +1,4 @@
-global std, usr, fileUtil, textUtil, syseve, emoji, sessionPlist, seLib, automator, configSystem
+global std, usr, fileUtil, textUtil, syseve, emoji, sessionPlist, seLib, automator, configUser
 global SCRIPT_NAME, IS_SPOT
 global CURRENT_AS_PROJECT
 
@@ -15,7 +15,7 @@ global CURRENT_AS_PROJECT
 		Open the hello.applescript or your preferred script file for example.
 		
 	@Configurations
-		Reads config-system.plist - AppleScript Projects		
+		Reads config-user.plist - AppleScript Projects		
 *)
 
 property logger : missing value
@@ -38,7 +38,7 @@ set plutil to std's import("plutil")'s new()
 set sessionPlist to plutil's new("session")
 set seLib to std's import("script-editor")'s new()
 set automator to std's import("automator")'s new()
-set configSystem to std's import("config")'s new("system")
+set configUser to std's import("config")'s new("user")
 
 set CURRENT_AS_PROJECT to "Current AppleScript Project"
 
@@ -82,9 +82,9 @@ on main()
 	logger's info("Conditionally quitting existing automator app...")
 	automator's forceQuitApp()
 	
-	set projectKeys to configSystem's getValue("AppleScript Projects")
+	set projectKeys to configUser's getValue("AppleScript Projects")
 	if projectKeys is missing value then
-		error "Project keys was not found in config-system.plist"
+		error "Project keys was not found in config-user.plist"
 		return
 	end if
 	
@@ -104,7 +104,7 @@ on main()
 	logger's debugf("selectedProjectKey: {}", selectedProjectKey)
 	sessionPlist's setValue(CURRENT_AS_PROJECT, selectedProjectKey)
 	
-	set projectPath to configSystem's getValue(selectedProjectKey)
+	set projectPath to configUser's getValue(selectedProjectKey)
 	set resourcePath to textUtil's replace(seTab's getPosixPath(), projectPath & "/", "")
 	
 	tell automator
