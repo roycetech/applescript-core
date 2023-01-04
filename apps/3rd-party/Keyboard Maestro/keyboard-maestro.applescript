@@ -6,6 +6,8 @@ global GENERIC_RESULT_VAR
 	
 	Compile:
 		make compile-lib SOURCE="apps/3rd-party/Keyboard Maestro/keyboard-maestro"
+		or (from the project root)
+		make install-keyboard-maestro
 	
 *)
 
@@ -16,6 +18,7 @@ property initialized : false
 property logger : missing value
 
 if name of current application is "Script Editor" then spotCheck()
+if name of current application is "osascript" then unitTest()
 
 on spotCheck()
 	init()
@@ -27,6 +30,7 @@ on spotCheck()
 		Run Unit Tests
 		Safari
 		Manual: Run Macro
+		Set/Get Variable
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -37,15 +41,22 @@ on spotCheck()
 		return
 	end if
 	
+	set sut to new()
 	if caseIndex is 1 then
 		unitTest()
 		
+	else if caseIndex is 2 then
+		sut's sendSafariText("KM Test")
+		
+	else if caseIndex is 3 then
+		sut's runMacro("hello")
+		
 	else if caseIndex is 4 then
-		sendSafariText("KM Test")
-		
-	else if caseIndex is 5 then
-		runMacro("hello")
-		
+		sut's setVariable("from Script Editor Name", "from Script Editor Value 1")
+		assertThat of std given condition:sut's getVariable("from Script Editor Name") is equal to "from Script Editor Value 1", messageOnFail:"Failed spot check"
+		sut's setVariable("from Script Editor Name", "from Script Editor Value 2")
+		assertThat of std given condition:sut's getVariable("from Script Editor Name") is equal to "from Script Editor Value 2", messageOnFail:"Failed spot check"
+		logger's info("Passed")
 	end if
 	
 	spot's finish()
@@ -86,10 +97,10 @@ on new()
 		
 		
 		(* 
-	Runs a keyboard maestro macro with result tracking. 
+			Runs a keyboard maestro macro with result tracking. 
 
-	@returns true on successful run.
-*)
+			@returns true on successful run.
+		*)
 		on runScript(scriptName as text)
 			-- logger's debugf("Script Name: [{}]", scriptName)
 			tell application "Keyboard Maestro Engine"
@@ -115,9 +126,9 @@ on new()
 		
 		
 		(* 
-	WARN: Problematic, sends text to address bar.
-	@returns true on successful passing of command. 
-*)
+			WARN: Problematic, sends text to address bar.
+			@returns true on successful passing of command. 
+		*)
 		on sendSafariText(theText as text)
 			setVariable("TypeText", theText)
 			runScript("App Safari Send Text")
@@ -125,9 +136,9 @@ on new()
 		
 		
 		(*
-	Note: Still fails silently, retry mitigates the issue.
-	@returns true on successful passing of command.
-*)
+			Note: Still fails silently, retry mitigates the issue.
+			@returns true on successful passing of command.
+		*)
 		on sendSlackText(theText as text)
 			if runScript("App Slack Prepare For Automation") is false then -- reduce the macro to simply check if input box is ready.
 				set cq to std's import("command-queue")
