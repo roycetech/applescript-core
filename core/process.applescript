@@ -193,6 +193,19 @@ on new(pProcessName)
 			end tell
 		end getWindows
 		
+		on hasWindows()
+			if running of application processName is false then return false
+			
+			return the number of items in getWindows() is greater than 0
+		end hasWindows
+		
+		
+		on hasWindowsWithTitle(targetTitle)
+			if running of application processName is false then return false
+			
+			return the number of items in getWindowsEqualName(targetTitle) is greater than 0
+		end hasWindowsWithTitle
+		
 		
 		on setFirstWindowDimension(w, h)
 			if running of application processName is false then return
