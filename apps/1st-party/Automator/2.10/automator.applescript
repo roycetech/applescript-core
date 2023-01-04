@@ -177,7 +177,7 @@ on new()
 		
 		
 		(* 
-			@ projectPathKey - this is the key in config-system.plist which points to the path of the project containing the script.
+			@ projectPathKey - this is the key in config-user.plist which points to the path of the project containing the script.
 			@resourcePath - the script path name relative to the project. 
 		*)
 		on writeRunScript(projectPathKey, resourcePath)
@@ -192,8 +192,12 @@ on run {input, parameters}
 	(* Your script goes here *)
 	set std to script \"std\"
 	set fileUtil to std's import(\"file\")
-	set configSystem to std's import(\"config\")'s new(\"system\")
-	set projectPath to configSystem's getValue(\"" & projectPathKey & "\")
+	set configUser to std's import(\"config\")'s new(\"user\")
+	set projectPath to configUser's getValue(\"" & projectPathKey & "\")
+
+	-- Alternative, direct shell approach.
+	-- set projectPath to do shell script \"plutil -extract '" & projectPathKey & "' raw ~/applescript-core/config-user.plist\"
+
 	set scriptFilePath to projectPath & \"/" & resourcePath & "\"
 	set scriptMon to fileUtil's convertPosixToMacOsNotation(scriptFilePath)
 	run script alias scriptMon
