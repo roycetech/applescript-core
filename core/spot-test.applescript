@@ -47,7 +47,9 @@ on new()
 				(* @returns {caseId, caseDescription} *)
 				on start()
 					set newCaseCount to count of cases
-					set _currentCaseCount to length of sessionPlist's getList("Case Labels")
+					set caseLabels to sessionPlist's getList("Case Labels")
+					if caseLabels is missing value then set caseLabels to {}
+					set _currentCaseCount to length of caseLabels
 					set caseIdChanged to sessionPlist's getString("Case ID") is not equal to caseId
 					set caseCountChanged to newCaseCount is not equal to _currentCaseCount
 					set REINITIALIZE to caseIdChanged or caseCountChanged
