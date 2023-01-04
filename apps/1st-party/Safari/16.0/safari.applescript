@@ -491,14 +491,22 @@ on new()
 				
 				on getSource()
 					tell application "Safari"
-						(source of my getDocument()) as text
+						try
+							return (source of my getDocument()) as text
+						end try
 					end tell
+
+					missing value
 				end getSource
 				
 				on getURL()
 					tell application "Safari"
-						(URL of my getDocument())
+						try
+							return URL of my getDocument()
+						end try
 					end tell
+
+					missing value
 				end getURL
 				
 				on getAddressBarValue()
