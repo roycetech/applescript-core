@@ -26,7 +26,7 @@ _init:
 	./scripts/compile-bundle.sh 'core/Core Text Utilities'
 	plutil -replace 'Project applescript-core' -string "`pwd`" ~/applescript-core/config-system.plist
 
-install: _init $(CORE_LIBS)
+install: _init compile-core
 	cp -n config-default.template ~/applescript-core/config-default.plist || true
 	cp -n config-emoji.template ~/applescript-core/config-emoji.plist || true
 	cp -n plist.template ~/applescript-core/config-system.plist || true
@@ -45,6 +45,9 @@ $(CORE_LIBS): Makefile
 
 uninstall:
 	# TODO
+
+
+compile-core: $(CORE_LIBS)
 
 compile-lib:
 	./scripts/compile-lib.sh $(SOURCE)
@@ -104,6 +107,9 @@ install-automator: compile-automator
 	mkdir -p /Applications/AppleScript
 	# cp -n plist.template ~/applescript-core/config-system.plist || true
 	osascript scripts/setup-applescript-apps-path.applescript
+
+uninstall-automator:
+	# TODO:
 
 
 # 3rd Party Apps Library
