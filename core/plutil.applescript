@@ -152,11 +152,17 @@ on spotCheck()
 		plutil's createNewPList("spot-plist")
 		
 	else if caseIndex is 13 then
-		logger's infof("SubPath Exists: {}", plutil's plistExists("app-windows/region_windows-big-bottom"))
-		logger's infof("SubPathx Exists: {}", plutil's plistExists("app-windows/region_windows-big-bottomx"))
-		logger's infof("Session Exists: {}", plutil's plistExists("session"))
-		logger's infof("Sessionx Exists: {}", plutil's plistExists("sessionx"))
+		set testPlists to listUtil's splitByLine("
+			app-windows/region_windows-big-bottom
+			app-notes/shared/URL-Pattern
+			app-windows/region_windows-big-bottomx
+			session
+			sessionx
+		")
 		
+		repeat with nextPlist in testPlists
+			logger's infof("{} Exists: {}", {nextPlist, plutil's plistExists(nextPlist)})
+		end repeat
 	end if
 	
 	spot's finish()
@@ -166,19 +172,27 @@ end spotCheck
 
 on new()
 	script PlutilInstance
-		on plistExists(plistName)
-			if (offset of "/" in plistName) is greater than 0 then
-				set plistTokens to _split(plistName, "/", "string")
-				if the number of items in plistTokens is greater than 2 then error "This is not yet supported."
-				
+		(* 
+			@plistKey - plistName or subpath with name relative to the home/applescript-core folder. 
+		*)
+		on plistExists(plistKey)
+			if regex's matches("^(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_-]+$", plistKey) is false then
+				error "Invalid PList Name: " & plistKey
+			end if
+			
+			if (offset of "/" in plistKey) is greater than 0 then
+				set plistTokens to _split(plistKey, "/", "string")
 				set plistBaseFilename to format {"{}.plist", last item of plistTokens}
-				set plistSubfolder to the first item of plistTokens
+				set plistKeyLength to count of plistKey -- using "every characters" fails.
+				set plistSubPath to text 1 thru (plistKeyLength - (the number of characters in the last item of plistTokens) - 1) of plistKey
 				tell application "Finder"
-					return exists of (file plistBaseFilename of folder plistSubfolder of folder "applescript-core" of my _getHomeFolderPath())
+					set coreFolder to folder "applescript-core" of my _getHomeFolderPath()
+					set plistSubfolder to my _posixSubPathToFolder(plistSubPath, coreFolder)
+					return exists of (file plistBaseFilename of plistSubfolder)
 				end tell
 			end if
 			
-			set plistBaseFilename to format {"{}.plist", plistName}
+			set plistBaseFilename to format {"{}.plist", plistKey}
 			tell application "Finder"
 				exists of (file plistBaseFilename of folder "applescript-core" of my _getHomeFolderPath())
 			end tell
@@ -680,6 +694,23 @@ on new()
 		
 		-- Private Codes below =======================================================
 		
+		on _posixSubPathToFolder(subpath, sourceFolder)
+			set calcEndFolder to sourceFolder
+			set pathTokens to _split(subpath, "/", "string")
+			tell application "Finder"
+				repeat with nextToken in pathTokens
+					try
+						set calcEndFolder to folder nextToken of calcEndFolder
+					on error -- when folder is aliased.
+						set calcEndFolder to file nextToken of calcEndFolder
+					end try
+				end repeat
+			end tell
+			
+			calcEndFolder
+		end _posixSubPathToFolder
+		
+		
 		(* Intended to cache the value to reduce events triggered. *)
 		on _getHomeFolderPath()
 			if my homeFolderPath is missing value then set my homeFolderPath to (path to home folder)
@@ -687,8 +718,8 @@ on new()
 		end _getHomeFolderPath
 		
 		
-		(* 
-			WET: Keep it wet because this library will be considered essential and shouldn't have many transitive dependencies to simplify deployment. 
+		(*
+			WET: Keep it wet because this library will be considered essential and shouldn't have many transitive dependencies to simplify deployment.
 			@elementType - can be integer, float, bool, or string
 		*)
 		on _split(theString, theDelimiter, elementType)
