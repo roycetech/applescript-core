@@ -450,7 +450,11 @@ on new()
 			set pathTokens to textUtil's split(subpath, "/")
 			tell application "Finder"
 				repeat with nextToken in pathTokens
-					set calcEndFolder to folder nextToken of calcEndFolder
+					try
+						set calcEndFolder to folder nextToken of calcEndFolder
+					on error -- when folder is aliased.
+						set calcEndFolder to file nextToken of calcEndFolder
+					end try
 				end repeat
 			end tell
 			
