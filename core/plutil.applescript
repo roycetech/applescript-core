@@ -176,7 +176,7 @@ on new()
 			@plistKey - plistName or subpath with name relative to the home/applescript-core folder. 
 		*)
 		on plistExists(plistKey)
-			if regex's matches("^(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_-]+$", plistKey) is false then
+			if regex's matches("^(?:[a-zA-Z0-9_.-]+/)*[a-zA-Z0-9_.-]+$", plistKey) is false then
 				error "Invalid PList Name: " & plistKey
 			end if
 			
@@ -266,7 +266,9 @@ on new()
 					
 					if plistKey is missing value then return
 					
+					if regex's matches("^\\d", plistKey) then set plistKey to "_" & plistKey
 					set quotedPlistKey to quoted form of plistKey
+					
 					set dataType to class of newValue
 					
 					if {text, boolean, integer, real, date} contains dataType then
@@ -540,10 +542,10 @@ on new()
 				
 				
 				(* 
-			Will serialize the record into a json string and then set the value as string. 
-			You must explicitly read properties like this as record by using getRecord().
-			@recordValue the record value to persist as json. 
-		*)
+					Will serialize the record into a json string and then set the value as string. 
+					You must explicitly read properties like this as record by using getRecord().
+					@recordValue the record value to persist as json. 
+				*)
 				on _setRecordAsJson(plistKey, recordValue)
 					set jsonString to json's toJsonString(recordValue)
 					setValue(plistKey, jsonString)
@@ -559,10 +561,10 @@ on new()
 				
 				
 				(*
-			@typeText 
-			@plistKey
-			@ quotedPlistPosixPath
-		*)
+					@typeText 
+					@plistKey
+					@quotedPlistPosixPath
+				*)
 				on _getTypedGetterShellTemplate(typeText, plistKey, quotedPlistPosixPath)
 					if plistKey is missing value then return missing value
 					
@@ -576,6 +578,8 @@ on new()
 				
 				on _escapeAndQuoteKey(plistKey)
 					if plistKey is missing value then return missing value
+					
+					if regex's matches("^\\d", plistKey) then set plistKey to "_" & plistKey
 					set escapedPlistKey to plistKey
 					if plistKey contains "." then set escapedPlistKey to do shell script (format {"echo \"{}\" | sed 's/\\./\\\\./g'", plistKey})
 					
@@ -791,6 +795,7 @@ to unitTest()
 		assertEqual(missing value, sut's getValue("spot-array"), "Clean array key")
 		
 		newMethod("setValue")
+		sut's setValue("101 Dalmatian", "Key Starts with Number Breaks")
 		sut's setValue(missing value, "haha")
 		sut's setValue("spot-array", {1, 2})
 		sut's setValue("spot-array-string", {"one", "two"})
