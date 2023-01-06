@@ -148,7 +148,7 @@ end replace
 
 
 (* Shell implementation is slower the the Objective-C equivalent. *)
-to matched(source, pattern)
+on matched(source, pattern)
 	matchesInString(pattern, source)
 end matched
 
