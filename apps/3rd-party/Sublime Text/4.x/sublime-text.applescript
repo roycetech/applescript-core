@@ -5,7 +5,7 @@ use script "Core Text Utilities"
 use scripting additions
 
 (*
-	The app Sublime Text behaves differently as compared to first party Apple apps interms of how it handles its windows. 
+	The app Sublime Text behaves differently as compared to first party Apple apps in terms of how it handles its windows. 
 	Each individual project tabs are not treated as separate windows as compared to first party apps.
 
 	@Usage:
