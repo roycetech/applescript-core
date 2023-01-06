@@ -49,6 +49,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Manual: Front Tab
 		Manual: First Tab
+		Manual: New Window
 		
 		Manual: Find Tab With Name ()
 		New Window
@@ -104,6 +105,11 @@ on spotCheck()
 			posTab's focus()
 		end if
 		-- if youTab is not missing value then log name of theTab of youTab as text
+		
+		
+	else if caseIndex is 3 then
+		sut's newWindow("https://www.example.com")
+		
 		
 	else if caseIndex is 3 then
 		set firstTab to getFirstTab()
@@ -291,7 +297,7 @@ on new()
 		script WindowWaiter
 			if (count of (windows of application "Safari")) is not 0 then return true
 		end script
-		exec of waiter on result
+		exec of retry on result
 	else
 		tell application "Safari" to make new document with properties {URL:theUrl}
 	end if
@@ -305,10 +311,11 @@ on new()
 			end tell
 			
 			script StartPageWaiter
-				tell application "Safari" to set windowId to id of window "Start Page"
+				-- tell application "Safari" to set windowId to id of window "Start Page" -- New window will not always start with "Start Page"
+				tell application "Safari" to set windowId to id of front window
 				windowId
 			end script
-			set windowId to exec of waiter on result for 3
+			set windowId to exec of retry on result for 3
 			
 			set newSafariTabInstance to _new(windowId, 1)
 			newSafariTabInstance's focus()
@@ -317,7 +324,7 @@ on new()
 				tell application "Safari" to set URL of front document to targetUrl -- can't avoid focusing the address bar for fresh pages.
 				true
 			end script
-			exec of waiter on result for 3
+			exec of retry on result for 3
 			
 			newSafariTabInstance
 		end newWindow
@@ -479,14 +486,14 @@ on new()
 							if source of my getDocument() is not "" then return true
 						end tell
 					end script
-					exec of waiter on result for maxTryTimes by sleepSec
+					exec of retry on result for maxTryTimes by sleepSec
 				end waitForPageLoad
 				
 				on waitInSource(substring)
 					script SubstringWaiter
 						if getSource() contains substring then return true
 					end script
-					exec of waiter on result for maxTryTimes by sleepSec
+					exec of retry on result for maxTryTimes by sleepSec
 				end waitInSource
 				
 				on getSource()
@@ -495,7 +502,7 @@ on new()
 							return (source of my getDocument()) as text
 						end try
 					end tell
-
+					
 					missing value
 				end getSource
 				
@@ -505,7 +512,7 @@ on new()
 							return URL of my getDocument()
 						end try
 					end tell
-
+					
 					missing value
 				end getURL
 				
@@ -529,7 +536,7 @@ on new()
 						tell application "Safari" to set URL of my getDocument() to targetUrl
 						true
 					end script
-					exec of waiter on retry for 2
+					exec of retry on retry for 2
 					delay 0.1 -- to give waitForPageLoad ample time to enter a loading state.
 				end goto
 				
@@ -609,7 +616,7 @@ on init()
 	
 	set std to script "std"
 	set logger to std's import("logger")'s new("safari")
-	set retry to std's import("retry")
+	set retry to std's import("retry")'s new()
 	set regex to std's import("regex")
 	set dock to std's import("dock")'s new()
 	set winUtil to std's import("window")'s new()
