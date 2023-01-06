@@ -93,6 +93,7 @@ install-system-preferences:
 
 install-safari:
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari
+	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-javascript
 
 install-script-editor:
 	make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
@@ -118,6 +119,16 @@ install-marked:
 
 install-atom:
 	./scripts/compile-lib.sh apps/3rd-party/Atom/1.60.0/atom
+
+install-step-two:
+	./scripts/compile-lib.sh apps/3rd-party/Step Two/3.1/step-two
+
+install-keyboard-maestro:
+	./scripts/compile-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro
+	./scripts/compile-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro
+
+install-text-mate:
+	./scripts/compile-lib.sh apps/3rd-party/TextMate/2.0.x/text-mate
 
 
 # Library Decorators
