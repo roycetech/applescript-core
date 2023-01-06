@@ -66,7 +66,9 @@ end spotCheck
 
 on new()
 	script KeyboardMaestroInstance
-		
+		(*
+			TODO: move out.
+		*)
 		on createTriggerLink(scriptName, params)
 			set encodedName to textUtil's encodeUrl(scriptName)
 			set encodedParam to textUtil's encodeUrl(params)
@@ -74,6 +76,9 @@ on new()
 		end createTriggerLink
 		
 		
+		(*
+			TODO: move out.
+		*)
 		on createReadableTriggerLink(scriptName, params)
 			set plusName to textUtil's replace(scriptName, " ", "+")
 			set plusParams to textUtil's replace(params, " ", "+")
