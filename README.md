@@ -34,6 +34,11 @@ The quality of a README description often differentiates a good project from a b
 * Essential 
 
 
+### Configuration Files
+
+1.  config-system.plist - 
+2.  config-user.plist - contains 
+
 ### Technologies/Libraries
 
 [ ] Why you used the technologies you used
@@ -94,7 +99,7 @@ This is just a way to show your appreciation and also to help others get a first
 
 MIT License
 
-Copyright (c) [2022] [Royce Remulla]
+Copyright (c) [2023] [Royce Remulla]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -116,20 +121,6 @@ SOFTWARE.
 
 
 ## Additional README Sections
-
-### Badges
-
-Badges aren't necessary, but using them is a simple way of letting other developers know that you know what you're doing.
-
-Having this section can also be helpful to help link to important tools and also show some simple stats about your project like the number of forks, contributors, open issues etc...
-
-Below is a screenshot from one of my projects that shows how you can make use of badges:
-
-badges
-
-The good thing about this section is that it automatically updates it self.
-
-Don't know where to get them from? Check out the badges hosted by shields.io. They have a ton of badges to help you get started. You may not understand what they all represent now, but you will in time.
 
 ### How to Contribute to the Project
 

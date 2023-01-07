@@ -130,6 +130,9 @@ install-keyboard-maestro:
 install-text-mate:
 	./scripts/compile-lib.sh apps/3rd-party/TextMate/2.0.x/text-mate
 
+install-sequel-ace:
+	./scripts/compile-lib.sh apps/3rd-party/Sequel Ace/4.0.x/sequel-ace
+
 
 # Library Decorators
 install-dvorak:
