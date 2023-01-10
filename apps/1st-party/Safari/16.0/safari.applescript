@@ -1,4 +1,4 @@
-global std, retry, regex, dock, winUtil
+global std, retry, regex, dock, winUtil, safariJavaScript, textUtil
 
 (*
 	This script library is a wrapper to Safari application.
@@ -50,10 +50,11 @@ on spotCheck()
 		Manual: Front Tab
 		Manual: First Tab
 		Manual: New Window
-		
+		Manual: Is Side Bar Visible (yes, no)		
 		Manual: Find Tab With Name ()
-		New Window
+		
 		New Tab - Manually Check when no window is present in current space.
+		Manual: Get Group Name
 		
 		Open in Cognito
 		Get Tab by Window ID - Manual
@@ -110,6 +111,9 @@ on spotCheck()
 	else if caseIndex is 3 then
 		sut's newWindow("https://www.example.com")
 		
+	else if caseIndex is 4 then
+		set frontTab to sut's getFrontTab()
+		logger's debugf("Visible: {}", frontTab's isSideBarVisible())
 		
 	else if caseIndex is 3 then
 		set firstTab to getFirstTab()
@@ -134,7 +138,14 @@ on spotCheck()
 		end if
 		
 	else if caseIndex is 6 then
+		sut's newTab("https://www.example.com")
+		
+	else if caseIndex is 7 then
+		logger's infof("Current Group Name: {}", sut's getGroupName())
+		
+	else if caseIndex is 7 then
 		newCognito("https://www.example.com")
+		
 		
 	else if caseIndex is 7 then
 		set existingWindowID to 63731 -- Manually set this ID.
@@ -158,6 +169,88 @@ end spotCheck
 
 on new()
 	script SafariInstance
+		
+		
+		on getGroupName()
+			if running of application "Safari" is false then return missing value
+			
+			tell application "System Events" to tell process "Safari"
+				if (count of windows) is 0 then return
+				
+				set windowTitle to name of front window
+			end tell
+			
+			
+			set sideBarWasVisible to isSideBarVisible()
+			-- logger's debugf("sideBarWasVisible: {}", sideBarWasVisible)
+			
+			if sideBarWasVisible is false then -- let's try to simplify by getting the name from the window name
+				set nameTokens to textUtil's split(windowTitle, uni's SEPARATOR)
+				if number of items in nameTokens is 2 then -- There's a small risk that a current website has the same separator characters in its title and thus result in the wrong group name.	
+					logger's info("Returning group name from window title")
+					return first item of nameTokens
+				end if
+			end if
+			
+			showSideBar()
+			
+			
+			-- UI detects side bar is still hidden, so we wait, to make close work reliably.
+			script SidebarWaiter
+				if isSideBarVisible() is true then return true
+			end script
+			exec of retry on SidebarWaiter for 5
+			
+			tell application "System Events" to tell process "Safari"
+				repeat with nextRow in rows of outline 1 of scroll area 1 of group 1 of splitter group 1 of front window
+					if selected of nextRow is true then
+						if not sideBarWasVisible then
+							-- logger's debug("Closing Sidebar...")
+							my closeSideBar()
+						end if
+						
+						set groupDesc to description of UI element 1 of UI element 1 of nextRow
+						set groupNameTokens to textUtil's split(groupDesc, ",")
+						return first item of groupNameTokens
+					end if
+				end repeat
+			end tell
+			
+			if not sideBarWasVisible then
+				closeSideBar()
+			end if
+			missing value
+		end getGroupName
+		
+		
+		on showSideBar()
+			if running of application "Safari" is false then return
+			tell application "System Events" to tell process "Safari"
+				if (count of windows) is 0 then return
+			end tell
+			if isSideBarVisible() then return
+			
+			tell application "System Events" to tell application process "Safari"
+				set groupOneButtons to buttons of group 1 of toolbar 1 of front window
+			end tell
+			
+			set sideBarButton to uitil's newInstance(groupOneButtons)'s findById("SidebarButton")
+			tell application "System Events" to click sideBarButton
+		end showSideBar
+		
+		
+		on isSideBarVisible()
+			if running of application "Safari" is false then return false
+			
+			tell application "System Events" to tell process "Safari"
+				try
+					return get value of attribute "AXIdentifier" of menu button 1 of group 1 of toolbar 1 of window 1 is "NewTabGroupButton"
+				end try
+			end tell
+			false
+		end isSideBarVisible
+		
+		
 		(* 
 			@return  missing value of tab if not found, else a SafariTabInstance .
 		*)
@@ -348,12 +441,13 @@ on new()
 				end try
 			end tell
 			
-			main's focusWindowWithToolbar()
+			-- main's focusWindowWithToolbar()
+			focusWindowWithToolbar()
 			
 			-- logger's debugf("theUrl: {}", theUrl)
 			tell application "Safari"
 				set theWindow to first window
-				tell theWindow to set current tab to (make new tab with properties {URL:theUrl})
+				tell theWindow to set current tab to (make new tab with properties {URL:targetUrl})
 				set miniaturized of theWindow to false
 				set tabTotal to count of tabs of theWindow
 				
@@ -389,6 +483,30 @@ on new()
 			end tell
 			_new(windowId, 1)
 		end newCognito
+		
+		
+		on focusWindowWithToolbar()
+			if running of application "Safari" is false then return
+			
+			set toolbarredWindow to missing value
+			tell application "System Events" to tell process "Safari"
+				if (count of windows) is 0 then return
+				
+				repeat with nextWindow in windows
+					if exists (toolbar 1 of nextWindow) then
+						set toolbarredWindow to nextWindow
+						exit repeat
+					end if
+				end repeat
+				
+				if toolbarredWindow is not missing value then
+					set focusWindowName to the name of toolbarredWindow as text
+					try
+						click menu item focusWindowName of menu 1 of menu bar item "Window" of menu bar 1
+					end try
+				end if
+			end tell
+		end focusWindowWithToolbar
 		
 		
 		-- Private Codes below =======================================================
@@ -555,9 +673,9 @@ on new()
 				end dismissPasswordSavePrompt
 				
 				on extractUrlParam(paramName)
-					tell application "Safari" to set theUrl to URL of my getDocument()
+					tell application "Safari" to set _url to URL of my getDocument()
 					set pattern to format {"(?<={}=)\\w+", paramName}
-					set matchedString to regex's findFirst(theUrl, pattern)
+					set matchedString to regex's findFirst(_url, pattern)
 					if matchedString is "nil" then return missing value
 					
 					matchedString
@@ -591,8 +709,9 @@ on new()
 				set _url of SafariTabInstance to URL of document of window id windowId
 				set _tab of SafariTabInstance to item pTabIndex of tabs of appWindow of SafariTabInstance
 			end tell
-			set theInstance to SafariTabInstance
+			set theInstance to safariJavaScript's decorate(SafariTabInstance)
 			
+			(*
 			if javaScriptSupport then
 				set js_tab to std's import("javascript-next")
 				set theInstance to js_tab's newInstance(theInstance)
@@ -602,6 +721,7 @@ on new()
 				set jq to std's import("jquery")
 				set theInstance to jq's newInstance(theInstance)
 			end if
+*)
 			
 			theInstance
 		end _new
@@ -616,8 +736,10 @@ on init()
 	
 	set std to script "std"
 	set logger to std's import("logger")'s new("safari")
+	set safariJavaScript to std's import("safari-javascript")
 	set retry to std's import("retry")'s new()
 	set regex to std's import("regex")
 	set dock to std's import("dock")'s new()
 	set winUtil to std's import("window")'s new()
+	set textUtil to std's import("string")
 end init
