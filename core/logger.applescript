@@ -116,7 +116,7 @@ on new(pObjectName)
 	") to file logFilePath starting at eof
 				close access file logFilePath
 			on error the errorMessage number the errorNumber
-				log "Error encountered: " & errorMessage
+				log "Error encountered: " & errorMessage & ":" & logFilePath
 				try
 					close access file logFilePath
 				end try
