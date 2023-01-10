@@ -1,9 +1,16 @@
 global std
 
 (* 
-	Prerequisites:
+	@Prerequisites
 		Requires JSON Helper app from the AppStore.  https://apps.apple.com/us/app/json-helper-for-applescript/id453114608?mt=12. 
 		For testing, "AppleScript Core Project Path" needs to be set in config-system.plist.
+		
+	@Plists
+		config-system.plist
+			AppleScript Core Project Path
+			
+	@Installation
+		make install-json
 *)
 
 property initialized : false
@@ -11,7 +18,7 @@ property logger : missing value
 
 if name of current application is "Script Editor" then spotCheck()
 
-to spotCheck()
+on spotCheck()
 	init()
 	set thisCaseId to "json-spotCheck"
 	logger's start()
@@ -50,7 +57,7 @@ to spotCheck()
 		log toJsonString({|name|:"Hadooken", startDate:missing value})
 		
 	else if caseIndex is 4 then
-		log fromJsonString("{\"name\":\"Havok\", \"last\":\"Noise\"}")
+		log class of fromJsonString("{\"name\":\"Havok\", \"last\":\"Noise\"}")
 		
 	end if
 	
@@ -60,19 +67,22 @@ end spotCheck
 
 
 (* @returns record. *)
-to readJsonFile(posixPath)
+on readJsonFile(posixPath)
 	set jsonFile to POSIX file posixPath
 	set jsonText to _readFile(jsonFile)
 	tell application "JSON Helper" to read JSON from jsonText
 end readJsonFile
 
 
+(*
+	@returns record of the json text.
+*)
 on fromJsonString(jsonText)
 	tell application "JSON Helper" to read JSON from jsonText
 end fromJsonString
 
 
-to toJsonString(serializableObject)
+on toJsonString(serializableObject)
 	tell application "JSON Helper"
 		make JSON from serializableObject
 	end tell
