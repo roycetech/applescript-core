@@ -71,6 +71,11 @@ on new()
 			
 			textUtil's replace(last item of tokens, " ", "")
 		end getFirstOTP
+
+		
+		on getSecondsRemaining()
+			30 - (3rd word of time string of (current date) as integer) mod 30
+		end
 	end script
 end new
 
