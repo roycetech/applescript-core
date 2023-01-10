@@ -1,5 +1,7 @@
 global std, notif, configUser, textUtil, MapClass, emoji, switch, sessionPlist, listUtil
-global SCRIPT_NAME, IDLE_SECONDS, SWITCHES_LIST, SWITCHES_ID, SCRIPT_ACTIVE_FLAG
+global SCRIPT_NAME, IDLE_SECONDS, SCRIPT_ACTIVE_FLAG
+global SWITCHES_LIST, SWITCHES_ID, SESSION_SWITCHES_LIST, SESSION_SWITCHES_ID
+
 global IS_SPOT
 
 (*
@@ -17,8 +19,11 @@ global IS_SPOT
 		
 	@Plist Files
 		switches.plist - contains the state of each switch
+		session.plist - 
+			Menu Switches List - contains the list of session flags that we can quickly access.
 		config-user.plist
 			Switches - Contains the list managed by this app.
+			Session Switches - app-managed switches.
 *)
 
 use framework "Foundation"
@@ -37,6 +42,7 @@ property internalMenuItem : class "NSMenuItem"
 property externalMenuItem : class "NSMenuItem"
 property newMenu : class "NSMenu"
 property switchesCount : 0
+property sessionSwitchesCount : 0
 
 set IS_SPOT to name of current application is "Script Editor"
 
@@ -45,9 +51,12 @@ logger's start()
 
 set IDLE_SECONDS to 60
 set IDLE_SECONDS to 5 -- Let's see if this don't cause too much perf impact.
+
 set SWITCHES_LIST to listUtil's simpleSort(configUser's getValue("Switches"))
+set SESSION_SWITCHES_LIST to listUtil's simpleSort(configUser's getValue("Session Switches"))
 
 if SWITCHES_LIST is not missing value then set switchesCount to count of SWITCHES_LIST
+if SESSION_SWITCHES_LIST is not missing value then set sessionSwitchesCount to count of SESSION_SWITCHES_LIST
 
 if IS_SPOT then
 	delay (idle {})
@@ -98,7 +107,6 @@ on makeMenus()
 	checkForUpdatedList()
 	
 	set SWITCHES_ID to "{"
-	
 	repeat with i from 1 to number of items in SWITCHES_LIST
 		set this_item to item i of SWITCHES_LIST
 		if SWITCHES_ID is not equal to "{" then set SWITCHES_ID to SWITCHES_ID & ", "
@@ -112,12 +120,32 @@ on makeMenus()
 		end if
 		
 		(newMenu's addItem:thisMenuItem)
-		(thisMenuItem's setTarget:me) -- required for enabling the menu item
+		(thisMenuItem's setTarget:me)
 	end repeat
 	set SWITCHES_ID to SWITCHES_ID & "}"
 	-- logger's debugf("SWITCHES_ID: {}", SWITCHES_ID)
-	
 	_addMenuSeparator()
+	
+	
+	set SESSION_SWITCHES_ID to "{"
+	repeat with i from 1 to number of items in SESSION_SWITCHES_LIST
+		set this_item to item i of SESSION_SWITCHES_LIST
+		if SESSION_SWITCHES_ID is not equal to "{" then set SESSION_SWITCHES_ID to SESSION_SWITCHES_ID & ", "
+		
+		set SESSION_SWITCHES_ID to SESSION_SWITCHES_ID & this_item & ": " & sessionPlist's getBool(this_item)
+		if this_item as text is equal to "-" then
+			set thisMenuItem to (current application's NSMenuItem's separatorItem())
+		else
+			if sessionPlist's getBool(this_item) then set this_item to this_item & " " & emoji's CHECK
+			set thisMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:this_item action:("menuSessionToggler:") keyEquivalent:"")
+		end if
+		-- (thisMenuItem's setEnabled:false)		
+		(newMenu's addItem:thisMenuItem)
+		(thisMenuItem's setTarget:me)
+	end repeat
+	set SESSION_SWITCHES_ID to SESSION_SWITCHES_ID & "}"
+	_addMenuSeparator()
+	
 	
 	-- Create the Quit menu item separately
 	set thisMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:"Quit" action:("quitAction:") keyEquivalent:"")
@@ -189,6 +217,15 @@ on updateStatus(menuItem as text)
 	if IS_SPOT is false then makeMenus()
 end updateStatus
 
+on updateSessionStatus(menuItem as text)
+	init()
+	
+	set currentState to sessionPlist's getBool(menuItem)
+	sessionPlist's setValue(menuItem, not currentState)
+	
+	if IS_SPOT is false then makeMenus()
+end updateSessionStatus
+
 
 on quitAction:sender
 	quit me
@@ -204,12 +241,18 @@ on getPositionOfItemInList(theList, theItem)
 	return 0
 end getPositionOfItemInList
 
-
+(* Checks if Switches or Session Switches have been updated from the plist. *)
 on checkForUpdatedList()
 	set switchesAsOfNow to configUser's getValue("Switches")
 	if (count of switchesAsOfNow) is not equal to switchesCount then
 		set switchesCount to count of switchesAsOfNow
 		set SWITCHES_LIST to listUtil's simpleSort(switchesAsOfNow)
+	end if
+	
+	set sessionSwitchesAsOfNow to configUser's getValue("Session Switches")
+	if (count of sessionSwitchesAsOfNow) is not equal to sessionSwitchesCount then
+		set sessionSwitchesCount to count of sessionSwitchesAsOfNow
+		set SESSION_SWITCHES_LIST to listUtil's simpleSort(sessionSwitchesAsOfNow)
 	end if
 end checkForUpdatedList
 
@@ -218,14 +261,8 @@ on clearActiveAction:sender
 	sessionPlist's setValue("Script Active", false)
 end clearActiveAction:
 
-
+(* Handles menu click action for the regular (non-session) switches *)
 on menuToggler:sender
-	(*
-	set std to script "std"
-	set switch to std's import("switch")
-	set emoji to std's import("emoji")
-	*)
-	
 	try
 		set menuItem to sender's title as text
 		if menuItem ends with " " & emoji's CHECK then set menuItem to text 1 thru ((length of menuItem) - 2) of menuItem
@@ -235,6 +272,19 @@ on menuToggler:sender
 		std's catch(me, errorMessage, errorNumber)
 	end try
 end menuToggler:
+
+
+(* Handles menu click action for the session switches *)
+on menuSessionToggler:sender
+	try
+		set menuItem to sender's title as text
+		if menuItem ends with " " & emoji's CHECK then set menuItem to text 1 thru ((length of menuItem) - 2) of menuItem
+		
+		updateSessionStatus(menuItem)
+	on error the errorMessage number the errorNumber
+		std's catch(me, errorMessage, errorNumber)
+	end try
+end menuSessionToggler:
 
 
 (* Constructor *)
@@ -251,7 +301,7 @@ on init()
 	set emoji to std's import("emoji")
 	set configUser to std's import("config")'s new("user")
 	set textUtil to std's import("string")
-	set MapClass to std's import("Map")
+	set MapClass to std's import("map")
 	set plutil to std's import("plutil")'s new()
 	set sessionPlist to plutil's new("session")
 	set listUtil to std's import("list")
