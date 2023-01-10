@@ -35,6 +35,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Manual: E2E: Create New App Script
 		Manual: E2E: Create Voice Command App
+		Manual: Show Side Bar
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -46,12 +47,12 @@ on spotCheck()
 	end if
 	
 	set sut to new()
-	sut's forceQuitApp()
 	
 	set configSystem to std's import("config")'s new("system")
 	
 	if caseIndex is 1 then
 		tell sut
+			forceQuitApp()
 			launchAndWaitReady()
 			createNewDocument()
 			selectApplicationType()
@@ -81,6 +82,7 @@ on spotCheck()
 		
 		(* Commands are similar to when creating a regular app unless specified *)
 		tell sut
+			forceQuitApp()
 			launchAndWaitReady()
 			createNewDocument()
 			selectDictationCommand()
@@ -97,6 +99,10 @@ on spotCheck()
 			-- Voice: Save destination is not available for voice commands.			
 			clickSave()
 		end tell
+		
+	else if caseIndex is 3 then
+		tell sut to showSideBar()
+		
 	end if
 	
 	spot's finish()
@@ -166,6 +172,7 @@ on new()
 		on addAppleScriptAction()
 			if running of application "Automator" is false then return
 			
+			showSideBar()
 			activate application "Automator"
 			tell application "System Events" to tell process "Automator" to keystroke "Run AppleScript"
 			delay 1 -- convert to wait.
@@ -174,6 +181,21 @@ on new()
 			end repeat
 			delay 0.1 -- convert to wait.
 		end addAppleScriptAction
+		
+		
+		on showSideBar()
+			if running of application "Automator" is false then return
+			
+			script ErrorAvoider
+				tell application "System Events" to tell process "Automator"
+					if newWindowName is missing value then set newWindowName to name of front window
+					if value of checkbox 1 of group 1 of toolbar 1 of window newWindowName is 0 then
+						click checkbox 1 of group 1 of toolbar 1 of window newWindowName
+					end if
+				end tell
+			end script
+			exec of retry on result for 10 by 0.1 -- Because it fails to get the window immediately after the doc type selection without the retry.
+		end showSideBar
 		
 		
 		(* 
@@ -232,7 +254,7 @@ end run
 			end tell
 		end setCommandPhrase
 		
-			
+		
 		on clickCommandEnabled()
 			if running of application "Automator" is false then return
 			
