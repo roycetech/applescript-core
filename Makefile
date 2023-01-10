@@ -36,7 +36,7 @@ install: _init compile-core
 	cp -n plist.template ~/applescript-core/config-user.plist || true
 	cp -a assets/sounds/. ~/applescript-core/sounds/
 	touch ~/applescript-core/logs/applescript-core.log
-	osascript scripts/register-project.applescript
+	osascript scripts/setup-applescript-core-project-path.applescript
 	./scripts/setup-switches.sh
 	@echo "Installation done"
 
@@ -91,9 +91,14 @@ install-calendar:
 install-system-preferences:
 	./scripts/compile-lib.sh "apps/1st-party/System Preferences/15.0/system-preferences"
 
-install-safari:
+
+compile-safari:
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-javascript
+
+install-safari: compile-safari
+	osascript ./scripts/allow-apple-events-in-safari.applescript
+
 
 install-script-editor:
 	make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
@@ -115,7 +120,7 @@ uninstall-automator:
 
 # 3rd Party Apps Library
 install-marked:
-	./scripts/compile-lib.sh apps/3rd-party/Marked/2.6.x/marked
+	./scripts/compile-lib.sh apps/3rd-party/Marked/2.6.18/marked
 
 install-atom:
 	./scripts/compile-lib.sh apps/3rd-party/Atom/1.60.0/atom
@@ -133,6 +138,21 @@ install-text-mate:
 install-sequel-ace:
 	./scripts/compile-lib.sh apps/3rd-party/Sequel Ace/4.0.x/sequel-ace
 
+install-1password:
+	./scripts/compile-lib.sh apps/3rd-party/1Password/v6/1password
+
+install-viscosity:
+	./scripts/compile-lib.sh apps/3rd-party/Viscosity/1.10.x/viscosity
+
+install-zoom:
+	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom
+	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/dec-user-zoom
+
+
+# Other libraries
+install-user:
+	./scripts/compile-lib.sh libs/user/user
+
 
 # Library Decorators
 install-dvorak:
@@ -148,5 +168,5 @@ install-cliclick:
 
 # Optional with 3rd party app dependency.
 install-json:
-	./scripts/compile-lib.sh core/json.applescript
+	./scripts/compile-lib.sh libs/json/json
 
