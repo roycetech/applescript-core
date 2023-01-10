@@ -4,12 +4,17 @@
 	Browse the AppleScript Core project path so it can referenced by user 
 	scripts for testing.
 
+	@Prerequisites:
+		Project must be checked out consistently with the same folder as the 
+		repository name. (e.g. https://gh.com/org/project must be cloned with a folder 
+		named "project".
+
 	@Plists:
 		config-system.plist
 			key: AppleScript Core Project Path
 			check: plutil -extract "AppleScript Core Project Path" raw ~/applescript-core/config-system.plist
 		config-user.plist
-			AppleScript Projects (list)
+			AppleScript Projects Path(list)
 			Project applescript-core (project path)
 			
 	@Uninstall:
@@ -17,7 +22,7 @@
 *)
 
 set std to script "std"
-set logger to std's import("logger")'s new("register-project")
+set logger to std's import("logger")'s new("setup-applescript-core-project-path")
 set plutil to std's import("plutil")'s new()
 
 set textUtil to std's import("string")
@@ -45,8 +50,8 @@ end if
 
 configUser's setValue(projectKey, projectPath)
 
-set projectList to configUser's getList("AppleScript Projects")
+set projectList to configUser's getList("AppleScript Projects Path")
 if projectList is missing value then set projectList to {}
-set end of projectList to projectKey
-configUser's setValue("AppleScript Projects", projectList)
+set end of projectList to projectPath
+configUser's setValue("AppleScript Projects Path", projectList)
 logger's infof("The project: {} is now registered", projectPath)
