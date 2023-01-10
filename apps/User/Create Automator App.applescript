@@ -1,6 +1,6 @@
 global std, fileUtil, textUtil, syseve, retry, sessionPlist, configUser
 global seLib, automator
-global IS_SPOT, SCRIPT_NAME, CURRENT_AS_PROJECT
+global IS_SPOT, SCRIPT_NAME
 
 (* 
 	This app is used to create an app using automator for the current document that is opened in the Script Editor app. Apps created via automator does not suffer from the problem of permission error as compared to apps exported via Script Editor, or compiled via osacompile.
@@ -17,13 +17,12 @@ global IS_SPOT, SCRIPT_NAME, CURRENT_AS_PROJECT
 		
 	@Session:
 		Sets the new app name into "New Script Name", for easy fetching when you set the permission after creation.
-		Sets the most recent project key (Current AppleScript Project) for easier subsequent deployment.
 	
 	@Testing Notes
 		Open the Run Script Editor.applescript and that will be used to test this script.	
 		
 	@Configurations
-		Reads config-system.plist - AppleScript Projects
+		Reads config-user.plist - AppleScript Projects Path
 *)
 
 property logger : missing value
@@ -48,7 +47,6 @@ set seLib to std's import("script-editor")'s new()
 set automator to std's import("automator")'s new()
 set configUser to std's import("config")'s new("user")
 
-set CURRENT_AS_PROJECT to "Current AppleScript Project"
 try
 	main()
 on error the errorMessage number the errorNumber
@@ -96,37 +94,51 @@ on main()
 	logger's info("Conditionally quitting existing automator app...")
 	automator's forceQuitApp()
 	
-	set projectKeys to configUser's getValue("AppleScript Projects")
-	if projectKeys is missing value then
-		error "Project keys was not found in config-user.plist"
+	set projectPaths to configUser's getValue("AppleScript Projects Path")
+	if projectPaths is missing value then
+		error "'AppleScript Projects Path' was not found in config-user.plist"
 		return
 	end if
-	
-	set currentAsProjectKey to sessionPlist's getString(CURRENT_AS_PROJECT)
+	(*	
 	if currentAsProjectKey is missing value then
 		set selectedProjectKey to choose from list projectKeys
 	else
 		set selectedProjectKey to choose from list projectKeys with title "Recent Project Key: " & currentAsProjectKey default items {currentAsProjectKey}
 	end if
+	*)
 	
+	set scriptPosixPath to seTab's getPosixPath()
+	set computedProjectKey to missing value
+	repeat with nextPath in projectPaths
+		if scriptPosixPath starts with nextPath then
+			set filePathTokens to textUtil's split(nextPath, "/")
+			set computedProjectKey to the last item of filePathTokens
+			exit repeat
+		end if
+	end repeat
+	
+	(*		
 	if selectedProjectKey is false then
 		logger's info("User canceled")
 		return
 	end if
 	set selectedProjectKey to first item of selectedProjectKey
+	*)
 	
-	logger's debugf("selectedProjectKey: {}", selectedProjectKey)
-	sessionPlist's setValue(CURRENT_AS_PROJECT, selectedProjectKey)
+	logger's debugf("computedProjectKey: {}", computedProjectKey)
+	-- sessionPlist's setValue(CURRENT_AS_PROJECT, selectedProjectKey)
 	
-	set projectPath to configUser's getValue(selectedProjectKey)
-	set resourcePath to textUtil's replace(seTab's getPosixPath(), projectPath & "/", "")
+	set projectPath to configUser's getValue("Project " & computedProjectKey)
+	logger's debugf("projectPath: {}", projectPath)
+	set resourcePath to textUtil's replace(scriptPosixPath, projectPath & "/", "")
+	logger's debugf("resourcePath: {}", resourcePath)
 	
 	tell automator
 		launchAndWaitReady()
 		createNewDocument()
 		selectApplicationType()
 		addAppleScriptAction()
-		writeRunScript(selectedProjectKey, resourcePath)
+		writeRunScript(computedProjectKey, resourcePath)
 		compileScript()
 		triggerSave()
 		waitForSaveReady()
@@ -140,6 +152,7 @@ on main()
 		end if
 		
 		acceptFoundSavePath()
+		delay 0.2 -- fails with 0.1
 		clickSave()
 	end tell
 end main
