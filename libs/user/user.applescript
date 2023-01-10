@@ -15,7 +15,7 @@ global std, cc, zoomApp
 *)
 
 property initialized : false
-property logger : missing value
+property logger : missing value 
 
 if name of current application is "Script Editor" then spotCheck()
 
@@ -33,6 +33,8 @@ on spotCheck()
 		Manual: Get Meeting window
 		Manual: Cue for Touch ID
 		Manual: Done Audible Cue
+		
+		Manual: Is Online
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -58,6 +60,9 @@ on spotCheck()
 		
 	else if caseIndex is 5 then
 		sut's done()
+		
+	else if caseIndex is 6 then
+		logger's infof("Is Online?: {}", sut's isOnline())
 		
 	end if
 	
@@ -93,6 +98,15 @@ on new()
 		on getMeetingWindow()
 			missing value
 		end getMeetingWindow
+		
+		
+		on isOnline()
+				try
+		set pingResult to do shell script "/usr/local/bin/gtimeout 1s bash -c 'ping -c 1 apple.com'"
+		return pingResult contains "0.0% packet loss"
+	end try
+	false
+		end isOnline
 	end script
 	std's applyMappedOverride(result)
 end new
