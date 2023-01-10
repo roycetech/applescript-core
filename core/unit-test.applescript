@@ -21,7 +21,7 @@ on spotCheck()
 		newMethod("isOdd")
 		assertEqual(false, isOdd(0), "Happy Case for 0")
 		assertEqual(true, isOdd(1), "Happy Case for 1")
-		assertEqual(false, isOdd(2), "Happy Case for 2")
+		assertEqual(false, isOdd(2), "Happy Case for 2") 
 		
 		done()
 	end tell
@@ -112,6 +112,10 @@ on new()
 			set caseDescIndexed to formatCaseIndexed(caseDesc)
 			if actual is not missing value then error "Assertion failed for \"" & caseDesc & "\": Expected missing value, but got \"" & actual & "\" value instead."
 		end assertMissingValue
+		
+		on fail(caseDesc)
+			error "Assertion failed for \"" & caseDesc & "\": Expected not to reach this code"
+		end
 		
 		on done()
 			logger's info("All unit test cases passed.")
