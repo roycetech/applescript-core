@@ -1,4 +1,4 @@
-global std, config, fileUtil, regex
+global std, fileUtil, regex
 
 (*
 	@Installation:
@@ -131,11 +131,11 @@ on new()
 	script MarkedInstance
 		on turnOnDarkMode()
 			tell application "System Events" to tell process "Marked"
-				try
-					set isChecked to value of attribute "AXMenuItemMarkChar" of menu item "High Contrast" of menu 1 of menu bar item "Preview" of menu bar 1 is not missing value
-					if isChecked then return
-					
-				end try
+				-- try
+				set isChecked to value of attribute "AXMenuItemMarkChar" of menu item "Dark Mode" of menu 1 of menu bar item "Preview" of menu bar 1 is not missing value
+				if isChecked then return
+				
+				-- end try
 			end tell
 			
 			toggleDarkMode()
@@ -143,8 +143,9 @@ on new()
 		
 		on turnOnLightMode()
 			tell application "System Events" to tell process "Marked"
-				if value of attribute "AXMenuItemMarkChar" of menu item "High Contrast" of menu 1 of menu bar item "Preview" of menu bar 1 is missing value then return
-				
+				try
+					if value of attribute "AXMenuItemMarkChar" of menu item "Dark Mode" of menu 1 of menu bar item "Preview" of menu bar 1 is missing value then return
+				end try
 			end tell
 			
 			toggleDarkMode()
@@ -154,7 +155,7 @@ on new()
 		on toggleDarkMode()
 			tell application "System Events" to tell process "Marked"
 				try
-					click menu item "High Contrast" of menu 1 of menu bar item "Preview" of menu bar 1
+					click menu item "Dark Mode" of menu 1 of menu bar item "Preview" of menu bar 1
 				end try
 			end tell
 		end toggleDarkMode
