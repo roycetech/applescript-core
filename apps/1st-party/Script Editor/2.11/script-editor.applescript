@@ -251,7 +251,7 @@ on new()
 					name of theWindow
 				end getScriptName
 				
-				(* @returns the extensionless filename. *)
+				(* @returns the extension-less filename. *)
 				on getBaseScriptName()
 					set winName to getScriptName()
 					
