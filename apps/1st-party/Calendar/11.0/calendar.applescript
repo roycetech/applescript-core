@@ -1,11 +1,14 @@
-global std, config, regex, textUtil, retry, sb, calEvent, counter, plutil, dt
+global std, config, regex, textUtil, retry, sb, calEvent, counter, plutil, dt, timedCache
 global decoratorCalView, calProcess
 
 use script "Core Text Utilities"
 use scripting additions
 
-
 (*
+	@Plists
+		counter
+			calendar.getMeetingsAtThisTime - for other scripts to limit this slow, user-interrupting check to once perday.
+
 	When parsing meetings for the day, list of records will be returned. In 
 	parallel, a list ACTIVE_MEETINGs will contain the references to the UI.
 	
@@ -16,7 +19,7 @@ use scripting additions
 		
 *)
 
-property initialized : false
+property initialized : false       
 property logger : missing value
 property appAlreadyRunning : false
 
@@ -30,13 +33,14 @@ on spotCheck()
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
 	
-	(* Manual Visual Verifications. *)
+	(* Manual Visual Verification. *)
 	set cases to listUtil's splitByLine("
 		Go to Today
 		Go to date: Jan 7, 2021
 		(Not Covered Here) Current Meeting/s - Non Cached
 		Current Meeting/s
 		Next Meeting
+		
 		Switch View - extension
 		Selected Event
 		Clear Cache on First Run of the Day
@@ -195,14 +199,6 @@ on new()
 		
 		
 		on getMeetingsOfTheDay(dayOfTheWeek)
-			set meetingsCache to tcache's newInstance(1 * days)
-			set meetingsJson to meetingsCache's getValue("Meetings Today")
-			set meetings to ""
-			if meetingsJson is not missing value then set meetings to json's fromJsonString(meetingsJson)
-			
-			-- log meetings
-			if meetingsJson is not missing value then return meetings
-			
 			initCalendarApp()
 			activate application "Calendar"
 			tell application "System Events" to key code 53 -- escape
@@ -226,7 +222,7 @@ on new()
 			
 			tell application "System Events" to tell application process "Calendar"
 				repeat with nextST in static texts of list 1 of group 1 of splitter group 1 of window "Calendar"
-					set meetingDetail to calEvent's newInstance(nextST)
+					set meetingDetail to calEvent's new(nextST)
 					my _moveToNextEventViaUI()
 					
 					set end of meetingDetails to meetingDetail
@@ -234,8 +230,10 @@ on new()
 			end tell
 			
 			switchToViewByTitle(origView)
+			return meetingDetails
 			
-			set jsonBuilder to sb's newInstance("[")
+			
+			set jsonBuilder to sb's new("[")
 			repeat with nextDetail in meetingDetails
 				if jsonBuilder's toString() does not end with "[" then jsonBuilder's append(", ")
 				jsonBuilder's append(nextDetail's toJsonString())
@@ -255,10 +253,7 @@ on new()
 		*)
 		on getMeetingsAtThisTime()
 			-- if counter's hasNotRunToday("getMeetingsAtThisTime") then clearCache()
-			log 1
-			log name of counter
 			counter's increment("getMeetingsAtThisTime")
-			log 2
 			
 			set theNow to getCurrentDate()
 			-- logger's debugf("currentDate: {}", theNow)
@@ -284,6 +279,7 @@ on new()
 	end script
 	set main of CalendarInstance to me
 	decoratorCalView's decorate(CalendarInstance)
+	std's applyMappedOverride(result)
 end new
 
 
@@ -312,7 +308,7 @@ on _launchAndWaitCalendarApp()
 			if (count of windows) is greater than 0 then return true
 		end tell
 	end script
-	exec of waiter on result for 3
+	exec of retry on result for 3
 end _launchAndWaitCalendarApp
 
 
@@ -387,4 +383,5 @@ on init()
 	set plutil to std's import("plutil")'s new()
 	set dt to std's import("date-time")
 	set calProcess to std's import("process")'s new("Calendar")
+	set timedCache to std's import("timed-cache-plist")
 end init
