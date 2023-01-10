@@ -4,10 +4,10 @@ global CACHE
 (*
 	set tcache to std's import("timed-cache-plist")
 
-	Compile:
+	@Compile:
 		make compile-lib SOURCE=libs/timed-cache-plist/timed-cache-plist
 
-	References:
+	@References:
 		* config.plist - Timed Cache List
 		* timed-cache.plist
 *)
@@ -17,7 +17,7 @@ property logger : missing value
 
 if name of current application is "Script Editor" then spotCheck()
 
-to spotCheck()
+on spotCheck()
 	init()
 	set thisCaseId to "timed-cache-spotCheck"
 	logger's start()
@@ -29,7 +29,7 @@ to spotCheck()
 		Integration Testing
 	")
 	
-	set spotLib to std's import("spot-test")' new()
+	set spotLib to std's import("spot-test")'s new()
 	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
@@ -70,7 +70,7 @@ end spotCheck
 
 
 (*  *)
-to new(pExpirySeconds)
+on new(pExpirySeconds)
 	script TimedCacheInstance
 		property expirySeconds : pExpirySeconds
 		
@@ -94,23 +94,25 @@ to new(pExpirySeconds)
 		end setValue
 		
 		
-		to _getRegisteredSeconds(mapKey)
-			CACHE's getValue(_epochTimestampKey(mapKey))
-		end _getRegisteredSeconds
-		
-		to _epochTimestampKey(mapKey)
-			mapKey & "-ets"
-		end _epochTimestampKey
-		
-		to _timestampKey(mapKey)
-			mapKey & "-ts"
-		end _timestampKey
-		
 		on deleteKey(mapKey)
 			CACHE's deleteKey(mapKey)
 			CACHE's deleteKey(_epochTimestampKey(mapKey))
 			CACHE's deleteKey(_timestampKey(mapKey))
 		end deleteKey
+		
+		
+		on _getRegisteredSeconds(mapKey)
+			CACHE's getValue(_epochTimestampKey(mapKey))
+		end _getRegisteredSeconds
+		
+		on _epochTimestampKey(mapKey)
+			mapKey & "-ets"
+		end _epochTimestampKey
+		
+		on _timestampKey(mapKey)
+			mapKey & "-ts"
+		end _timestampKey
+		
 	end script
 end new
 
