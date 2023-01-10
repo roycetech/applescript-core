@@ -182,6 +182,8 @@ end indexOf
 
 
 on simpleSort(myList)
+	if myList is missing value then return missing value
+
 	set the index_list to {}
 	set the sorted_list to {}
 	repeat (the number of items in myList) times
