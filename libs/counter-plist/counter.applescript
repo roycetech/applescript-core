@@ -94,6 +94,7 @@ end spotCheck
 
 
 on totalToday(theKey)
+	init()
 	set todayDate to _formatDate(short date string of (current date))
 	set keyToday to format {"{}-{}", {theKey, todayDate}}
 	
@@ -166,31 +167,31 @@ end clear
 
 
 (* TODO: *)
-to clearRun(theKey)
+on clearRun(theKey)
 	-- _setValue(theKey, missing value)
 end clearRun
 
-to hasRun(theKey)
+on hasRun(theKey)
 	totalAll(theKey) is greater than 0
 end hasRun
 
-to hasRunToday(theKey as text)
+on hasRunToday(theKey as text)
 	totalToday(theKey) is greater than 0
 end hasRunToday
 
-to hasNotRunToday(theKey as text)
+on hasNotRunToday(theKey as text)
 	hasRunToday(theKey) is false
 end hasNotRunToday
 
 (* @scriptName - e.g. "Arrange Windows" *)
-to hasScriptRunToday(scriptName as text)
+on hasScriptRunToday(scriptName as text)
 	set keyToday to format {"Running: [{}.applescript]", my _stripExtension(scriptName)}
 	
 	totalToday(keyToday) is greater than 0
 end hasScriptRunToday
 
 (* @scriptName - e.g. "Arrange Windows" *)
-to totalScriptRunToday(scriptName as text)
+on totalScriptRunToday(scriptName as text)
 	set keyToday to format {"Running: [{}.applescript]", my _stripExtension(scriptName)}
 	
 	totalToday(keyToday)
@@ -199,11 +200,11 @@ end totalScriptRunToday
 
 -- Private Codes below ======================================================
 (* Default format date to yyyyMMdd. Will break by year 3000, i'll be long dead by then and this script buried in archive or deleted. *)
-to _formatDate(dateString)
+on _formatDate(dateString)
 	"20" & last word of dateString & "/" & first word of dateString & "/" & second word of dateString
 end _formatDate
 
-to _stripExtension(scriptName)
+on _stripExtension(scriptName)
 	if scriptName ends with ".applescript" then set scriptName to text 1 thru ((length of scriptName) - (length of ".applescript")) of scriptName
 	scriptName
 end _stripExtension
