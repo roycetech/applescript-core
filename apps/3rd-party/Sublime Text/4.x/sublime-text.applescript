@@ -14,6 +14,10 @@ use scripting additions
 	@Installation:
 		From this sub-directory, run: `make install`
 
+	@Known Issues:
+		The handler isCurrentFileNewUnsaved is broken when the front window does 
+		not have a saved project.
+
 
  	NOTE: if AXDocument is missing, usually when filename is missing value then restart Sublime Text.
 *)
@@ -136,6 +140,10 @@ on new()
 		end getCurrentBaseFilename
 		
 		
+		(*
+			Works by detecting a file image in the window title. Does not work 
+			if the workspace was not saved as a project.
+		*)
 		on isCurrentFileNewUnsaved()
 			if running of application "Sublime Text" is false then return missing value
 			
