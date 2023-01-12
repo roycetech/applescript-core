@@ -19,7 +19,7 @@ use scripting additions
 		
 *)
 
-property initialized : false       
+property initialized : false
 property logger : missing value
 
 if name of current application is "Script Editor" then spotCheck()
@@ -168,10 +168,8 @@ on new()
 			set currentWeekDay to weekday of currentDate as text
 			set meetingsToday to getMeetingsOfTheDay(currentWeekDay)
 			repeat with nextMeeting in meetingsToday
-				if not _isExcluded(title of nextMeeting) and nextMeeting's actioned then
-					if _asDate(nextMeeting's startTime) is greater than currentDate then
-						return nextMeeting
-					end if
+				if nextMeeting's actioned and _asDate(nextMeeting's startTime) is greater than currentDate then
+					return nextMeeting
 				end if
 			end repeat
 			missing value
@@ -246,12 +244,10 @@ on new()
 		
 		(* 
 			Only the action-ed meeting events are included.
-			@returns list of record (not script object). I'm curious why this runs fine despite outside of the instance object. 
+			@returns list of record (not script object). I'm curious why this 
+			runs fine despite outside of the instance object. 
 		*)
 		on getMeetingsAtThisTime()
-			-- if counter's hasNotRunToday("getMeetingsAtThisTime") then clearCache()
-			counter's increment("getMeetingsAtThisTime")
-			
 			set theNow to getCurrentDate()
 			-- logger's debugf("currentDate: {}", theNow)
 			set currentWeekDay to weekday of theNow as text
@@ -274,7 +270,7 @@ on new()
 			theRetval
 		end getMeetingsAtThisTime
 	end script
-
+	
 	decoratorCalView's decorate(CalendarInstance)
 	std's applyMappedOverride(result)
 end new
@@ -324,19 +320,8 @@ end clearCache
 on _moveToNextEventViaUI()
 	-- This is so we don't trigger the popup. Using click or select trigger's popup but pressing up/down arrows don't.
 	activate application "Calendar"
-	tell application "System Events"
-		key code 125 -- down.
-	end tell
+	km's pressKey("down")
 end _moveToNextEventViaUI
-
-on _isExcluded(meetingDescription as text)
-	set exclusionList to config's getCategoryValue("work", "Calendar Exclusions")
-	
-	repeat with nextExclusion in exclusionList
-		if meetingDescription contains nextExclusion then return true
-	end repeat
-	false
-end _isExcluded
 
 
 on computeDurationMinutes(timeStart, timeEnd)
