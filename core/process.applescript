@@ -41,6 +41,7 @@ on spotCheck()
 		Manual: Windows Equal Name(Running, Not Running)
 
 		Manual: Windows Not Equal Name(Running, Not Running)
+		Manual: App Is Running
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -109,6 +110,11 @@ on spotCheck()
 		logger's logObj("Not Equalled Windows: ", sutWindows)
 		logger's infof("Window Count: {}", the number of sutWindows)
 		
+	else if caseIndex is 12 then
+		set sut to new("Script Editor")
+		assertThat of std given condition:sut's isRunning(), messageOnFail:"Failed spot check"
+		set sut to new("Migration Assistant")
+		assertThat of std given condition:sut's isRunning() is false, messageOnFail:"Failed spot check"
 	end if
 	
 	spot's finish()
@@ -123,6 +129,10 @@ on new(pProcessName)
 	script ProcessInstance
 		property processName : pProcessName
 		
+		
+		on isRunning()
+			running of app processName
+		end appExists
 		
 		(* @windowName is case-insensitive. *)
 		on getWindowsMatchingName(windowName)
