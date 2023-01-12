@@ -98,7 +98,8 @@ compile-safari:
 
 install-safari: compile-safari
 	osascript ./scripts/allow-apple-events-in-safari.applescript
-
+	plutil -replace 'FIND_RETRY_MAX' -integer 90 ~/applescript-core/config-system.plist
+	plutil -replace 'FIND_RETRY_SLEEP' -integer 1 ~/applescript-core/config-system.plist
 
 install-script-editor:
 	make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
