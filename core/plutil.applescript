@@ -156,9 +156,9 @@ on spotCheck()
 		
 	else if caseIndex is 13 then
 		set testPlists to listUtil's splitByLine("
-			app-windows/region_windows-big-bottom
+			app-windows/region-windows_big-bottom
 			app-notes/shared/URL-Pattern
-			app-windows/region_windows-big-bottomx
+			app-windows/region-windows_big-bottomx
 			session
 			sessionx
 		")
@@ -390,6 +390,18 @@ on new()
 					_getList(quotedEspacedPlistKey)
 				end getList
 				
+
+				(* 
+					Always returns a list instance. If the the key does not 
+					exist, it returns an empty list instead of a missing value. 
+				*)
+				on getForcedList(plistKey)
+					set fetchedList to getList(plistKey)
+					if fetchedList is not missing value then return fetchedList
+
+					{}					
+				end getList
+
 				
 				on _getList(quotedEspacedPlistKey)
 					set array to {}
@@ -584,7 +596,7 @@ on new()
 				
 				on _escapeAndQuoteKey(plistKey)
 					if plistKey is missing value then return missing value
-					
+
 					if regex's matches("^\\d", plistKey) then set plistKey to "_" & plistKey
 					set escapedPlistKey to plistKey
 					if plistKey contains "." then set escapedPlistKey to do shell script (format {"echo \"{}\" | sed 's/\\./\\\\./g'", plistKey})
@@ -607,7 +619,7 @@ on new()
 				end _insertList
 
 				on _escapeSpecialCharacters(xmlValue)
-					do shell script "echo '" & xmlValue & "' | sed \"s/\\&/\\&amp;/;s/>/\\&gt;/;s/</\\&lt;/;s/'/\\&apos;/\""
+					do shell script "echo \"" & xmlValue & "\" | sed \"s/\\&/\\&amp;/;s/>/\\&gt;/;s/</\\&lt;/;s/'/\\&apos;/\""
 				end _escapeSpecialCharacters
 
 
@@ -850,6 +862,10 @@ to unitTest()
 		assertMissingValue(sut's getList("unicorn-list"), "Missing key returns missing value")
 		assertEqual({}, sut's getList("spot-array-empty"), "Empty List")
 		assertEqual({}, sut's getList("spot array empty"), "Empty List, Spaced-Key")
+
+		newMethod("getForcedList")
+		assertEqual({"one", "two"}, sut's getForcedList("spot-array-string"), "List exists")
+		assertEqual({}, sut's getForcedList("unicorn-list"), "Missing List")
 
 		newMethod("appendValue")
 		sut's appendValue("spot-array2", 3)
