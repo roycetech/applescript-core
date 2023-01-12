@@ -21,7 +21,6 @@ use scripting additions
 
 property initialized : false       
 property logger : missing value
-property appAlreadyRunning : false
 
 if name of current application is "Script Editor" then spotCheck()
 
@@ -123,9 +122,9 @@ end spotCheck
 
 on new()
 	script CalendarInstance
-		property main : missing value
 		property IS_TEST : false
 		property TEST_DATETIME : missing value
+		property appAlreadyRunning : false
 		
 		(* WARNING: Manually modify for testing *)
 		on getCurrentDate()
@@ -215,9 +214,7 @@ on new()
 			-- Select the first event	
 			activate application "Calendar"
 			repeat 10 times
-				tell application "System Events"
-					key code 126 -- Up
-				end tell
+				kb's pressKey("up")
 			end repeat
 			
 			tell application "System Events" to tell application process "Calendar"
@@ -277,7 +274,7 @@ on new()
 			theRetval
 		end getMeetingsAtThisTime
 	end script
-	set main of CalendarInstance to me
+
 	decoratorCalView's decorate(CalendarInstance)
 	std's applyMappedOverride(result)
 end new
