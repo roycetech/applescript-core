@@ -15,7 +15,7 @@ on spotCheck()
 	set viscosityProcess to std's import("process")'s new("Viscosity")
 	viscosityProcess's terminate()
 	
-	script OtpRetriever
+	script OtpRetrieverInstance
 		on getOTP()
 			stepTwo's filter(configUser's getValue("Work Key"))
 			return stepTwo's getFirstOTP()
@@ -39,7 +39,7 @@ on new(pOtpRetriever)
 	end if
 	
 	script ViscosityInstance
-		property OtpRetriever : pOtpRetriever
+		property otpRetriever : pOtpRetriever
 		
 		on run {}
 			if not (running of application "Viscosity") then activate application "Viscosity"
