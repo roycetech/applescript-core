@@ -26,10 +26,12 @@ on spotCheck()
 		Manual: Unlock Security & Privacy > Privacy (Unlock button must be visible already) 
 		Manual: Reveal Dictation
 		Manual: Toggle Voice Control
+		
 		Manual: Click Commands...
 		Manual: Enable 'Turn off Voice Control'
 		Manual: Filter Commands and Enable
 		Manual: Filter Commands and Disable
+		Manual: Click Vocabulary
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -78,6 +80,11 @@ on spotCheck()
 		sut's revealAccessibilityDictation()
 		sut's clickAccessibilityCommands()
 		logger's infof("Manual: Filter and Disable: '<phrase>': {}", sut's filterCommandsAndDisable("<phrase>", 2))
+		
+	else if caseIndex is 10 then
+		sut's quitApp()
+		sut's revealAccessibilityDictation()
+		sut's clickVocabulary()
 		
 	end if
 	
@@ -162,6 +169,42 @@ on new()
 			
 			true
 		end clickAccessibilityCommands
+		
+		on clickVocabulary()
+			if running of application "System Preferences" is false then return false
+			
+			(* Detect when Commands List is already visible. *)
+			tell application "System Events" to tell process "System Preferences"
+				try
+					set listPresent to exists (table 1 of scroll area 1 of sheet 1 of window "Accessibility")
+					set addButtonPresent to exists (first button of group 1 of sheet 1 of window "Accessibility" whose description is "add")
+					set saveButtonPresent to exists (button "Save" of sheet 1 of window "Accessibility")
+					
+					if listPresent and addButtonPresent and saveButtonPresent then return true
+				end try
+				
+			end tell
+			logger's debug("Not already showing target sheet")
+			
+			script ClickRetrier
+				tell application "System Events" to tell process "System Preferences" to tell window "Accessibility" to tell first group
+					try
+						click (first button whose name starts with "Vocabulary")
+					end try
+				end tell
+			end script
+			if (exec of retry on result for 50 by 0.1) is false then return false
+			
+			script FilterWaiter
+				tell application "System Events" to tell process "System Preferences" to tell window "Accessibility"
+					if exists first button of group 1 of sheet 1 of window "Accessibility" whose description is "add" then return true
+				end tell
+			end script
+			set waitResult to exec of retry on result for 50 by 0.1
+			if waitResult is missing value then return false
+			
+			true
+		end clickVocabulary
 		
 		
 		(* 
