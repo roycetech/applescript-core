@@ -215,11 +215,7 @@ on run {input, parameters}
 	set std to script \"std\"
 	set fileUtil to std's import(\"file\")
 	set configUser to std's import(\"config\")'s new(\"user\")
-	set projectPath to configUser's getValue(\"" & projectPathKey & "\")
-
-	-- Alternative, direct shell approach.
-	-- set projectPath to do shell script \"plutil -extract '" & projectPathKey & "' raw ~/applescript-core/config-user.plist\"
-
+	set projectPath to configUser's getValue(\"Project " & projectPathKey & "\")
 	set scriptFilePath to projectPath & \"/" & resourcePath & "\"
 	set scriptMon to fileUtil's convertPosixToMacOsNotation(scriptFilePath)
 	run script alias scriptMon
