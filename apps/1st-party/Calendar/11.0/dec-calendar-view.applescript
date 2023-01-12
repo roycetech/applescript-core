@@ -80,7 +80,7 @@ end newSpotBase
 
 (*  *)
 on decorate(mainScript)
-	script CalExtViewInstance
+	script CalendarWithViewInstance
 		property parent : mainScript
 		
 		on getViewType()
