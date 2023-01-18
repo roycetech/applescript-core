@@ -108,11 +108,16 @@ on new()
 			@return a value from the execute handler. missing value or No result will 
 		trigger a delay and a retry.
 		*)
-		to exec on scriptObj by sleep : 1 for ntimes : 1000
+		on exec on scriptObj by sleep : 1 for ntimes : 1000
 			repeat ntimes times
 				try
 					set handlerResult to run of scriptObj
 					if handlerResult is not missing value then return handlerResult
+				on error the errorMessage number the errorNumber
+					if errorMessage contains "is not allowed assistive access" then
+						error errorMessage
+						exit repeat
+					end if
 				end try
 				delay sleep
 			end repeat
@@ -126,7 +131,7 @@ property targetUis : {}
 property targetUiNames : {}
 
 (* To test if working *)
-to wait on theUi for nseconds
+on wait on theUi for nseconds
 	repeat nseconds times
 		if theUi exists then return true
 		delay 1
