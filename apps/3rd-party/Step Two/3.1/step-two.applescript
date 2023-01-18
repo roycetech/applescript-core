@@ -33,6 +33,8 @@ on spotCheck()
 		sut's filter("VPN")
 		
 	else if caseIndex is 2 then
+		set secondsUntilNext to sut's getSecondsRemaining()
+		if secondsUntilNext is less than 2 then delay secondsUntilNext
 		logger's debugf("OTP: {}", sut's getFirstOTP())
 		
 	end if
@@ -46,7 +48,6 @@ end spotCheck
 (*  *)
 on new()
 	if std's appExists("Step Two") is false then error "Step Two app was not found"
-	
 	
 	script LibraryInstance
 		on filter(filterKey)
@@ -62,7 +63,7 @@ on new()
 			
 			tell application "System Events" to tell process "Step Two"
 				try
-					first UI element of group 1 of list 1 of list 1 of scroll area 1 of window "Step Two" whose description starts with "AmaysimVPN"
+					first UI element of group 1 of list 1 of list 1 of scroll area 1 of window "Step Two"
 					set tokens to textUtil's split(description of result as text, ",")
 				on error
 					return missing value
@@ -71,11 +72,11 @@ on new()
 			
 			textUtil's replace(last item of tokens, " ", "")
 		end getFirstOTP
-
+		
 		
 		on getSecondsRemaining()
 			30 - (3rd word of time string of (current date) as integer) mod 30
-		end
+		end getSecondsRemaining
 	end script
 end new
 
