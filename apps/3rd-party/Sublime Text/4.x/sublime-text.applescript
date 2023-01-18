@@ -37,6 +37,9 @@ on spotCheck()
 		Focus Window - AppleScript		
 		Open File
 		Manual: New Unsaved File
+		Manual: Switch to Group 1
+
+		Manual: Switch to Group 2
 				
 		Run Remote File - e2e
 	")
@@ -66,8 +69,15 @@ on spotCheck()
 	else if caseIndex is 4 then
 		logger's infof("New Unsaved File: {}", sut's isCurrentFileNewUnsaved())
 		
-	else if caseIndex is 11 then
+	else if caseIndex is 5 then
 		activate application "Sublime Text"
+		sut's focusGroup1()
+
+	else if caseIndex is 6 then
+		activate application "Sublime Text"
+		sut's focusGroup2()
+		
+	else if caseIndex is 11 then
 		
 		set doc1name to getDocumentName()
 		focusGroup1()
@@ -362,29 +372,19 @@ on new()
 		
 		(* Sends a close tab key stroke combination. *)
 		on closeTab()
-			tell application "System Events"
-				key code 13 using {command down} -- w
-			end tell
+			kb's pressCommandKey("w")
 		end closeTab
 		
 		
 		on focusGroup1()
-			tell application "System Events"
-				key code 40 using {command down} --  k
-				delay 0.1
-				key code 123 using {command down} --  left arrow
-				delay 0.1
-			end tell
+			kb's pressCommandKey("k")
+			kb's pressCommandKey("left")
 		end focusGroup1
 		
 		
 		on focusGroup2()
-			tell application "System Events"
-				key code 40 using {command down} --  k
-				delay 0.1
-				key code 124 using {command down} --  right arrow
-				delay 0.1
-			end tell
+			kb's pressCommandKey("k")
+			kb's pressCommandKey("right")
 		end focusGroup2
 		
 		
