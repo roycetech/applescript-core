@@ -140,7 +140,13 @@ on new()
 			end tell
 			delay 0.01
 		end pressCommandShiftKey
-		
+
+		on pressCommandOptionKey(keyToPress)
+			tell application "System Events"
+				key code my _charToKeycode(keyToPress) using {command down, option down}
+			end tell
+			delay 0.01
+		end pressCommandOptionKey
 		
 		on pressControlKey(keyToPress)
 			tell application "System Events"
@@ -155,6 +161,13 @@ on new()
 			end tell
 			delay 0.01
 		end pressControlShiftKey
+
+		on pressOptionKey(keyToPress)
+			tell application "System Events"
+				key code my _charToKeycode(keyToPress) using {option down}
+			end tell
+			delay 0.01
+		end pressOptionKey
 		
 		on typeText(theText)
 			tell application "System Events" to keystroke theText
@@ -249,8 +262,11 @@ on _charToKeycode(key)
 	if (ASCII number key) is 13 or key is "return" then return 36
 	
 	if key is "esc" then return 53
+	if key is "escape" then return 53
 	if key is "delete" then return 51
+	if key is "del" then return 51
 	if key is "space" then return 49
+	if key is " " then return 49
 	if key is "up" then return 126
 	if key is "down" then return 125
 	if key is "left" then return 123
