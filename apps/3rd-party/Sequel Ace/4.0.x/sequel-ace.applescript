@@ -88,7 +88,7 @@ on spotCheck()
 		
 	else if caseIndex is 10 then
 		set frontTab to sut's getFrontTab()
-		frontTab's runQuery("SELECT '" & current date & "'")
+		frontTab's runQuery("SELECT '" & (current date) & "'")
 		
 	end if
 	
@@ -274,7 +274,7 @@ on new()
 					tell application "System Events" to tell process "Sequel Ace"
 						if (count of windows) is 0 then return false
 						
-						not (exists button "Connect" of scroll area 2 of splitter group 1 of window "Sequel Ace")
+						not (exists button "Connect" of scroll area 2 of splitter group 1 of window "Sequel Ace") and name of front window does not start with "Connecting"
 					end tell
 				end isConnected
 				
@@ -307,7 +307,10 @@ on new()
 				end findTable
 				
 				
-				(* @tabName - Structure, Content, Query, etc. *)
+				(* 
+					@Deprecated - use switch view instead.
+					@tabName - Structure, Content, Query, etc. 
+				*)
 				on switchTab(tabName)
 					if tabName is not equal to "Query" and isTableSelected() is false then
 						logger's warn("Table must be selected")
@@ -321,9 +324,26 @@ on new()
 						end try -- when button is not visible on small windows, for example the query.
 					end tell
 				end switchTab
+				
+				(* 
+					Switches the current view between Query, Contents, Structure etc. Use the menu 
+					item name for better reliability because some UI elements are hidden when the 
+					window is shrunk. 
+				*)
+				on switchView(viewName)
+					if running of application "Sequel Ace" is false then return false
+					
+					tell application "System Events" to tell process "Sequel Ace"
+						try
+							click menu item viewName of menu 1 of menu bar item "View" of menu bar 1
+						end try
+					end tell
+				end switchView
 			end script
+			std's applyMappedOverride(result)
 		end new
 	end script
+	std's applyMappedOverride(result)
 end new
 
 
