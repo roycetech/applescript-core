@@ -1,4 +1,4 @@
-global std, textUtil, retry, cliclick, clip
+global std, textUtil, retry, cliclick, clip, kb
 
 (*
 	Usage:
@@ -35,7 +35,9 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
+
+
 	set sut to new()
 	set spotCredKey to "AppleScript Core"
 	
@@ -101,11 +103,7 @@ on new()
 		
 		
 		on getPasswordViaMini(credKey)
-			tell application "System Events" to tell process "1Password mini"
-				key code 42 using {option down, command down} -- \
-				delay 0.1
-			end tell
-			
+			kb's pressCommandOptionKey("\\")
 			set unlocked to waitToUnlockMini()
 			if unlocked is false then return
 			
@@ -114,16 +112,14 @@ on new()
 					perform action 2 of group 1 of UI element 1 of row 1 of table 1 of scroll area 1 of window 1
 					delay 0.2
 					repeat with nextRow in rows of table 1 of scroll area 1 of window 1
-						key code 125 -- down
+						kb's pressKey("down")
 						if credKey is equal to the name of UI element 1 of nextRow then
 							set found to true
 							exit repeat
 						end if
 					end repeat
-					
-					key code 124 -- right
-					delay 0.1
-					key code 36
+					kb's pressKey("right")
+					kb's pressKey("return")
 				end tell
 			end script
 			clip's extract(RetrievePassword)
@@ -131,10 +127,7 @@ on new()
 		
 		(* Does not check if expiring soon, but should be okay because this is faster. May fail if the UI elementis not ready in time.*)
 		on getOtpViaMini(credKey)
-			tell application "System Events" to tell process "1Password mini"
-				key code 42 using {option down, command down} -- \
-				delay 0.1
-			end tell
+			kb's pressCommandOptionKey("\\")
 			
 			set unlocked to waitToUnlockMini()
 			if unlocked is false then return
@@ -144,19 +137,18 @@ on new()
 					perform action 2 of group 1 of UI element 1 of row 1 of table 1 of scroll area 1 of window 1
 					delay 0.2
 					repeat with nextRow in rows of table 1 of scroll area 1 of window 1
-						key code 125 -- down
+						kb's pressKey("down")
 						if credKey is equal to the name of UI element 1 of nextRow then
 							set found to true
 							exit repeat
 						end if
 					end repeat
 					
-					key code 124 -- right
+					kb's pressKey("right")
 					delay 0.3
-					key code 125 -- down
-					key code 125 -- down
-					
-					key code 36
+					kb's pressKey("down")
+					kb's pressKey("down")
+					kb's pressKey("return")
 				end tell
 			end script
 			clip's extract(RetrievePassword)
@@ -214,7 +206,6 @@ on new()
 			
 			if unlockState is "locked" then
 				-- logger's debug("Clicking touch ID...")
-				-- if not jada's isMac21() then _clickTouchId()
 				_clickTouchId()
 				delay 1
 				do shell script "afplay /System/Library/Sounds/Purr.aiff"
@@ -243,7 +234,7 @@ on new()
 			script Unlock
 				tell application "System Events" to tell process "1Password mini"
 					if exists (window 1) then
-						do shell script "afplay ~/applescript/sounds/Beer\\ Opening.aiff > /dev/null 2>&1 &"
+						-- do shell script "afplay ~/applescript/sounds/Beer\\ Opening.aiff > /dev/null 2>&1 &"
 						return "unlocked"
 					end if
 				end tell
@@ -300,7 +291,7 @@ on new()
 			script CredSearched
 				doClearSearch()
 				doSearch(credKey)
-				
+
 				if doGetUsernamePrivate() is not equal to "applescript" then return true
 			end script
 			
@@ -502,8 +493,8 @@ on new()
 				end repeat
 			end tell
 		end doGetOTPPrivate
-		
-		
+
+
 		(* Private handler, do not invoke directly in client code. Use doGetUsername with built-in retry mechanism instead. *)
 		on doGetUsernamePrivate()
 			tell application "System Events" to tell process "1Password 6"
@@ -520,8 +511,8 @@ on new()
 				end repeat
 			end tell
 		end doGetUsernamePrivate
-		
-		
+
+
 		(* Not accessible so we find the button beside it adjust the pointer from there. *)
 		on _clickTouchId()
 			tell application "System Events" to tell process "1Password 6"
@@ -542,5 +533,6 @@ on init()
 	set textUtil to std's import("string")
 	set retry to std's import("retry")'s new()
 	set clip to std's import("clipboard")'s new()
-	set cliclick to std's import("cliclick") -- deprecated the pointer lib due to unregistered author developer account.
+	set cliclick to std's import("cliclick")
+	set kb to std's import("keyboard")'s new()
 end init
