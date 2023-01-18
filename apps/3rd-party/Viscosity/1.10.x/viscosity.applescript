@@ -3,6 +3,11 @@ global std, retry
 property initialized : false
 property logger : missing value
 
+(*
+	@Testing:
+		Uses Step Two app for testing. Other apps may be used as well like 1Password.
+*)
+
 if name of current application is "Script Editor" then spotCheck()
 
 on spotCheck()
@@ -11,18 +16,25 @@ on spotCheck()
 	logger's start()
 	
 	set stepTwo to std's import("step-two")'s new()
-	set configUser to std's import("config")'s new("user")
+	set configBusiness to std's import("config")'s new("business")
 	set viscosityProcess to std's import("process")'s new("Viscosity")
 	viscosityProcess's terminate()
 	
+	set domainKey to configBusiness's getValue("Domain Key")
+	logger's debugf("domainKey: {}", domainKey)
 	script OtpRetrieverInstance
 		on getOTP()
-			stepTwo's filter(configUser's getValue("Work Key"))
+			set OTP_APP_NAME to "Step Two"
+			if running of application OTP_APP_NAME is false then
+				activate application OTP_APP_NAME
+				delay 1
+			end if
+			stepTwo's filter(domainKey)
 			return stepTwo's getFirstOTP()
 		end getOTP
 	end script
 	
-	set sut to new(OtpRetriever)
+	set sut to new(OtpRetrieverInstance)
 	exec of retry on sut by 1 for 100
 	-- Takes about 9s to re-connect (otp-less).
 	
