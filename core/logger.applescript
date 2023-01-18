@@ -66,7 +66,7 @@ on new(pObjectName)
 		end finish
 		
 		
-		to logOnFile(thisInfo)
+		on logOnFile(thisInfo)
 			set my logOverride to true
 			info(thisInfo)
 			set my logOverride to false
@@ -155,7 +155,7 @@ on new(pObjectName)
 		end fatal
 		
 		
-		to _secsToHMS(secs)
+		on _secsToHMS(secs)
 			tell (1000000 + secs div hours * 10000 + secs mod hours div minutes * 100 + secs mod minutes) as string to return text 2 thru 3 & ":" & text 4 thru 5 & ":" & text 6 thru 7
 		end _secsToHMS
 		
