@@ -135,6 +135,17 @@ on decorate(baseScript)
 			set dvorakKey to _toDvorak(keyToPress)
 			continue pressControlShiftKey(dvorakKey)
 		end pressControlShiftKey
+
+		on pressOptionKey(keyToPress)
+			if not isDvorak() then
+				continue pressOptionKey(keyToPress)
+				return
+			end if
+			
+			set dvorakKey to _toDvorak(keyToPress)
+			continue pressOptionKey(dvorakKey)
+		end pressOptionKey
+
 		
 		on typeText(theText)
 			tell application "System Events" to keystroke theText
