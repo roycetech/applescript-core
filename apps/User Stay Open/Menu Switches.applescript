@@ -1,5 +1,5 @@
 global std, notif, configUser, textUtil, MapClass, emoji, switch, sessionPlist, listUtil
-global SCRIPT_NAME, IDLE_SECONDS, SCRIPT_ACTIVE_FLAG
+global SCRIPT_NAME, IDLE_SECONDS
 global SWITCHES_LIST, SWITCHES_ID, SESSION_SWITCHES_LIST, SESSION_SWITCHES_ID
 
 global IS_SPOT
@@ -165,14 +165,7 @@ on idle
 	try
 		if scriptStateHasChanged() then
 			logger's debug("scriptStateHasChanged...")
-			
-			set SCRIPT_ACTIVE_FLAG to sessionPlist's getBool("Script Active")
-			
-			if SCRIPT_ACTIVE_FLAG then
-				StatusItem's setTitle:(emoji's WHITE_CHECK)
-			else
-				StatusItem's setTitle:(emoji's CHECKBOX)
-			end if
+			StatusItem's setTitle:(emoji's CHECKBOX)
 		end if
 		
 		try -- intermittent error when reading the flags.plist.
@@ -305,6 +298,4 @@ on init()
 	set plutil to std's import("plutil")'s new()
 	set sessionPlist to plutil's new("session")
 	set listUtil to std's import("list")
-	
-	set SCRIPT_ACTIVE_FLAG to sessionPlist's getBool("Script Active")
 end init
