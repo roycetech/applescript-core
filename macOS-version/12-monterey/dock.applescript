@@ -1,4 +1,4 @@
-global std, retryLib
+global std, retryLib, kb
 
 (*
 	For the Assign to Desktop menu item to appear, there has to be more than one 
@@ -208,7 +208,7 @@ on new()
 				try
 					click menu item subMenuName of menu 1 of menu item "Options" of first menu of UI element appName of list 1
 				on error
-					key code 53
+					kb's pressKey("esc")
 					return false
 				end try
 			end tell
@@ -228,4 +228,5 @@ on init()
 	set std to script "std"
 	set logger to std's import("logger")'s new("dock")
 	set retryLib to std's import("retry")
+	set kb to std's import("keyboard")'s new()
 end init
