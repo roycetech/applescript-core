@@ -54,7 +54,8 @@ on new()
 					logger's info("SILENCED: " & rawText)
 					return
 				end if
-			on error -- ignore if user script is not installed.
+			on error the errorMessage number the errorNumber -- ignore if user script is not installed.
+				logger's warn(errorMessage)
 				return
 			end try
 			
@@ -113,6 +114,9 @@ on new()
 			else
 				set prefix to "S* "
 			end if
+
+			if logger is missing value then set logger to std's import("logger")'s new("speech") -- weird error.
+
 			logger's info(prefix & rawText)
 		end speakAndLog
 		
