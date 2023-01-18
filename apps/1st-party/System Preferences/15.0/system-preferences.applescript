@@ -4,7 +4,7 @@ global std, retry, usr
 	Library wrapper for the System Preferences app. Some handlers have more additional requirements than others.  See handler's documentation for more info.
 
 	@Deployment:
-		make compile-lib SOURCE="apps/1st-party/System Preferences/15.0/system-preferences"
+		make compile-lib SOURCE="apps/1st-party/System Preferences/15.0/system-preferences"		
 *)
 
 property initialized : false
@@ -14,7 +14,7 @@ if name of current application is "Script Editor" then spotCheck()
 
 on spotCheck()
 	init()
-	set thisCaseId to "scripteditor-spotCheck"
+	set thisCaseId to "system-preferences-spotCheck"
 	logger's start()
 	
 	-- If you haven't got these imports already.
@@ -154,10 +154,13 @@ on new()
 				tell application "System Events" to tell process "System Preferences" to tell window "Accessibility" to tell first group
 					try
 						click (first button whose name starts with "Commands")
+						true
+					on error the errorMessage number the errorNumber
+						logger's warn(errorMessage)
 					end try
 				end tell
 			end script
-			if (exec of retry on result for 50 by 0.1) is false then return false
+			if (exec of retry on result for 50 by 0.1) is missing value then return false
 			
 			script FilterWaiter
 				tell application "System Events" to tell process "System Preferences" to tell window "Accessibility"
@@ -197,7 +200,7 @@ on new()
 			
 			script FilterWaiter
 				tell application "System Events" to tell process "System Preferences" to tell window "Accessibility"
-					if exists first button of group 1 of sheet 1 of window "Accessibility" whose description is "add" then return true
+					if exists (first button of group 1 of sheet 1 of window "Accessibility" whose description is "add") then return true
 				end tell
 			end script
 			set waitResult to exec of retry on result for 50 by 0.1
