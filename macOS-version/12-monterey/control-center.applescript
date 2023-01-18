@@ -1,4 +1,4 @@
-global std, retryLib
+global std, retryLib, kb
 
 (* 
 	NOTE: This script requires accessibility access, grant when prompted.
@@ -88,15 +88,14 @@ on switchAudioOutput(outputName)
 		try
 			click (first checkbox of scroll area 1 of first window whose title contains outputName)
 			set clickResult to true
-		end try
-		
-		key code 53 -- escape
+		end try		
 	end tell
+	kb's pressKey("esc")
 	clickResult
 end switchAudioOutput
 
 (* Accomplished by clicking on the time in the menu bar items *)
-to showWidgets()
+on showWidgets()
 	tell application "System Events" to tell process "ControlCenter"
 		try
 			click menu bar item "Clock" of first menu bar
@@ -105,12 +104,12 @@ to showWidgets()
 end showWidgets
 
 
-to setDoNotDisturbOn()
+on setDoNotDisturbOn()
 	_setDoNotDisturb(true)
 	
 end setDoNotDisturbOn
 
-to setDoNotDisturbOff()
+on setDoNotDisturbOff()
 	_setDoNotDisturb(false)
 end setDoNotDisturbOff
 
@@ -121,7 +120,7 @@ on getDNDStatus()
 		click (first menu bar item of menu bar 1 whose name starts with "Control Center")
 		if exists (first checkbox of front window whose title is "Do Not Disturb") then set currentState to 1
 	end tell
-	tell application "System Events" to key code 53 -- Escape
+	kb's pressKey("esc")
 	currentState
 end getDNDStatus
 
@@ -157,17 +156,17 @@ on _setDoNotDisturb(newValue as boolean)
 			else
 				click (first checkbox of front window whose title is currentFocusName)
 			end if
-			tell application "System Events" to key code 53 -- Escape
+			kb's pressKey("esc")
 			
 		else if currentState is 0 and newValue then
 			click (first checkbox of front window whose title is "Focus")
-			tell application "System Events" to key code 53 -- Escape
+			kb's pressKey("esc")
 			
 		else if currentState is 1 and newValue is false then
 			click (first checkbox of front window whose title is "Do Not Disturb")
-			tell application "System Events" to key code 53 -- Escape
+			kb's pressKey("esc")
 		else
-			tell application "System Events" to key code 53 -- Escape
+			kb's pressKey("esc")
 		end if
 	end tell
 end _setDoNotDisturb
@@ -181,4 +180,5 @@ on init()
 	set std to script "std"
 	set logger to std's import("logger")'s new("control-center")
 	set retryLib to std's import("retry")
+	set kb to std's import("keyboard")'s new()
 end init
