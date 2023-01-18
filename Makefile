@@ -32,8 +32,8 @@ install: _init compile-core
 	cp -n plist.template ~/applescript-core/config-system.plist || true
 	cp -n plist.template ~/applescript-core/session.plist || true
 	cp -n plist.template ~/applescript-core/switches.plist || true
-
 	cp -n plist.template ~/applescript-core/config-user.plist || true
+	cp -n plist.template ~/applescript-core/config-business.plist || true
 	cp -a assets/sounds/. ~/applescript-core/sounds/
 	touch ~/applescript-core/logs/applescript-core.log
 	osascript scripts/setup-applescript-core-project-path.applescript
@@ -120,35 +120,46 @@ uninstall-automator:
 
 
 # 3rd Party Apps Library
-install-marked:
-	./scripts/compile-lib.sh apps/3rd-party/Marked/2.6.18/marked
+install-1password:
+	./scripts/compile-lib.sh apps/3rd-party/1Password/v6/1password
 
 install-atom:
 	./scripts/compile-lib.sh apps/3rd-party/Atom/1.60.0/atom
-
-install-step-two:
-	./scripts/compile-lib.sh apps/3rd-party/Step Two/3.1/step-two
 
 install-keyboard-maestro:
 	./scripts/compile-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro
 	./scripts/compile-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro
 
-install-text-mate:
-	./scripts/compile-lib.sh apps/3rd-party/TextMate/2.0.x/text-mate
+install-marked:
+	./scripts/compile-lib.sh apps/3rd-party/Marked/2.6.18/marked
+
+install-step-two:
+	./scripts/compile-lib.sh apps/3rd-party/Step Two/3.1/step-two
 
 install-sequel-ace:
 	./scripts/compile-lib.sh apps/3rd-party/Sequel Ace/4.0.x/sequel-ace
 
-install-1password:
-	./scripts/compile-lib.sh apps/3rd-party/1Password/v6/1password
+install-sublime-text:
+	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/sublime-text
+
+install-text-mate:
+	./scripts/compile-lib.sh apps/3rd-party/TextMate/2.0.x/text-mate
 
 install-viscosity:
 	./scripts/compile-lib.sh apps/3rd-party/Viscosity/1.10.x/viscosity
 
-install-zoom:
+compile-zoom:
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/dec-user-zoom
+	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-window
+	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
+	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-participants
 
+install-zoom: compile-zoom
+	mkdir -p ~/applescript-core/zoom.us/
+	cp -n plist.template ~/applescript-core/zoom.us/config.plist || true
+	osascript ./apps/3rd-party/zoom.us/setup-configurations.applescript
+	plutil -replace 'UserInstance' -string 'dec-user-zoom' ~/applescript-core/config-lib-factory.plist
 
 # Other libraries
 install-user:
@@ -160,7 +171,6 @@ install-dvorak:
 	./scripts/compile-lib.sh core/decorators/dec-keyboard-dvorak-cmd
 	./scripts/compile-lib.sh core/keyboard
 	plutil -replace 'KeyboardInstance' -string 'dec-keyboard-dvorak-cmd' ~/applescript-core/config-lib-factory.plist
-
 
 install-cliclick:
 	./scripts/compile-lib.sh libs/cliclick/cliclick
