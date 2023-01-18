@@ -43,6 +43,8 @@ on main()
 	tell application "System Events" to tell process "Script Editor"
 		try
 			click (first button of toolbar 1 of front window whose description is "Run")
+		on error the errorMessage number the errorNumber
+			logger's warn(errorMessage)
 		end try
 	end tell
 end main
