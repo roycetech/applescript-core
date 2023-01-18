@@ -1,4 +1,4 @@
-global std, config, regex, textUtil, retry, sb, calEvent, counter, plutil, dt, timedCache
+global std, config, regex, textUtil, retry, sb, calEvent, counter, plutil, dt, kb
 global decoratorCalView, calProcess
 
 use script "Core Text Utilities"
@@ -198,7 +198,7 @@ on new()
 		on getMeetingsOfTheDay(dayOfTheWeek)
 			initCalendarApp()
 			activate application "Calendar"
-			tell application "System Events" to key code 53 -- escape
+			kb's pressKey("esc")
 			
 			set origView to getViewType()
 			switchToDayView()
@@ -225,20 +225,7 @@ on new()
 			end tell
 			
 			switchToViewByTitle(origView)
-			return meetingDetails
-			
-			
-			set jsonBuilder to sb's new("[")
-			repeat with nextDetail in meetingDetails
-				if jsonBuilder's toString() does not end with "[" then jsonBuilder's append(", ")
-				jsonBuilder's append(nextDetail's toJsonString())
-			end repeat
-			jsonBuilder's append("]")
-			meetingsCache's setValue("Meetings Today", jsonBuilder's toString())
-			
-			if appAlreadyRunning is false then syseve's quitApp("Calendar")
-			
-			json's fromJsonString(jsonBuilder's toString())
+			meetingDetails			
 		end getMeetingsOfTheDay
 		
 		
@@ -305,22 +292,11 @@ on _launchAndWaitCalendarApp()
 end _launchAndWaitCalendarApp
 
 
-(*
-on clearCache()
-	set timedCacheList to config's getDefaultsValue("Timed Cache List")
-	set timedCache to plist's newInstance("timed-cache")
-	set cacheName to "Meetings Today"
-	timedCache's deleteKey(cacheName)
-	timedCache's deleteKey(cacheName & "-ts")
-end clearCache
-*)
-
-
 -- Private Codes below =======================================================
 on _moveToNextEventViaUI()
 	-- This is so we don't trigger the popup. Using click or select trigger's popup but pressing up/down arrows don't.
 	activate application "Calendar"
-	km's pressKey("down")
+	kb's pressKey("down")
 end _moveToNextEventViaUI
 
 
@@ -365,5 +341,5 @@ on init()
 	set plutil to std's import("plutil")'s new()
 	set dt to std's import("date-time")
 	set calProcess to std's import("process")'s new("Calendar")
-	set timedCache to std's import("timed-cache-plist")
+	set kb to std's import("keyboard")'s new()
 end init
