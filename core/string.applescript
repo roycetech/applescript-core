@@ -1,5 +1,6 @@
 global std
 
+
 (*
 	Usage:
 		set textUtil to std's import("string")
