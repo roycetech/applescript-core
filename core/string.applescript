@@ -12,9 +12,9 @@ global std
 property initialized : false
 property logger : missing value
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Debugger", "Script Editor"} contains the name of current application then spotCheck()
 
-to spotCheck()
+on spotCheck()
 	init()
 	set thisCaseId to "string-spotCheck"
 	logger's start()
@@ -110,7 +110,7 @@ on replaceFirst(sourceText, substring, replacement)
 end replaceFirst
 
 
-to removeUnicode(textWithUnicodeChar)
+on removeUnicode(textWithUnicodeChar)
 	do shell script "echo " & quoted form of textWithUnicodeChar & " | iconv -c -f utf-8 -t ascii || true"
 end removeUnicode
 
@@ -137,7 +137,7 @@ end urlEncode
 	@Prefer to use urlEncode, unless encoding a shell command that can result in a conflict. 
 	Visit https://www.urlencoder.org for an online tool.
 *)
-to encodeUrl(theString as text)
+on encodeUrl(theString as text)
 	-- printAsciiNumber(theString)
 	
 	-- do shell script "urlencode_grouped_case \"" & theString & "\""	
@@ -164,7 +164,7 @@ to encodeUrl(theString as text)
 end encodeUrl
 
 
-to decodeUrl(theString as text)
+on decodeUrl(theString as text)
 	-- does not work with %7c
 	-- return do shell script "echo '" & theString & "' | printf \"%b\\n\" \"$(sed 's/+/ /g; s/%\\([0-9a-f][0-9a-f]\\)/\\\\x\\1/g;')\";"
 	
@@ -193,13 +193,13 @@ end decodeUrl
 
 
 (* To prevent clash with scptd. *)
-to formatNext(theString as text, theTokens as list)
+on formatNext(theString as text, theTokens as list)
 	format(theString, theTokens)
 end formatNext
 
 
 (* Safer handler to use because it uses pure AppleScript and it does not shell out, so it does not conflict with the actual text. *)
-to formatClassic(theString as text, theTokens as list)
+on formatClassic(theString as text, theTokens as list)
 	if class of theTokens is text then set theTokens to {theTokens}
 	set builtString to theString
 	repeat with nextToken in theTokens
@@ -217,7 +217,7 @@ end formatClassic
 on format(theString, theTokens)
 	if class of theTokens is not list then set theTokens to {theTokens}
 	if theTokens is {} then set theTokens to {{}}
-
+	
 	set oldDelimiters to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to "{}"
 	set theArray to every text item of theString
@@ -301,14 +301,14 @@ to join(aList, delimiter)
 end join
 
 
-to lastIndexOf(sourceText, substring)
+on lastIndexOf(sourceText, substring)
 	if (offset of substring in sourceText) is 0 then return 0
 	set theList to my split(sourceText, substring)
 	return (length of sourceText) - (length of last item of theList)
 end lastIndexOf
 
 
-to replaceAll(sourceText, substring, replacement)
+on replaceAll(sourceText, substring, replacement)
 	
 end replaceAll
 
@@ -331,7 +331,7 @@ on replace(sourceText, substring, replacement)
 	
 	if sourceText starts with substring then
 		set startIdx to the (length of substring) + 1
-		return replace(replacement & text startIdx thru length of sourceText, substring, replacement)
+		return replacement & replace(text startIdx thru length of sourceText, substring, replacement)
 	end if
 	
 	if sourceText is missing value then return sourceText
@@ -377,7 +377,7 @@ on substringFrom(thisText, startIdx)
 end substringFrom
 
 
-to rtrim(theText)
+on rtrim(theText)
 	set trimOffset to count of theText
 	repeat until (character trimOffset of theText) is not in {" ", "
 "}
@@ -391,7 +391,7 @@ to rtrim(theText)
 end rtrim
 
 
-to ltrim(theText as text)
+on ltrim(theText as text)
 	if theText is "" then return ""
 	
 	set trimOffset to 1
@@ -410,21 +410,21 @@ end ltrim
 
 
 (* NOTE: For Review! *)
-to trim(theText)
+on trim(theText)
 	-- do shell script "ruby -e \"p '" & theText & "'.strip\" | sed 's/\"//g'"
 	do shell script "echo \"" & theText & "\" |  sed 's/ *$//g'  |  sed 's/^ *//g'"
 end trim
 
 
 (* Used for debugging to determine the ASCII number of each character of the string provided. *)
-to printAsciiNumber(theString)
+on printAsciiNumber(theString)
 	repeat with nextChar in characters of theString
 		log nextChar & " " & (ASCII number nextChar)
 	end repeat
 end printAsciiNumber
 
 
-to isUnicode(theString)
+on isUnicode(theString)
 	set inspected to ""
 	repeat with nextChar in characters of theString
 		set inspected to inspected & (ASCII character (ASCII number nextChar))
@@ -489,6 +489,7 @@ $('{}') = '{}';", {"a", "hello"})
 		assertEqual("https:\\/\\/localhost:8080\\/yo", my replace("https://localhost:8080/yo", "/", "\\/"), "Escaping Slashes")
 		assertEqual("https:\\/\\/localhost:8080\\/yo\\/", my replace("https://localhost:8080/yo/", "/", "\\/"), "Escaping Slashes ending with one")
 		assertEqual("=Applications=Setapp", my replace("/Applications/Setapp", "/", "="), "Bugged")
+		assertEqual("\\[Square] Bracket", my replace("[Square] Bracket", "[", "\\["), "Escaping")
 		
 		newMethod("decodeUrl")
 		assertEqual("hello world", my decodeUrl("hello%20world"), "Basic")
@@ -608,10 +609,10 @@ $('{}') = '{}';", {"a", "hello"})
 end unitTest
 
 
-to init()
+on init()
 	if initialized of me then return
 	set initialized of me to true
-
+	
 	set std to script "std"
 	set logger to std's import("logger")'s new("string")
 end init
