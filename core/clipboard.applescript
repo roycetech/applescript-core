@@ -24,7 +24,9 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Manual: Extract From a Script
 		Manual: Save the Clipboard value
-		Manual E2E: Save and Restore the Clipboard value.
+		Manual E2E: Save and Restore the Clipboard value
+		Manual: Copy That (None, Selected)
+		Manual Copy That Word (None, One Word, Multi)
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -75,6 +77,20 @@ on spotCheck()
 		assertThat of std given condition:(the clipboard) is equal to "$spot", messageOnFail:"Failed to restore the clipboard value"
 		logger's info("Passed")
 		
+	else if caseIndex is 4 then
+		(*
+			Beeps when none is selected
+		*)
+		set copiedText to sut's copyThat()
+		logger's infof("copied text: {}", copiedText)
+		
+		
+	else if caseIndex is 5 then
+		(*
+			Beeps when none is selected
+		*)
+		set copiedText to sut's copyThatWord()
+		logger's infof("copied text: {}", copiedText)
 	end if
 	
 	spot's finish()
@@ -126,6 +142,53 @@ on new()
 			end repeat
 			_clipValue
 		end restore
+		
+		
+		(* Copies the selected text of the active app. *)
+		on copyThat()
+			try
+				set originalClipboard to the clipboard
+			on error
+				set originalClipboard to ""
+			end try
+			
+			set the clipboard to ""
+			repeat until (the clipboard) is ""
+				delay 0.1
+			end repeat
+			
+			tell application "System Events"
+				key code 8 using {command down} -- C
+				delay 0.1
+			end tell
+			
+			set theCopiedItem to ""
+			set maxTry to 10
+			set tryCount to 0
+			repeat until theCopiedItem is not ""
+				set tryCount to tryCount + 1
+				if tryCount is greater than or equal to maxTry then exit repeat
+				delay 0.1
+				set theCopiedItem to the clipboard
+			end repeat
+			
+			set the clipboard to originalClipboard
+			delay 0.1
+			
+			theCopiedItem
+		end copyThat
+		
+		
+		(* Sends copy key stroke to the currently active app, and returns the selected word if present. Returns empty string if no text is selected, or when there are multiple words in the current line. *)
+		on copyThatWord()
+			set theCopiedItem to copyThat()
+			
+			try
+				if (count of words in theCopiedItem) is 1 then return theCopiedItem
+			end try
+			
+			missing value
+		end copyThatWord
 	end script
 end new
 
