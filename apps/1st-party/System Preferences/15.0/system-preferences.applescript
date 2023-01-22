@@ -241,7 +241,7 @@ on new()
 			-- try
 			tell application "System Events" to tell process "System Preferences" to tell window "Accessibility"
 				set value of text field 1 of sheet 1 to commandLabel
-				delay 0.2 -- breaks/does not work without this delay, waiter don't work either.
+				delay 0.2 -- breaks/does not work without this delay, retry doesn't work either.
 				
 				logger's debug("Iterating...")
 				repeat with nextRow in rows of table 1 of scroll area 1 of sheet 1
