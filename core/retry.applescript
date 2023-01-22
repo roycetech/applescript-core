@@ -15,7 +15,7 @@ if name of current application is "Script Editor" then spotCheck()
 
 on spotCheck()
 	init()
-	set thisCaseId to "waiter-spotCheck"
+	set thisCaseId to "retry-spotCheck"
 	logger's start()
 	
 	-- If you haven't got these imports already.
