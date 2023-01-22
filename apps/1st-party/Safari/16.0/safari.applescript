@@ -462,7 +462,7 @@ on new()
 				if its source is not "" then return true 
 			end tell
 		end script
-		set waitResult to waiter's exec on result for 3
+		set waitResult to retry's exec on result for 3
 		if waitResult is missing value then set URL of document of theWindow to theUrl
 		*)
 			end tell
@@ -646,10 +646,10 @@ on new()
 					end tell
 					missing value
 				end getAddressBarValue
-				
+
 				on goto(targetUrl)
 					script retry
-						
+
 						-- tell application "Safari" to set URL of document (name of my theWindow) to targetUrl
 						tell application "Safari" to set URL of my getDocument() to targetUrl
 						true
@@ -657,8 +657,8 @@ on new()
 					exec of retry on retry for 2
 					delay 0.1 -- to give waitForPageLoad ample time to enter a loading state.
 				end goto
-				
-				
+
+
 				(* Note: Will dismiss the prompt of the*)
 				on dismissPasswordSavePrompt()
 					focus()
@@ -671,58 +671,58 @@ on new()
 					end script
 					exec of retry on result for 5 -- let's try click it 5 times, ignoring outcomes.
 				end dismissPasswordSavePrompt
-				
+
 				on extractUrlParam(paramName)
 					tell application "Safari" to set _url to URL of my getDocument()
 					set pattern to format {"(?<={}=)\\w+", paramName}
 					set matchedString to regex's findFirst(_url, pattern)
 					if matchedString is "nil" then return missing value
-					
+
 					matchedString
 				end extractUrlParam
-				
-				
+
+
 				on getWindowId()
 					id of appWindow
 				end getWindowId
-				
+
 				on getWindowName()
 					name of appWindow
 				end getWindowName
-				
+
 				on getDocument()
 					tell application "Safari"
 						document (my getWindowName())
 					end tell
 				end getDocument
-				
-				
+
+
 				on getSysEveWindow()
 					tell application "System Events" to tell process "Safari"
 						return window (name of appWindow)
 					end tell
 				end getSysEveWindow
 			end script
-			
+
 			tell application "Safari"
 				set appWindow of SafariTabInstance to window id windowId
 				set _url of SafariTabInstance to URL of document of window id windowId
 				set _tab of SafariTabInstance to item pTabIndex of tabs of appWindow of SafariTabInstance
 			end tell
 			set theInstance to safariJavaScript's decorate(SafariTabInstance)
-			
+
 			(*
 			if javaScriptSupport then
 				set js_tab to std's import("javascript-next")
 				set theInstance to js_tab's newInstance(theInstance)
 			end if
-			
+
 			if jQuerySupport then
 				set jq to std's import("jquery")
 				set theInstance to jq's newInstance(theInstance)
 			end if
 *)
-			
+
 			theInstance
 		end _new
 	end script
@@ -733,7 +733,7 @@ end new
 on init()
 	if initialized of me then return
 	set initialized of me to true
-	
+
 	set std to script "std"
 	set logger to std's import("logger")'s new("safari")
 	set safariJavaScript to std's import("safari-javascript")
