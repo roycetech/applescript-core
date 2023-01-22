@@ -1,4 +1,4 @@
-global std, retryLib, kb
+global std, retry, kb, unic, textUtil
 
 (* 
 	NOTE: This script requires accessibility access, grant when prompted.
@@ -29,6 +29,9 @@ on spotCheck()
 		
 		Switch to AirPods
 		Is Mic In Use
+		Manual: List of Hotspot (Maybe used to identify your hotpot key, mind the unicode apostrophe)
+		Manual: Join Hotspot (Not Joined, Already Joined, Not Found)
+		Manual: Join WIFI (Not Joined, Already Joined, Not Found)
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -60,11 +63,174 @@ on spotCheck()
 	else if caseIndex is 7 then
 		log isMicInUse()
 		
+	else if caseIndex is 8 then
+		set hotspots to getListOfAvailableHotspot()
+		repeat with nextHotspot in hotspots
+			logger's info(nextHotspot)
+		end repeat
+		
+	else if caseIndex is 9 then
+		(* Toggle below cases. *)
+		-- joinHotspot("iPhone")
+		joinHotspot("Galaxy")
+		
+	else if caseIndex is 10 then
+		(* Toggle below cases. *)
+		-- joinHotspot("Care")
+		joinHotspot("Careless")
+		
 	end if
 	
 	spot's finish()
 	logger's finish()
 end spotCheck
+
+
+(* 
+	Joins the first hotspot matching the given key.
+	
+	@hotspotKey - the hotspot identifier to join, e.g. "Joe's iPhone". (Use the correct unicode apostrophe)
+*)
+on joinHotspot(hotspotKey)
+	logger's infof("Hotspot: {}", hotspotKey)
+	script MenuClicker
+		tell application "System Events" to tell process "ControlCenter"
+			click (first menu bar item of menu bar 1 whose name contains "Control Center")
+			true
+		end tell
+	end script
+	exec of retry on result for 3 by 1
+	
+	_triggerWifi()
+	
+	tell application "System Events" to tell process "ControlCenter"
+		script HotspotClicker
+			tell application "System Events" to tell process "ControlCenter" to tell window "Control Center"
+				set matchedConnections to checkboxes of scroll area 1 whose name contains hotspotKey
+				if the number of items in matchedConnections is 0 then return "not found"
+				
+				set currentState to value of first item in matchedConnections
+				logger's debugf("Current State: {}", currentState)
+				if currentState is 1 then
+					return "already connected"
+				end if
+				
+				click (first checkbox of scroll area 1 whose name contains hotspotKey)
+				true
+			end tell
+		end script
+		set clickResult to exec of retry on result for 3 by 1
+		
+		if clickResult is "not found" then
+			error "The given hotspot key: " & hotspotKey & " was not found"
+			
+		else if clickResult is "already connected" then
+			kb's pressKey("esc")
+			logger's warn("You are already connected ")
+			
+		else if clickResult is missing value then
+			kb's pressKey("esc")
+			logger's fatal("Could not click your hotspot " & hotspotKey & ", make sure it is available")
+			
+		end if
+	end tell
+end joinHotspot
+
+
+(* 
+	Joins the first hotspot matching the given key.
+	
+	@hotspotKey - the hotspot identifier to join, e.g. "Joe's iPhone". (Use the correct unicode apostrophe)
+*)
+on joinWifi(sidKey)
+	logger's infof("Sid Key: {}", sidKey)
+	script MenuClicker
+		tell application "System Events" to tell process "ControlCenter"
+			click (first menu bar item of menu bar 1 whose name contains "Control Center")
+			true
+		end tell
+	end script
+	exec of retry on result for 3 by 1
+	
+	_triggerWifi()
+	
+	tell application "System Events" to tell process "ControlCenter"
+		script HotspotClicker
+			tell application "System Events" to tell process "ControlCenter" to tell window "Control Center"
+				set matchedConnections to checkboxes of scroll area 1 whose name contains sidKey
+				if the number of items in matchedConnections is 0 then return "not found"
+				
+				set currentState to value of first item in matchedConnections
+				logger's debugf("Current State: {}", currentState)
+				if currentState is 1 then
+					return "already connected"
+				end if
+				
+				click (first checkbox of scroll area 1 whose name contains sidKey)
+				true
+			end tell
+		end script
+		set clickResult to exec of retry on result for 3 by 1
+		
+		if clickResult is "not found" then
+			error "Could not find the WIFI SID key: " & sidKey
+			
+		else if clickResult is "already connected" then
+			kb's pressKey("esc")
+			logger's warn("You are already connected ")
+			
+		else if clickResult is missing value then
+			kb's pressKey("esc")
+			logger's fatal("Could not click your WIFI SID key " & sidKey & ", make sure it is available")
+			
+		end if
+	end tell
+end joinWifi
+
+
+on getListOfAvailableHotspot()
+	set listOfHotspot to {}
+	script MenuClicker
+		tell application "System Events" to tell process "ControlCenter"
+			click (first menu bar item of menu bar 1 whose name contains "Control Center")
+			true
+		end tell
+	end script
+	exec of retry on result for 3 by 1
+	
+	_triggerWifi()
+	
+	tell application "System Events" to tell process "ControlCenter"
+		repeat with nextCheckbox in (checkboxes of scroll area 1 of window "Control Center" whose name contains "pot")
+			set nameTokens to textUtil's split(name of nextCheckbox, ",")
+			set end of listOfHotspot to the first item of nameTokens
+		end repeat
+	end tell
+	
+	kb's pressKey("esc")
+	
+	listOfHotspot
+end getListOfAvailableHotspot
+
+
+(*
+	See WIFI Sub Window
+*)
+on _triggerWifi()
+	tell application "System Events" to tell process "ControlCenter"
+		perform action 2 of checkbox (unic's WIFI) of window "Control Center"
+	end tell
+	
+	script ScrollAreaWaiter
+		tell application "System Events" to tell process "ControlCenter"
+			if exists (scroll area 1 of window "Control Center") then return true
+		end tell
+	end script
+	set scrollWaitResult to exec of retry on result for 20 by 0.1
+	if scrollWaitResult is missing value then
+		error "Scroll Area with WIFI list did not appear within the alotted time"
+	end if
+end _triggerWifi
 
 
 on isMicInUse()
@@ -88,7 +254,7 @@ on switchAudioOutput(outputName)
 		try
 			click (first checkbox of scroll area 1 of first window whose title contains outputName)
 			set clickResult to true
-		end try		
+		end try
 	end tell
 	kb's pressKey("esc")
 	clickResult
@@ -178,7 +344,9 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
+	set unic to std's import("unicodes")
 	set logger to std's import("logger")'s new("control-center")
-	set retryLib to std's import("retry")
+	set retry to std's import("retry")'s new()
 	set kb to std's import("keyboard")'s new()
+	set textUtil to std's import("string")
 end init
