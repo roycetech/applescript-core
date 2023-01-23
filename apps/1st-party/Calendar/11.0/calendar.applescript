@@ -1,4 +1,4 @@
-global std, config, regex, textUtil, retry, sb, calEvent, counter, plutil, dt, kb
+global std, config, regex, textUtil, retry, sb, calendarEvent, counter, plutil, dt, kb
 global decoratorCalView, calProcess
 
 use script "Core Text Utilities"
@@ -41,7 +41,7 @@ on spotCheck()
 		Next Meeting
 		
 		Switch View - extension
-		Selected Event
+		Manual: Selected Event
 		Clear Cache on First Run of the Day
 	")
 	
@@ -101,9 +101,10 @@ on spotCheck()
 		set selectedEvent to sut's getSelectedEvent()
 		if selectedEvent is missing value then error "Select an event in week-view to demonstrate this feature. Other view types are not yet implemented."
 		
-		log selectedEvent's toJsonString()
+		logger's infof("Selected Event JSON: {}", selectedEvent's toJsonString())
 		
 	else if caseIndex is 8 then
+		
 		set meetingsAtThisTime to sut's getMeetingsAtThisTime()
 		log (count of meetingsAtThisTime)
 		repeat with nextActive in meetingsAtThisTime
@@ -176,17 +177,24 @@ on new()
 		end getNextMeetingToday
 		
 		
-		(* TODO: For other view types. *)
+		(* 
+			TODO: For other view types. 
+			@returns calendar-event instance.
+		*)
 		on getSelectedEvent()
-			logger's debugf("getViewType(): {}", getViewType())
+			set currentViewType to getViewType()
+			logger's debugf("currentViewType: {}", currentViewType)
+			logger's debugf("name of event lib: {}", name of calendarEvent)
 			
-			if getViewType() is "Week" then
+			if currentViewType is "Week" then
 				tell application "System Events" to tell process "Calendar"
 					repeat with nextDay in lists of UI element 1 of group 1 of splitter group 1 of window "Calendar"
 						try
 							set selectedEvent to (first static text of nextDay whose focused is true)
-							return calEvent's newInstance(selectedEvent)
-						end try
+							return calendarEvent's new(selectedEvent)
+							-- on error the errorMessage number the errorNumber
+							-- 	logger's debug(errorMessage) -- Temp log, comment out for prod.	
+						end try -- When none is selected on the iterated dow.
 					end repeat
 				end tell
 			end if
@@ -205,7 +213,7 @@ on new()
 			set targetYyyyMMdd to dt's formatYyyyMmDd(getCurrentDate(), "/")
 			gotoDate(targetYyyyMMdd) -- slash separated
 			set targetMmDdYyyy to dt's formatMmDdYyyy(getCurrentDate(), "/")
-			set referenceDate of calEvent to targetMmDdYyyy
+			set referenceDate of calendarEvent to targetMmDdYyyy
 			
 			set meetingDetails to {}
 			
@@ -217,7 +225,7 @@ on new()
 			
 			tell application "System Events" to tell application process "Calendar"
 				repeat with nextST in static texts of list 1 of group 1 of splitter group 1 of window "Calendar"
-					set meetingDetail to calEvent's new(nextST)
+					set meetingDetail to calendarEvent's new(nextST)
 					my _moveToNextEventViaUI()
 					
 					set end of meetingDetails to meetingDetail
@@ -225,7 +233,7 @@ on new()
 			end tell
 			
 			switchToViewByTitle(origView)
-			meetingDetails			
+			meetingDetails
 		end getMeetingsOfTheDay
 		
 		
@@ -336,7 +344,8 @@ on init()
 	set retry to std's import("retry")'s new()
 	set sb to std's import("string-builder")
 	set decoratorCalView to std's import("dec-calendar-view")
-	set calEvent to std's import("calendar-event")
+	set calendarEvent to std's import("calendar-event")'s new()
+	
 	set counter to std's import("counter")
 	set plutil to std's import("plutil")'s new()
 	set dt to std's import("date-time")

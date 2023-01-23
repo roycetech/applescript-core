@@ -165,12 +165,14 @@ compile-zoom:
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-window
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-participants
+	./scripts/compile-lib.sh apps/3rd-party/zoom.us/dec-calendar-event-zoom
 
 install-zoom: compile-zoom
 	mkdir -p ~/applescript-core/zoom.us/
 	cp -n plist.template ~/applescript-core/zoom.us/config.plist || true
 	osascript ./apps/3rd-party/zoom.us/setup-configurations.applescript
 	plutil -replace 'UserInstance' -string 'dec-user-zoom' ~/applescript-core/config-lib-factory.plist
+	plutil -replace 'CalendarEventLibrary' -string 'dec-calendar-event-zoom' ~/applescript-core/config-lib-factory.plist
 
 # Other libraries
 install-user:
