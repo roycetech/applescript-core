@@ -116,8 +116,19 @@ install-automator: compile-automator
 	osascript scripts/setup-applescript-apps-path.applescript
 
 uninstall-automator:
+	@echo "TODO"
 	# TODO:
 
+install-terminal:
+	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/terminal
+	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-output
+	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-path
+	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
+	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-run
+
+# macOS Version-Specific Apps
+install-control-center:
+	./scripts/compile-lib.sh "macOS-version/12-monterey/control-center"
 
 # 3rd Party Apps Library
 install-1password:
