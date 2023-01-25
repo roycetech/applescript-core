@@ -648,13 +648,13 @@ on new()
 				end getAddressBarValue
 
 				on goto(targetUrl)
-					script retry
+					script PageWaiter
 
 						-- tell application "Safari" to set URL of document (name of my theWindow) to targetUrl
 						tell application "Safari" to set URL of my getDocument() to targetUrl
 						true
 					end script
-					exec of retry on retry for 2
+					exec of retry on result for 2
 					delay 0.1 -- to give waitForPageLoad ample time to enter a loading state.
 				end goto
 
