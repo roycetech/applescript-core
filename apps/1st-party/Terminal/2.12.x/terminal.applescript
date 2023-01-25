@@ -429,11 +429,11 @@ on new()
 					set promptGit to regex's matchesInString(gitPattern, recentBuffer)
 					
 					(*
-			logger's debugf("gitPromptPattern: {}", gitPromptPattern)
-			logger's debugf("gitPattern: {}", gitPattern)
-			logger's debugf("promptGit: {}", promptGit)
-			logger's debugf("recentBuffer: {}", recentBuffer)
-			*)
+						logger's debugf("gitPromptPattern: {}", gitPromptPattern)
+						logger's debugf("gitPattern: {}", gitPattern)
+						logger's debugf("promptGit: {}", promptGit)
+						logger's debugf("recentBuffer: {}", recentBuffer)
+					*)
 					
 					if regex's matchesInString(gitPattern, recentBuffer) then
 						set lingeringCommand to regex's stringByReplacingMatchesInString(gitPromptPattern, recentBuffer, "")
