@@ -119,12 +119,15 @@ uninstall-automator:
 	@echo "TODO"
 	# TODO:
 
-install-terminal:
+compile-terminal:
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/terminal
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-output
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-path
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-run
+
+install-terminal: compile-terminal
+
 
 # macOS Version-Specific Apps
 install-control-center:
