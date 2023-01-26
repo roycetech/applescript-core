@@ -18,7 +18,7 @@ on spotCheck()
 	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Manual: Recent Output
-		Manual: Last Output
+		Manual: Last Output (With/out lastCommand, Shell, Non-Shell)
 		Complete Output
 		Wait for Output
 		Output Contains
@@ -46,7 +46,7 @@ on spotCheck()
 		logger's infof("Recent Output: {}", frontTab's getRecentOutput())
 		
 	else if caseIndex is 2 then
-		set frontTab's lastCommand to "ls"
+		-- set frontTab's lastCommand to "ls"
 		logger's infof("Last Output: {}", frontTab's getLastOutput())
 		
 	else if caseIndex is 3 then
@@ -73,7 +73,7 @@ on decorate(termTabScript)
 		property parent : termTabScript
 		
 		(* Used to determine the amount of characters to include in the getRecentOutput handler. *)
-		property recentOutputChars : 300
+		property recentOutputChars : 1024
 		
 		
 		(* 
@@ -85,35 +85,73 @@ on decorate(termTabScript)
 			end tell
 			
 			if length of theText is less than my recentOutputChars then return theText
-			
 			return textUtil's substringFrom(theText, (length of theText) - (my recentOutputChars))
 		end getRecentOutput
 		
 		
 		(*
-			Gets last output by finding the last command executed. The amount of result is limited to the user defined limit on the number of characters for the recent output.
+			Gets last output by finding the last command executed. If lastCommand is missing, 
+			the last output is based on the text between the prompt text.
+			
+			This is bloody war!
+			
+			@Test Cases:
+				Basic - 
+				Lingering Command - 
+				Not shell prompt - ok
+				
 			
 			@Known Issues:
 				Would not work when new shell process is launched from the last command.
 		*)
 		on getLastOutput()
-			script RetryOnce
-				tell application "Terminal"
-					set theHistory to textUtil's rtrim(contents of selected tab of my appWindow as text)
-				end tell
-				logger's debugf("lastCommand: {}", my lastCommand)
-				logger's debugf("Prompt Text: {}", my getPromptText())
-				
-				set commandIdx to textUtil's lastIndexOf(theHistory, my lastCommand)
-				set promptIdx to (textUtil's lastIndexOf(theHistory, my getPromptText())) - (length of my getPromptText())
-				
-				if commandIdx > 0 then
-					return textUtil's substring(theHistory, commandIdx + 2, promptIdx - 1)
+			set mainScope to me -- without this, below breaks when ran from a client script
+			-- 			script RetryOnce
+			tell application "Terminal"
+				set theHistory to textUtil's rtrim(contents of selected tab of my appWindow as text)
+			end tell
+			-- logger's debugf("lastCommand internal: {}", my lastCommand)
+			set lastCommand to getLastCommand()
+			-- logger's debugf("lastCommand: {}", lastCommand)
+			
+			if lastCommand is not missing value and lastCommand is not "" then
+				if isShellPrompt() then
+					set promptText to getPromptText()
+					return text 2 thru (-(length of promptText) - 2) of textUtil's lastStringAfter(theHistory, lastCommand)
 				end if
 				
-				return theHistory
-			end script
-			exec of retry on result for 2 by 3
+				try
+					return text 2 thru -1 of textUtil's lastStringAfter(theHistory, lastCommand)
+				end try
+			end if
+			
+			missing value
+			
+			
+			(*
+				-- logger's debugf("Prompt: [{}]", mainScope's getPrompt())
+				
+				set promptText to mainScope's getPromptText()
+				logger's debugf("getPromptText: [{}]", promptText)
+				set promptTextLines to textUtil's split(promptText, ASCII character 10)
+				set promptTextLine1 to item 1 of promptTextLines
+				-- logger's debugf("Prompt Text Line 1: [{}]", promptTextLine1)
+				
+				set aShellPrompt to isShellPrompt()
+				logger's debugf("aShellPrompt: {}", aShellPrompt)
+				if isShellPrompt() then
+					set outputTokens to textUtil's split(theHistory, mainScope's getPromptText())
+					set totalTokens to the number of items in outputTokens
+					return item (totalTokens - 1) of outputTokens
+				end if
+				
+				set outputTokens to textUtil's split(theHistory, promptTextLine1)
+				return text 2 thru -1 of last item of outputTokens
+*)
+			
+			
+			-- 			end script
+			-- 			exec of retry on result for 2 by 3
 		end getLastOutput
 		
 		
