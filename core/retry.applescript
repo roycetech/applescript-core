@@ -1,11 +1,14 @@
 global std, idlerLib
 
 (*
-	Usage:
+	@Usage:
 		1. Declare retryLib as global variable.
 		2. Import and set to retryLib inside init()
 		3. Create new instance with:
 			set retry to retryLib's new()
+			
+	@Installation:
+		make compile-core
 *)
 
 property initialized : false
@@ -114,7 +117,7 @@ on new()
 					set handlerResult to run of scriptObj
 					if handlerResult is not missing value then return handlerResult
 				on error the errorMessage number the errorNumber
-					if errorMessage contains "is not allowed assistive access" then
+					if errorMessage contains "is not allowed assistive access" or errorMessage is "abort" then
 						error errorMessage
 						exit repeat
 					end if
