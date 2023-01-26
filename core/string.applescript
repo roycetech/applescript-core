@@ -76,6 +76,14 @@ on stringAfter(sourceText, substring)
 end stringAfter
 
 
+on lastStringAfter(sourceText, substring)
+	if sourceText does not contain substring then return missing value
+	if sourceText ends with substring then return missing value
+	
+	last item of split(sourceText, substring)
+end lastStringAfter
+
+
 on stringBefore(sourceText, substring)
 	if sourceText does not contain substring then return missing value
 	if sourceText starts with substring then return missing value
@@ -291,7 +299,7 @@ to splitWithTrim(theString as text, theDelimiter)
 end splitWithTrim
 
 
-to join(aList, delimiter)
+on join(aList, delimiter)
 	set retval to ""
 	repeat with i from 1 to (count of aList)
 		set retval to retval & item i of aList
@@ -302,9 +310,12 @@ end join
 
 
 on lastIndexOf(sourceText, substring)
+	if substring is missing value then return 0
+	if sourceText is missing value then return 0
 	if (offset of substring in sourceText) is 0 then return 0
-	set theList to my split(sourceText, substring)
-	return (length of sourceText) - (length of last item of theList)
+	
+	set theList to split(sourceText, substring)
+	return (length of sourceText) - (length of last item of theList) - (length of substring) + 1
 end lastIndexOf
 
 
@@ -438,7 +449,7 @@ on hasUnicode(theString)
 end hasUnicode
 
 
-to removeEnding(theText as text, ending as text)
+on removeEnding(theText as text, ending as text)
 	try
 		text 1 thru -((length of ending) + 1) of theText
 	on error
@@ -447,7 +458,7 @@ to removeEnding(theText as text, ending as text)
 end removeEnding
 
 
-to unitTest()
+on unitTest()
 	set utLib to std's import("unit-test")
 	set ut to utLib's new()
 	tell ut
@@ -499,6 +510,12 @@ $('{}') = '{}';", {"a", "hello"})
 		assertEqual("a day", my stringAfter("an apple a day", "apple "), "Found")
 		assertEqual(missing value, my stringAfter("an apple a day", "a day"), "In the end") -- I think missing value is more appropriate than empty string.
 		
+		newMethod("lastStringAfter")
+		assertEqual(missing value, my lastStringAfter(missing value, missing value), "Bad parameters")
+		assertEqual(missing value, my lastStringAfter("an apple a day", "orange "), "Not Found")
+		assertEqual(" a day", my lastStringAfter("an apple a day", "apple"), "One Match")
+		assertEqual(" vendor happy", my lastStringAfter("an apple a day makes the apple vendor happy", "apple"), "Multi Match")
+		
 		newMethod("stringBefore")
 		assertEqual(missing value, my stringBefore("test.applescript", "orange"), "Not Found")
 		assertEqual("an ", my stringBefore("an apple a day", "apple "), "Found")
@@ -512,10 +529,20 @@ $('{}') = '{}';", {"a", "hello"})
 		assertEqual("Hell", my removeEnding("Hello", "o"), "Basic")
 		assertEqual("Hello", my removeEnding("Hello", "not found"), "Not found")
 		
+		
 		done()
 	end tell
 	
 	return
+	
+	set actual101 to lastIndexOf("/Users/cloud.strife/projects/@rt-learn-lang/applescript/DEPLOYED/Common/sublimetext3.applescript", "*")
+	set case101 to "Case 101: Last Index Of - Not found"
+	std's assert(0, actual101, case101)
+	
+	set actual102 to lastIndexOf("/Users/cloud.strife", "/")
+	set case102 to "Case 102: Last Index Of - Found"
+	std's assert(7, actual102, case102)
+	
 	
 	set actual801 to splitWithTrim("
 	one,
@@ -556,13 +583,6 @@ $('{}') = '{}';", {"a", "hello"})
 	log "Case 9: Replace multiple: " & actual9
 	if actual9 is not "Macintosh HD:Users:cloud.strife:projects:@rt-learn-lang:applescript:DEPLOYED:Common:sublimetext3.scpt" then error "Assertion failed for case 9: " & actual9
 	
-	set actual101 to lastIndexOf("/Users/cloud.strife/projects/@rt-learn-lang/applescript/DEPLOYED/Common/sublimetext3.applescript", "*")
-	set case101 to "Case 101: Last Index Of - Not found"
-	std's assert(0, actual101, case101)
-	
-	set actual102 to lastIndexOf("/Users/cloud.strife", "/")
-	set case102 to "Case 102: Last Index Of - Found"
-	std's assert(7, actual102, case102)
 	
 	set actual201 to rtrim("1234  ")
 	set case201 to "Case 201: Basic scenario"
@@ -604,6 +624,11 @@ $('{}') = '{}';", {"a", "hello"})
 	set actual601 to substringFrom("", 5)
 	set case601 to "Case 601: substringFrom - empty string, postive index"
 	std's assert("", actual601, case601)
+	
+	newMethod("lastIndexOf")
+	assertEqual(26, my lastIndexOf("an apple a day makes the apple vendor happy", "apple"), "Found Word")
+	assertEqual(0, my lastIndexOf("/Users/cloud.strife/projects/@rt-learn-lang/applescript/DEPLOYED/Common/sublimetext3.applescript", "*"), "Not Found")
+	assertEqual(7, my lastIndexOf("/Users/cloud.strife", "/"), "Found")
 	
 	logger's info("All unit test cases passed.")
 end unitTest
