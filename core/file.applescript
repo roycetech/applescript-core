@@ -26,6 +26,7 @@ on spotCheck()
 		POSIX File Exist
 		POSIX File Don't Exist
 		Read Text File
+		Manual: POSIX Folder Exist
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -53,6 +54,13 @@ on spotCheck()
 		set posixPath to "/etc/hosts"
 		logger's debugf("posixPath: {}", posixPath)
 		log readFile(POSIX file posixPath)
+		
+	else if caseIndex is 5 then
+		set posixPath to "/Users/" & std's getUsername() & "/Desktop"
+		logger's debugf("posix Folder Path exists: {}", posixFolderPathExists(posixPath))
+		set posixPath to "/Users/" & std's getUsername() & "/Unicorn"
+		logger's debugf("posix Folder Path exists: {}", posixFolderPathExists(posixPath))
+		
 	end if
 	
 	spot's finish()
@@ -72,6 +80,15 @@ on posixFilePathExists(posixFilePath)
 	end try
 	false
 end posixFilePathExists
+
+
+on posixFolderPathExists(posixFilePath)
+	set shellCommand to format {"test -d {} && echo 'true'", quoted form of posixFilePath}
+	try
+		return (do shell script shellCommand) is equal to "true"
+	end try
+	false
+end posixFolderPathExists
 
 
 on readTempFile()
@@ -164,5 +181,5 @@ on unitTest()
 		assertEqual("sublimetext3.applescript", my getBaseFileName("/Users/cloud.strife/projects/@rt-learn-lang/applescript/DEPLOYED/Common/sublimetext3.applescript"), "Happy Case")
 		
 		ut's done()
-	end tell	
+	end tell
 end unitTest
