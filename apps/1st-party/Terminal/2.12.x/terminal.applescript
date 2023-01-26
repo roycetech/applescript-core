@@ -400,17 +400,20 @@ on new()
 				end isZsh
 				
 				(*
-			Checks most recent text in the buffer, and see if a command is waiting after the prompt to be executed.
-			TODO: Edge case might be when not on shell prompt and the prompt character is present in the buffer.
+					Checks most recent text in the buffer, and see if a command is waiting after the prompt to be executed.
+					TODO: 
+						Edge case might be when not on shell prompt and the prompt character is present in the buffer.
+						Move this to "prompt" decorator.
+					
 			
-			NOTE: Battle Scar. Nasty bug will freeze system if this don't work correctly because of the aggressive waitForShellPrompt.
+					NOTE: Battle Scar. Nasty bug will freeze system if this don't work correctly because of the aggressive waitForShellPrompt.
 			
-			Test Cases:
-			- Git Directory
-			- Non-Git Directory
+					Test Cases:
+						- Git Directory
+						- Non-Git Directory
 			
-			@returns missing value if there are no lingering commands.
-		*)
+					@returns missing value if there are no lingering commands.
+				*)
 				on getLingeringCommand()
 					set recentBuffer to getPromptText()
 					if recentBuffer is missing value then return missing value
