@@ -77,7 +77,7 @@ on decorate(termTabScript)
 			-- logger's debugf("Running Command: \"{}\"", bashCommand)
 			
 			set calcCommmand to format {"plutil -replace {} -string \"`{}`\" {}", {quoted form of propertyName, bashCommand, SESSION_PLIST}}
-			logger's debugf("Calculated Command: {}", calcCommmand)
+			-- logger's debugf("Calculated Command: {}", calcCommmand)
 			set NO_RESULT to "_noresult_"
 			tell application "Terminal"
 				if my refreshPrompt then
