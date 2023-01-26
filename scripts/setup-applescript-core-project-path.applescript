@@ -37,7 +37,7 @@ end tell
 set projectPath to textUtil's replace(result, "/scripts/setup-applescript-core-project-path.applescript", "")
 if posixPath ends with "/" and length of posixPath is greater than 1 then set posixPath to text 1 thru -2 of posixPath
 
-do shell script "plutil -replace '" & PROJECT_PATH_KEY & "' -string \"" & posixPath & "\" ~/applescript-core/config-system.plist"
+do shell script "plutil -replace '" & PROJECT_PATH_KEY & "' -string \"" & projectPath & "\" ~/applescript-core/config-system.plist"
 
 
 set projectKey to "Project applescript-core"
