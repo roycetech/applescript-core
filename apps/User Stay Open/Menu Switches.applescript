@@ -160,8 +160,6 @@ end _addMenuSeparator
 
 
 on idle
-	init()
-	
 	try
 		if scriptStateHasChanged() then
 			logger's debug("scriptStateHasChanged...")
@@ -196,7 +194,7 @@ on listHasChanged()
 		
 		set currentSwitchesId to currentSwitchesId & nextKey & ": " & switch's active(nextKey)
 	end repeat
-	set currentSwitchesId to "}"
+	set currentSwitchesId to currentSwitchesId & "}"
 	
 	currentSwitchesId is not equal to SWITCHES_ID
 end listHasChanged
