@@ -27,7 +27,7 @@ on spotCheck()
 		Manual: Prompt (Git/Non Git, With/out Parens, With/out Lingering Command)
 		Manual: Is Git Directory (yes, no)
 		
-		Manual: Last Command (Git/Non, With/out)
+		Manual: Last Command (Git/Non, With/out, Waiting for MFA)
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -99,17 +99,16 @@ on decorate(termTabScript)
 			
 		*)
 		on isGitDirectory()
+			-- logger's debug("isGitDirectory...")
 			set fileUtil to std's import("file")
 			return fileUtil's posixFolderPathExists(getPosixPath() & "/.git")
 			
 			set subjectLine to getPromptText()
-			logger's debugf("subjectLine: {}", subjectLine)
+			-- logger's debugf("subjectLine: {}", subjectLine)
 			
 			if isShellPrompt() is false then
-				log 4
 				set subjectLine to first item of textUtil's split(my getPromptText(), ASCII character 10)
 			end if
-			log 3
 			
 			set gitPattern to gitPromptPattern()
 			regex's matchesInString(gitPattern, subjectLine)
@@ -176,6 +175,7 @@ on decorate(termTabScript)
 		
 		(* @returns the prompt text along with any of the lingering commands typed that hasn't executed. *)
 		on getPromptText()
+			-- logger's debug("getPromptText...")
 			if not isZsh() then
 				logger's warn("Bash is not yet implemented.")
 				return missing value
@@ -231,11 +231,11 @@ on decorate(termTabScript)
 			set recentBuffer to getRecentOutput()
 			
 			set prompt to getPrompt()
+			-- logger's debugf("prompt: {}", prompt)
 			if prompt is missing value then return missing value
 			
-			set outputTokens to textUtil's split(recentBuffer, getPrompt())
+			set outputTokens to textUtil's split(recentBuffer, prompt)
 			set tokenCount to the count of outputTokens
-			-- log getPrompt()
 			
 			-- repeat with nextToken in outputTokens
 			-- log nextToken
@@ -273,11 +273,14 @@ on decorate(termTabScript)
 			Trailing space is included when present. 
 		*)
 		on getPrompt()
+			-- logger's debug("Git Prompt...")
 			if isGitDirectory() then
+				-- logger's debug("Git Directory...x")
 				set promptText to getPromptText()
-				if promptText is missing value then return missing value -- Can't retrieve if current output is too big.
+				if promptText is missing value then return missing value -- Can't retrieve if current output is too big.				
 				
 				set lastCommand to regex's stringByReplacingMatchesInString(gitPromptPattern(), promptText, "")
+				-- logger's debugf("lastCommand: {}", lastCommand)
 				if lastCommand is not "" then return text 1 thru -2 of textUtil's replace(promptText, lastCommand, "")
 				return promptText
 			end if
