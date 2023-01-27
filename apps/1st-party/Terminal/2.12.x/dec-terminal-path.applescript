@@ -79,6 +79,14 @@ on decorate(termTabScript)
 				set my _posixPath to do shell script "lsof -a -p `lsof -a -c zsh -u $USER -d 0 -n | tail -n +2 | awk '{if($NF==\"" & (tty of front tab of front window) & "\"){print $2}}'` -d cwd -n | tail -n +2 | awk '{$1=$2=$3=$4=$5=$6=$7=$8=\"\"; print $0}' | xargs"
 			end tell
 			
+			if _posixPath is equal to "" then
+				tell application "System Events" to tell process "Terminal"
+					logger's debug("Alternative way of fetching the current Terminal tab directory")
+					set _posixPath to textUtil's stringAfter(value of attribute "AXDocument" of front window, "file://")
+					if _posixPath ends with "/" then set _posixPath to text 1 thru -2 of _posixPath
+				end tell
+			end if
+			
 			_posixPath
 		end getPosixPath
 		
