@@ -282,7 +282,7 @@ on new(pTimeoutSeconds)
 				return mapLib's newInstanceFromString(dictShellResult)
 				
 			else
-				set getValueShellCommand to format {"/usr/local/bin/redis-cli get {}", quotedPlistKey}
+				set getValueShellCommand to format {"{} get {}", {REDIS_CLI, quotedPlistKey}}
 				set plistValue to do shell script getValueShellCommand
 				return _convertType(plistValue, dataType)
 			end if
@@ -324,7 +324,7 @@ on new(pTimeoutSeconds)
 			set quotedValue to newValue
 			if not hasValue(plistKey) then setValue(plistKey, {})
 			if newValue is not missing value then set quotedValue to _quoteValue(newValue)
-			set appendShellCommand to format {"/usr/local/bin/redis-cli RPUSH {} {}", {escapedAndQuotedPlistKey, quotedValue}}
+			set appendShellCommand to format {"{} RPUSH {} {}", {REDIS_CLI , escapedAndQuotedPlistKey, quotedValue}}
 			do shell script appendShellCommand
 		end appendValue
 		
@@ -475,12 +475,12 @@ on _splitByLine(theString as text)
 	
 	if theString contains SEP or theString contains "\"" then error "Sorry but you can't have " & SEP & " or double quote in the text :("
 	if theString contains "$" and theString contains "'" then error "Sorry, but you can't have a dollar sign and a single quote in your string"
-
+	
 	set theQuote to "\""
 	if theString contains "$" then set theQuote to "'"
 	set command to "echo " & theQuote & theString & theQuote & " | awk 'NF {$1=$1;print $0}' | paste -s -d" & SEP & " - | sed 's/" & SEP & "[[:space:]]*/" & SEP & "/g' | sed 's/[[:space:]]*" & SEP & "/" & SEP & "/g' | sed 's/^" & SEP & "//' | sed 's/" & SEP & SEP & "//g' | sed 's/" & SEP & "$//'" -- failed when using escaped/non escaped plus instead of asterisk.
 	set csv to do shell script command
-
+	
 	_split(csv, SEP, "string")
 end _splitByLine
 
@@ -489,7 +489,7 @@ to _indexOf(aList, targetElement)
 		set nextElement to item i of aList
 		if nextElement as text is equal to targetElement as text then return i
 	end repeat
-
+	
 	return 0
 end _indexOf
 
@@ -517,7 +517,7 @@ to unitTest()
 		sut's deleteKey("spot-record")
 		sut's deleteKey("spot-map")
 		assertEqual(missing value, sut's getValue("spot-array"), "Clean array key")
-
+		
 		newMethod("setValue")
 		sut's setValue(missing value, "haha")
 		sut's setValue("spot-array", {1, 2})
@@ -530,11 +530,11 @@ to unitTest()
 		sut's setValue("spot-bool", false)
 		sut's setValue("spot-false", false)
 		sut's setValue("spot-true", true)
-
+		
 		newMethod("getValue")
 		assertEqual(missing value, sut's getValue(missing value), "missing value key")
 		-- assertEqual({"1", "2"}, sut's getValue("spot-array"), "Array of integers") -- Int not supported
-
+		
 		set arrayValue to sut's getValue("spot-array")
 		assertEqual(2, count of arrayValue, "Get array count")
 		assertEqual("1", first item of arrayValue, "Get array element first")
@@ -546,15 +546,15 @@ to unitTest()
 		assertEqual({"one", "two", "three", "four: colonized"}, actualRecord's getKeys(), "Get record keys")
 		assertEqual("{one: 1, two: 2, three: a&c, four: colonized: apat}", actualRecord's toString(), "Get record value")
 		*)
-
+		
 		newMethod("getValueWithDefault")
 		assertEqual("use me", sut's getValueWithDefault("spot-string-absent", "use me"), "Value is absent")
 		assertEqual("text", sut's getValueWithDefault("spot-string", 1), "Value is present")
-
+		
 		newMethod("getList")
 		assertMissingValue(sut's getList(missing value), "Missing value")
 		assertEqual({"one", "two"}, sut's getList("spot-array-string"), "Get List")
-
+		
 		newMethod("appendValue")
 		sut's appendValue("spot-array2", 3)
 		assertEqual({"3"}, sut's getList("spot-array2"), "First element")
@@ -566,7 +566,7 @@ to unitTest()
 		assertEqual({"one", "two", "four"}, sut's getList("spot-array-string"), "Append String")
 		sut's appendValue("spot-array-string", "five.five")
 		assertEqual({"one", "two", "four", "five.five"}, sut's getList("spot-array-string"), "Append dotted string")
-
+		
 		newMethod("removeElement")
 		assertEqual(0, sut's removeElement(missing value, "two"), "Missing value list")
 		assertEqual(0, sut's removeElement("spot-array-string", missing value), "Missing value element")
@@ -577,38 +577,38 @@ to unitTest()
 		sut's removeElement("spot-array-string", "five.five")
 		assertEqual({}, sut's getList("spot-array-string"), "Get after removing all element")
 		assertEqual(0, sut's removeElement("spot-array-string", "Good Putin"), "Remove inexistent element")
-
+		
 		newMethod("getInt")
 		assertMissingValue(sut's getInt(missing value), "Missing value")
 		assertEqual(1, sut's getInt("spot-integer"), "Get integer value")
-
+		
 		newMethod("getReal")
 		assertMissingValue(sut's getReal(missing value), "Missing value")
 		assertEqual(1.5, sut's getReal("spot-float"), "Get real value")
-
+		
 		newMethod("getBool")
 		assertFalse(sut's getBool("spot-none"), "Missing Value is False")
 		assertTrue(sut's getBool("spot-true"), "Verify True")
 		assertFalse(sut's getBool("spot-false"), "Verify False")
-
+		
 		newMethod("update") -- huh?!
 		sut's setValue("spot-bool", 1)
 		assertEqual(1, sut's getInt("spot-bool"), "Update bool to integer")
-
+		
 		newMethod("hasValue")
 		assertFalse(sut's hasValue(missing value), "Missing value")
 		assertFalse(sut's hasValue("spot-unicorn"), "Value not found")
 		assertTrue(sut's hasValue("spot-bool"), "Value found")
-
+		
 		newMethod("hasValue")
 		assertFalse(sut's hasValue("spot-unicorn"), "Value not found")
 		assertFalse(sut's hasValue(missing value), missing value)
-
+		
 		logger's infof("Delaying by {} to force timeout", UT_REDIS_TIMEOUT)
 		delay UT_REDIS_TIMEOUT
 		newScenario("getValue with expiry")
 		assertMissingValue(sut's getValue("spot-string"), "missing value expected after timeout elapsed")
-
+		
 		ut's done()
 	end tell
 end unitTest
@@ -617,10 +617,10 @@ end unitTest
 (* Constructor. When you need to load another library, do it here. *)
 on init()
 	set REDIS_CLI to do shell script "plutil -extract \"Redis CLI\" raw ~/applescript-core/config-system.plist"
-
+	
 	if initialized of me then return
 	set initialized of me to true
-
+	
 	set std to script "std"
 	set logger to std's import("logger")'s new("redis")
 	set CR to ASCII character 13
