@@ -1,4 +1,4 @@
-global std, config, regex, textUtil, retry, sb, calendarEvent, counter, plutil, dt, kb
+global std, regex, textUtil, retry, sb, calendarEvent, counter, plutil, dt, kb
 global decoratorCalView, calProcess
 
 use script "Core Text Utilities"
@@ -31,6 +31,7 @@ on spotCheck()
 	
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
+	set map to std's import("map")
 	
 	(* Manual Visual Verification. *)
 	set cases to listUtil's splitByLine("
@@ -43,7 +44,11 @@ on spotCheck()
 		Switch View - extension
 		Manual: Selected Event
 		Clear Cache on First Run of the Day
+		Manual: Get Online Meetings
 	")
+	
+	(* Manually configure this. *)
+	set spotData to {online_only:date "Wednesday, January 26, 2022 at 7:30:00 AM", online_and_offline:date "Wednesday, November 23, 2022 at 7:00:00 AM"}
 	
 	set spotLib to std's import("spot")'s new()
 	set spot to spotLib's new(thisCaseId, cases)
@@ -65,17 +70,32 @@ on spotCheck()
 		sut's gotoDate("2021/01/07")
 		
 	else if caseIndex is 3 then
-		-- sut's clearCache()
+		(*
+			Cases:
+				No Meetings
+				One online meetings
+				Two online meetings
+				One online, one offline meeting
+		*)
+		
+		try
+			sut's clearCache()
+		end try -- clear cache in not available by default but highly recommended
+		
 		tell sut
 			set its IS_TEST to true
-			set its TEST_DATETIME to date "Tuesday, June 14, 2022 at 8:00:00 AM"
+			set its TEST_DATETIME to online_and_offline of spotData
 		end tell
 		
 		set meetingsAtThisTime to sut's getMeetingsAtThisTime()
-		log ("Meetings at this time: " & (count of meetingsAtThisTime))
-		repeat with nextActive in meetingsAtThisTime
-			log nextActive
-		end repeat
+		set meetingCount to the count of meetingsAtThisTime
+		logger's infof("Meetings at this time: {}", meetingCount)
+		if meetingCount is not 0 then
+			repeat with nextMeeting in meetingsAtThisTime
+				set meetingASDictionary to map's fromRecord(nextMeeting)
+				logger's infof("Next meeting today: {}", meetingASDictionary's toStringPretty())
+			end repeat
+		end if
 		
 	else if caseIndex is 4 then
 		set meetingsAtThisTime to sut's getMeetingsAtThisTime()
@@ -101,7 +121,7 @@ on spotCheck()
 		set selectedEvent to sut's getSelectedEvent()
 		if selectedEvent is missing value then error "Select an event in week-view to demonstrate this feature. Other view types are not yet implemented."
 		
-		logger's infof("Selected Event JSON: {}", selectedEvent's toJsonString())
+		logger's infof("Selected Event JSON: {}", selectedEvent's toJSONString())
 		
 	else if caseIndex is 8 then
 		
@@ -110,6 +130,26 @@ on spotCheck()
 		repeat with nextActive in meetingsAtThisTime
 			log (nextActive)
 		end repeat
+		
+	else if caseIndex is 9 then
+		try
+			sut's clearCache()
+		end try -- clear cache in not available by default but highly recommended
+		
+		tell sut
+			set its IS_TEST to true
+			set its TEST_DATETIME to online_and_offline of spotData
+		end tell
+		
+		set currentOnlineMeetings to sut's getOnlineMeetingsAtThisTime()
+		set meetingCount to the count of currentOnlineMeetings
+		logger's infof("Online Meetings at this time: {}", meetingCount)
+		if meetingCount is not 0 then
+			repeat with nextMeeting in currentOnlineMeetings
+				set meetingASDictionary to map's fromRecord(nextMeeting)
+				logger's infof("Next meeting today: {}", meetingASDictionary's toStringPretty())
+			end repeat
+		end if
 		
 	end if
 	
@@ -203,6 +243,9 @@ on new()
 		end getSelectedEvent
 		
 		
+		(*
+			@dayOfTheWeek - ?
+		*)
 		on getMeetingsOfTheDay(dayOfTheWeek)
 			initCalendarApp()
 			activate application "Calendar"
@@ -238,9 +281,14 @@ on new()
 		
 		
 		(* 
+			
 			Only the action-ed meeting events are included.
-			@returns list of record (not script object). I'm curious why this 
-			runs fine despite outside of the instance object. 
+			@Test Cases:
+				No Meetings
+				One Meeting
+				Multiple Meetings
+			
+			@returns list of record (not script object). The list of active meetings at the current time.
 		*)
 		on getMeetingsAtThisTime()
 			set theNow to getCurrentDate()
@@ -264,6 +312,16 @@ on new()
 			
 			theRetval
 		end getMeetingsAtThisTime
+		
+		
+		on getOnlineMeetingsAtThisTime()
+			set meetingsAtThisTime to getMeetingsAtThisTime()
+			set onlineMeetings to {}
+			repeat with nextMeeting in meetingsAtThisTime
+				if nextMeeting's meetingId is not missing value then set end of onlineMeetings to nextMeeting
+			end repeat
+			onlineMeetings
+		end getOnlineMeetingsAtThisTime
 	end script
 	
 	decoratorCalView's decorate(CalendarInstance)
@@ -337,7 +395,6 @@ on init()
 	
 	set std to script "std"
 	set logger to std's import("logger")'s new("calendar")
-	set config to std's import("config")
 	
 	set textUtil to std's import("string")
 	set regex to std's import("regex")

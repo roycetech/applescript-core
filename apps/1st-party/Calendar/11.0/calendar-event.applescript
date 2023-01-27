@@ -55,7 +55,7 @@ on new()
 	script CalendarEventLibrary
 		on new(meetingStaticText)
 			tell application "System Events" to tell process "Calendar"
-				logger's debugf("MY IS_SPOT: {}", my IS_SPOT)
+				-- logger's debugf("MY IS_SPOT: {}", my IS_SPOT)
 				if my IS_SPOT then
 					set meetingDescription to |description| of meetingStaticText
 				else
