@@ -73,14 +73,13 @@ on newRetriever(credKey)
 		on getOTP()
 			local stepTwo
 			set stepTwo to new()
-			stepTwo's filter(credKey)
 			set secondsUntilNext to stepTwo's getSecondsRemaining()
 			if secondsUntilNext is less than 2 then
 				logger's infof("{} second/s to expire, waiting for the next...", secondsUntilNext)
 				delay secondsUntilNext
 			end if
 			
-			stepTwo's getFirstOTP()
+			stepTwo's getOtpByCredKey(credKey)
 		end getOTP
 	end script
 	
@@ -136,7 +135,7 @@ on new()
 			on error the errorMessage number the errorNumber
 				logger's warn(errorMessage)
 			end try
-			
+
 			missing value
 		end getOtpByCredKey
 		
