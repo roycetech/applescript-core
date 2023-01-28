@@ -39,7 +39,7 @@ end spotCheck
 
 
 (*  *)
-to new(initialValue)
+on new(initialValue)
 	script StringBuilderInstance
 		property textValue : initialValue
 		
