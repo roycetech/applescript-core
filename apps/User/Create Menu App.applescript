@@ -100,5 +100,7 @@ on main()
 	do shell script (format {"defaults write '{}/Contents/Info.plist' LSUIElement -bool yes", posixPath})
 	
 	tell speech to speakSynchronously("Menu app deployed")
+	activate application baseScriptName
+	seTab's closeTab()
 end main
 
