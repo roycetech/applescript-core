@@ -111,6 +111,11 @@ on decorate(safariTab)
 			set scriptText to format {"document.querySelector('{}').value", {selector}}
 			_runScript(scriptText)
 		end getValue
+
+		on getValueByName(elementName)
+			set scriptText to format {"document.getElementsByName('{}')[0].value", {elementName}}
+			_runScript(scriptText)
+		end getValueByName
 		
 		on getCheckedById(elementId)
 			set scriptText to format {"document.getElementById('{}').checked", elementId}
@@ -289,6 +294,12 @@ on decorate(safariTab)
 			set scriptText to format {"document.querySelector('{}') !== null", selector}
 			_runScript(scriptText)
 		end selectorExists
+
+		(* *)
+		on namedElementExists(elementName)
+			set scriptText to format {"document.getElementsByName('{}').length > 0", elementName}
+			_runScript(scriptText)
+		end namedElementExists
 		
 		on textContent(selector)
 			set scriptText to format {"document.querySelector('{}').textContent.trim()", selector}
