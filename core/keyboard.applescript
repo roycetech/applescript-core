@@ -3,10 +3,21 @@ global std
 use script "Core Text Utilities"
 use scripting additions
 
+use AppleScript version "2.4"
+use framework "Foundation"
+use framework "AppKit" -- for NSEvent
+
+-- classes, constants, and enums used
+property NSControlKeyMask : a reference to 262144
+property NSAlternateKeyMask : a reference to 524288
+property NSShiftKeyMask : a reference to 131072
+property NSCommandKeyMask : a reference to 1048576
+property NSEvent : a reference to current application's NSEvent
+
 (*
 	Usage:
 		set kb to std's import("keyboard")
-	Or type: sset kb
+	Or type (Text Expander): sset kb
 *)
 
 property initialized : false
@@ -27,6 +38,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Manual Checks
 		Paste Text with Emoji
+		Manual: Modifier Pressed
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -84,6 +96,12 @@ on spotCheck()
 		else if caseIndex is 2 then
 			insertTextByPasting("Hello " & emoji's horn)
 			
+		else if caseIndex is 3 then
+			delay 1
+			logger's infof("Option Pressed: {}", checkModifier("option"))
+			logger's infof("Shift Pressed: {}", checkModifier("shift"))
+			logger's infof("Command Pressed: {}", checkModifier("command"))
+			
 		end if
 		
 	end tell
@@ -98,6 +116,43 @@ end spotCheck
 
 on new()
 	script KeyboardInstance
+		on checkModifier(keyName)
+			if keyName = "option" then
+				set theMask to NSAlternateKeyMask
+			else if keyName = "control" then
+				set theMask to NSControlKeyMask
+			else if keyName = "command" then
+				set theMask to NSCommandKeyMask
+			else if keyName = "shift" then
+				set theMask to NSShiftKeyMask
+			else
+				return false
+			end if
+			set theFlag to NSEvent's modifierFlags() as integer
+			if ((theFlag div theMask) mod 2) = 0 then
+				return false
+			else
+				return true
+			end if
+		end checkModifier
+		
+		on modifiersDown()
+			set theKeys to {}
+			set theFlag to NSEvent's modifierFlags() as integer
+			if ((theFlag div NSAlternateKeyMask) mod 2) is not 0 then
+				set end of theKeys to "option"
+			end if
+			if ((theFlag div NSControlKeyMask) mod 2) is not 0 then
+				set end of theKeys to "control"
+			end if
+			if ((theFlag div NSCommandKeyMask) mod 2) is not 0 then
+				set end of theKeys to "command"
+			end if
+			if ((theFlag div NSShiftKeyMask) mod 2) is not 0 then
+				set end of theKeys to "shift"
+			end if
+			return theKeys
+		end modifiersDown
 		
 		on isDvorak()
 			getLayout() contains "DVORAK"
@@ -140,7 +195,7 @@ on new()
 			end tell
 			delay 0.01
 		end pressCommandShiftKey
-
+		
 		on pressCommandOptionKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down, option down}
@@ -161,7 +216,7 @@ on new()
 			end tell
 			delay 0.01
 		end pressControlShiftKey
-
+		
 		on pressOptionKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {option down}
@@ -271,7 +326,7 @@ on _charToKeycode(key)
 	if key is "down" then return 125
 	if key is "left" then return 123
 	if key is "right" then return 124
-
+	
 	if key is "F1" then return 122
 	if key is "F2" then return 120
 	if key is "F3" then return 99
@@ -284,7 +339,7 @@ on _charToKeycode(key)
 	if key is "F10" then return 109
 	if key is "F11" then return 103
 	if key is "F12" then return 111
-
+	
 	-1
 end _charToKeycode
 
@@ -292,7 +347,7 @@ end _charToKeycode
 on init()
 	if initialized of me then return
 	set initialized of me to true
-
+	
 	set std to script "std"
 	set logger to std's import("logger")'s new("keyboard")
 end init
