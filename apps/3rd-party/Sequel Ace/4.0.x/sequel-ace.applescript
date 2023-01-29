@@ -1,4 +1,4 @@
-global std, config, retry, syseve, listUtil, kb
+global std, config, retry, syseve, listUtil, kb, textUtil
 global TEST_CONNECTION_NAME
 
 (*
@@ -30,6 +30,7 @@ on spotCheck()
 		Manual: Is Table Selected (Connection Tab, DB Not Selected, Table Not Selected, Happy)	
 		Manual: Run Query
 		
+		Manual: Current Info (Connection Tab, DB Not Selected, Table Not Selected, Happy)
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -89,6 +90,12 @@ on spotCheck()
 	else if caseIndex is 10 then
 		set frontTab to sut's getFrontTab()
 		frontTab's runQuery("SELECT '" & (current date) & "'")
+		
+	else if caseIndex is 11 then
+		set frontTab to sut's getFrontTab()
+		logger's infof("Connection Name: {}", frontTab's getConnectionName())
+		logger's infof("Database Name: {}", frontTab's getDatabaseName())
+		logger's infof("Table Name: {}", frontTab's getTableName())
 		
 	end if
 	
@@ -174,6 +181,50 @@ on new()
 		on new(pAppWindow)
 			script SequelAceTabInstance
 				property appWindow : pAppWindow -- non-sysEveWindow
+				
+				(*
+					@returns the list consisting of connection, database, and table names. Database and table name may not be available at a given time.  Missing value if both database and table names could not be derived from the window name.
+				*)
+				on _getIdentifierTokens()
+					set windowName to the name of appWindow
+					-- logger's debugf("windowName: {}", windowName)
+					if windowName is equal to "Sequel Ace" then return missing value
+					
+					tell application "System Events" to tell process "Sequel Ace"
+						try
+							if (value of pop up button 1 of group 1 of toolbar 1 of my getSysEveWindow() as text) starts with "Choose database" then
+								return missing value
+							end if
+						end try
+					end tell
+					
+					set nameSpacedTokens to textUtil's split(windowName, " ")
+					if the (count of items in nameSpacedTokens) is less than 2 then return missing value
+					
+					textUtil's split(last item of nameSpacedTokens, "/")
+				end _getIdentifierTokens
+				
+				on getConnectionName()
+					set tokens to _getIdentifierTokens()
+					if tokens is missing value then return missing value
+					
+					first item of tokens
+				end getConnectionName
+				
+				on getDatabaseName()
+					set tokens to _getIdentifierTokens()
+					if tokens is missing value then return missing value
+					
+					return 2nd item of tokens
+				end getDatabaseName
+				
+				on getTableName()
+					set tokens to _getIdentifierTokens()
+					if tokens is missing value then return missing value
+					if the (count of items in tokens) is less than 3 then return missing value
+					
+					last item of tokens
+				end getTableName
 				
 				on isTableSelected()
 					set windowName to name of appWindow
@@ -339,6 +390,12 @@ on new()
 						end try
 					end tell
 				end switchView
+				
+				on getSysEveWindow()
+					tell application "System Events" to tell process "Sequel Ace"
+						window (name of my appWindow)
+					end tell
+				end getSysEveWindow
 			end script
 			std's applyMappedOverride(result)
 		end new
@@ -362,6 +419,7 @@ on init()
 	set syseve to std's import("syseve")'s new()
 	set listUtil to std's import("list")
 	set kb to std's import("keyboard")'s new()
+	set textUtil to std's import("string")
 	
 	set TEST_CONNECTION_NAME to "Docker MySQL 5"
 end init
