@@ -12,9 +12,9 @@ help:
 
 # Simplify to pick all files inside core folder.
 # CORE_LIBS := std config logger plutil string
-CORE_LIBS := std logger config plutil string-builder string map speech regex \
-unicodes switch unit-test spot-test list date-time idler retry keyboard file \
-process syseve clipboard emoji window stack dialog
+CORE_LIBS :=  clipboard config date-time dialog emoji file idler keyboard list \
+logger map plutil process regex retry spot-test std string string-builder \
+speech stack switch  syseve unicodes unit-test window
 
 APPS_PATH=/Applications/AppleScript
 
