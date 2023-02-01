@@ -1,4 +1,4 @@
-global std, config, textUtil, keyboard
+global std, textUtil, kb
 
 (*
 	For consistency:
@@ -35,11 +35,10 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Misc Folders
 		Manual: Selection (None, One, Multi)
-		Manual: Current POSIX PATH
-		Manual: Folder Name
-		Manual: Create From Template
-		
+		Manual: Current Folder
+		Manual: Create From Template		
 		Get File Path
+		
 		Get File List		
 		Move File - (Manually Revert)
 		New Tab for Path
@@ -68,16 +67,15 @@ on spotCheck()
 		
 	else if caseIndex is 2 then
 		logger's infof("Selected Objects: {}", sut's getSelection())
-		logger's infof("Selected File Path: {}", sut's getFirstSelectionPath())
-		logger's infof("Selected Filename: {}", sut's getFirstSelectionName())
+		logger's infof("First Selected File Path: {}", sut's getFirstSelectionPath())
+		logger's infof("First Selected File URL: {}", sut's getFirstSelectionURL())
+		logger's infof("First Selected Filename: {}", sut's getFirstSelectionName())
 		
 	else if caseIndex is 3 then
 		set frontTab to sut's getFrontTab()
 		logger's infof("Get Path: {}", frontTab's getPath())
-		
-	else if caseIndex is 2 then
-		set frontTab to sut's getFrontTab()
 		logger's infof("Folder Name: {}", frontTab's getFolderName())
+		logger's infof("URL: {}", frontTab's getURL())
 		
 	else if caseIndex is 3 then -- WIP From here to cases below.
 		tell application "Finder"
@@ -278,7 +276,8 @@ on new()
 					false
 				end addToSideBar
 				
-				on getPath()
+				
+				on getURL()
 					if running of application "Finder" is false then return missing value
 					tell application "System Events" to tell process "Finder"
 						if (count of windows) is 0 then return missing value
@@ -288,20 +287,29 @@ on new()
 					tell application "Finder"
 						set currentFolder to insertion location
 						try
-							return textUtil's decodeUrl(textUtil's stringAfter(URL of currentFolder, "file://"))
+							return URL of currentFolder as text
 						end try -- Ignore special locations like Recents.
 					end tell
 					missing value
+				end getURL
+				
+				
+				on getPath()
+					set finderUrl to getURL()
+					if finderUrl is missing value then return missing value
+					
+					text 1 thru -2 of textUtil's decodeUrl(textUtil's stringAfter(finderUrl, "file://"))
 				end getPath
 				
-				to getFolderName()
+				
+				on getFolderName()
 					tell application "Finder"
 						set currentFolder to insertion location
 					end tell
 					name of currentFolder -- would not work if we do 'name of insert location' inside the tell Finder block.
 				end getFolderName
 				
-				to focus()
+				on focus()
 					tell application "Finder"
 						set index of my appWindow to 1
 					end tell
@@ -343,14 +351,19 @@ on new()
 		
 		
 		on getFirstSelectionPath()
+			textUtil's replace(textUtil's stringAfter(getFirstSelectionURL(), "file://"), "%20", " ")
+		end getFirstSelectionPath
+		
+		
+		on getFirstSelectionURL()
 			set userSelection to getSelection()
 			if (the number of items in userSelection) is 0 then return missing value
 			
 			set firstSelection to first item of userSelection
 			tell application "Finder"
-				textUtil's stringAfter(URL of firstSelection, "file://")
+				URL of firstSelection
 			end tell
-		end getFirstSelectionPath
+		end getFirstSelectionURL
 		
 		
 		on getFirstSelectionName()
@@ -441,7 +454,7 @@ on new()
 				set rootRelativePath to text 2 thru -1 of posixPath
 				return _posixSubPathToFolder(rootRelativePath, path to startup disk)
 				
-			end if			
+			end if
 		end posixToFolder
 		
 		
