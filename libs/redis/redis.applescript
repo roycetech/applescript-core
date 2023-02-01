@@ -154,7 +154,7 @@ on new(pTimeoutSeconds)
 					set timeoutParam to format {" EX {}", timeoutSeconds}
 				end if
 				
-				set setValueShellCommand to format {"{} SET {} {} {}", {REDIS_CLI, plistKey, shellValue, timeoutParam}}
+				set setValueShellCommand to format {"{} SET {} {} {}", {REDIS_CLI, quotedPlistKey, shellValue, timeoutParam}}
 				do shell script setValueShellCommand
 				return
 				
@@ -324,7 +324,7 @@ on new(pTimeoutSeconds)
 			set quotedValue to newValue
 			if not hasValue(plistKey) then setValue(plistKey, {})
 			if newValue is not missing value then set quotedValue to _quoteValue(newValue)
-			set appendShellCommand to format {"{} RPUSH {} {}", {REDIS_CLI , escapedAndQuotedPlistKey, quotedValue}}
+			set appendShellCommand to format {"{} RPUSH {} {}", {REDIS_CLI, escapedAndQuotedPlistKey, quotedValue}}
 			do shell script appendShellCommand
 		end appendValue
 		
@@ -349,7 +349,7 @@ on new(pTimeoutSeconds)
 			if plistKey is missing value then return
 			
 			set quotedPlistKey to quoted form of plistKey
-			set removeShellCommand to format {"{} DEL '{}'", {REDIS_CLI, quotedPlistKey}}
+			set removeShellCommand to format {"{} DEL {}", {REDIS_CLI, quotedPlistKey}}
 			try
 				return (do shell script removeShellCommand) is 1
 			end try
@@ -412,7 +412,7 @@ on new(pTimeoutSeconds)
 			end if
 		end _insertList
 		
-		to _convertType(textValue, plistType)
+		on _convertType(textValue, plistType)
 			if plistType is "date" then return _zuluToLocalDate(textValue)
 			if plistType is "integer" then return textValue as integer
 			if plistType is "float" then return textValue as real
@@ -530,9 +530,11 @@ to unitTest()
 		sut's setValue("spot-bool", false)
 		sut's setValue("spot-false", false)
 		sut's setValue("spot-true", true)
+		sut's setValue("spot text", "Multi word key")
 		
 		newMethod("getValue")
 		assertEqual(missing value, sut's getValue(missing value), "missing value key")
+		assertEqual("Multi word key", sut's getValue("spot text"), "Spaced Key")
 		-- assertEqual({"1", "2"}, sut's getValue("spot-array"), "Array of integers") -- Int not supported
 		
 		set arrayValue to sut's getValue("spot-array")
