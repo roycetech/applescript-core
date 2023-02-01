@@ -1,4 +1,4 @@
-global std, retry, regex, dock, winUtil, safariJavaScript, textUtil
+global std, retry, regex, dock, winUtil, safariJavaScript, textUtil, uiUtil, unic, kb
 
 (*
 	This script library is a wrapper to Safari application.
@@ -48,13 +48,16 @@ on spotCheck()
 	
 	set cases to listUtil's splitByLine("
 		Manual: Front Tab
-		Manual: First Tab
-		Manual: New Window
-		Manual: Is Side Bar Visible (yes, no)		
-		Manual: Find Tab With Name ()
+		Manual: First Tab		
+		Manual: Is Side Bar Visible (yes, no)
+		Manual: Show Side Bar (Visible,Hidden)
+		Manual: Close Side Bar (Visible,Hidden)
 		
+		Manual: Get Group Name(default, group selected)
+		Manual: Switch Group(not found, found)
+		Manual: New Window
+		Manual: Find Tab With Name ()
 		New Tab - Manually Check when no window is present in current space.
-		Manual: Get Group Name
 		
 		Open in Cognito
 		Get Tab by Window ID - Manual
@@ -107,13 +110,32 @@ on spotCheck()
 		end if
 		-- if youTab is not missing value then log name of theTab of youTab as text
 		
+	else if caseIndex is 3 then
+		set frontTab to sut's getFrontTab()
+		logger's debugf("Visible: {}", sut's isSideBarVisible())
+		
+	else if caseIndex is 4 then
+		sut's showSideBar()
+		assertThat of std given condition:sut's isSideBarVisible(), messageOnFail:"Failed spot check"
+		logger's info("Passed.")
+		
+	else if caseIndex is 5 then
+		sut's closeSideBar()
+		assertThat of std given condition:sut's isSideBarVisible() is false, messageOnFail:"Failed spot check"
+		logger's info("Passed.")
+		
+	else if caseIndex is 6 then
+		logger's infof("Current Group Name: {}", sut's getGroupName())
+		
+	else if caseIndex is 7 then
+		-- sut's switchGroup("Unicorn") -- not found
+		sut's switchGroup("Music")
+		
+		-- BELOW FOR REVIEW.
 		
 	else if caseIndex is 3 then
 		sut's newWindow("https://www.example.com")
 		
-	else if caseIndex is 4 then
-		set frontTab to sut's getFrontTab()
-		logger's debugf("Visible: {}", frontTab's isSideBarVisible())
 		
 	else if caseIndex is 3 then
 		set firstTab to getFirstTab()
@@ -140,11 +162,11 @@ on spotCheck()
 	else if caseIndex is 6 then
 		sut's newTab("https://www.example.com")
 		
-	else if caseIndex is 7 then
-		logger's infof("Current Group Name: {}", sut's getGroupName())
+		
 		
 	else if caseIndex is 7 then
 		newCognito("https://www.example.com")
+		
 		
 		
 	else if caseIndex is 7 then
@@ -169,8 +191,6 @@ end spotCheck
 
 on new()
 	script SafariInstance
-		
-		
 		on getGroupName()
 			if running of application "Safari" is false then return missing value
 			
@@ -185,7 +205,7 @@ on new()
 			-- logger's debugf("sideBarWasVisible: {}", sideBarWasVisible)
 			
 			if sideBarWasVisible is false then -- let's try to simplify by getting the name from the window name
-				set nameTokens to textUtil's split(windowTitle, uni's SEPARATOR)
+				set nameTokens to textUtil's split(windowTitle, unic's SEPARATOR)
 				if number of items in nameTokens is 2 then -- There's a small risk that a current website has the same separator characters in its title and thus result in the wrong group name.	
 					logger's info("Returning group name from window title")
 					return first item of nameTokens
@@ -234,9 +254,31 @@ on new()
 				set groupOneButtons to buttons of group 1 of toolbar 1 of front window
 			end tell
 			
-			set sideBarButton to uitil's newInstance(groupOneButtons)'s findById("SidebarButton")
+			set sideBarButton to uiUtil's new(groupOneButtons)'s findById("SidebarButton")
 			tell application "System Events" to click sideBarButton
 		end showSideBar
+		
+		
+		on closeSideBar()
+			if not isSideBarVisible() then return return
+			
+			if running of application "Safari" is false then return
+			
+			tell application "System Events" to tell process "Safari"
+				if (count of windows) is 0 then return
+			end tell
+			
+			tell application "System Events" to tell application process "Safari"
+				set groupOneButtons to buttons of group 1 of toolbar 1 of front window
+			end tell
+			
+			set sideBarButton to uiUtil's new(groupOneButtons)'s findById("SidebarButton")
+			script CloseWaiter
+				tell application "System Events" to click sideBarButton
+				if isSideBarVisible() is false then return true
+			end script
+			exec of retry on result for 3
+		end closeSideBar
 		
 		
 		on isSideBarVisible()
@@ -249,6 +291,39 @@ on new()
 			end tell
 			false
 		end isSideBarVisible
+		
+		
+		(*
+			@requires app focus.
+		*)
+		on switchGroup(groupName)
+			if running of application "Safari" is false then
+				activate application "Safari"
+			end if
+			
+			set sideBarWasVisible to isSideBarVisible()
+			closeSideBar()
+			
+			script ToolBarWaiter
+				tell application "System Events" to tell process "Safari"
+					click menu button 1 of group 1 of toolbar 1 of window 1
+				end tell
+				true
+			end script
+			set waitResult to exec of retry on result for 3
+			logger's debugf("WaitResult: {}", waitResult)
+			
+			tell application "System Events" to tell process "Safari"
+				try
+					click menu item groupName of menu 1 of group 1 of toolbar 1 of window 1
+				on error
+					logger's warnf("Group: {} was not found", groupName)
+					kb's pressKey("esc")
+				end try
+			end tell
+			
+			if sideBarWasVisible then showSideBar()
+		end switchGroup
 		
 		
 		(* 
@@ -646,10 +721,10 @@ on new()
 					end tell
 					missing value
 				end getAddressBarValue
-
+				
 				on goto(targetUrl)
 					script PageWaiter
-
+						
 						-- tell application "Safari" to set URL of document (name of my theWindow) to targetUrl
 						tell application "Safari" to set URL of my getDocument() to targetUrl
 						true
@@ -657,8 +732,8 @@ on new()
 					exec of retry on result for 2
 					delay 0.1 -- to give waitForPageLoad ample time to enter a loading state.
 				end goto
-
-
+				
+				
 				(* Note: Will dismiss the prompt of the*)
 				on dismissPasswordSavePrompt()
 					focus()
@@ -671,46 +746,46 @@ on new()
 					end script
 					exec of retry on result for 5 -- let's try click it 5 times, ignoring outcomes.
 				end dismissPasswordSavePrompt
-
+				
 				on extractUrlParam(paramName)
 					tell application "Safari" to set _url to URL of my getDocument()
 					set pattern to format {"(?<={}=)\\w+", paramName}
 					set matchedString to regex's findFirst(_url, pattern)
 					if matchedString is "nil" then return missing value
-
+					
 					matchedString
 				end extractUrlParam
-
-
+				
+				
 				on getWindowId()
 					id of appWindow
 				end getWindowId
-
+				
 				on getWindowName()
 					name of appWindow
 				end getWindowName
-
+				
 				on getDocument()
 					tell application "Safari"
 						document (my getWindowName())
 					end tell
 				end getDocument
-
-
+				
+				
 				on getSysEveWindow()
 					tell application "System Events" to tell process "Safari"
 						return window (name of appWindow)
 					end tell
 				end getSysEveWindow
 			end script
-
+			
 			tell application "Safari"
 				set appWindow of SafariTabInstance to window id windowId
 				set _url of SafariTabInstance to URL of document of window id windowId
 				set _tab of SafariTabInstance to item pTabIndex of tabs of appWindow of SafariTabInstance
 			end tell
 			set theInstance to safariJavaScript's decorate(SafariTabInstance)
-
+			
 			(*
 			if javaScriptSupport then
 				set js_tab to std's import("javascript-next")
@@ -722,7 +797,7 @@ on new()
 				set theInstance to jq's newInstance(theInstance)
 			end if
 *)
-
+			
 			theInstance
 		end _new
 	end script
@@ -733,7 +808,7 @@ end new
 on init()
 	if initialized of me then return
 	set initialized of me to true
-
+	
 	set std to script "std"
 	set logger to std's import("logger")'s new("safari")
 	set safariJavaScript to std's import("safari-javascript")
@@ -742,4 +817,7 @@ on init()
 	set dock to std's import("dock")'s new()
 	set winUtil to std's import("window")'s new()
 	set textUtil to std's import("string")
+	set uiUtil to std's import("ui-util")
+	set unic to std's import("unicodes")
+	set kb to std's import("keyboard")'s new()
 end init
