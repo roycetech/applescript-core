@@ -135,13 +135,13 @@ on new()
 		
 		
 		on speakSynchronouslyWithLogging(rawText as text)
+			if logger is missing value then set logger to std's import("logger")'s new("speech") -- weird error.
+
 			logger's info(rawText)
 			speakSynchronously(rawText)
 		end speakSynchronouslyWithLogging
 	end script
 end new
-
-
 
 
 -- Private Codes below =======================================================
