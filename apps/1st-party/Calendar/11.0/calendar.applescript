@@ -8,6 +8,10 @@ use scripting additions
 	@Plists
 		counter
 			calendar.getMeetingsAtThisTime - for other scripts to limit this slow, user-interrupting check to once perday.
+			
+	@Testing
+		Modify the handler getCurrentDate() for the desired test date.
+		
 
 	When parsing meetings for the day, list of records will be returned. In 
 	parallel, a list ACTIVE_MEETINGs will contain the references to the UI.
@@ -45,6 +49,7 @@ on spotCheck()
 		Manual: Selected Event
 		Clear Cache on First Run of the Day
 		Manual: Get Online Meetings
+		Manual: Get Next Online Meeting
 	")
 	
 	(* Manually configure this. *)
@@ -151,6 +156,17 @@ on spotCheck()
 			end repeat
 		end if
 		
+	else if caseIndex is 10 then
+		set IS_TEST of sut to false
+		set upcomingMeeting to sut's getNextOnlineMeeting()
+		if upcomingMeeting is missing value then
+			logger's info("No more meetings today, is that right?")
+		else
+			logger's info("Upcoming meeting found:")
+			set meetingASDictionary to map's fromRecord(upcomingMeeting)
+			logger's infof("Next online meeting today: {}", meetingASDictionary's toStringPretty())
+		end if
+		
 	end if
 	
 	set IS_TEST of sut to false
@@ -215,6 +231,20 @@ on new()
 			end repeat
 			missing value
 		end getNextMeetingToday
+		
+		
+		on getNextOnlineMeeting()
+			set currentDate to getCurrentDate()
+			logger's debugf("currentDate: {}", currentDate)
+			set currentWeekDay to weekday of currentDate as text
+			set meetingsToday to getMeetingsOfTheDay(currentWeekDay)
+			repeat with nextMeeting in meetingsToday
+				if nextMeeting's actioned and _asDate(nextMeeting's startTime) is greater than currentDate and meetingId of nextMeeting is not missing value then
+					return nextMeeting
+				end if
+			end repeat
+			missing value
+		end getNextOnlineMeeting
 		
 		
 		(* 
