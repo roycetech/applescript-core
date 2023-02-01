@@ -14,7 +14,7 @@ help:
 # CORE_LIBS := std config logger plutil string
 CORE_LIBS :=  clipboard config date-time dialog emoji file idler keyboard list \
 logger map plutil process regex retry spot-test std string string-builder \
-speech stack switch  syseve unicodes unit-test window
+speech stack switch  syseve ui-util unicodes unit-test window
 
 APPS_PATH=/Applications/AppleScript
 
