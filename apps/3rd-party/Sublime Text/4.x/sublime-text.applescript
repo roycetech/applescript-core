@@ -184,7 +184,7 @@ on new()
 			end tell
 			
 			if filename is missing value then
-				tell me to error "Could not get the document, try re-launching Subilime Text"
+				tell me to error "Could not get the document, try re-opening the project tab"
 			end if
 			
 			set filename to textUtil's stringAfter(filename, "file://")
