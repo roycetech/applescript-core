@@ -197,3 +197,12 @@ install-cliclick:
 install-json:
 	./scripts/compile-lib.sh libs/json/json
 
+
+compile-redis:
+	./scripts/compile-lib.sh libs/redis/redis
+
+install-redis: compile-redis
+	osascript ./scripts/setup-redis-cli.applescript
+# 	osacompile -o ~/Library/Script\ Libraries/redis.scpt redis.applescript
+
+
