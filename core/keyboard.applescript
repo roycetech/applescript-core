@@ -312,7 +312,7 @@ on _charToKeycode(key)
 	if key is "`" then return 50
 	if key is "\"" then return 39
 	
-	if key is tab then return 48
+	if key is tab or key is "tab" then return 48
 	if (ASCII number key) is 10 or key is "enter" then return 76
 	if (ASCII number key) is 13 or key is "return" then return 36
 	
@@ -326,7 +326,7 @@ on _charToKeycode(key)
 	if key is "down" then return 125
 	if key is "left" then return 123
 	if key is "right" then return 124
-	
+
 	if key is "F1" then return 122
 	if key is "F2" then return 120
 	if key is "F3" then return 99
@@ -339,7 +339,7 @@ on _charToKeycode(key)
 	if key is "F10" then return 109
 	if key is "F11" then return 103
 	if key is "F12" then return 111
-	
+
 	-1
 end _charToKeycode
 
@@ -347,7 +347,7 @@ end _charToKeycode
 on init()
 	if initialized of me then return
 	set initialized of me to true
-	
+
 	set std to script "std"
 	set logger to std's import("logger")'s new("keyboard")
 end init
