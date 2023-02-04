@@ -1,6 +1,9 @@
 global std, speech
 
 (*
+	@Plists:
+		config-lib-factory - Add an override "LoggerInstance => dec-logger-speech-and-tracking" to use this as override.
+
 	Compile:
 		make compile-lib SOURCE=core/decorators/dec-logger-speech-and-tracking
 *)
@@ -23,6 +26,8 @@ on decorate(baseScript)
 			end if
 		end fatal
 	end script
+	
+	std's applyMappedOverride(result)
 end decorate
 
 
