@@ -233,13 +233,16 @@ on new()
 		end getNextMeetingToday
 		
 		
+		(*
+			@returns the next meeting with online meeting_id. This includes meetings that are not actioned.
+		*)
 		on getNextOnlineMeeting()
 			set currentDate to getCurrentDate()
-			logger's debugf("currentDate: {}", currentDate)
+			-- logger's debugf("currentDate: {}", currentDate)
 			set currentWeekDay to weekday of currentDate as text
 			set meetingsToday to getMeetingsOfTheDay(currentWeekDay)
 			repeat with nextMeeting in meetingsToday
-				if nextMeeting's actioned and _asDate(nextMeeting's startTime) is greater than currentDate and meetingId of nextMeeting is not missing value then
+				if _asDate(nextMeeting's startTime) is greater than currentDate and meetingId of nextMeeting is not missing value then
 					return nextMeeting
 				end if
 			end repeat
