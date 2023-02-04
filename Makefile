@@ -197,6 +197,11 @@ install-cliclick:
 install-json:
 	./scripts/compile-lib.sh libs/json/json
 
+install-log4as:
+	./scripts/compile-lib.sh libs/log4as/log4as
+	./scripts/compile-lib.sh core/decorators/dec-logger-log4as
+	plutil -replace 'LoggerSpeechAndTrackingInstance' -string 'dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
+
 
 compile-redis:
 	./scripts/compile-lib.sh libs/redis/redis
