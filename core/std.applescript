@@ -143,6 +143,15 @@ on assertThat given condition:condition as boolean, messageOnFail:message : miss
 end assertThat
 
 
+(*  *)
+on ternary(condition, ifTrue, otherwise)
+	if condition then return ifTrue
+
+	otherwise
+end ternary
+
+
+
 on init()
 	if initialized of me then return
 	set initialized of me to true
