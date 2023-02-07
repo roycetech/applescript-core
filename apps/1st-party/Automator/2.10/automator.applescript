@@ -260,6 +260,8 @@ end run
 		end clickCommandEnabled
 		
 		on triggerSave()
+			if running of application "Automator" is false then return
+						
 			kb's pressCommandKey("s")
 		end triggerSave
 		
