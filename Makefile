@@ -139,7 +139,7 @@ install-control-center:
 	./scripts/compile-lib.sh "macOS-version/12-monterey/control-center"
 
 install-dock:
-	./scripts/compile-lib.sh "macOS-version/12-monterey/control-center"
+	./scripts/compile-lib.sh "macOS-version/12-monterey/dock"
 
 install-notification-center:
 	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center"
