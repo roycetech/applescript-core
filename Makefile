@@ -23,10 +23,6 @@ _init:
 	mkdir -p ~/applescript-core/sounds/
 	mkdir -p ~/applescript-core/logs/
 	mkdir -p "/Applications/AppleScript/Stay Open/"
-	./scripts/compile-bundle.sh 'core/Core Text Utilities'
-	plutil -replace 'Project applescript-core' -string "`pwd`" ~/applescript-core/config-system.plist
-
-install: _init compile-core
 	cp -n config-default.template ~/applescript-core/config-default.plist || true
 	cp -n config-emoji.template ~/applescript-core/config-emoji.plist || true
 	cp -n plist.template ~/applescript-core/config-system.plist || true
@@ -35,6 +31,10 @@ install: _init compile-core
 	cp -n plist.template ~/applescript-core/config-user.plist || true
 	cp -n plist.template ~/applescript-core/config-business.plist || true
 	cp -a assets/sounds/. ~/applescript-core/sounds/
+	./scripts/compile-bundle.sh 'core/Core Text Utilities'
+	plutil -replace 'Project applescript-core' -string "`pwd`" ~/applescript-core/config-system.plist
+
+install: _init compile-core
 	touch ~/applescript-core/logs/applescript-core.log
 	osascript scripts/setup-applescript-core-project-path.applescript
 	./scripts/setup-switches.sh
