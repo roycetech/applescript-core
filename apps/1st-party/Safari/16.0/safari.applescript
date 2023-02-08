@@ -166,7 +166,9 @@ on spotCheck()
 		
 	else if caseIndex is 7 then
 		newCognito("https://www.example.com")
-		
+
+	else if caseIndex is 8 then
+		sut's newWindow("https://www.example.com")
 		
 		
 	else if caseIndex is 7 then
