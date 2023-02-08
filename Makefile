@@ -119,6 +119,8 @@ uninstall-automator:
 	@echo "TODO"
 	# TODO:
 
+
+
 compile-terminal:
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/terminal
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-output
@@ -130,8 +132,18 @@ install-terminal: compile-terminal
 
 
 # macOS Version-Specific Apps
+install-macos-monterey: install-control-center install-dock install-notification-center
+	#TODO
+
 install-control-center:
 	./scripts/compile-lib.sh "macOS-version/12-monterey/control-center"
+
+install-dock:
+	./scripts/compile-lib.sh "macOS-version/12-monterey/control-center"
+
+install-notification-center:
+	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center"
+	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center-helper"
 
 # 3rd Party Apps Library
 install-1password:
