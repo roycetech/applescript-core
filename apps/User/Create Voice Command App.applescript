@@ -14,6 +14,9 @@ global SCRIPT_NAME, IS_SPOT
 		
 	@Configurations
 		Reads config-user.plist - AppleScript Projects Path		
+		
+	@Known Issues:
+		Fails to trigger the keystroke detection on the Command Input as of February 5, 2023. Without this, the save keystroke fails because the value in the input field is not detected.
 *)
 
 property logger : missing value
@@ -94,6 +97,7 @@ on main()
 		end if
 	end repeat
 	logger's debugf("computedProjectKey: {}", computedProjectKey)
+	assertThat of std given condition:computedProjectKey is not missing value, messageOnFail:"Error: Make sure you have registered the project containing " & SCRIPT_NAME & ". See its README.md for more details."
 	
 	set projectPath to configUser's getValue("Project " & computedProjectKey)
 	logger's debugf("projectPath: {}", projectPath)

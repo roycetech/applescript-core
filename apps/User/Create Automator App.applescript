@@ -116,6 +116,8 @@ on main()
 			exit repeat
 		end if
 	end repeat
+	assertThat of std given condition: computedProjectKey is not missing value, messageOnFail:"Error: Make sure you have registered the project containing " & SCRIPT_NAME & ". See its README.md for more details."
+	
 	
 	(*		
 	if selectedProjectKey is false then
