@@ -79,6 +79,7 @@ on newRetriever(credKey)
 				delay secondsUntilNext
 			end if
 			
+			stepTwo's clearFilter()
 			stepTwo's getOtpByCredKey(credKey)
 		end getOTP
 	end script
