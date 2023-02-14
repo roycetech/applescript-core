@@ -61,6 +61,7 @@ on spotCheck()
 		
 		Open in Cognito
 		Get Tab by Window ID - Manual
+		Manual: Address Bar is Focused
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -166,9 +167,12 @@ on spotCheck()
 		
 	else if caseIndex is 7 then
 		newCognito("https://www.example.com")
-
+		
 	else if caseIndex is 8 then
 		sut's newWindow("https://www.example.com")
+		
+	else if caseIndex is 13 then
+		logger's infof("Address Bar is focused: {}", sut's isAddressBarFocused())
 		
 		
 	else if caseIndex is 7 then
@@ -193,6 +197,14 @@ end spotCheck
 
 on new()
 	script SafariInstance
+		on isAddressBarFocused()
+			if running of application "Safari" is false then return missing value
+			
+			tell application "System Events" to tell process "Safari"
+				value of attribute "AXSelectedText" of text field 1 of group 6 of toolbar 1 of front window is not missing value
+			end tell
+		end isAddressBarFocused
+		
 		on getGroupName()
 			if running of application "Safari" is false then return missing value
 			
