@@ -195,7 +195,7 @@ on nextWorkHour()
 end nextWorkHour
 
 
-to formatYyyyMmDd(pDate as date, delimiter)
+on formatYyyyMmDd(pDate as date, delimiter)
 	set dateString to short date string of pDate
 	
 	set myMonth to (first word of dateString) as integer
@@ -208,7 +208,7 @@ to formatYyyyMmDd(pDate as date, delimiter)
 end formatYyyyMmDd
 
 
-to formatYyyyMmDdHHmi(pDate as date)
+on formatYyyyMmDdHHmi(pDate as date)
 	set dateString to short date string of pDate
 	
 	set myMonth to (first word of dateString) as integer
@@ -221,7 +221,7 @@ to formatYyyyMmDdHHmi(pDate as date)
 end formatYyyyMmDdHHmi
 
 
-to formatYyyyDdMm(pDate as date, delimiter)
+on formatYyyyDdMm(pDate as date, delimiter)
 	set dateString to short date string of pDate
 	
 	set myMonth to (first word of dateString) as integer
@@ -234,7 +234,7 @@ to formatYyyyDdMm(pDate as date, delimiter)
 end formatYyyyDdMm
 
 
-to formatMmDdYyyy(pDate as date, delimiter)
+on formatMmDdYyyy(pDate as date, delimiter)
 	set dateString to short date string of pDate
 	
 	set myMonth to (first word of dateString) as integer
