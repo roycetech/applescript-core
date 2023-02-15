@@ -12,9 +12,9 @@ global REDIS_CLI, CR
 	Compile:
 		make install-redis
 
-    	Usage:
+	@Usage:
+		property redis : missing value
 		set redis to std's import("redis")'s new(0) -- 0 for no timeout 
-
  *)
 
 use script "Core Text Utilities"
@@ -326,6 +326,11 @@ on new(pTimeoutSeconds)
 			if newValue is not missing value then set quotedValue to _quoteValue(newValue)
 			set appendShellCommand to format {"{} RPUSH {} {}", {REDIS_CLI, escapedAndQuotedPlistKey, quotedValue}}
 			do shell script appendShellCommand
+			
+			if my timeoutSeconds is not 0 then
+				set expireListShellCommand to format {"{} EXPIRE {} {}", {REDIS_CLI, escapedAndQuotedPlistKey, timeoutSeconds}}
+				do shell script expireListShellCommand
+			end if
 		end appendValue
 		
 		
@@ -409,6 +414,12 @@ on new(pTimeoutSeconds)
 					set appendCommand to format {"{} RPUSH {} {}", {REDIS_CLI, quotedPlistKey, nextElement}}
 					do shell script appendCommand
 				end repeat
+				
+			if my timeoutSeconds is not 0 then
+				set expireListShellCommand to format {"{} EXPIRE {} {}", {REDIS_CLI, quotedPlistKey, timeoutSeconds}}
+				do shell script expireListShellCommand
+			end if
+
 			end if
 		end _insertList
 		
@@ -521,6 +532,7 @@ to unitTest()
 		newMethod("setValue")
 		sut's setValue(missing value, "haha")
 		sut's setValue("spot-array", {1, 2})
+		sut's setValue("spot-array-one-time-set", {1, 2, 3})
 		sut's setValue("spot-array-string", {"one", "two"})
 		sut's setValue("spot-string", "text")
 		sut's setValue("spot-string.dotted-key", "string-dotted-value.txt")
@@ -610,6 +622,12 @@ to unitTest()
 		delay UT_REDIS_TIMEOUT
 		newScenario("getValue with expiry")
 		assertMissingValue(sut's getValue("spot-string"), "missing value expected after timeout elapsed")
+		
+		newScenario("Expiring List")
+		assertMissingValue(sut's getValue("spot-array"), "missing value expected after timeout elapsed")
+		assertMissingValue(sut's getValue("spot-array2"), "missing value expected after timeout elapsed")
+		assertMissingValue(sut's getValue("spot-array-string"), "missing value expected after timeout elapsed")
+		assertMissingValue(sut's getValue("spot-array-one-time-set"), "missing value expected after timeout elapsed")
 		
 		ut's done()
 	end tell
