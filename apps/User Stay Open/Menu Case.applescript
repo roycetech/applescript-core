@@ -126,28 +126,32 @@ end makeMenus
 
 
 on idle
-	init()
+	-- init()
 	
-	set currentCases to CASES
-	set retrievedCases to sessionPlist's getList("Case Labels")
-	if retrievedCases is missing value then set retrievedCases to {}
-	
-	set casesCountChanged to (count of currentCases) is not equal to (count of retrievedCases)
-	set caseIndexChanged to CASE_INDEX is not equal to sessionPlist's getInt("Current Case Index")
-	set caseIdChanged to CASE_ID is not equal to sessionPlist's getString("Case ID")
-	set autoIncrementChanged to AUTO_INCREMENT is not equal to switch's active("Auto Increment Case Index")
-	
-	set CASES to retrievedCases
-	
-	if casesCountChanged or caseIndexChanged or caseIdChanged or autoIncrementChanged then
-		if IS_SPOT is false then makeMenus()
-		if casesCountChanged or caseIdChanged then tell speech to speak("Menu Cases Updated")
-		set CASE_ID to sessionPlist's getString("Case ID")
-		set CASE_INDEX to sessionPlist's getInt("Current Case Index")
-		set AUTO_INCREMENT to switch's active("Auto Increment Case Index")
-	else
-		StatusItem's setTitle:(getMenuBarIcon() & CASE_INDEX)
-	end if
+	try
+		set currentCases to CASES
+		set retrievedCases to sessionPlist's getList("Case Labels")
+		if retrievedCases is missing value then set retrievedCases to {}
+		
+		set casesCountChanged to (count of currentCases) is not equal to (count of retrievedCases)
+		set caseIndexChanged to CASE_INDEX is not equal to sessionPlist's getInt("Current Case Index")
+		set caseIdChanged to CASE_ID is not equal to sessionPlist's getString("Case ID")
+		set autoIncrementChanged to AUTO_INCREMENT is not equal to switch's active("Auto Increment Case Index")
+		
+		set CASES to retrievedCases
+		
+		if casesCountChanged or caseIndexChanged or caseIdChanged or autoIncrementChanged then
+			if IS_SPOT is false then makeMenus()
+			if casesCountChanged or caseIdChanged then tell speech to speak("Menu Cases Updated")
+			set CASE_ID to sessionPlist's getString("Case ID")
+			set CASE_INDEX to sessionPlist's getInt("Current Case Index")
+			set AUTO_INCREMENT to switch's active("Auto Increment Case Index")
+		else
+			StatusItem's setTitle:(getMenuBarIcon() & CASE_INDEX)
+		end if
+	on error the errorMessage number the errorNumber
+		std's catch(me, errorMessage, errorNumber)
+	end try
 	
 	IDLE_SECONDS
 end idle
