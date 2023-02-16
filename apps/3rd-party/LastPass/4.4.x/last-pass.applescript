@@ -1,4 +1,8 @@
-global std, retry, kb
+global std, retry, kb, process
+
+(*
+	Currently, the app is problematic when launched from a script. App window closes right after performing touch ID. 
+*)
 
 property initialized : false
 property logger : missing value
@@ -39,8 +43,21 @@ on new()
 		
 		(*  *)
 		on waitToUnlock()
+			if running of application "LastPass" is true then
+				tell application "System Events" to tell process "LastPass"
+					if (count of windows) is 0 then
+						set lastPassProcess to std's import("process")'s new("LastPass")
+						lastPassProcess's terminate()
+					end if
+				end tell
+			end if
+			
 			script UnlockOrPasswordOrTouch
-				if running of application "LastPass" is false then activate application "LastPass"
+				if running of application "LastPass" is false then
+					activate application "LastPass"
+					delay 1
+					activate application "LastPass" -- issue where window is closed right after touch ID.
+				end if
 				
 				
 				tell application "System Events" to tell process "LastPass" -- to update
@@ -57,7 +74,7 @@ on new()
 			
 			logger's debug("Waiting for unlock or password for 60s...")
 			set unlockState to exec of retry on UnlockOrPasswordOrTouch by 0.5 for 120
-			logger's debug("unlockState: " & unlockState)
+			logger's debugf("unlockState: {}", unlockState)
 			if unlockState is missing value then return false
 			
 			script Unlock
@@ -98,6 +115,8 @@ on new()
 		
 		(* Search for a credential. Make sure that your key results in only one match *)
 		on _search(distinctiveSearchKey)
+			if running of application "LastPass" is false then return
+			
 			tell application "System Events" to tell process "LastPass"
 				set searchField to text area 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of window 1
 				set value of searchField to distinctiveSearchKey
@@ -111,6 +130,8 @@ on new()
 		
 		(* Optionally clear if there's text present *)
 		on _clearSearch()
+			if running of application "LastPass" is false then return
+			
 			tell application "System Events" to tell process "LastPass"
 				set searchField to text area 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of window 1
 				
@@ -158,4 +179,5 @@ on init()
 	set logger to std's import("logger")'s new("last-pass")
 	set retry to std's import("retry")'s new()
 	set kb to std's import("keyboard")'s new()
+	set process to std's import("process")
 end init
