@@ -49,10 +49,8 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Manual: Front Tab
 		Manual: First Tab		
-		Manual: Is Side Bar Visible (yes, no)
 		Manual: Show Side Bar (Visible,Hidden)
-		Manual: Close Side Bar (Visible,Hidden)
-		
+		Manual: Close Side Bar (Visible,Hidden)		
 		Manual: Get Group Name(default, group selected)
 		Manual: Switch Group(not found, found)
 		Manual: New Window
@@ -100,6 +98,10 @@ on spotCheck()
 			logger's infof("Title: {}", frontTab's getTitle())
 			logger's infof("Window Name: {}", frontTab's getWindowName())
 			logger's infof("Window ID: {}", frontTab's getWindowId())
+			logger's infof("Sidebar Visible: {}", sut's isSideBarVisible())
+			delay 3 -- Manually check below when in/visible.
+			logger's infof("Address Bar is focused: {}", frontTab's isAddressBarFocused())
+			logger's infof("Keychain Form Visible: {}", sut's isKeychainFormVisible())
 		end if
 		
 	else if caseIndex is 2 then
@@ -112,21 +114,20 @@ on spotCheck()
 		-- if youTab is not missing value then log name of theTab of youTab as text
 		
 	else if caseIndex is 3 then
-		set frontTab to sut's getFrontTab()
-		logger's debugf("Visible: {}", sut's isSideBarVisible())
 		
-	else if caseIndex is 4 then
 		sut's showSideBar()
 		assertThat of std given condition:sut's isSideBarVisible(), messageOnFail:"Failed spot check"
 		logger's info("Passed.")
 		
-	else if caseIndex is 5 then
+	else if caseIndex is 4 then
 		sut's closeSideBar()
 		assertThat of std given condition:sut's isSideBarVisible() is false, messageOnFail:"Failed spot check"
 		logger's info("Passed.")
 		
-	else if caseIndex is 6 then
+	else if caseIndex is 5 then
 		logger's infof("Current Group Name: {}", sut's getGroupName())
+		
+	else if caseIndex is 6 then
 		
 	else if caseIndex is 7 then
 		-- sut's switchGroup("Unicorn") -- not found
@@ -171,9 +172,6 @@ on spotCheck()
 	else if caseIndex is 8 then
 		sut's newWindow("https://www.example.com")
 		
-	else if caseIndex is 13 then
-		logger's infof("Address Bar is focused: {}", sut's isAddressBarFocused())
-		
 		
 	else if caseIndex is 7 then
 		set existingWindowID to 63731 -- Manually set this ID.
@@ -197,6 +195,12 @@ end spotCheck
 
 on new()
 	script SafariInstance
+		on isKeychainFormVisible()
+			tell application "System Events" to tell process "Safari"
+				exists (scroll area 1)
+			end tell
+		end isKeychainFormVisible
+		
 		on isAddressBarFocused()
 			if running of application "Safari" is false then return missing value
 			
