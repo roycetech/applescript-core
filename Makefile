@@ -157,6 +157,9 @@ install-keyboard-maestro:
 	./scripts/compile-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro
 	./scripts/compile-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro
 
+install-last-pass:
+	./scripts/compile-lib.sh apps/3rd-party/LastPass/4.4.x/last-pass
+
 install-marked:
 	./scripts/compile-lib.sh apps/3rd-party/Marked/2.6.18/marked
 
