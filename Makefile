@@ -30,6 +30,7 @@ _init:
 	cp -n plist.template ~/applescript-core/switches.plist || true
 	cp -n plist.template ~/applescript-core/config-user.plist || true
 	cp -n plist.template ~/applescript-core/config-business.plist || true
+	cp -n notification-app-id-name.plist ~/applescript-core/notification-app-id-name.plist || true
 	cp -a assets/sounds/. ~/applescript-core/sounds/
 	./scripts/compile-bundle.sh 'core/Core Text Utilities'
 	plutil -replace 'Project applescript-core' -string "`pwd`" ~/applescript-core/config-system.plist
