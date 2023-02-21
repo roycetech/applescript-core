@@ -183,7 +183,7 @@ end indexOf
 
 on simpleSort(myList)
 	if myList is missing value then return missing value
-
+	
 	set the index_list to {}
 	set the sorted_list to {}
 	repeat (the number of items in myList) times
@@ -273,6 +273,25 @@ on split(theString, theDelimiter)
 end split
 
 
+(*
+	@returns the index of the matched search string.
+*)
+on lastMatchingIndexOf(theList, searchString)
+	if theList is missing value or searchString is missing value then
+		return -1
+	end if
+	
+	set lastMatchIndex to 0
+	repeat with i from 1 to count of theList
+		if item i of theList contains searchString then
+			set lastMatchIndex to i
+		end if
+	end repeat
+	
+	return lastMatchIndex
+end lastMatchingIndexOf
+
+
 (* 
 	Steps:
 		1. save delimiters to restore old settings
@@ -353,6 +372,12 @@ on unitTest()
 		end try
 		assertEqual({"b", "b"}, my newWithElements("b", 2), "Happy case")
 		assertEqual({"b"}, my newWithElements("b", 1), "Happy case")
+		
+		newMethod("lastMatchingIndexOf")
+		assertEqual(-1, my lastMatchingIndexOf(missing value, missing value), "Both missing value")
+		assertEqual(3, my lastMatchingIndexOf({"apple", "orange", "application"}, "app"), "Multiple match")
+		assertEqual(2, my lastMatchingIndexOf({"apple", "orange", "application"}, "ora"), "Single match")
+		assertEqual(0, my lastMatchingIndexOf({"apple", "orange", "application"}, "orangutan"), "No match")
 		
 		done()
 	end tell
