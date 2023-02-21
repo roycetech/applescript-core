@@ -23,7 +23,7 @@ on spotCheck()
 	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Run Shell
-		Run Shell Void
+		Manual: Run Shell Void
 		Change Directory
 	")
 	
@@ -68,15 +68,15 @@ on decorate(termTabScript)
 
 			@return the result of the bash command.
 		*)
-		on runShell(bashCommand)
-			set lastCommand to bashCommand
+		on runShell(shellCommand)
+			set lastCommand to shellCommand
 			set propertyName to format {"runShell-{}", my getTabName()}
 			-- logger's debugf("Using session property: {}", propertyName)
 			-- sessionPlist's removeValue(propertyName)
 			sessionPlist's deleteKey(propertyName)
 			-- logger's debugf("Running Command: \"{}\"", bashCommand)
 			
-			set calcCommmand to format {"plutil -replace {} -string \"`{}`\" {}", {quoted form of propertyName, bashCommand, SESSION_PLIST}}
+			set calcCommmand to format {"plutil -replace {} -string \"`{}`\" {}", {quoted form of propertyName, shellCommand, SESSION_PLIST}}
 			-- logger's debugf("Calculated Command: {}", calcCommmand)
 			set NO_RESULT to "_noresult_"
 			tell application "Terminal"
@@ -108,26 +108,32 @@ on decorate(termTabScript)
 			return waitResult
 		end runShell
 		
-		to runShellVoid(bashCommand)
-			set lastCommand to bashCommand
+		(*
+			Runs a shell command without waiting for the result
+			
+			@Known Issue:
+				Beeps when doing a multi-line echo command.
+		*)
+		on runShellVoid(shellCommand)
+			set lastCommand to shellCommand
 			tell application "Terminal"
 				if my refreshPrompt then
 					do script "" in my appWindow
 					delay 0.2
 				end if
-				do script bashCommand in my appWindow
+				do script shellCommand in my appWindow
 			end tell
 		end runShellVoid
 		
-		to runAndWait(bashCommand)
-			runShellVoid(bashCommand)
+		on runAndWait(shellCommand)
+			runShellVoid(shellCommand)
 			delay 0.1
 			waitForPrompt()
 			_refreshTabName()
 			delay 0.2 -- Seems to solve mysterious issues. 0.1 has issues, finding BSS stack reports incorrect result.
 		end runAndWait
 		
-		to doCd(thePath)
+		on doCd(thePath)
 			tell application "Terminal" to do script "cd " & thePath in my appWindow
 			waitForPrompt()
 			_refreshTabName()
