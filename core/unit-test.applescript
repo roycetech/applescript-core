@@ -87,6 +87,10 @@ on new()
 		on newFeature(pFeature)
 			newMethod(pFeature)
 		end newMethod
+
+		on assertEquals(expected, actual, caseDesc)
+			assertEqual(expected, actual, caseDesc)
+		end assertEquals
 		
 		on assertEqual(expected, actual, caseDesc)
 			set caseDescIndexed to formatCaseIndexed(caseDesc)
