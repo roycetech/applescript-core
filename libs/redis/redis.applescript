@@ -15,6 +15,12 @@ global REDIS_CLI, CR
 	@Usage:
 		property redis : missing value
 		set redis to std's import("redis")'s new(0) -- 0 for no timeout 
+
+	@Troubleshooting:
+		When you do an update, make sure to re-run the setup-redis-cli.applescript
+		to update the cli location.
+		Run "brew services restart redis" to fix the issue with "MISCONF Redis 
+		is configured to save RDB snapshots, but it's currently unable to persist to disk"
  *)
 
 use script "Core Text Utilities"
