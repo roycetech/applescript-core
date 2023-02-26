@@ -1,4 +1,4 @@
-global std, regex, textUtil, retry, sb, calendarEvent, counter, plutil, dt, kb
+global std, regex, textUtil, retry, sb, calendarEvent, counter, plutil, dt, kb, configUser
 global decoratorCalView, calProcess
 
 use script "Core Text Utilities"
@@ -7,8 +7,13 @@ use scripting additions
 (*
 	@Plists
 		counter
-			calendar.getMeetingsAtThisTime - for other scripts to limit this slow, user-interrupting check to once perday.
-			
+			calendar.getMeetingsAtThisTime - for other scripts to limit this 
+			slow, user-interrupting check to once per day.
+
+		config-user.plist
+			User Country - User configured location country, used to select the 
+			default timezone when reading the calendar events.
+
 	@Testing
 		Modify the handler getCurrentDate() for the desired test date.
 		
@@ -20,7 +25,7 @@ use scripting additions
 		Broken when using 24H time format.
 		- Organizer still unreliably derived as of March 2, 2022
 		- Re-implement using native scripting
-		
+		- Add multiple timezone support.
 *)
 
 property initialized : false
@@ -50,6 +55,10 @@ on spotCheck()
 		Clear Cache on First Run of the Day
 		Manual: Get Online Meetings
 		Manual: Get Next Online Meeting
+		
+		Manual: Switch to the user-configured timezone
+		Manual: Switch to another timezone
+		Manual: Current Timezone
 	")
 	
 	(* Manually configure this. *)
@@ -167,6 +176,19 @@ on spotCheck()
 			logger's infof("Next online meeting today: {}", meetingASDictionary's toStringPretty())
 		end if
 		
+	else if caseIndex is 11 then
+		(*
+			Check when configured on/off.
+		*)
+		logger's infof("Result: {}", sut's switchToDefaultTimezone())
+		
+		
+	else if caseIndex is 12 then
+		logger's infof("Result: {}", sut's switchTimezone("Au"))
+		
+	else if caseIndex is 13 then
+		logger's infof("Result: {}", sut's getCurrentTimezone())
+		
 	end if
 	
 	set IS_TEST of sut to false
@@ -183,13 +205,60 @@ on new()
 		property TEST_DATETIME : missing value
 		property appAlreadyRunning : false
 		
+		on getCurrentTimezone()
+			tell application "System Events" to tell process "Calendar"
+				if not (exists pop up button 1 of group 3 of toolbar 1 of window "Calendar") then return missing value
+				
+				try
+					return value of pop up button 1 of group 3 of toolbar 1 of window "Calendar"
+				end try
+			end tell
+			missing value
+		end getCurrentTimezone
+		
+		(*
+			@returns true if the operation was completed without issues.
+		*)
+		on switchTimezone(timezoneKeyword)
+			tell application "System Events" to tell process "Calendar"
+				if not (exists pop up button 1 of group 3 of toolbar 1 of window "Calendar") then return false
+				
+				try
+					click pop up button 1 of group 3 of toolbar 1 of window "Calendar"
+				end try
+				delay 0.1
+				
+				try
+					click (first menu item of menu 1 of group 3 of toolbar 1 of window 1 whose name contains timezoneKeyword)
+					return true
+				end try
+			end tell
+			false
+		end switchTimezone
+		
+		(*
+			In case of the user enabling the timezone support in Calendar 
+			preferences, this script assumes that the user prefers to get the 
+			events relative to the current user timezone clock and what is 
+			configured in config-user.plist.
+		*)
+		on switchToDefaultTimezone()
+			set userCountry to configUser's getValue("User Country")
+			if userCountry is not missing value then
+				set userCountry to text 1 thru -2 of userCountry
+			end if
+			
+			switchTimezone(userCountry)
+		end switchToDefaultTimezone
+		
+		
 		(* WARNING: Manually modify for testing *)
 		on getCurrentDate()
-			-- logger's debugf("IS_TEST: {}", IS_TEST)
 			if IS_TEST is false then return the (current date)
 			
 			if TEST_DATETIME is missing value then
-				return date "Wednesday, March 2, 2022 at 1:15:00 PM"
+				-- logger's debugf("IS_TEST: {}", IS_TEST)
+				return date "Thursday, February 23, 2023 at 7:30:00 AM"
 			end if
 			
 			TEST_DATETIME
@@ -256,8 +325,8 @@ on new()
 		*)
 		on getSelectedEvent()
 			set currentViewType to getViewType()
-			logger's debugf("currentViewType: {}", currentViewType)
-			logger's debugf("name of event lib: {}", name of calendarEvent)
+			-- logger's debugf("currentViewType: {}", currentViewType)
+			-- logger's debugf("name of event lib: {}", name of calendarEvent)
 			
 			if currentViewType is "Week" then
 				tell application "System Events" to tell process "Calendar"
@@ -325,15 +394,20 @@ on new()
 		*)
 		on getMeetingsAtThisTime()
 			set theNow to getCurrentDate()
-			-- logger's debugf("currentDate: {}", theNow)
+			logger's debugf("currentDate: {}", theNow)
 			set currentWeekDay to weekday of theNow as text
 			
 			set theRetval to {}
 			set meetingsToday to getMeetingsOfTheDay(currentWeekDay)
+			logger's debugf("meetingsToday count: {}", count of meetingsToday)
 			
 			set activeMeetingIdx to 0
 			repeat with idx from (count meetingsToday) to 1 by -1
 				set meetingDetail to item idx of meetingsToday
+				(*
+				log title of meetingDetail
+				log startTime of meetingDetail
+*)
 				if meetingDetail's startTime is not missing value then
 					set startTriggerTime to _asDate(meetingDetail's startTime) - 2 * minutes
 					set isActive to theNow is greater than or equal to startTriggerTime and theNow is less than _asDate(meetingDetail's endTime) - 2 * minutes
@@ -429,6 +503,7 @@ on init()
 	set std to script "std"
 	set logger to std's import("logger")'s new("calendar")
 	
+	set configUser to std's import("config")'s new("user")
 	set textUtil to std's import("string")
 	set regex to std's import("regex")
 	set retry to std's import("retry")'s new()

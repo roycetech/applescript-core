@@ -85,6 +85,7 @@ reveal-stay-open:
 
 # 1st Party Apps Library
 install-calendar:
+	osascript ./scripts/enter-user-country.applescript
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar"
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar-event"
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/dec-calendar-view"
