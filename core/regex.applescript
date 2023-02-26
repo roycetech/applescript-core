@@ -44,7 +44,6 @@ on spotCheck()
 		unitTest()
 		
 	else if caseIndex is 2 then
-		log rangeOfFirstMatchInString("\\d+", "Hello prisoner 14867")
 		log stringByReplacingMatchesInString(uni's OMZ_ARROW & "  [a-zA-Z-]+\\sgit:\\([a-zA-Z0-9/-]+\\)(?: " & uni's OMZ_GIT_X & ")?\\s", uni's OMZ_ARROW & "  mobile-gateway git:(feature/MT-3644-Mobile-Gateway-create-service-adapter) " & uni's OMZ_GIT_X & " docker network", "")
 		
 		log stringByReplacingMatchesInString("hello", "hello world", "")
@@ -149,10 +148,11 @@ end stringByReplacingMatchesInString
 
 
 (* @returns list {offset, length} *)
-on rangeOfFirstMatchInString(pattern as text, searchString as text)
+on rangeOfFirstMatchInString(pattern, searchString)
+	
 	set regex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
 	set matchRange to (regex's rangeOfFirstMatchInString:searchString options:0 range:{location:0, |length|:(count searchString)})
-	{matchRange's location, matchRange's |length|}
+	{(matchRange's location) + 1, matchRange's |length|}
 end rangeOfFirstMatchInString
 
 
@@ -230,6 +230,10 @@ on unitTest()
 		assertEqual("riojenhbkcm@mailinator.com", my replace("Email : riojenhbkcm@mailinator.com", "Email : (\\w+@mailinator.com)", "\\1"), "Extract info")
 		assertEqual("Don't", my replace("Can't", "Ca", "Do"), "With a single quote")
 		assertEqual("Can't set window id 3864 to {1146 and one third, 719.0}.", my replace("Can't set window id 3864 to {1146.66666666, 719.0}.", "\\.6{3,}7?", " and one third"), "Number with decimal")
+		
+		newMethod("rangeOfFirstMatchInString")
+		assertMissingValue(my rangeOfFirstMatchInString("\\w", missing value), "String is missing value")
+		assertEquals({16, 5}, my rangeOfFirstMatchInString("\\d+", "Hello prisoner 14867"), "Happy Case")
 		
 		
 		done()
