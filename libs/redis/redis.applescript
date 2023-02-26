@@ -1,9 +1,10 @@
-global std
+global std, dt
 global REDIS_CLI, CR
 
 (*
 	This library is implemented as copy from plutil.
-	This is slower than plutil, and different use case so make sure you understand their differences.
+	This is slower than plutil, and different use case so make sure you 
+	understand their differences.
 	
 	Requirements:
 		redis-cli 7.0.5+. Run `redis-cli --version` to check your current version.
@@ -43,6 +44,8 @@ on spotCheck()
 	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Unit Test
+		
+		Manual: Zulu Date
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -55,6 +58,12 @@ on spotCheck()
 	
 	if caseIndex is 1 then
 		unitTest()
+		
+	else if caseIndex is 2 then
+		set sut to new(2)
+		set keyName to "spot-zulu-date"
+		sut's setValue(keyName, current date)
+		logger's infof("Result: {}", sut's getValueAsDate(keyName))
 		
 	else if caseIndex is 2 then
 		
@@ -368,6 +377,18 @@ on new(pTimeoutSeconds)
 		end deleteKey
 		
 		
+		on getValueAsDate(plistKey)
+			set plistValue to getValue(plistKey)
+			
+			try
+				return dt's fromZuluDateText(plistValue)
+			on error the errorMessage number the errorNumber
+				logger's warn(errorMessage)
+			end try
+			
+			missing value
+		end getValueAsDate
+		
 		(* 
 			Will serialize the record into a json string and then set the value as string. 
 			You must explicitly read properties like this as record by using getRecord().
@@ -421,11 +442,11 @@ on new(pTimeoutSeconds)
 					do shell script appendCommand
 				end repeat
 				
-			if my timeoutSeconds is not 0 then
-				set expireListShellCommand to format {"{} EXPIRE {} {}", {REDIS_CLI, quotedPlistKey, timeoutSeconds}}
-				do shell script expireListShellCommand
-			end if
-
+				if my timeoutSeconds is not 0 then
+					set expireListShellCommand to format {"{} EXPIRE {} {}", {REDIS_CLI, quotedPlistKey, timeoutSeconds}}
+					do shell script expireListShellCommand
+				end if
+				
 			end if
 		end _insertList
 		
@@ -437,6 +458,37 @@ on new(pTimeoutSeconds)
 			
 			textValue
 		end _convertType
+		
+		(* Keep this handler here despite being date-specific because this library is considered essential and we don't want to make the date library an essential library by putting a depnedency from an essential library. *)
+		on _formatPlistDate(theDate)
+			set dateString to short date string of theDate
+			
+			set myMonth to (first word of dateString) as integer
+			if myMonth is less than 10 then set myMonth to "0" & myMonth
+			set myDom to (second word of dateString) as integer
+			
+			set timeString to time string of theDate
+			
+			set myHour to ((first word of timeString) as integer)
+			if timeString contains "PM" and myHour is not equal to 12 then set myHour to myHour + 12
+			set tzOffset to do shell script "date +'%z' | cut -c 2,3"
+			set myHour to myHour - tzOffset -- Local Timezone adjustment
+			
+			if myHour is less than 0 then
+				set myHour to (myHour + 24) mod 24
+				set myDom to myDom - 1 -- problem on new year.
+			end if
+			
+			if myDom is less than 10 then set myDom to "0" & myDom
+			if myHour is less than 10 then set myHour to "0" & myHour
+			set myMin to (second word of timeString) as integer
+			if myMin is less than 10 then set myMin to "0" & myMin
+			
+			set mySec to (third word of timeString) as integer
+			if mySec is less than 10 then set mySec to "0" & mySec
+			
+			format {"20{}-{}-{}T{}:{}:{}Z", {last word of dateString, myMonth, myDom, myHour, myMin, mySec}}
+		end _formatPlistDate
 		
 		-- TO Migrate, from session.
 		on debugOn()
@@ -501,7 +553,7 @@ on _splitByLine(theString as text)
 	_split(csv, SEP, "string")
 end _splitByLine
 
-to _indexOf(aList, targetElement)
+on _indexOf(aList, targetElement)
 	repeat with i from 1 to count of aList
 		set nextElement to item i of aList
 		if nextElement as text is equal to targetElement as text then return i
@@ -512,7 +564,7 @@ end _indexOf
 
 
 
-to unitTest()
+on unitTest()
 	set utLib to std's import("unit-test")
 	set ut to utLib's new()
 	set UT_REDIS_TIMEOUT to 2
@@ -649,5 +701,6 @@ on init()
 	
 	set std to script "std"
 	set logger to std's import("logger")'s new("redis")
+	set dt to std's import("date-time")
 	set CR to ASCII character 13
 end init
