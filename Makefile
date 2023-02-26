@@ -129,6 +129,7 @@ compile-terminal:
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-path
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-run
+	./scripts/compile-lib.sh libs/sftp/dec-terminal-prompt-sftp
 
 install-terminal: compile-terminal
 
