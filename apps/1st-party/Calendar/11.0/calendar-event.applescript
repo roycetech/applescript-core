@@ -61,6 +61,7 @@ on new()
 				else
 					set meetingDescription to description of meetingStaticText
 				end if
+				-- logger's debugf("meetingDescription: {}", meetingDescription)
 			end tell
 			
 			script CalendarEventInstance
@@ -130,7 +131,7 @@ Passcode: {}
 				end try
 				if attendeesButton is missing value then
 					try
-					set attendeesButton to first button of pop over 1 of window "Calendar" whose description is "Edit Attendees"
+						set attendeesButton to first button of pop over 1 of window "Calendar" whose description is "Edit Attendees"
 					end try
 				end if
 				
@@ -161,7 +162,7 @@ Passcode: {}
 				set its meetingPassword to my extractMeetingPassword(meetingStaticText)
 				set its actioned to meetingDescription does not end with "Needs action"
 				try
-					set startTimePart to regex's firstMatchInString("(?<=at )\\d{1,2}:\\d{2} [AP]M", meetingDescription)
+					set startTimePart to regex's firstMatchInString("(?<=at )\\d{1,2}:\\d{2}(?::\\d{2})? [AP]M", meetingDescription)
 					if my referenceDate is missing value then
 						set its startTime to date startTimePart
 					else
@@ -169,7 +170,7 @@ Passcode: {}
 					end if
 				end try -- when startTime is not available
 				try
-					set endTimePart to regex's firstMatchInString("(?<=ends at )\\d{1,2}:\\d{2} [AP]M", meetingDescription)
+					set endTimePart to regex's firstMatchInString("(?<=ends at )\\d{1,2}:\\d{2}(?::\\d{2})? [AP]M", meetingDescription)
 					if my referenceDate is missing value then
 						set its endTime to date endTimePart
 					else
