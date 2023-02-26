@@ -56,7 +56,8 @@ on new()
 				if running of application "LastPass" is false then
 					activate application "LastPass"
 					delay 1
-					activate application "LastPass" -- issue where window is closed right after touch ID.
+					activate application "LastPass" -- issue where window is 
+					-- closed right after touch ID. Still a problem unfortunately.
 				end if
 				
 				
@@ -118,6 +119,8 @@ on new()
 			if running of application "LastPass" is false then return
 			
 			tell application "System Events" to tell process "LastPass"
+				if (count of windows) is 0 then return
+
 				set searchField to text area 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of window 1
 				set value of searchField to distinctiveSearchKey
 				delay 1
@@ -133,6 +136,8 @@ on new()
 			if running of application "LastPass" is false then return
 			
 			tell application "System Events" to tell process "LastPass"
+				if (count of windows) is 0 then return
+
 				set searchField to text area 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of window 1
 				
 				if value of searchField is not "" then set value of searchField to ""
