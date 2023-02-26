@@ -1,5 +1,6 @@
 global std, textUtil, regex, listUtil
 
+use framework "Foundation"
 use script "Core Text Utilities"
 use scripting additions
 
@@ -21,6 +22,7 @@ on spotCheck()
 		File Prefix
 		Now for ScreenShot
 		Date Yesterday SQL
+		Manual: Zulu Date
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -42,6 +44,9 @@ on spotCheck()
 		
 	else if caseIndex is 4 then
 		log formatDateSQL(yesterday())
+		
+	else if caseIndex is 5 then
+		logger's infof("Result: {}", fromZuluDateText("2023-02-26T13:07:38Z"))
 		
 	end if
 	
@@ -65,7 +70,7 @@ end extractTimeFromDateTimeText
 (*
 	@returns the next date rounded up by 30 minutes. e.g. 7:30, 8:00,...
 *)
-to next30MinuteSlot(pDateTime as date)
+on next30MinuteSlot(pDateTime as date)
 	set timeString to time string of pDateTime
 	logger's debugf("timeString: {}", timeString)
 	
@@ -91,7 +96,7 @@ to next30MinuteSlot(pDateTime as date)
 	(date dateTimeString) + dayAdjust
 end next30MinuteSlot
 
-to nextHourSlot(pDateTime as date)
+on nextHourSlot(pDateTime as date)
 	set timeString to time string of pDateTime
 	set dayAdjust to 0
 	
@@ -115,7 +120,7 @@ to nextHourSlot(pDateTime as date)
 end nextHourSlot
 
 
-to nowForScreenShot()
+on nowForScreenShot()
 	set now to current date
 	set dateString to short date string of now
 	
@@ -283,6 +288,32 @@ on getDatesTime(theDate)
 end getDatesTime
 
 
+on fromZuluDateText(zuluDateText)
+	set dateFormatter to current application's NSDateFormatter's new()
+	dateFormatter's setDateFormat:"yyyy-MM-dd'T'HH:mm:ssZ"
+	set dateObject to dateFormatter's dateFromString:zuluDateText
+	
+	set localTimeZone to current application's NSTimeZone's localTimeZone()
+	dateFormatter's setTimeZone:localTimeZone
+	set localDate to dateFormatter's stringFromDate:dateObject
+	
+	set {datePart, timePart} to textUtil's split(localDate as text, "T")
+	set tzOffset to do shell script "date +'%z' | cut -c 2,3"
+	set timePart to textUtil's replace(timePart, "+" & tzOffset & "00", "")
+	set dateTokens to textUtil's split(datePart, "-")
+	set {hourPart, minPart, secsPart} to textUtil's split(timePart, ":")
+	
+	set amPm to "AM"
+	if hourPart is greater than or equal to 12 then
+		set amPm to "PM"
+		set hourPart to hourPart - 12
+	end if
+	
+	set parsableDate to 2nd item of dateTokens & "-" & 3rd item of dateTokens & "-" & first item of dateTokens & " " & hourPart & ":" & minPart & " " & amPm
+	date parsableDate
+end fromZuluDateText
+
+
 -- Private Codes below =======================================================
 
 (* Find the next work time by 5 minute increments. *)
@@ -298,7 +329,7 @@ on _nextWorkTime(timeString as text)
 end _nextWorkTime
 
 (* @return true when 7 - 9pm *)
-to _isWorkTime(timeString as text)
+on _isWorkTime(timeString as text)
 	set hour to first word of timeString as integer
 	if timeString ends with "M" then -- A/PM is present
 		if timeString ends with "AM" then
@@ -311,7 +342,7 @@ to _isWorkTime(timeString as text)
 end _isWorkTime
 
 
-to unitTest()
+on unitTest()
 	set utLib to std's import("unit-test")
 	set ut to utLib's new()
 	
