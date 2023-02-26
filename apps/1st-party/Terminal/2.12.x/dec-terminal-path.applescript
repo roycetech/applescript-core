@@ -56,7 +56,7 @@ end spotCheck
 
 
 on decorate(termTabScript)
-	script TermExtPath
+	script TerminalTabInstance
 		property parent : termTabScript
 		property _posixPath : missing value
 		

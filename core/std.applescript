@@ -62,8 +62,23 @@ on applyMappedOverride(scriptObj)
 	set scriptName to the name of the scriptObj
 	set factory to missing value
 	try
-		set factory to do shell script "plutil -extract '" & scriptName & "' raw ~/applescript-core/config-lib-factory.plist"
+		-- set factory to do shell script "plutil -extract '" & scriptName & "' raw ~/applescript-core/config-lib-factory.plist"
+		set csv to do shell script "/usr/libexec/PlistBuddy -c \"Print :'" & scriptName & "'\" ~/applescript-core/config-lib-factory.plist | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | paste -s -d, -"
+		
+		set oldDelimiters to AppleScript's text item delimiters
+		set AppleScript's text item delimiters to ","
+		set array to every text item of csv
+		set AppleScript's text item delimiters to oldDelimiters
+		repeat with nextElement in the array
+			try
+				set factoryScript to import(nextElement)				
+				set scriptObj to factoryScript's decorate(scriptObj)
+			end try
+			
+		end repeat
+		return scriptObj
 	end try
+	
 	if factory is not missing value then
 		set factoryScript to import(factory)
 		return factoryScript's decorate(scriptObj)
@@ -84,6 +99,7 @@ on catch(source, errorNumber, errorMessage)
 	end if
 	
 	if errorMessage contains "is not allowed to send keystrokes" or errorMessage contains "is not allowed assistive access" then
+		-- This is likely to break on macOS Upgrade.
 		tell application "System Preferences"
 			activate
 			reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
@@ -97,11 +113,11 @@ on catch(source, errorNumber, errorMessage)
 		return
 	end if
 	
-	if class of source is text then 
+	if class of source is text then
 		set scriptName to source
 	else
 		set scriptName to name of source
-	end
+	end if
 	logger's fatal(scriptName & ":Error: " & errorMessage)
 	display dialog scriptName & ":Error: " & the errorNumber & ". " & the errorMessage with title "AS: Standard Library(Auto-closes in 10s)" buttons {"OK"} giving up after 10
 end catch
@@ -146,7 +162,7 @@ end assertThat
 (*  *)
 on ternary(condition, ifTrue, otherwise)
 	if condition then return ifTrue
-
+	
 	otherwise
 end ternary
 

@@ -69,7 +69,7 @@ end spotCheck
 
 
 on decorate(termTabScript)
-	script TermExtOutput
+	script TerminalTabInstance
 		property parent : termTabScript
 		
 		(* Used to determine the amount of characters to include in the getRecentOutput handler. *)
@@ -96,10 +96,10 @@ on decorate(termTabScript)
 			This is bloody war!
 			
 			@Test Cases:
-				Basic - 
-				Lingering Command - 
-				Not shell prompt - ok
-				
+				On Git Directory/Non Git Directory
+				With/out Lingering Command - 
+				Shell Prompt/Non-shell prompt (awsume)
+				Command did not result into output, e.g. "open ."
 			
 			@Known Issues:
 				Would not work when new shell process is launched from the last command.
@@ -110,6 +110,7 @@ on decorate(termTabScript)
 			tell application "Terminal"
 				set theHistory to textUtil's rtrim(contents of selected tab of my appWindow as text)
 			end tell
+			
 			-- logger's debugf("lastCommand internal: {}", my lastCommand)
 			set lastCommand to getLastCommand()
 			-- logger's debugf("lastCommand: {}", lastCommand)
@@ -117,7 +118,12 @@ on decorate(termTabScript)
 			if lastCommand is not missing value and lastCommand is not "" then
 				if isShellPrompt() then
 					set promptText to getPromptText()
-					return text 2 thru (-(length of promptText) - 2) of textUtil's lastStringAfter(theHistory, lastCommand)
+					set textAfterCommand to text 2 thru -1 of textUtil's lastStringAfter(theHistory, lastCommand)
+					
+					(* Non-output commands*)
+					if promptText is equal to textAfterCommand then return missing value
+					
+					return text 1 thru (-(length of promptText) - 2) of textAfterCommand
 				end if
 				
 				try

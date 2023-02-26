@@ -1,4 +1,4 @@
-global std, config, textUtil, retry, uni, regex, emoji, syseve, winUtil
+global std, textUtil, retry, uni, regex, emoji, syseve, winUtil
 
 use script "Core Text Utilities"
 use scripting additions
@@ -24,8 +24,12 @@ use scripting additions
 		Under Profiles:
 			Uncheck "Dimensions"
 			Uncheck "Active process name"
+			
 		Under Tab:
 			Uncheck all except "Show activity indicator"
+			
+	@Installation:
+		make install-terminal
 
 *)
 
@@ -49,23 +53,15 @@ on spotCheck()
 	
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
-	
 	set cases to listUtil's splitByLine("
-		Manual: Front Tab
+		Manual: Front Tab and Info
 		Manual: New Tab, Find
-		Posix Path
-		Lingering Command
 		Focus
 		
-		Is Shell Prompt - zsh/bash/docker - manual switch
-		Is bash
-		Is zsh
-		Last Output
-		Prompt Text
+		Last Output - Broken
 		
-		Tab Name - bash/zsh
 		Clear - Shell/Non-Shell
-		Clear lingering command
+		Manual: Clear lingering command
 		Wait for Prompt
 		Find Tab - applescript logs
 		
@@ -88,6 +84,17 @@ on spotCheck()
 	if caseIndex is 1 then
 		logger's infof("Name: {}", name of frontTab)
 		logger's infof("Has Tab Bar: {}", frontTab's hasTabBar())
+		logger's infof("Tab Name: {}", frontTab's getTabName())
+		logger's infof("Posix Path: {}", frontTab's getPosixPath())
+		logger's infof("Lingering Command: {}", frontTab's getLingeringCommand())
+		
+		(* Manually test: zsh, bash, docker, sftp, redis-cli. *)
+		logger's infof("Is Shell Prompt: {}", frontTab's isShellPrompt())
+		logger's infof("Is Bash: {}", frontTab's isBash())
+		logger's infof("Is Zsh: {}", frontTab's isZsh())
+		logger's infof("Prompt Text: {}", frontTab's getPromptText())
+		logger's infof("Prompt: {}", frontTab's getPrompt())
+		logger's infof("Last Output: {}", frontTab's getLastOutput()) -- BROKEN on @rt
 		
 	else if caseIndex is 2 then
 		set spotTab to sut's newWindow("ls", "Main")
@@ -103,37 +110,27 @@ on spotCheck()
 		end if
 		
 	else if caseIndex is 3 then
-		logger's infof("Posix Path: {}", sut's getPosixPath())
+		
+		
 		
 	else if caseIndex is 4 then
-		logger's infof("Lingering Command: {}", sut's getLingeringCommand())
 		
 	else if caseIndex is 5 then
-		log sut's focus()
+		frontTab's focus()
 		
 	else if caseIndex is 6 then
-		log sut's isShellPrompt()
-		
-	else if caseIndex is 7 then
-		log sut's isBash()
-		
-	else if caseIndex is 8 then
-		log sut's isZsh()
 		
 	else if caseIndex is 9 then
-		log sut's getLastOutput()
 		
 	else if caseIndex is 10 then
-		log sut's getPromptText()
 		
 	else if caseIndex is 11 then
-		log sut's getTabName()
 		
 	else if caseIndex is 12 then
 		log sut's clear()
 		
 	else if caseIndex is 13 then
-		sut's clearLingeringCommand()
+		frontTab's clearLingeringCommand()
 		
 	else if caseIndex is 14 then
 		sut's waitForPrompt()
@@ -147,7 +144,15 @@ on spotCheck()
 		set spotTab to sut's newWindow("ls", "Main")
 		
 	else if caseIndex is 17 then
-		log sut's findTabWithName(config's getCategoryValue("bss", "PROJECT_SUBDIR"), "MBSS " & emoji's work)
+		(* Manually open a tab on the user home directory and name it as "spot <construction_sign_emoji>"*)
+		set spotTabName to "spot " & emoji's work
+		set foundTab to sut's findTabWithName(std's getUsername(), spotTabName)
+		if foundTab is missing value then
+			logger's info("Tab was not found")
+		else
+			logger's info("Tab was found")
+			
+		end if
 		
 	else if caseIndex is 18 then
 		set foundTab to sut's findTabEndingWith("MBSS " & emoji's work)
@@ -297,12 +302,12 @@ on new()
 			
 			script TerminalTabInstance
 				property appWindow : missing value -- will be set to app window (not sys eve window)
+				property |instance name| : missing value
 				
 				(* Will only for for bash and zsh, not for ohmyzsh. *)
 				property promptEndChar : localPromptEndChar -- designed for bash only.
 				property commandRunMax : 100
 				property commandRetrySleepSec : 3
-				property name : missing value
 				property lastCommand : missing value
 				property maintainName : false
 				property preferredName : ""
@@ -358,7 +363,6 @@ on new()
 				on _focus(ascending)
 					logger's debugf("ascending: {}", ascending)
 					logger's debugf("window name: {}", name of my appWindow)
-					
 					tell application "System Events" to tell process "Terminal"
 						try
 							set windowMenu to first menu of menu bar item "Window" of first menu bar
@@ -367,10 +371,9 @@ on new()
 							else
 								click (last menu item of windowMenu whose title is equal to name of my appWindow)
 							end if
-						on error
-							return false
 						end try
 					end tell
+					activate application "Terminal"
 				end _focus
 				
 				
@@ -396,7 +399,8 @@ on new()
 						set termProcesses to processes of selected tab of my appWindow
 					end tell
 					set lastItem to last item of termProcesses
-					termProcesses contains "-zsh" and {"com.docker.cli", "bash", "ssh"} does not contain the lastItem
+					-- termProcesses contains "-zsh" and {"com.docker.cli", "bash", "ssh"} does not contain the lastItem
+					lastItem contains "zsh"
 				end isZsh
 				
 				(*
@@ -464,13 +468,11 @@ on new()
 					
 					set commandWords to count of words of lingeringCommand
 					
-					syseve's getFrontAppDetails()
 					focus()
 					repeat until getLingeringCommand() is missing value
 						tell application "System Events" to key code 13 using {control down} -- w
 						delay 0.1
 					end repeat
-					syseve's reactivateLastApp()
 				end clearLingeringCommand
 				
 				
@@ -523,11 +525,13 @@ on new()
 			tell application "Terminal"
 				set appWindow of TerminalTabInstance to window id pWindowId
 			end tell
-			set name of TerminalTabInstance to the name of appWindow of TerminalTabInstance
+			set |instance name| of TerminalTabInstance to the name of appWindow of TerminalTabInstance
 			extOutput's decorate(TerminalTabInstance)
 			extRun's decorate(result)
 			extPath's decorate(result)
 			extPrompt's decorate(result)
+			
+			std's applyMappedOverride(result)
 		end new
 	end script
 end new

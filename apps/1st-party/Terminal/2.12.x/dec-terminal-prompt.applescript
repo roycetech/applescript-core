@@ -21,7 +21,7 @@ on spotCheck()
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
-		Manual: Is Shell Prompt - zsh/bash/docker with/out command
+		Manual: Is Shell Prompt - zsh, bash, docker with/out command, redis, sftp
 		Manual: Wait for Prompt
 		Manual: Prompt With Command (Git/Non Git, Parens, Lingering Command)
 		Manual: Prompt (Git/Non Git, With/out Parens, With/out Lingering Command)
@@ -72,7 +72,7 @@ end spotCheck
 
 
 on decorate(termTabScript)
-	script TermExtPrompt
+	script TerminalTabInstance
 		property parent : termTabScript
 		
 		(*
@@ -134,11 +134,26 @@ on decorate(termTabScript)
 				Non-Shell Prompt
 				Non Git
 				Git
+				Zsh on Home Path ~
 		*)
 		on isShellPrompt()
 			-- logger's debugf("isZsh: {}", isZsh())
+			
+			-- tell application "Terminal"
+			-- 	set theText to the history of selected tab of my appWindow
+			-- 	set termProcesses to processes of selected tab of my appWindow
+			-- end tell
+			
+			set {history, lastProcess} to _getHistoryAndLastProcess()
+			
+			-- if last item of termProcesses is "redis-cli" then
+			-- 	return regex's matchesInString(redisPromptPattern() & "$", textUtil's rtrim(theText as text))
+			-- end if
+			
 			if isZsh() then
+				-- logger's debug("zsh...")
 				set promptText to getPromptText()
+				-- logger's debugf("promptText: {}", promptText)
 				if promptText is missing value then return false
 				
 				if promptText is equal to getNonGitPrefix() & "~" then return true
@@ -149,22 +164,21 @@ on decorate(termTabScript)
 				-- logger's debugf("promptNonGit: {}", promptNonGit)
 				return promptGit or promptNonGit and promptText ends with getDirectoryName()
 			end if
+			-- logger's debug("non-zsh...")
 			
-			tell application "Terminal"
-				set theText to the history of selected tab of my appWindow
-				set termProcesses to processes of selected tab of my appWindow
-			end tell
 			
-			set theText to textUtil's rtrim(theText as text)
-			set isSsh to last item of termProcesses is "ssh"
+			set rtrimmedHistory to textUtil's rtrim(history as text)
+			-- set isSsh to last item of termProcesses is "ssh"
+			set isSsh to lastProcess is "ssh"
 			-- logger's debugf("isSsh: {}", isSsh)
-			set isDocker to last item of termProcesses is "com.docker.cli"
+			-- set isDocker to last item of termProcesses is "com.docker.cli"
+			set isDocker to lastProcess is "com.docker.cli"
 			-- logger's debugf("isDocker: {}", isDocker)
 			-- ssh prompt can be # or $.
 			-- logger's debugf("my promptEndChar: {}", my promptEndChar)
-			set isSshShell to isSsh and ((theText ends with "#") or (theText ends with "$"))
+			set isSshShell to isSsh and ((rtrimmedHistory ends with "#") or (rtrimmedHistory ends with "$"))
 			-- logger's debugf("isSshShell: {}", isSshShell)
-			isDocker and theText ends with "#" or isSshShell or theText ends with my promptEndChar or regex's matchesInString("bash-\\d(?:\\.\\d)?[#\\$]$", theText)
+			isDocker and rtrimmedHistory ends with "#" or isSshShell or rtrimmedHistory ends with my promptEndChar or regex's matchesInString("bash-\\d(?:\\.\\d)?[#\\$]$", rtrimmedHistory)
 		end isShellPrompt
 		
 		
@@ -173,7 +187,9 @@ on decorate(termTabScript)
 		end getPromptWithCommand
 		
 		
-		(* @returns the prompt text along with any of the lingering commands typed that hasn't executed. *)
+		(* 
+			@returns the prompt text along with any of the lingering commands typed that hasn't executed. 
+		*)
 		on getPromptText()
 			-- logger's debug("getPromptText...")
 			if not isZsh() then
@@ -182,7 +198,21 @@ on decorate(termTabScript)
 			end if
 			
 			set recentBuffer to getRecentOutput()
+			
+			-- tell application "Terminal"
+			-- 	set theText to the history of selected tab of my appWindow
+			-- 	set termProcesses to processes of selected tab of my appWindow
+			-- end tell
+			
+			-- if last item of termProcesses is "redis-cli" then
+			-- 	set promptOnly to regex's firstMatchInString(redisPromptPattern(), recentBuffer)
+			-- 	logger's debugf("promptOnly: {}", promptOnly)
+			-- 	set prompts to textUtil's split(recentBuffer, promptOnly)
+			-- 	return promptOnly & last item of prompts
+			-- end if
+			
 			set position to textUtil's lastIndexOf(recentBuffer, uni's OMZ_ARROW)
+			-- logger's debugf("position: {}", position)
 			if position is not 0 then
 				set promptText to text position thru -1 of recentBuffer
 				if promptText is equal to getNonGitPrefix() & getDirectoryName() then return promptText
@@ -191,6 +221,15 @@ on decorate(termTabScript)
 			
 			missing value
 		end getPromptText
+		
+		
+		(* @returns the history and last process *)
+		on _getHistoryAndLastProcess()
+			tell application "Terminal"
+				set termProcesses to processes of selected tab of my appWindow
+				{the history of selected tab of my appWindow, last item of termProcesses}
+			end tell
+		end _getHistoryAndLastProcess
 		
 		
 		(*
@@ -257,6 +296,7 @@ on decorate(termTabScript)
 			set firstLine to first item of textUtil's split(recentBuffer, ASCII character 10)
 			-- logger's debugf("firstLine: {}", firstLine)
 			-- logger's debugf("recentBuffer: {}", recentBuffer)
+			-- logger's debugf("getPrompt(): {}", getPrompt())
 			
 			set replaceResult to text 2 thru -1 of textUtil's replace(firstLine, getPrompt(), "")
 			if replaceResult is "" then return missing value
@@ -275,7 +315,7 @@ on decorate(termTabScript)
 		on getPrompt()
 			-- logger's debug("Git Prompt...")
 			if isGitDirectory() then
-				-- logger's debug("Git Directory...x")
+				-- logger's debug("Git Directory...")
 				set promptText to getPromptText()
 				if promptText is missing value then return missing value -- Can't retrieve if current output is too big.				
 				
@@ -286,8 +326,13 @@ on decorate(termTabScript)
 			end if
 			
 			if isShellPrompt() is false then
+				-- logger's debug("Non-shell")
 				set firstLine to first item of textUtil's split(my getPromptText(), ASCII character 10)
-				return firstLine
+				set directoryName to getDirectoryName()
+				-- logger's debugf("firstLine: {}", firstLine)
+				set directoryNameLength to the length of directoryName
+				set directoryNameOffset to offset of directoryName in firstLine
+				return text 1 thru (directoryNameLength + directoryNameOffset - 1) of firstLine
 			end if
 			
 			set lingeringText to getLingeringCommand()

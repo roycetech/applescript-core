@@ -57,7 +57,7 @@ end spotCheck
 
 
 on decorate(termTabScript)
-	script TermExtRun
+	script TerminalTabInstance
 		property parent : termTabScript
 		
 		(*
@@ -112,7 +112,9 @@ on decorate(termTabScript)
 			Runs a shell command without waiting for the result
 			
 			@Known Issue:
-				Beeps when doing a multi-line echo command.
+				Beeps when doing a multi-line echo command. Solved, you need 
+				to avoid indentation using the tab character. You may indent 
+				using spaces instead.
 		*)
 		on runShellVoid(shellCommand)
 			set lastCommand to shellCommand
