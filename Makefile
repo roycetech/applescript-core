@@ -25,6 +25,7 @@ _init:
 	mkdir -p "/Applications/AppleScript/Stay Open/"
 	cp -n config-default.template ~/applescript-core/config-default.plist || true
 	cp -n config-emoji.template ~/applescript-core/config-emoji.plist || true
+	cp -n plist.template ~/applescript-core/lov.plist || true
 	cp -n plist.template ~/applescript-core/config-system.plist || true
 	cp -n plist.template ~/applescript-core/session.plist || true
 	cp -n plist.template ~/applescript-core/switches.plist || true
@@ -226,6 +227,8 @@ compile-redis:
 
 install-redis: compile-redis
 	osascript ./scripts/setup-redis-cli.applescript
+
+
 # 	osacompile -o ~/Library/Script\ Libraries/redis.scpt redis.applescript
 
 
