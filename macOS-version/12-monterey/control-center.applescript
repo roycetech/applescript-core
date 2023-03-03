@@ -131,6 +131,9 @@ on joinHotspot(hotspotKey)
 		else if clickResult is missing value then
 			kb's pressKey("esc")
 			logger's fatal("Could not click your hotspot " & hotspotKey & ", make sure it is available")
+
+		else
+			kb's pressKey("esc")
 			
 		end if
 	end tell
