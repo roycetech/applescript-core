@@ -408,8 +408,9 @@ on new()
 						set termProcesses to processes of selected tab of my appWindow
 					end tell
 					set lastItem to last item of termProcesses
-					-- termProcesses contains "-zsh" and {"com.docker.cli", "bash", "ssh"} does not contain the lastItem
-					lastItem contains "zsh"
+					
+					termProcesses contains "-zsh" and {"com.docker.cli", "bash", "ssh"} does not contain the lastItem or lastItem contains "zsh"
+					-- lastItem contains "zsh" -- fails when using awsume cli on MFA wait state
 				end isZsh
 				
 				(*
