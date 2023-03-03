@@ -14,7 +14,7 @@ help:
 # CORE_LIBS := std config logger plutil string
 CORE_LIBS :=  clipboard config date-time dialog emoji file idler keyboard list \
 logger map plutil process regex retry spot-test std string string-builder \
-speech stack switch  syseve ui-util unicodes unit-test window
+speech stack switch  system-events ui-util unicodes unit-test window
 
 APPS_PATH=/Applications/AppleScript
 
@@ -153,8 +153,11 @@ install-notification-center:
 install-1password:
 	./scripts/compile-lib.sh apps/3rd-party/1Password/v6/1password
 
-install-atom:
+install-atom:  ## Deprecated
 	./scripts/compile-lib.sh apps/3rd-party/Atom/1.60.0/atom
+
+install-pulsar:
+	./scripts/compile-lib.sh apps/3rd-party/Pulsar/1.102.x/pulsar
 
 install-keyboard-maestro:
 	./scripts/compile-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro
@@ -224,6 +227,7 @@ install-log4as:
 
 compile-redis:
 	./scripts/compile-lib.sh libs/redis/redis
+	./scripts/compile-lib.sh libs/redis/dec-terminal-prompt-redis
 
 install-redis: compile-redis
 	osascript ./scripts/setup-redis-cli.applescript
