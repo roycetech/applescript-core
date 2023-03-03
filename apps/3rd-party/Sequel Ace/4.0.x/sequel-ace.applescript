@@ -182,6 +182,11 @@ on new()
 			script SequelAceTabInstance
 				property appWindow : pAppWindow -- non-sysEveWindow
 				
+
+				on setDatabase(databaseName)
+					-- TODO
+				end setDatabase
+
 				(*
 					@returns the list consisting of connection, database, and table names. Database and table name may not be available at a given time.  Missing value if both database and table names could not be derived from the window name.
 				*)
@@ -338,13 +343,13 @@ on new()
 						end tell
 					end script
 					exec of retry on result for 5 by 1
-					
+
 					tell application "System Events" to tell process "Sequel Ace"
 						-- Filter by Table Name. Broken because UI was updated, and the update was automatic!
 						-- click button 2 of text field 1 of splitter group 1 of splitter group 1 of front window
 						set value of text field 1 of splitter group 1 of splitter group 1 of front window to targetTableName
 						-- click button 1 of text field 1 of splitter group 1 of splitter group 1 of front window
-						
+
 						-- Select the Table based on name
 						repeat with nextTable in rows of table 1 of scroll area 1 of splitter group 1 of splitter group 1 of front window
 							if get value of text field 1 of nextTable is equal to targetTableName then
@@ -356,11 +361,11 @@ on new()
 					end tell
 					false
 				end findTable
-				
-				
-				(* 
+
+
+				(*
 					@Deprecated - use switch view instead.
-					@tabName - Structure, Content, Query, etc. 
+					@tabName - Structure, Content, Query, etc.
 				*)
 				on switchTab(tabName)
 					if tabName is not equal to "Query" and isTableSelected() is false then
@@ -368,29 +373,29 @@ on new()
 						beep 1
 						return
 					end if
-					
+
 					tell application "System Events" to tell process "Sequel Ace"
 						try
 							click button tabName of toolbar 1 of front window
 						end try -- when button is not visible on small windows, for example the query.
 					end tell
 				end switchTab
-				
-				(* 
-					Switches the current view between Query, Contents, Structure etc. Use the menu 
-					item name for better reliability because some UI elements are hidden when the 
-					window is shrunk. 
+
+				(*
+					Switches the current view between Query, Contents, Structure etc. Use the menu
+					item name for better reliability because some UI elements are hidden when the
+					window is shrunk.
 				*)
 				on switchView(viewName)
 					if running of application "Sequel Ace" is false then return false
-					
+
 					tell application "System Events" to tell process "Sequel Ace"
 						try
 							click menu item viewName of menu 1 of menu bar item "View" of menu bar 1
 						end try
 					end tell
 				end switchView
-				
+
 				on getSysEveWindow()
 					tell application "System Events" to tell process "Sequel Ace"
 						window (name of my appWindow)
@@ -412,7 +417,7 @@ end new
 on init()
 	if initialized of me then return
 	set initialized of me to true
-	
+
 	set std to script "std"
 	set logger to std's import("logger")'s new("sequel-ace")
 	set retry to std's import("retry")'s new()
@@ -420,6 +425,6 @@ on init()
 	set listUtil to std's import("list")
 	set kb to std's import("keyboard")'s new()
 	set textUtil to std's import("string")
-	
+
 	set TEST_CONNECTION_NAME to "Docker MySQL 5"
 end init
