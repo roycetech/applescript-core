@@ -48,6 +48,7 @@ on new()
 		property logging : true
 		
 		on speak(rawText as text)
+			if logger is missing value then set logger to std's import("logger")'s new("speech") -- weird error.
 			try
 				set usr to std's import("user")'s new()
 				if usr's isInMeeting() then
