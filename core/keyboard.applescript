@@ -291,16 +291,16 @@ on _charToKeycode(key)
 	if key is "Y" or key is "y" then return 16
 	if key is "Z" or key is "z" then return 6
 	
-	if key is 0 then return 29
-	if key is 1 then return 18
-	if key is 2 then return 19
-	if key is 3 then return 20
-	if key is 4 then return 21
-	if key is 5 then return 23
-	if key is 6 then return 22
-	if key is 7 then return 26
-	if key is 8 then return 28
-	if key is 9 then return 25
+	if key as text is "0" then return 29
+	if key as text is "1" then return 18
+	if key as text is "2" then return 19
+	if key as text is "3" then return 20
+	if key as text is "4" then return 21
+	if key as text is "5" then return 23
+	if key as text is "6" then return 22
+	if key as text is "7" then return 26
+	if key as text is "8" then return 28
+	if key as text is "9" then return 25
 	
 	if key is space then return 49
 	if key is "[" then return 33
