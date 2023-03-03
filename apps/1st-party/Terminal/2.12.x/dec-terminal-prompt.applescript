@@ -21,7 +21,7 @@ on spotCheck()
 	-- If you haven't got these imports already.
 	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
-		Manual: Is Shell Prompt - zsh, bash, docker with/out command, redis, sftp
+		Manual: Is Shell Prompt - zsh, bash, docker with/out command, redis, sftp, EC2 ssh
 		Manual: Wait for Prompt
 		Manual: Prompt With Command (Git/Non Git, Parens, Lingering Command)
 		Manual: Prompt (Git/Non Git, With/out Parens, With/out Lingering Command)
@@ -85,6 +85,11 @@ on decorate(termTabScript)
 			format {"{}  [0-9a-zA-Z_\\s-]+\\sgit:\\([a-zA-Z0-9/_\\.()-]+\\)(?: {})?\\s?", tokens}
 		end gitPromptPattern
 		
+		
+		on ec2SSHPromptPattern()
+			"\\[.+\\]\\$$"
+		end ec2SSHPromptPattern
+		
 		(*
 			@Overridable
 			
@@ -113,6 +118,11 @@ on decorate(termTabScript)
 			set gitPattern to gitPromptPattern()
 			regex's matchesInString(gitPattern, subjectLine)
 		end isGitDirectory
+		
+		
+		on isSSH()
+			regex's matchesInString(ec2SSHPromptPattern(), getRecentOutput())
+		end isSSH
 		
 		
 		on waitForPrompt()
@@ -150,7 +160,10 @@ on decorate(termTabScript)
 			-- 	return regex's matchesInString(redisPromptPattern() & "$", textUtil's rtrim(theText as text))
 			-- end if
 			
-			if isZsh() then
+			if isSSH() then
+				return true
+				
+			else if isZsh() then
 				-- logger's debug("zsh...")
 				set promptText to getPromptText()
 				-- logger's debugf("promptText: {}", promptText)
@@ -169,14 +182,14 @@ on decorate(termTabScript)
 			
 			set rtrimmedHistory to textUtil's rtrim(history as text)
 			-- set isSsh to last item of termProcesses is "ssh"
-			set isSsh to lastProcess is "ssh"
+			set isSSH to lastProcess is "ssh"
 			-- logger's debugf("isSsh: {}", isSsh)
 			-- set isDocker to last item of termProcesses is "com.docker.cli"
 			set isDocker to lastProcess is "com.docker.cli"
 			-- logger's debugf("isDocker: {}", isDocker)
 			-- ssh prompt can be # or $.
 			-- logger's debugf("my promptEndChar: {}", my promptEndChar)
-			set isSshShell to isSsh and ((rtrimmedHistory ends with "#") or (rtrimmedHistory ends with "$"))
+			set isSshShell to isSSH and ((rtrimmedHistory ends with "#") or (rtrimmedHistory ends with "$"))
 			-- logger's debugf("isSshShell: {}", isSshShell)
 			isDocker and rtrimmedHistory ends with "#" or isSshShell or rtrimmedHistory ends with my promptEndChar or regex's matchesInString("bash-\\d(?:\\.\\d)?[#\\$]$", rtrimmedHistory)
 		end isShellPrompt
@@ -204,14 +217,11 @@ on decorate(termTabScript)
 			-- 	set termProcesses to processes of selected tab of my appWindow
 			-- end tell
 			
-			-- if last item of termProcesses is "redis-cli" then
-			-- 	set promptOnly to regex's firstMatchInString(redisPromptPattern(), recentBuffer)
-			-- 	logger's debugf("promptOnly: {}", promptOnly)
-			-- 	set prompts to textUtil's split(recentBuffer, promptOnly)
-			-- 	return promptOnly & last item of prompts
-			-- end if
 			
-			set position to textUtil's lastIndexOf(recentBuffer, uni's OMZ_ARROW)
+			
+			
+			
+			set position to textUtil's lastIndexOf(recentBuffer, uni's OMZ_ARROW) -- TODO: Move out.
 			-- logger's debugf("position: {}", position)
 			if position is not 0 then
 				set promptText to text position thru -1 of recentBuffer
