@@ -62,8 +62,8 @@ on applyMappedOverride(scriptObj)
 	set scriptName to the name of the scriptObj
 	set factory to missing value
 	try
-		-- set factory to do shell script "plutil -extract '" & scriptName & "' raw ~/applescript-core/config-lib-factory.plist"
-		set csv to do shell script "/usr/libexec/PlistBuddy -c \"Print :'" & scriptName & "'\" ~/applescript-core/config-lib-factory.plist | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | paste -s -d, -"
+		set factory to do shell script "plutil -extract '" & scriptName & "' raw ~/applescript-core/config-lib-factory.plist"
+		-- set csv to do shell script "/usr/libexec/PlistBuddy -c \"Print :'" & scriptName & "'\" ~/applescript-core/config-lib-factory.plist | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | paste -s -d, -"
 		
 		set oldDelimiters to AppleScript's text item delimiters
 		set AppleScript's text item delimiters to ","
