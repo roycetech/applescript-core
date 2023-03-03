@@ -172,6 +172,15 @@ on new()
 			getFrontMostInstance()
 		end getFrontTab
 		
+
+		on confirmTerminateActiveTab()
+			tell application "System Events" to tell process "Terminal"
+				try
+					click button "Terminate" of sheet 1 of front window
+				end try
+			end tell
+		end confirmTerminateActiveTab
+
 		
 		on getFrontMostInstance()
 			if running of application "Terminal" is false then return missing value
