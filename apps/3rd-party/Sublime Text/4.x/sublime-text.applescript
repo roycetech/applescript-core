@@ -72,7 +72,7 @@ on spotCheck()
 	else if caseIndex is 5 then
 		activate application "Sublime Text"
 		sut's focusGroup1()
-
+		
 	else if caseIndex is 6 then
 		activate application "Sublime Text"
 		sut's focusGroup2()
@@ -236,7 +236,7 @@ on new()
 	@return false if exception encountered, likely the window was not found,
 	otherwise it returns true for success.
 *)
-		to focusWindowContaining(titleSubstring as text)
+		on focusWindowContaining(titleSubstring as text)
 			tell application "System Events" to tell process "Sublime Text"
 				try
 					click (first menu item of menu 1 of menu bar item "Window" of menu bar 1 whose title contains titleSubstring)
@@ -299,7 +299,8 @@ on new()
 			end tell
 			
 			set projectNameRaw to last item of textUtil's split(windowName, SEPARATOR of uni)
-			set projectName to _findProjectFolder(projectNameRaw, filename)
+			-- set projectName to _findProjectFolder(projectNameRaw, filename) -- BROKEN
+			set projectName to getCurrentProjectName()
 			set filename to textUtil's replace(filename, "%20", " ")
 			set startIndex to (offset of projectName in filename) + (length of projectName) + 1
 			
