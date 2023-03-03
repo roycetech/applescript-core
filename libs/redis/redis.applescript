@@ -3,7 +3,7 @@ global REDIS_CLI, CR
 
 (*
 	This library is implemented as copy from plutil.
-	This is slower than plutil, and different use case so make sure you 
+	This is slightly slower than plutil, and different use case so make sure you 
 	understand their differences.
 	
 	Requirements:
