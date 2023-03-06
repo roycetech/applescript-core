@@ -134,6 +134,11 @@ compile-terminal:
 
 install-terminal: compile-terminal
 
+install-terminal-sftp: ## Add support to basic SFTP prompt
+	echo TODO
+
+install-terminal-ec2-ssh: ## Add support to basic ec2 SSH
+	echo TODO
 
 # macOS Version-Specific Apps
 install-macos-monterey: install-control-center install-dock install-notification-center

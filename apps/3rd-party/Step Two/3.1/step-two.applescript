@@ -1,6 +1,11 @@
 global std, textUtil, proc
 global APP_NAME
 
+(*
+	@Prerequisites
+		Running of the Step Two app must be managed by the client script.
+*)
+
 property initialized : false
 property logger : missing value
 

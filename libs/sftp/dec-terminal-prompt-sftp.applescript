@@ -1,18 +1,10 @@
 global std, regex, textUtil
 
 (*
-	Update the following quite obvious if you read through the template code.:
-	spotCheck()
-		thisCaseId
-		base library instantiation
-
-	init()
-		logger constructor parameter inside init handler
-
-	decorate()
-		instance name
-		handler name
-
+	@Plists:
+		config-user.plist
+			Terminal Tab Decorators - This decorator must be appended to this 
+				array to be active.
 *)
 
 property initialized : false
@@ -73,7 +65,6 @@ end spotCheck
 on decorate(mainScript)
 	script TerminalTabInstance -- shadow the original
 		property parent : mainScript
-		
 		
 		on getPrompt()
 			if isSFTP() then

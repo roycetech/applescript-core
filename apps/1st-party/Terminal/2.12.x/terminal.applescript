@@ -10,7 +10,7 @@ use scripting additions
 		Currently configured for using a specific OMZ Theme.
 	Dependent on your Terminal configuration for window/tab items.
 
-    	@Usage:
+	@Usage:
 		set terminal to std's import("terminal")'s new()
 		set foundTab to terminal's findTabWithName("project-dir-name", "tab_name")
 		set shellResult to foundTab's runShell("echo yo", "temp key")
@@ -18,9 +18,12 @@ use scripting additions
 	@WARNING: This was originally designed for a very specific user profile.  
 		Terminal shells need to be configured specifically to be handled properly. 
 		Window name is used to locate the tabs thus we need to do the following to make locating tabs simple:
+
+	@Plists:
+		config-user
+			Terminal Tab Decorators - Manually managed by user for the supported decorators.
 	
 	@Prerequisites:
-			
 		Under Profiles:
 			Uncheck "Dimensions"
 			Uncheck "Active process name"
