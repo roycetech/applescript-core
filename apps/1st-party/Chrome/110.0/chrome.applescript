@@ -16,6 +16,7 @@ on spotCheck()
 
   set cases to listUtil's splitByLine("
     Manual: New Window
+    Manual: New Tab
   ")
 
   set spotLib to std's import("spot-test")'s new()
@@ -31,6 +32,9 @@ on spotCheck()
 
   if caseIndex is 1 then
     sut's newWindow("https://www.example.com")
+
+  else if caseIndex is 2 then
+    sut's newTab("https://www.example.com")
   end if
   
 end spotCheck
@@ -41,9 +45,19 @@ on new()
       tell application "Google Chrome"
         activate
         set newWindow to make new window
-        set URL of active tab of newWindow to "https://www.example.com/"
+        set URL of active tab of newWindow to targetUrl
       end tell
     end newWindow
+
+    on newTab(targetUrl)
+      tell application "Google Chrome"
+          activate
+          tell front window
+              set newTab to make new tab at end of tabs
+              set URL of newTab to targetUrl
+          end tell
+      end tell
+    end newTab
   end script
 end new
 
