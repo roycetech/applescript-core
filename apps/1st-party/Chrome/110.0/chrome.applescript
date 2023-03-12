@@ -17,6 +17,7 @@ on spotCheck()
   set cases to listUtil's splitByLine("
     Manual: New Window
     Manual: New Tab
+    Manual: Open the Developer tools
   ")
 
   set spotLib to std's import("spot-test")'s new()
@@ -35,6 +36,9 @@ on spotCheck()
 
   else if caseIndex is 2 then
     sut's newTab("https://www.example.com")
+
+  else if caseIndex is 3 then
+    sut's openDeveloperTools()
   end if
   
 end spotCheck
@@ -58,6 +62,16 @@ on new()
           end tell
       end tell
     end newTab
+
+    on openDeveloperTools()
+      tell application "Google Chrome"
+          activate
+          tell active tab of window 1 to activate
+          tell application "System Events"
+              keystroke "i" using {option down, command down}
+          end tell
+      end tell
+    end openDeveloperTools
   end script
 end new
 
