@@ -8,6 +8,9 @@ global std, textUtil
 property initialized : false
 property logger : missing value
 
+-- #%+= are probably worth considering.
+property linesDelimiter : "@"
+
 if name of current application is "Script Editor" then spotCheck()
 if name of current application is "osascript" then unitTest()
 
@@ -136,15 +139,15 @@ on splitByLine(theString as text)
 	-- Only printable ASCII characters below 127 works. tab character don't work.
 	set SEP to "@" -- #%+= are probably worth considering.
 	
-	if theString contains SEP or theString contains "\"" then error "Sorry but you can't have " & SEP & " or double quote in the text :("
+	if theString contains linesDelimiter or theString contains "\"" then error "Sorry but you can't have " & linesDelimiter & " or double quote in the text :("
 	if theString contains "$" and theString contains "'" then error "Sorry, but you can't have a dollar sign and a single quote in your string"
 	
 	set theQuote to "\""
 	if theString contains "$" then set theQuote to "'"
-	set command to "echo " & theQuote & theString & theQuote & " | awk 'NF {$1=$1;print $0}' | paste -s -d" & SEP & " - | sed 's/" & SEP & "[[:space:]]*/" & SEP & "/g' | sed 's/[[:space:]]*" & SEP & "/" & SEP & "/g' | sed 's/^" & SEP & "//' | sed 's/" & SEP & SEP & "//g' | sed 's/" & SEP & "$//'" -- failed when using escaped/non escaped plus instead of asterisk.
+	set command to "echo " & theQuote & theString & theQuote & " | awk 'NF {$1=$1;print $0}' | paste -s -d" & linesDelimiter & " - | sed 's/" & linesDelimiter & "[[:space:]]*/" & linesDelimiter & "/g' | sed 's/[[:space:]]*" & linesDelimiter & "/" & linesDelimiter & "/g' | sed 's/^" & linesDelimiter & "//' | sed 's/" & linesDelimiter & linesDelimiter & "//g' | sed 's/" & linesDelimiter & "$//'" -- failed when using escaped/non escaped plus instead of asterisk.
 	set csv to do shell script command
 	
-	_split(csv, SEP)
+	_split(csv, linesDelimiter)
 end splitByLine
 
 
