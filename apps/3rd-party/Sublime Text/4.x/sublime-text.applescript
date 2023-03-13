@@ -1,4 +1,4 @@
-global std, configSystem, uni, textUtil, listUtil, finder, kb
+global std, configSystem, unic, textUtil, listUtil, finder, kb
 global ST_CLI
 
 use script "Core Text Utilities"
@@ -116,7 +116,7 @@ on new()
 				
 				set windomName to name of first window
 			end tell
-			set windowNameTokens to textUtil's split(windomName, uni's SEPARATOR)
+			set windowNameTokens to textUtil's split(windomName, unic's SEPARATOR)
 			first item of windowNameTokens
 		end getCurrentDocumentName
 		
@@ -263,8 +263,9 @@ on new()
 					click (first menu item of menu 1 of menu bar item "Window" of menu bar 1 whose title ends with endingName)
 					return true
 				end try
-				return false
 			end tell
+
+			false
 		end focusWindowEndingWith
 		
 		
@@ -308,6 +309,50 @@ on new()
 		end getCurrentResource
 		
 		(*
+			Returns the names of focused projects for each Sublime Text windows.
+		*)
+		on getWindowProjectNames()
+			if not running of application "Sublime Text" then return
+
+			tell application "System Events" to tell process "Sublime Text"
+				set windowNames to the name of windows
+				set projectNames to {}
+				repeat with nextWindowTitle in windowNames
+					set end of projectNames to the last item of textUtil's split(nextWindowTitle, unic's separator)
+				end repeat
+			end tell
+			projectNames
+		end getWindowProjectNames
+
+
+		on getOpenProjectNames()
+			if not running of application "Sublime Text" then return {}
+
+			set projectNames to {}
+			tell application "System Events" to tell process "Sublime Text"
+				try
+					repeat with i from (count of menu items of menu 1 of menu bar item "Window" of menu bar 1) to 1 by -1
+						set nextMenu to menu item i of menu 1 of menu bar item "Window" of menu bar 1
+						set nextMenuName to the name of nextMenu
+						if nextMenuName is missing value then exit repeat
+						
+						set end of projectNames to last item of textUtil's split(nextMenuName, unic's separator)
+					end repeat
+				end try
+			end tell
+			projectNames
+		end getOpenProjectNames
+
+
+		on getWindowsCount()
+			if not running of application "Sublime Text" then return 0
+
+			tell application "System Events" to tell process "Sublime Text"
+				count of windows
+			end tell
+		end getWindowsCount
+
+		(*
 			Get project of the front most Sublime Text window.
 			Might not work if the opened resource is not part of a saved project.
 		*)
@@ -321,7 +366,7 @@ on new()
 					
 					(*
 					set oldDelimiters to AppleScript's text item delimiters
-					set AppleScript's text item delimiters to uni's SEPARATOR
+					set AppleScript's text item delimiters to unic's SEPARATOR
 					set theArray to every text item of theWindowTitle
 					set retval to last item of theArray
 					set AppleScript's text item delimiters to oldDelimiters
@@ -332,7 +377,7 @@ on new()
 			
 			set csv to textUtil's split(windowTitle, ",")
 			set projectPart to first item of csv
-			set filenameAndProject to textUtil's split(projectPart, uni's SEPARATOR)
+			set filenameAndProject to textUtil's split(projectPart, unic's SEPARATOR)
 			last item of filenameAndProject
 		end getCurrentProjectName
 		
@@ -371,6 +416,17 @@ on new()
 		end getCurrentProjectResource
 		
 		
+		on closeProject()
+			if running of application "Sublime Text" is false then return
+
+			tell application "System Events" to tell process "Sublime Text"
+				try
+					click menu item "Close Project" of menu 1 of menu bar item "Project" of menu bar 1
+				end try
+			end tell
+		end closeProject
+		
+
 		(* Sends a close tab key stroke combination. *)
 		on closeTab()
 			kb's pressCommandKey("w")
@@ -418,7 +474,7 @@ on init()
 	set std to script "std"
 	set logger to std's import("logger")'s new("sublime-text")
 	set configSystem to std's import("config")'s new("system")
-	set uni to std's import("unicodes")
+	set unic to std's import("unicodes")
 	set textUtil to std's import("string")
 	set listUtil to std's import("list")
 	set finder to std's import("finder")'s new()
