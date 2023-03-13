@@ -42,6 +42,7 @@ use scripting additions
 property initialized : false
 property logger : missing value
 property homeFolderPath : missing value
+property linesDelimiter : "~"
 
 
 if name of current application is "Script Editor" then spotCheck()
@@ -418,17 +419,10 @@ on new()
 						return missing value
 					end try
 					
-					-- -- BANDAID.
-					set DELIM to "~"
-					-- if plistName starts with "window-regions" then
-					-- 	set DELIM to ","
-					-- end if
-					
-					-- WARNING: Can't have ~ in the text because it will be used as the delimiter.
-					set getTsvCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\" {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | paste -s -d{} -", {quotedEspacedPlistKey, quotedPlistPosixPath, DELIM}}
+					set getTsvCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\" {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | paste -s -d{} -", {quotedEspacedPlistKey, quotedPlistPosixPath, my linesDelimiter}}
 					
 					set csv to do shell script getTsvCommand
-					_split(csv, DELIM, arrayType)
+					_split(csv, my linesDelimiter, arrayType)
 				end _getList
 				
 				
