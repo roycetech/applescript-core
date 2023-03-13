@@ -1,4 +1,4 @@
-global std, speech
+global std, speech, listUtil
 
 use script "Core Text Utilities"
 use scripting additions
@@ -14,14 +14,16 @@ on spotCheck()
 	logger's start()
 	
 	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Show 2 Choices
-		Manual: Show Choices with Timeout (Timeout/Non-Timeout)
+		Manual: Show 2 Choices with Timeout (Timeout/Non-Timeout)
 		Manual: Show Warning with Timeout
 		Manual: Confirm Warning
 		Manual: Show 3 Choices
+
 		Manual: Confirm with Timeout (Yes, No, Timeout)
+		Manual: Show 2 Choices with default
+		Manual: Show choices from a list (Options: missing value, empty, happy, mismatch-default)
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -48,6 +50,33 @@ on spotCheck()
 	else if caseIndex is 6 then
 		logger's infof("Result: {}", sut's confirmWarningWithTimeout("Auto Join is off", "Join?", 8))
 		
+	else if caseIndex is 7 then
+		logger's infof("Result: {}", sut's showChoicesWithDefault("Choices with default", "Choose", {"Yes", "No"}, "No"))
+		
+	else if caseIndex is 8 then
+		set utLib to std's import("unit-test")
+		set ut to utLib's new()
+		
+		set optionsList to {"Option 1", "Option 2", "Option 3"}
+		try
+			logger's infof("Result: {}", sut's showChoicesFromList("Options from list", "Choose", missing value, missing value))
+			ut's fail("Expected error was not encountered")
+		on error the errorMessage number the errorNumber
+			if errorMessage starts with "Assertion" then
+				error errorMessage
+			end if
+		end try
+		
+		try
+			logger's infof("Result: {}", sut's showChoicesFromList("Options from list", "Choose", {}, missing value))
+			ut's fail("Expected error was not encountered")
+		on error the errorMessage number the errorNumber
+			if errorMessage starts with "Assertion" then
+				error errorMessage
+			end if
+		end try
+		
+		logger's infof("Result: {}", sut's showChoicesFromList("Options from list", "Choose", optionsList, "Option 2"))
 	end if
 	
 	spot's finish()
@@ -58,6 +87,21 @@ end spotCheck
 on new()
 	script DialogInstance
 		property speechOn : false
+		
+		on showChoicesFromList(title, message, optionsList, defaultChoice)
+			assertThat of std given condition:optionsList is not missing value, messageOnFail:"optionsList must be a valid list " & optionsList
+			
+			if defaultChoice is missing value or listUtil's listContains(optionsList, defaultChoice) is false then
+				set chosenOption to choose from list optionsList with prompt "Please choose an option:" without multiple selections allowed and empty selection allowed
+			else
+				set chosenOption to choose from list optionsList with prompt "Please choose an option:" default items defaultChoice without multiple selections allowed and empty selection allowed
+			end if
+			
+			if chosenOption is false then return missing value
+			
+			item 1 of chosenOption
+		end showChoicesFromList
+		
 		
 		on showOkDialog(theTitle, message)
 			if speech is true then
@@ -93,6 +137,20 @@ on new()
 			display dialog message with title theTitle with icon 1 buttons choices
 			button returned of result
 		end showChoices
+		
+		
+		(* @choices up to 3 choices to be shown as buttons for quick response. *)
+		on showChoicesWithDefault(theTitle, message, choices as list, defaultButton)
+			if (count of choices) is greater than 3 then tell me to error "You can only have up to 3 choices"
+			
+			if speech is true then
+				set synchronous of speech to false
+				tell speech to speakAndLog(message)
+			end if
+			
+			display dialog message with title theTitle with icon 1 buttons choices default button defaultButton
+			button returned of result
+		end showChoicesWithDefault
 		
 		
 		(* @choices up to 3 choices to be shown as buttons for quick response. *)
@@ -149,4 +207,5 @@ on init()
 	set std to script "std"
 	set logger to std's import("logger")'s new("dialog")
 	set speech to std's import("speech")'s new()
+	set listUtil to std's import("list")
 end init
