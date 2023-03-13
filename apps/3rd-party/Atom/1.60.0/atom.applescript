@@ -217,6 +217,7 @@ on new()
 			docPath
 		end _extractDocPathByHotkey
 	end script
+	std's applyMappedOverride(result)
 end new
 
 
