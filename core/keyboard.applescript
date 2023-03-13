@@ -327,18 +327,18 @@ on _charToKeycode(key)
 	if key is "left" then return 123
 	if key is "right" then return 124
 
-	if key is "F1" then return 122
-	if key is "F2" then return 120
-	if key is "F3" then return 99
-	if key is "F4" then return 118
-	if key is "F5" then return 96
-	if key is "F6" then return 97
-	if key is "F7" then return 98
-	if key is "F8" then return 100
-	if key is "F9" then return 101
-	if key is "F10" then return 109
-	if key is "F11" then return 103
-	if key is "F12" then return 111
+	if key is "F1" or key is "f1" then return 122
+	if key is "F2" or key is "f2" then return 120
+	if key is "F3" or key is "f3" then return 99
+	if key is "F4" or key is "f4" then return 118
+	if key is "F5" or key is "f5" then return 96
+	if key is "F6" or key is "f6" then return 97
+	if key is "F7" or key is "f7" then return 98
+	if key is "F8" or key is "f8" then return 100
+	if key is "F9" or key is "f9" then return 101
+	if key is "F10" or key is "f10" then return 109
+	if key is "F11" or key is "f11" then return 103
+	if key is "F12" or key is "f12" then return 111
 
 	-1
 end _charToKeycode
