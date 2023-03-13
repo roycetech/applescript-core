@@ -1,7 +1,8 @@
 global std, regex, textUtil, listUtil, sb
 
 (*
-	Wrapper for the calendar UI event. Currently implemented with zoom.us, to be extracted.
+	Wrapper for the calendar UI event. Originally implemented with zoom.us, 
+	refactored to be vendor-agnostic.
 *)
 
 property initialized : false
