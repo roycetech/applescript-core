@@ -2,7 +2,7 @@ global std, mapLib, regex
 global TZ_OFFSET, AS_CORE_PATH
 
 (*
-	This library is implemented prioritizing minimal dependency to othe libraries.
+	This library is implemented prioritizing minimal dependency to other libraries.
 	
 	Requirements
 
