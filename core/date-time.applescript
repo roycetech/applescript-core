@@ -254,15 +254,7 @@ end formatMmDdYyyy
 
 
 on formatYyMmDd(pDate as date)
-	set dateString to short date string of pDate
-	
-	set myMonth to (first word of dateString) as integer
-	if myMonth is less than 10 then set myMonth to "0" & myMonth
-	
-	set myDom to (second word of dateString) as integer
-	if myDom is less than 10 then set myDom to "0" & myDom
-	
-	format {"{}{}{}", {last word of dateString, myMonth, myDom}}
+	text 3 thru -1 of formatYyyyMmDd(pDate, "")
 end formatYyMmDd
 
 
@@ -400,6 +392,9 @@ on unitTest()
 		newMethod("formatYyyyMmDd")
 		assertEqual("20211004", my formatYyyyMmDd(date "Monday, October 4, 2021 at 8:00:00 AM", missing value), "No Separator")
 		assertEqual("2021/10/04", my formatYyyyMmDd(date "Monday, October 4, 2021 at 8:00:00 AM", "/"), "With Separator")
+		
+		newMethod("formatYyMmDd")
+		assertEqual("211004", my formatYyMmDd(date "Monday, October 4, 2021 at 8:00:00 AM", missing value), "No Separator")
 		
 		newMethod("formatYyyyDdMm")
 		assertEqual("2022/14/06", my formatYyyyDdMm(date "Tuesday, June 14, 2022 at 8:00:00 AM", "/"), "With Separator")
