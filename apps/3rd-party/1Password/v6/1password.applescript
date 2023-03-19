@@ -1,4 +1,4 @@
-global std, textUtil, retry, cliclick, clip, kb
+global std, textUtil, retryLib, cliclick, clip, kb
 
 (*
 	Usage:
@@ -186,6 +186,7 @@ on new()
 				end timeout
 			end script
 			
+			set retry to retryLib's new()
 			-- logger's debug("Waiting for unlock or master password for 60s...")
 			set unlockState to exec of retry on UnlockOrMasterOrTouch by 0.5 for 120
 			-- logger's debug("unlockState: " & unlockState)
@@ -227,6 +228,7 @@ on new()
 		
 		
 		on waitToUnlockMini()
+			set retry to retryLib's new()
 			tell application "System Events" to tell process "1Password mini"
 				if exists (window 1) then return true
 			end tell
@@ -531,7 +533,7 @@ on init()
 	set std to script "std"
 	set logger to std's import("logger")'s new("1password")
 	set textUtil to std's import("string")
-	set retry to std's import("retry")'s new()
+	set retryLib to std's import("retry")
 	set clip to std's import("clipboard")'s new()
 	set cliclick to std's import("cliclick")
 	set kb to std's import("keyboard")'s new()
