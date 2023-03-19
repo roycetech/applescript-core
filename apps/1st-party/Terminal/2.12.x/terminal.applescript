@@ -175,7 +175,7 @@ on new()
 			getFrontMostInstance()
 		end getFrontTab
 		
-
+		
 		on confirmTerminateActiveTab()
 			tell application "System Events" to tell process "Terminal"
 				try
@@ -183,7 +183,7 @@ on new()
 				end try
 			end tell
 		end confirmTerminateActiveTab
-
+		
 		
 		on getFrontMostInstance()
 			if running of application "Terminal" is false then return missing value
@@ -332,6 +332,22 @@ on new()
 			actual command is sent next, so that execution time can be measured.
 		*)
 				property refreshPrompt : false
+				
+				on scrollToTop()
+					tell application "System Events" to tell process "Terminal"
+						try
+						set value of scroll bar 1 of scroll area 1 of splitter group 1 of window (name of my appWindow) to 0
+						end try
+					end tell
+				end scrollToTop
+				
+				on scrollToEnd()
+					tell application "System Events" to tell process "Terminal"
+					try
+						set value of scroll bar 1 of scroll area 1 of splitter group 1 of window (name of my appWindow) to 1
+						end try
+					end tell
+				end scrollToEnd
 				
 				on newWindow(bashCommand, windowName)
 					main's newWindow(bashCommand, windowName)
