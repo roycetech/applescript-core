@@ -32,6 +32,7 @@ on spotCheck()
 		
 		Coordinates
 		AutoHide
+		Manual: Click App
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -83,6 +84,10 @@ on spotCheck()
 	else if caseIndex is 12 then
 		logger's infof("Is Autohide?: {}", lib's isAutoHide())
 		
+	else if caseIndex is 13 then
+		
+		lib's clickApp("Safari")
+		
 	else if caseIndex is 10 then
 		logger's infof("Dock Height: {}", lib's getHeight())
 		
@@ -110,6 +115,14 @@ end spotCheck
 (*  *)
 on new()
 	script DockInstance
+		on clickApp(appName)
+			tell application "System Events" to tell process "Dock"
+				try
+					perform action "AXPress" of UI element appName of list 1
+				end try
+			end tell
+		end clickApp
+		
 		(*
 			@returns bottom, left, or right
 		*)
