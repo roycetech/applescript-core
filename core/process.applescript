@@ -42,6 +42,7 @@ on spotCheck()
 
 		Manual: Windows Not Equal Name(Running, Not Running)
 		Manual: App Is Running
+		Manual: Minimize
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -115,6 +116,11 @@ on spotCheck()
 		assertThat of std given condition:sut's isRunning(), messageOnFail:"Failed spot check"
 		set sut to new("Migration Assistant")
 		assertThat of std given condition:sut's isRunning() is false, messageOnFail:"Failed spot check"
+
+	else if caseIndex is 13 then
+			set sut to new("Script Editor")
+			sut's minimize()
+
 	end if
 	
 	spot's finish()
@@ -129,10 +135,17 @@ on new(pProcessName)
 	script ProcessInstance
 		property processName : pProcessName
 		
+		on minimize()
+			tell application "System Events" to tell process "Step Two"
+				try
+					click (first button of front window whose description contains "minimize")
+				end try
+			end tell
+		end minimize
 		
 		on isRunning()
-			running of app processName
-		end appExists
+			running of application processName
+		end isRunning
 		
 		(* @windowName is case-insensitive. *)
 		on getWindowsMatchingName(windowName)
