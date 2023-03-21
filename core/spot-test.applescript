@@ -76,6 +76,11 @@ on new()
 					end if
 					
 					set _currentCase to sessionPlist's getInt("Current Case Index")
+					if _currentCase is 0 then 
+						set _currentCase to 1
+						sessionPlist's setValue("Current Case Index", _currentCase)
+					end if
+
 					set autoText to "M"
 					if autoIncrement is true then set AutoText to "A"
 					logger's infof("Running case: {}/{} ({}): {}", {_currentCase, _currentCaseCount, autoText, item _currentCase of cases})
