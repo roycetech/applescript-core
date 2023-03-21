@@ -75,6 +75,11 @@ end spotCheck
 
 on newRetriever(credKey)
 	script OtpRetrieverInstance
+
+		(*
+			@returns a OTP with more than 2 seconds time remaining, and 
+			minimizing the Step Two app window before returning the otp.
+		*)
 		on getOTP()
 			local stepTwo
 			set stepTwo to new()
@@ -85,7 +90,10 @@ on newRetriever(credKey)
 			end if
 			
 			stepTwo's clearFilter()
-			stepTwo's getOtpByCredKey(credKey)
+			set otp to stepTwo's getOtpByCredKey(credKey)
+			set stepTwoProc to proc's new("Step Two")
+			stepTwoProc's minimize()
+			otp
 		end getOTP
 	end script
 	
