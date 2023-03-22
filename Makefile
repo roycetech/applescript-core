@@ -99,6 +99,12 @@ compile-safari:
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-javascript
 
+compile-chrome:
+	./scripts/compile-lib.sh  apps/1st-party/Chrome/110.0/chrome.applescript
+
+install-chrome:
+	osascript scripts/allow-apple-events-in-chrome.applescript
+
 install-safari: compile-safari
 	osascript ./scripts/allow-apple-events-in-safari.applescript
 	plutil -replace 'FIND_RETRY_MAX' -integer 90 ~/applescript-core/config-system.plist
