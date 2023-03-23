@@ -4,6 +4,14 @@ global APP_NAME
 (*
 	@Prerequisites
 		Running of the Step Two app must be managed by the client script.
+
+	@Usage:
+		-- import dock
+		if running of application "Step Two" is false then 
+			activate application "Step Two"
+		else
+			dock's clickApp("Step Two")
+		end if
 *)
 
 property initialized : false
