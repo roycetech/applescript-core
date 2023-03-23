@@ -299,7 +299,7 @@ on new()
 				end tell
 			end tell
 			
-			set projectNameRaw to last item of textUtil's split(windowName, SEPARATOR of uni)
+			set projectNameRaw to last item of textUtil's split(windowName, SEPARATOR of unic)
 			-- set projectName to _findProjectFolder(projectNameRaw, filename) -- BROKEN
 			set projectName to getCurrentProjectName()
 			set filename to textUtil's replace(filename, "%20", " ")
