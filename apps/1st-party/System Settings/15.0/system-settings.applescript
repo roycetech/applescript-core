@@ -6,10 +6,13 @@ global std, retry, usr
 	info.
 
 	@Version:
-		macOS Monterey 12.x.
+		macOS Ventura 13.x.
 
 	@Deployment:
-		make compile-lib SOURCE="apps/1st-party/System Preferences/15.0/system-preferences"		
+		make compile-lib SOURCE="apps/1st-party/System Settings/15.0/system-settings"
+		
+	@References:
+		https://derflounder.wordpress.com/2022/10/25/opening-macos-venturas-system-settings-to-desired-locations-via-the-command-line/
 *)
 
 property initialized : false
@@ -37,6 +40,9 @@ on spotCheck()
 		Manual: Filter Commands and Enable
 		Manual: Filter Commands and Disable
 		Manual: Click Vocabulary
+		
+		Manual: Print Panes
+		Manual: revealKeyboardDictation
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -91,6 +97,12 @@ on spotCheck()
 		sut's revealAccessibilityDictation()
 		sut's clickVocabulary()
 		
+	else if caseIndex is 11 then
+		sut's printPaneIds()
+		
+	else if caseIndex is 12 then
+		sut's revealKeyboardDictation()
+		
 	end if
 	
 	spot's finish()
@@ -99,11 +111,30 @@ end spotCheck
 
 on new()
 	script SystemPreferences
+		on printPaneIds()
+			tell application "System Settings"
+				set panesList to id of panes
+				repeat with nextId in panesList
+					log nextId
+				end repeat
+			end tell
+		end printPaneIds
+		
+		
+		on revealKeyboardDictation()
+			tell application "System Settings"
+				set current pane to pane id "com.apple.Keyboard-Settings.extension"
+				delay 1
+				reveal anchor "Dictation" of current pane
+			end tell
+		end revealKeyboardDictation
+		
+		
 		on revealAccessibilityDictation()
-			tell application "System Preferences" to activate
+			tell application "System Settings" to activate
 			
 			script PanelWaiter
-				tell application "System Preferences"
+				tell application "System Settings"
 					reveal anchor "Dictation" of pane id "com.apple.preference.universalaccess"
 				end tell
 				
@@ -122,7 +153,7 @@ on new()
 			@returns true if it was turned to enabled, false if turned to disabled, missing value if the app is not running or if an error was encountered.
 		*)
 		on toggleVoiceVoiceControl()
-			if running of application "System Preferences" is false then return missing value
+			if running of application "System Settings" is false then return missing value
 			
 			set currentState to -1
 			script ClickWaiter
@@ -141,7 +172,7 @@ on new()
 		end toggleVoiceVoiceControl
 		
 		on clickAccessibilityCommands()
-			if running of application "System Preferences" is false then return false
+			if running of application "System Settings" is false then return false
 			
 			(* Detect when Commands List is already visible. *)
 			tell application "System Events" to tell process "System Preferences"
@@ -179,7 +210,7 @@ on new()
 		end clickAccessibilityCommands
 		
 		on clickVocabulary()
-			if running of application "System Preferences" is false then return false
+			if running of application "System Settings" is false then return false
 			
 			(* Detect when Commands List is already visible. *)
 			tell application "System Events" to tell process "System Preferences"
@@ -239,7 +270,7 @@ on new()
 			@Private.  
 		*)
 		on _filterCommandsAndSetState(commandLabel, newState)
-			if running of application "System Preferences" is false then return false
+			if running of application "System Settings" is false then return false
 			
 			
 			
@@ -286,9 +317,9 @@ on new()
 		
 		
 		on revealSecurityAccessibilityPrivacy()
-			tell application "System Preferences"
+			tell application "System Settings"
 				activate
-				reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
+				reveal anchor "Accessibility" of pane id "com.apple.preference.security"
 			end tell
 			
 			script PanelWaiter
@@ -327,15 +358,15 @@ on new()
 			have a clean slate as you start. 
 		*)
 		on quitApp()
-			if running of application "System Preferences" is false then return
+			if running of application "System Settings" is false then return
 			
 			try
-				tell application "System Preferences" to quit
+				tell application "System Settings" to quit
 			on error
 				do shell script "killall 'System Preferences'"
 			end try
 			
-			repeat while running of application "System Preferences" is true
+			repeat while running of application "System Settings" is true
 				delay 0.1
 			end repeat
 		end quitApp
