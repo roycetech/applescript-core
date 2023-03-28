@@ -1,4 +1,4 @@
-global std, config
+global std, usr
 
 (*
 	Decorator for view-related functionality. The main goal of this decorator 
@@ -88,7 +88,9 @@ on decorate(mainScript)
 			
 			tell application "System Events" to tell process "Calendar"
 				set selectedRadio to get value of radio group 1 of group 2 of toolbar 1 of window "Calendar"
-				title of selectedRadio
+				if usr's getOSMajorVersion() is less than 13 then return title of selectedRadio
+				
+				return description of selectedRadio -- Ventura (13)
 			end tell
 		end getViewType
 		
@@ -97,7 +99,12 @@ on decorate(mainScript)
 			if running of application "Calendar" is false then return
 			
 			tell application "System Events" to tell process "Calendar"
-				click (first radio button of radio group 1 of group 2 of toolbar 1 of window "Calendar" whose title is viewType)
+				try
+					click (first radio button of radio group 1 of group 2 of toolbar 1 of window "Calendar" whose description is viewType)
+				on error -- Pre-Ventura
+					click (first radio button of radio group 1 of group 2 of toolbar 1 of window "Calendar" whose title is viewType)
+				end try
+				
 			end tell
 		end switchToViewByTitle
 		
@@ -139,4 +146,5 @@ on init()
 	
 	set std to script "std"
 	set logger to std's import("logger")'s new("dec-calendar-view")
+	set usr to std's import("user")'s new()
 end init

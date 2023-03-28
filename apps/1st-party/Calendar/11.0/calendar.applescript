@@ -16,7 +16,7 @@ use scripting additions
 
 	@Testing
 		Modify the handler getCurrentDate() for the desired test date.
-		
+		Morning today
 
 	When parsing meetings for the day, list of records will be returned. In 
 	parallel, a list ACTIVE_MEETINGs will contain the references to the UI.
@@ -270,7 +270,13 @@ on new()
 			tell application "System Events" to tell process "Calendar"
 				if (count of windows) is 0 then return
 				
-				click button "Today" of group 1 of group 1 of splitter group 1 of window "Calendar"
+				try
+					click button "Today" of group 1 of group 1 of splitter group 1 of window "Calendar"
+				on error -- macOS 13.2.1 Ventura
+					try
+						click (first button of group 1 of group 1 of splitter group 1 of window "Calendar" whose description is "Today")
+					end try
+				end try
 			end tell
 		end gotoToday
 		

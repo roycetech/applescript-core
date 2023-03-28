@@ -101,12 +101,18 @@ on new()
 		
 		
 		on isOnline()
-				try
-		set pingResult to do shell script "/usr/local/bin/gtimeout 1s bash -c 'ping -c 1 apple.com'"
-		return pingResult contains "0.0% packet loss"
-	end try
-	false
+			try
+				set pingResult to do shell script "/usr/local/bin/gtimeout 1s bash -c 'ping -c 1 apple.com'"
+				return pingResult contains "0.0% packet loss"
+			end try
+			false
 		end isOnline
+
+		on getOsMajorVersion()
+			set sysinfo to system info
+			return (do shell script "echo '" & system version of sysinfo & "' | cut -d '.' -f 1") as integer
+		end getOsMajorVersion
+
 	end script
 	std's applyMappedOverride(result)
 end new

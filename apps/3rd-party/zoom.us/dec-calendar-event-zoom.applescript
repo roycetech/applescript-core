@@ -93,15 +93,29 @@ on decorate(mainScript)
 		property parent : mainScript
 		
 		on extractMeetingId(meetingStaticText)
-			tell application "System Events" to tell process "Calendar"
-				regex's firstMatchInString("(?<=zoom\\.us\\/j\\/)\\d+", description of meetingStaticText)
-			end tell
+			set isSpot to name of current application is "Script Editor"
+			if isSpot is true then
+				set meetingDescription to |description| of meetingStaticText
+			else
+				tell application "System Events" to tell process "Calendar"
+					set meetingDescription to description of meetingStaticText
+				end tell
+			end if
+			
+			regex's firstMatchInString("(?<=zoom\\.us\\/j\\/)\\d+", meetingDescription)
 		end extractMeetingId
 		
 		on extractMeetingPassword(meetingStaticText)
-			tell application "System Events" to tell process "Calendar"
-				regex's firstMatchInString("(?<=pwd=)\\w+", description of meetingStaticText)
-			end tell
+			set isSpot to name of current application is "Script Editor"
+			if isSpot is true then
+				set meetingDescription to |description| of meetingStaticText
+			else
+				tell application "System Events" to tell process "Calendar"
+					set meetingDescription to description of meetingStaticText
+				end tell
+			end if
+			
+			regex's firstMatchInString("(?<=pwd=)\\w+", meetingDescription)
 		end extractMeetingPassword
 	end script
 end decorate
