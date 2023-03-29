@@ -12,6 +12,9 @@ global APP_NAME
 		else
 			dock's clickApp("Step Two")
 		end if
+
+		set OtpRetriever of otpUser to stepTwo's newRetriever("credKeyHere")
+		otpUser's executeExample()
 *)
 
 property initialized : false
