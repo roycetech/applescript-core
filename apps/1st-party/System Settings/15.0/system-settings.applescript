@@ -1,8 +1,8 @@
 global std, retry, usr
 
 (*
-	Library wrapper for the System Preferences app. Some handlers have more 
-	additional requirements than others.  See handler's documentation for more 
+	Library wrapper for the System Settings app. This was cloned from the original System Preferences app of macOS Monterey.  
+	Some handlers have more additional requirements than others.  See handler's documentation for more 
 	info.
 
 	@Version:
@@ -120,7 +120,6 @@ on new()
 			end tell
 		end printPaneIds
 		
-		
 		on revealKeyboardDictation()
 			tell application "System Settings"
 				set current pane to pane id "com.apple.Keyboard-Settings.extension"
@@ -129,6 +128,23 @@ on new()
 			end tell
 		end revealKeyboardDictation
 		
+		on revealSecurityAccessibilityPrivacy()
+			tell application "System Settings"
+				activate
+				reveal anchor "Accessibility" of pane id "com.apple.preference.security"
+			end tell
+			
+			script PanelWaiter
+				tell application "System Events" to tell process "System Preferences"
+					if (value of radio button "Privacy" of tab group 1 of window "Security & Privacy") is 0 then return missing value
+				end tell
+				true
+			end script
+			exec of retry on result for 50 by 0.1
+		end revealSecurityAccessibilityPrivacy
+		
+		
+		-- Review below =====================
 		
 		on revealAccessibilityDictation()
 			tell application "System Settings" to activate
@@ -316,20 +332,7 @@ on new()
 		end enableTurnOffVoiceControl
 		
 		
-		on revealSecurityAccessibilityPrivacy()
-			tell application "System Settings"
-				activate
-				reveal anchor "Accessibility" of pane id "com.apple.preference.security"
-			end tell
-			
-			script PanelWaiter
-				tell application "System Events" to tell process "System Preferences"
-					if (value of radio button "Privacy" of tab group 1 of window "Security & Privacy") is 0 then return missing value
-				end tell
-				true
-			end script
-			exec of retry on result for 50 by 0.1
-		end revealSecurityAccessibilityPrivacy
+		
 		
 		on unlockSecurityAccessibilityPrivacy()
 			usr's cueForTouchId()
