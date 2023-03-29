@@ -42,7 +42,7 @@ tell application "System Events" to set SCRIPT_NAME to get name of (path to me)
 logger's start()
 
 if IS_SPOT then
-	delay (idle {})
+	idle {}
 else
 	makeStatusBar()
 	
@@ -67,8 +67,16 @@ on makeStatusBar()
 end makeStatusBar
 
 
+on clearMenuItems()
+	repeat while (newMenu's numberOfItems() > 0)
+	  newMenu's removeItemAtIndex:0
+	end repeat
+end clearMenuItems
+
+
 on makeMenus()
-	newMenu's removeAllItems() -- remove existing menu items
+	clearMenuItems()
+	-- newMenu's removeAllItems() -- Causes brief duplication because it awaits UI refresh.
 	
 	set currentCaseIndex to sessionPlist's getInt("Current Case Index")
 	
@@ -80,9 +88,9 @@ on makeMenus()
 		(newMenu's addItem:titleMenuItem)
 		(titleMenuItem's setEnabled:false)
 		
-		set autoIncLabel to "Auto Increment"
-		if switch's active("Auto Increment Case Index") then set autoIncLabel to autoIncLabel & " " & emoji's CHECK
-		set autoIncMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:autoIncLabel action:("autoIncrementAction:") keyEquivalent:"")
+		set autoIncrementState to switch's active("Auto Increment Case Index")
+		set autoIncMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:("Auto Increment") action:("autoIncrementAction:") keyEquivalent:"")
+		autoIncMenuItem's setState:(autoIncrementState)		
 		(newMenu's addItem:autoIncMenuItem)
 		(autoIncMenuItem's setTarget:me)
 		
@@ -91,6 +99,8 @@ on makeMenus()
 		
 		set autoIncAltMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:altLabel action:("autoIncrementAction:") keyEquivalent:"")
 		set autoIncAltMenuItem's alternate to true
+		autoIncAltMenuItem's setState:(autoIncrementState)
+
 		(autoIncAltMenuItem's setKeyEquivalentModifierMask:(current application's NSEventModifierFlagOption))
 		(newMenu's addItem:autoIncAltMenuItem)
 		(autoIncAltMenuItem's setTarget:me)
@@ -100,11 +110,12 @@ on makeMenus()
 	
 	repeat with i from 1 to number of items in CASES
 		set this_item to item i of CASES
-		if i is equal to currentCaseIndex then
-			set this_item to this_item & " " & emoji's CHECK
-		end if
+		-- if i is equal to currentCaseIndex then
+		-- 	set this_item to this_item & " " & emoji's CHECK
+		-- end if
 		
 		set thisMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:this_item action:("menuAction:") keyEquivalent:"")
+		thisMenuItem's setState:(i is equal to currentCaseIndex)
 		(newMenu's addItem:thisMenuItem)
 		(thisMenuItem's setTarget:me)
 		
@@ -168,7 +179,9 @@ on menuAction:sender
 	set menuItem to sender's title as text
 	set changeAutoIncrement to menuItem ends with " "
 	set cleanMenuItem to textUtil's rtrim(menuItem)
-	if cleanMenuItem ends with " " & emoji's CHECK then set cleanMenuItem to text 1 thru ((length of cleanMenuItem) - 2) of cleanMenuItem
+	-- if cleanMenuItem ends with " " & emoji's CHECK then set cleanMenuItem to text 1 thru ((length of cleanMenuItem) - 2) of cleanMenuItem
+	set isChecked to (sender's state() = 1)
+	if isChecked then set cleanMenuItem to text 1 thru ((length of cleanMenuItem) - 2) of cleanMenuItem
 	
 	set newIndex to listUtil's indexOf(CASES, cleanMenuItem)
 	sessionPlist's setValue("Current Case Index", newIndex)
