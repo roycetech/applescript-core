@@ -219,8 +219,10 @@ on join(theList, theDelimiter)
 end join
 
 
-(* Vanilla contains operation does not work when shell command is used somewhere. *)
+(* Vanilla contains operation that does not work when shell command is used somewhere. *)
 on listContains(theList, target)
+	if theList is missing value then return false
+	
 	repeat with nextElement in theList
 		set nextElementText to nextElement as text
 		if nextElementText is equal to the target then return true
@@ -381,6 +383,9 @@ on unitTest()
 		assertEqual(3, my lastMatchingIndexOf({"apple", "orange", "application"}, "app"), "Multiple match")
 		assertEqual(2, my lastMatchingIndexOf({"apple", "orange", "application"}, "ora"), "Single match")
 		assertEqual(0, my lastMatchingIndexOf({"apple", "orange", "application"}, "orangutan"), "No match")
+		
+		newMethod("listContain")
+		assertTrue(my listContains({"Term-$Cmd"}, "Term-$Cmd"), "With dollar")
 		
 		done()
 	end tell
