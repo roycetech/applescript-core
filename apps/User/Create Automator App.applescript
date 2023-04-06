@@ -37,7 +37,7 @@ set logger to std's import("logger")'s new(SCRIPT_NAME)
 logger's start()
 
 -- = Start of Code below =====================================================
-set syseve to std's import("syseve")'s new()
+set syseve to std's import("system-events")'s new()
 set fileUtil to std's import("file")
 set textUtil to std's import("string")
 set retry to std's import("retry")'s new()
@@ -116,7 +116,7 @@ on main()
 			exit repeat
 		end if
 	end repeat
-	assertThat of std given condition: computedProjectKey is not missing value, messageOnFail:"Error: Make sure you have registered the project containing " & SCRIPT_NAME & ". See its README.md for more details."
+	assertThat of std given condition:computedProjectKey is not missing value, messageOnFail:"Error: Make sure you have registered the project containing " & SCRIPT_NAME & ". See its README.md for more details."
 	
 	
 	(*		

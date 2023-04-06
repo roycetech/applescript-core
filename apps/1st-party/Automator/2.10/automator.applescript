@@ -360,13 +360,13 @@ end run
 					close workflows
 				end ignoring
 				exec of retry on DiscardChanges for 5
-				
+
 				quit
 				try
 					do shell script "pkill Automator" -- required that app is not running in the Dock.
 					delay 0.1
 				end try
-				
+
 				repeat while its running is true
 					delay 0.1
 				end repeat
@@ -383,14 +383,14 @@ end new
 on init()
 	if initialized of me then return
 	set initialized of me to true
-	
+
 	set std to script "std"
 	set logger to std's import("logger")'s new("automator")
-	
+
 	set proc to std's import("process")
-	set syseve to std's import("syseve")'s new()
+	set syseve to std's import("system-events")'s new()
 	set retry to std's import("retry")'s new()
 	set kb to std's import("keyboard")'s new()
-	
+
 	set configSystem to std's import("config")'s new("system")
 end init

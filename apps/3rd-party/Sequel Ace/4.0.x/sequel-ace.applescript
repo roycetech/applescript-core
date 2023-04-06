@@ -421,7 +421,7 @@ on init()
 	set std to script "std"
 	set logger to std's import("logger")'s new("sequel-ace")
 	set retry to std's import("retry")'s new()
-	set syseve to std's import("syseve")'s new()
+	set syseve to std's import("system-events")'s new()
 	set listUtil to std's import("list")
 	set kb to std's import("keyboard")'s new()
 	set textUtil to std's import("string")

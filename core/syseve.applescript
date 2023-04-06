@@ -6,7 +6,7 @@ global std
 	For additional functions related to a process/app, see process.applescript.
 	
 	Usage:
-		set syseve to std's import("syseve")
+		set syseve to std's import("system-events")
 	Or type: sset syseve
 *)
 
@@ -86,7 +86,7 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set logger to std's import("logger")'s new("syseve")
+	set logger to std's import("logger")'s new("system-events")
 end init
 
 -- EOS
