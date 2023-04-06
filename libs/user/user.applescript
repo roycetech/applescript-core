@@ -15,7 +15,7 @@ global std, cc, zoomApp
 *)
 
 property initialized : false
-property logger : missing value 
+property logger : missing value
 
 if name of current application is "Script Editor" then spotCheck()
 
@@ -28,13 +28,10 @@ on spotCheck()
 	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
-		Manual: In Meeting
-		Manual: Is Screen Sharing
+		Manual: Info
 		Manual: Get Meeting window
 		Manual: Cue for Touch ID
-		Manual: Done Audible Cue
-		
-		Manual: Is Online
+		Manual: Done Audible Cue		
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -48,22 +45,19 @@ on spotCheck()
 	set sut to new()
 	if caseIndex is 1 then
 		logger's infof("In Meeting: {}", sut's isInMeeting())
-		
-	else if caseIndex is 2 then
-		logger's infof("In Meeting: {}", sut's isScreenSharing())
-		
-	else if caseIndex is 3 then
-		logger's logObj("Meeting Window", sut's getMeetingWindow())
-		
-	else if caseIndex is 4 then
-		sut's cueForTouchId()
-		
-	else if caseIndex is 5 then
-		sut's done()
-		
-	else if caseIndex is 6 then
+		logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
 		logger's infof("Is Online?: {}", sut's isOnline())
 		
+	else if caseIndex is 2 then
+		
+		logger's logObj("Meeting Window", sut's getMeetingWindow())
+		
+	else if caseIndex is 3 then
+		sut's cueForTouchId()
+		
+	else if caseIndex is 4 then
+		sut's done()
+				
 	end if
 	
 	spot's finish()
@@ -107,12 +101,12 @@ on new()
 			end try
 			false
 		end isOnline
-
+		
 		on getOsMajorVersion()
 			set sysinfo to system info
 			return (do shell script "echo '" & system version of sysinfo & "' | cut -d '.' -f 1") as integer
 		end getOsMajorVersion
-
+		
 	end script
 	std's applyMappedOverride(result)
 end new
