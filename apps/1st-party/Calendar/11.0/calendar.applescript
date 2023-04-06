@@ -64,7 +64,7 @@ on spotCheck()
 	(* Manually configure this. *)
 	set spotData to {online_only:date "Wednesday, January 26, 2022 at 7:30:00 AM", online_and_offline:date "Wednesday, November 23, 2022 at 7:00:00 AM"}
 	
-	set spotLib to std's import("spot")'s new()
+	set spotLib to std's import("spot-test")'s new()
 	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
