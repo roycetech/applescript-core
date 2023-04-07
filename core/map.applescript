@@ -20,6 +20,7 @@ property logger : missing value
 if name of current application is "Script Editor" then spotCheck()
 
 try
+
 on error the errorMessage number the errorNumber
 	logger's finish() -- unlock the script active flag
 	error errorMessage
@@ -216,7 +217,7 @@ end newInstanceFromJson
 
 
 (* @deprecated use newInstanceFromRecord *)
-to fromRecord(theRecord as record)
+on fromRecord(theRecord as record)
 	set objCDictionary to current application's NSDictionary's dictionaryWithDictionary:theRecord
 	set allKeys to objCDictionary's allKeys()
 	set theMap to new()
@@ -231,7 +232,7 @@ to fromRecord(theRecord as record)
 end fromRecord
 
 
-to new()
+on new()
 	script ASDictionary
 		(* Private properties *)
 		property __keys : {}
