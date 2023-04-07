@@ -579,9 +579,8 @@ on init()
 	set textUtil to std's import("string")
 	set retry to std's import("retry")'s new()
 	set uni to std's import("unicodes")
-	set emoji to std's import("emoji")
 	set regex to std's import("regex")
-	set syseve to std's import("syseve")'s new()
+	set syseve to std's import("system-events")'s new()
 	set winUtil to std's import("window")'s new()
 	
 	set SEPARATOR to uni's SEPARATOR
