@@ -91,11 +91,7 @@ on spotCheck()
 				Two online meetings
 				One online, one offline meeting
 		*)
-		
-		try
-			sut's clearCache()
-		end try -- clear cache in not available by default but highly recommended
-		
+
 		tell sut
 			set its IS_TEST to true
 			set its TEST_DATETIME to online_and_offline of spotData
@@ -106,8 +102,8 @@ on spotCheck()
 		logger's infof("Meetings at this time: {}", meetingCount)
 		if meetingCount is not 0 then
 			repeat with nextMeeting in meetingsAtThisTime
-				set meetingASDictionary to map's fromRecord(nextMeeting)
-				logger's infof("Next meeting today: {}", meetingASDictionary's toStringPretty())
+				-- set meetingASDictionary to map's fromRecord(nextMeeting)
+				logger's infof("Next meeting today: {}", nextMeeting's toJSONString())
 			end repeat
 		end if
 		
@@ -258,7 +254,7 @@ on new()
 			
 			if TEST_DATETIME is missing value then
 				-- logger's debugf("IS_TEST: {}", IS_TEST)
-				return date "Thursday, February 23, 2023 at 7:30:00 AM"
+				return date "Monday, February 27, 2023 at 7:30:00 AM"
 			end if
 			
 			TEST_DATETIME
@@ -378,7 +374,6 @@ on new()
 				repeat with nextST in static texts of list 1 of group 1 of splitter group 1 of window "Calendar"
 					set meetingDetail to calendarEvent's new(nextST)
 					my _moveToNextEventViaUI()
-					
 					set end of meetingDetails to meetingDetail
 				end repeat
 			end tell
@@ -410,7 +405,7 @@ on new()
 			set activeMeetingIdx to 0
 			repeat with idx from (count meetingsToday) to 1 by -1
 				set meetingDetail to item idx of meetingsToday
-				(*
+(*
 				log title of meetingDetail
 				log startTime of meetingDetail
 *)
