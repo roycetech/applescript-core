@@ -32,7 +32,7 @@ on spotCheck()
 		Manual: Quit App (Running/Not Running)
 		Manual: Reveal Security & Privacy > Privacy		
 		Manual: Unlock Security & Privacy > Privacy (Unlock button must be visible already) 
-		Manual: Reveal Dictation
+		Manual: Reveal Voice Control
 		Manual: Toggle Voice Control
 		
 		Manual: Click Commands...
@@ -67,11 +67,11 @@ on spotCheck()
 		
 	else if caseIndex is 4 then
 		sut's quitApp()
-		sut's revealAccessibilityDictation()
+		sut's revealAccessibilityVoiceControl()
 		
 	else if caseIndex is 5 then
-		sut's revealAccessibilityDictation()
-		logger's infof("Toggle Voice Control: {}", sut's toggleVoiceVoiceControl())
+		sut's revealAccessibilityVoiceControl()
+		logger's infof("Toggle Voice Control: {}", sut's toggleVoiceControl())
 		
 	else if caseIndex is 6 then
 		logger's infof("Click Commands...: {}", sut's clickAccessibilityCommands())
@@ -143,39 +143,47 @@ on new()
 			exec of retry on result for 50 by 0.1
 		end revealSecurityAccessibilityPrivacy
 		
-		
-		-- Review below =====================
-		
-		on revealAccessibilityDictation()
+		on revealAccessibilityVoiceControl()
 			tell application "System Settings" to activate
 			
 			script PanelWaiter
 				tell application "System Settings"
-					reveal anchor "Dictation" of pane id "com.apple.preference.universalaccess"
+					set current pane to pane id "com.apple.Accessibility-Settings.extension"
+					-- reveal anchor "Voice Control" of current pane
 				end tell
 				
-				tell application "System Events" to tell process "System Preferences"
-					if exists (checkbox "Enable Voice Control" of group 1 of window "Accessibility") then return true
+				tell application "System Events" to tell process "System Settings"
+					if exists static text "Accessibility" of window "Accessibility" then return true
 				end tell
 			end script
 			exec of retry on result for 50 by 0.1
-		end revealAccessibilityDictation
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					click button 1 of group 3 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of window "Accessibility"
+				end try
+			end tell
+			delay 0.1
+		end revealAccessibilityVoiceControl
+		
+		-- Review below =====================
 		
 		
 		(*
-			Requires that the correct pane is already open. @See #revealAccessibilityDictation().
+			Requires that the correct pane is already open. @See #revealAccessibilityVoiceControl().
 			
 			@Requires administrator to grant access initially and install some software.
 			@returns true if it was turned to enabled, false if turned to disabled, missing value if the app is not running or if an error was encountered.
 		*)
-		on toggleVoiceVoiceControl()
+		on toggleVoiceControl()
 			if running of application "System Settings" is false then return missing value
 			
 			set currentState to -1
 			script ClickWaiter
-				tell application "System Events" to tell process "System Preferences" to tell window "Accessibility" to tell first group
-					set currentState to get value of checkbox "Enable Voice Control"
-					click checkbox "Enable Voice Control"
+				tell application "System Events" to tell process "System Settings" to tell window "Voice Control" to tell first group
+					-- set currentState to get value of checkbox "Enable Voice Control"
+					set currentState to get value of checkbox 1 of group 1 of scroll area 1 of group 1 of group 2 of splitter group 1
+					click checkbox "Voice Control" of group 1 of scroll area 1 of group 1 of group 2 of splitter group 1
 				end tell
 				true
 			end script
@@ -185,16 +193,16 @@ on new()
 			if currentState is not 0 then return false
 			
 			true
-		end toggleVoiceVoiceControl
+		end toggleVoiceControl
 		
 		on clickAccessibilityCommands()
 			if running of application "System Settings" is false then return false
 			
 			(* Detect when Commands List is already visible. *)
-			tell application "System Events" to tell process "System Preferences"
+			tell application "System Events" to tell process "System Settings"
 				try
-					set searchFieldPresent to exists (first text field of sheet 1 of window "Accessibility" whose value of attribute "AXIdentifier" is "Search Field")
-					set doneButtonPresent to exists (button "Done" of sheet 1 of window "Accessibility")
+					set searchFieldPresent to exists (first text field of sheet 1 of window "Voice Control" whose value of attribute "AXIdentifier" is "Search Field")
+					set doneButtonPresent to exists (button "Done" of sheet 1 of window "Voice Control")
 					
 					if searchFieldPresent and doneButtonPresent then return true
 				end try
@@ -203,9 +211,9 @@ on new()
 			logger's debug("Not already showing target sheet")
 			
 			script ClickRetrier
-				tell application "System Events" to tell process "System Preferences" to tell window "Accessibility" to tell first group
+				tell application "System Events" to tell process "System Settings" to tell window "Voice Control" to tell first group
 					try
-						click (first button whose name starts with "Commands")
+						click (first button of scroll area 1 of group 1 of group 2 of splitter group 1) -- Ventura removed the ability to click via name
 						true
 					on error the errorMessage number the errorNumber
 						logger's warn(errorMessage)
@@ -215,7 +223,7 @@ on new()
 			if (exec of retry on result for 50 by 0.1) is missing value then return false
 			
 			script FilterWaiter
-				tell application "System Events" to tell process "System Preferences" to tell window "Accessibility"
+				tell application "System Events" to tell process "System Settings" to tell window "Voice Control"
 					if exists text field 1 of sheet 1 then return true
 				end tell
 			end script
@@ -288,10 +296,8 @@ on new()
 		on _filterCommandsAndSetState(commandLabel, newState)
 			if running of application "System Settings" is false then return false
 			
-			
-			
 			-- try
-			tell application "System Events" to tell process "System Preferences" to tell window "Accessibility"
+			tell application "System Events" to tell process "System Settings" to tell window "Voice Control"
 				set value of text field 1 of sheet 1 to commandLabel
 				delay 0.2 -- breaks/does not work without this delay, retry doesn't work either.
 				
@@ -322,7 +328,7 @@ on new()
 			filterCommandsAndEnable("Turn off Voice Control")
 			
 			try
-				tell application "System Events" to tell process "System Preferences" to tell window "Accessibility" to tell first sheet
+				tell application "System Events" to tell process "System Settings" to tell window "Accessibility" to tell first sheet
 					click button "Done"
 				end tell
 				return true
@@ -366,7 +372,7 @@ on new()
 			try
 				tell application "System Settings" to quit
 			on error
-				do shell script "killall 'System Preferences'"
+				do shell script "killall 'System Settings'"
 			end try
 			
 			repeat while running of application "System Settings" is true
