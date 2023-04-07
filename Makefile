@@ -243,8 +243,13 @@ install-json:
 install-log4as:
 	./scripts/compile-lib.sh libs/log4as/log4as
 	./scripts/compile-lib.sh core/decorators/dec-logger-log4as
-	plutil -replace 'LoggerSpeechAndTrackingInstance' -string 'dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
-
+# 	plutil -replace 'LoggerSpeechAndTrackingInstance' -string 'dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
+	plutil -replace 'LoggerInstance' -string 'dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
+	cp -n plist.template ~/applescript-core/log4as.plist || true
+	plutil -replace 'defaultLevel' -string 'DEBUG' ~/applescript-core/log4as.plist
+	plutil -replace 'printToConsole' -bool true ~/applescript-core/log4as.plist
+	plutil -replace 'writeToFile' -bool true ~/applescript-core/log4as.plist
+	plutil -insert Categories -xml "<dict></dict>" ~/applescript-core/log4as.plist || true
 
 compile-redis:
 	./scripts/compile-lib.sh libs/redis/redis
