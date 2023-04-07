@@ -14,7 +14,7 @@ help:
 # CORE_LIBS := std config logger plutil string
 CORE_LIBS :=  clipboard config date-time dialog emoji file idler keyboard list \
 logger map plutil process regex retry spot-test std string string-builder \
-speech stack switch  system-events ui-util unicodes unit-test user window
+speech stack switch  system-events ui-util unicodes unit-test window
 
 APPS_PATH=/Applications/AppleScript
 
@@ -25,6 +25,7 @@ _init:
 	mkdir -p "/Applications/AppleScript/Stay Open/"
 	cp -n config-default.template ~/applescript-core/config-default.plist || true
 	cp -n config-emoji.template ~/applescript-core/config-emoji.plist || true
+	cp -n plist.template ~/applescript-core/config-lib-factory.plist || true
 	cp -n plist.template ~/applescript-core/lov.plist || true
 	cp -n plist.template ~/applescript-core/config-system.plist || true
 	cp -n plist.template ~/applescript-core/session.plist || true
@@ -161,7 +162,7 @@ install-notification-center:
 	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center-helper"
 
 # 3rd Party Apps Library
-install-1password:
+install-1password: install-cliclick
 	./scripts/compile-lib.sh apps/3rd-party/1Password/v6/1password
 
 install-atom:  ## Deprecated
@@ -188,6 +189,12 @@ install-sequel-ace:
 
 install-sublime-text:
 	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/sublime-text
+	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/dec-syseve-with-sublime-text
+	osascript ./scripts/setup-sublime-text-cli.applescript
+	plutil \
+		-replace 'SysEveInstance' \
+		-string 'dec-syseve-with-sublime-text' \
+		~/applescript-core/config-lib-factory.plist
 
 install-text-mate:
 	./scripts/compile-lib.sh apps/3rd-party/TextMate/2.0.x/text-mate
@@ -211,6 +218,9 @@ install-zoom: compile-zoom
 	plutil -replace 'CalendarEventLibrary' -string 'dec-calendar-event-zoom' ~/applescript-core/config-lib-factory.plist
 
 # Other libraries
+install-counter:
+	./scripts/compile-lib.sh libs/counter-plist/counter
+
 install-user:
 	./scripts/compile-lib.sh libs/user/user
 
@@ -243,6 +253,9 @@ compile-redis:
 install-redis: compile-redis
 	osascript ./scripts/setup-redis-cli.applescript
 
+install-timed-cache:
+	cp -n plist.template ~/applescript-core/timed-cache.plist || true
+	./scripts/compile-lib.sh libs/timed-cache-plist/timed-cache-plist
 
 # 	osacompile -o ~/Library/Script\ Libraries/redis.scpt redis.applescript
 

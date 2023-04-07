@@ -4,8 +4,8 @@ global CACHE
 (*
 	set tcache to std's import("timed-cache-plist")
 
-	@Compile:
-		make compile-lib SOURCE=libs/timed-cache-plist/timed-cache-plist
+	@Install:
+		make install-timed-cache
 
 	@References:
 		* config.plist - Timed Cache List
