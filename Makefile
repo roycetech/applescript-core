@@ -1,3 +1,5 @@
+OS := $(shell osascript -e "system version of (system info)" | cut -d '.' -f 1 | awk '{if ($$1 ~ /^13/) print "ventura"; else if ($$1 ~ /^12/) print "monterey"; else print "unknown"}')
+
 help:
 	@echo "make install - Create config files, assets, and install essential
 	libraries."
@@ -95,6 +97,9 @@ install-calendar:
 install-system-preferences:
 	./scripts/compile-lib.sh "apps/1st-party/System Preferences/15.0/system-preferences"
 
+install-system-settings:
+	./scripts/compile-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
+
 
 compile-safari:
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari
@@ -130,13 +135,25 @@ uninstall-automator:
 	# TODO:
 
 
-
 compile-terminal:
+ifeq ($(OS), ventura)
+	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/terminal
+	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-output
+	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-path
+	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-prompt
+	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-run
+
+else ifeq ($(OS), monterey)
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/terminal
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-output
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-path
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-run
+
+else
+	@echo "Hello Something Else"
+endif
+
 	./scripts/compile-lib.sh libs/sftp/dec-terminal-prompt-sftp
 
 install-terminal: compile-terminal
