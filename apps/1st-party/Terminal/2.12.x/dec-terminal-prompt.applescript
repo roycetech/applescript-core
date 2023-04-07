@@ -46,6 +46,9 @@ on spotCheck()
 	
 	if caseIndex is 1 then
 		logger's infof("Is Shell Prompt: {}", frontTab's isShellPrompt())
+		logger's infof("Is SSH: {}", frontTab's isSSH())
+		logger's infof("Is zsh: {}", frontTab's isZSH())
+		logger's infof("Is bash: {}", frontTab's isBash())
 		
 	else if caseIndex is 2 then
 		(* Can use "sleep 5" to test. *)
@@ -163,7 +166,7 @@ on decorate(termTabScript)
 			if isSSH() then
 				return true
 				
-			else if isZsh() then
+			else if isZSH() then
 				-- logger's debug("zsh...")
 				set promptText to getPromptText()
 				-- logger's debugf("promptText: {}", promptText)
@@ -182,14 +185,14 @@ on decorate(termTabScript)
 			
 			set rtrimmedHistory to textUtil's rtrim(history as text)
 			-- set isSsh to last item of termProcesses is "ssh"
-			set isSSH to lastProcess is "ssh"
-			-- logger's debugf("isSsh: {}", isSsh)
+			set localIsSSH to lastProcess is "ssh"
+			-- logger's debugf("localIsSSH: {}", localIsSSH)
 			-- set isDocker to last item of termProcesses is "com.docker.cli"
 			set isDocker to lastProcess is "com.docker.cli"
 			-- logger's debugf("isDocker: {}", isDocker)
 			-- ssh prompt can be # or $.
 			-- logger's debugf("my promptEndChar: {}", my promptEndChar)
-			set isSshShell to isSSH and ((rtrimmedHistory ends with "#") or (rtrimmedHistory ends with "$"))
+			set isSshShell to localIsSSH and ((rtrimmedHistory ends with "#") or (rtrimmedHistory ends with "$"))
 			-- logger's debugf("isSshShell: {}", isSshShell)
 			isDocker and rtrimmedHistory ends with "#" or isSshShell or rtrimmedHistory ends with my promptEndChar or regex's matchesInString("bash-\\d(?:\\.\\d)?[#\\$]$", rtrimmedHistory)
 		end isShellPrompt
@@ -205,7 +208,7 @@ on decorate(termTabScript)
 		*)
 		on getPromptText()
 			-- logger's debug("getPromptText...")
-			if not isZsh() then
+			if not isZSH() then
 				logger's warn("Bash is not yet implemented.")
 				return missing value
 			end if
