@@ -19,7 +19,7 @@ global IS_SPOT
 *)
 
 use framework "Foundation"
-use framework "AppKit"
+use framework "AppKit" 
 use framework "Cocoa"
 
 use script "Core Text Utilities"
@@ -69,7 +69,7 @@ end makeStatusBar
 
 on clearMenuItems()
 	repeat while (newMenu's numberOfItems() > 0)
-	  newMenu's removeItemAtIndex:0
+		newMenu's removeItemAtIndex:0
 	end repeat
 end clearMenuItems
 
@@ -90,7 +90,7 @@ on makeMenus()
 		
 		set autoIncrementState to switch's active("Auto Increment Case Index")
 		set autoIncMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:("Auto Increment") action:("autoIncrementAction:") keyEquivalent:"")
-		autoIncMenuItem's setState:(autoIncrementState)		
+		autoIncMenuItem's setState:(autoIncrementState)
 		(newMenu's addItem:autoIncMenuItem)
 		(autoIncMenuItem's setTarget:me)
 		
@@ -100,7 +100,7 @@ on makeMenus()
 		set autoIncAltMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:altLabel action:("autoIncrementAction:") keyEquivalent:"")
 		set autoIncAltMenuItem's alternate to true
 		autoIncAltMenuItem's setState:(autoIncrementState)
-
+		
 		(autoIncAltMenuItem's setKeyEquivalentModifierMask:(current application's NSEventModifierFlagOption))
 		(newMenu's addItem:autoIncAltMenuItem)
 		(autoIncAltMenuItem's setTarget:me)
