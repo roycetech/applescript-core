@@ -5,6 +5,7 @@ global std
 		Sublime Text app installed.
 
 	@Install/Uninstall:
+		make install-sublime-text
 		Install/Uninstall this with the other Sublime Text related libraries by 
 		running `make install` or make uninstall in this file's sub directory.
 *)
@@ -31,7 +32,7 @@ on spotCheck()
 	set spot to spotLib's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
-	set sut to std's import("syseve")'s new()
+	set sut to std's import("system-events")'s new()
 	if name of sut is not "SyseveSublimeTextInstance" then set sut to decorate(sut)
 	
 	activate application "Sublime Text"
