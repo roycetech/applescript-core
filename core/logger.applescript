@@ -1,4 +1,4 @@
-global std, sessionPlist, textUtil
+global std, textUtil
 global CR
 
 (*
@@ -76,7 +76,7 @@ on new(pObjectName)
 		(*
 			Used only for debugging. Could not print record contents.
 		*)
-		to logObj(label, obj)
+		on logObj(label, obj)
 			debug(label & ": " & _toString(obj))
 		end logObj
 		
@@ -125,21 +125,22 @@ on new(pObjectName)
 		
 		
 		on debug(thisInfo)
-			try
-				sessionPlist
-			on error
-				set plutil to std's import("plutil")'s new()
-				set sessionPlist to plutil's new("session")
-			end try
+			-- try
+			-- 	sessionPlist
+			-- on error
+			-- 	set plutil to std's import("plutil")'s new()
+			-- 	set sessionPlist to plutil's new("session")
+			-- end try
 			
-			if sessionPlist's debugOn() is false then return
+			-- if sessionPlist's debugOn() is false then return
 			
-			-- if config's debugOn() is true then
-			if sessionPlist's debugOn() is true then
-				info("D " & _toString(thisInfo))
-			end if
-		end debug
-		
+			-- -- if config's debugOn() is true then
+			-- if sessionPlist's debugOn() is true then
+			-- 	info("D " & _toString(thisInfo))
+			-- end if
+
+			info("D " & _toString(thisInfo))
+		end debug		
 		
 		on warn(thisMessage)
 			info("W " & _toString(thisMessage))
