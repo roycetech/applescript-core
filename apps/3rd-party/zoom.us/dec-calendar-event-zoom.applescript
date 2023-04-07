@@ -1,4 +1,4 @@
-global std, usr, regex
+global std, regex
 
 (*
 	@Testing Note:
@@ -95,7 +95,13 @@ on decorate(mainScript)
 		on extractMeetingId(meetingStaticText)
 			set isSpot to name of current application is "Script Editor"
 			if isSpot is true then
-				set meetingDescription to |description| of meetingStaticText
+				try
+					set meetingDescription to |description| of meetingStaticText
+				on error
+					tell application "System Events" to tell process "Calendar"
+						set meetingDescription to description of meetingStaticText
+					end tell
+				end try
 			else
 				tell application "System Events" to tell process "Calendar"
 					set meetingDescription to description of meetingStaticText
@@ -108,7 +114,13 @@ on decorate(mainScript)
 		on extractMeetingPassword(meetingStaticText)
 			set isSpot to name of current application is "Script Editor"
 			if isSpot is true then
-				set meetingDescription to |description| of meetingStaticText
+				try
+					set meetingDescription to |description| of meetingStaticText
+				on error
+					tell application "System Events" to tell process "Calendar"
+						set meetingDescription to description of meetingStaticText
+					end tell
+				end try
 			else
 				tell application "System Events" to tell process "Calendar"
 					set meetingDescription to description of meetingStaticText
@@ -130,7 +142,6 @@ on init()
 	set initialized of me to true
 	
 	set std to script "std"
-	set usr to std's import("user")'s new()
 	set logger to std's import("logger")'s new("dec-calendar-event-zoom")
 	set regex to std's import("regex")
 end init
