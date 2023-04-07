@@ -1,4 +1,4 @@
-global std, textUtil, retry, uni, regex, syseve, winUtil
+global std, textUtil, retry, uni, regex, syseve, winUtil, kb
 
 use script "Core Text Utilities"
 use scripting additions
@@ -9,6 +9,9 @@ use scripting additions
 	FOR REDESIGN:
 		Currently configured for using a specific OMZ Theme.
 	Dependent on your Terminal configuration for window/tab items.
+
+	@Version:
+		macOS Ventura
 
 	@Usage:
 		set terminal to std's import("terminal")'s new()
@@ -503,8 +506,10 @@ on new()
 					set commandWords to count of words of lingeringCommand
 					
 					focus()
-					repeat until getLingeringCommand() is missing value
-						tell application "System Events" to key code 13 using {control down} -- w
+					set maxTry to 50 -- 5 / 0.1 = 5 seconds.
+					repeat until getLingeringCommand() is missing value or maxTry is greater than 0
+						set maxTry to maxTry - 1
+						kb's pressControlKey("w")
 						delay 0.1
 					end repeat
 				end clearLingeringCommand
@@ -587,6 +592,7 @@ on init()
 	set regex to std's import("regex")
 	set syseve to std's import("system-events")'s new()
 	set winUtil to std's import("window")'s new()
+	set kb to std's import("keyboard")'s new()
 	
 	set SEPARATOR to uni's SEPARATOR
 end init
