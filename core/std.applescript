@@ -71,7 +71,7 @@ on applyMappedOverride(scriptObj)
 		set AppleScript's text item delimiters to oldDelimiters
 		repeat with nextElement in the array
 			try
-				set factoryScript to import(nextElement)				
+				set factoryScript to import(nextElement)
 				set scriptObj to factoryScript's decorate(scriptObj)
 			end try
 			
@@ -99,17 +99,20 @@ on catch(source, errorNumber, errorMessage)
 	end if
 	
 	if errorMessage contains "is not allowed to send keystrokes" or errorMessage contains "is not allowed assistive access" then
-		-- This is likely to break on macOS Upgrade.
-		tell application "System Preferences"
-			activate
-			reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
-			delay 1
-		end tell
 		
-		tell application "System Events" to tell process "System Preferences"
-			click button "Click the lock to make changes." of window "Security & Privacy"
-			std's cueForTouchId()
-		end tell
+		try
+			tell application "System Settings"
+				activate
+				reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
+				delay 1
+			end tell
+			
+			tell application "System Events" to tell process "System Preferences"
+				click button "Click the lock to make changes." of window "Security & Privacy"
+				std's cueForTouchId()
+			end tell
+		end try -- above was designed only for macOS Monterey, breaks on 
+		-- Ventura. TODO: Figure out design for proper handling.
 		return
 	end if
 	
