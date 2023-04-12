@@ -3,6 +3,10 @@ global std, retry, regex, dock, winUtil, safariJavaScript, textUtil, uiUtil, uni
 (*
 	This script library is a wrapper to Safari application.
 
+	@Prerequisites
+		This library is designed initially to handle when new windows are opened 
+		with Start Page. To support other configurations.
+
 	@Installation:
 		
 	This library creates 2 instances:
@@ -18,7 +22,7 @@ global std, retry, regex, dock, winUtil, safariJavaScript, textUtil, uiUtil, uni
 
 		set theTab to safTabLib's getFrontTab()
 		tell theTab
-			log name of its theWindow as text
+			log name of its appWindow as text
 			return
 			setValueById("comment_msn_description", "you
 			
@@ -128,15 +132,16 @@ on spotCheck()
 		logger's infof("Current Group Name: {}", sut's getGroupName())
 		
 	else if caseIndex is 6 then
-		
-	else if caseIndex is 7 then
 		-- sut's switchGroup("Unicorn") -- not found
 		sut's switchGroup("Music")
+		
+	else if caseIndex is 7 then
+		sut's newWindow("https://www.example.com")
+		log name of appWindow of result as text
 		
 		-- BELOW FOR REVIEW.
 		
 	else if caseIndex is 3 then
-		sut's newWindow("https://www.example.com")
 		
 		
 	else if caseIndex is 3 then
@@ -497,24 +502,36 @@ on new()
 			tell application "System Events" to tell process "Safari"
 				if (not safariAppRunning) or not (exists window "Start Page") then
 					dock's newSafariWindow()
+					-- delay 1 -- trying to solve issue with page load.
 				end if
 			end tell
 			
 			script StartPageWaiter
-				-- tell application "Safari" to set windowId to id of window "Start Page" -- New window will not always start with "Start Page"
-				tell application "Safari" to set windowId to id of front window
+				tell application "Safari" to set windowId to id of window "Start Page" -- New window will not always start with "Start Page"
+				-- tell application "Safari" 
+				-- 	if name of front window is not "Start Page" then return missing value
+				
+				-- 	set windowId to id of front window
+				-- end tell
+				
 				windowId
 			end script
 			set windowId to exec of retry on result for 3
+			assertThat of std given condition:windowId is not missing value, messageOnFail:"Failed to initialize safari window to a valid state"
 			
-			set newSafariTabInstance to _new(windowId, 1)
+			tell application "Safari"
+				set newSafariTabInstance to my _new(windowId, count of tabs of window "Start Page")
+			end tell
 			newSafariTabInstance's focus()
 			
-			script Resilient
-				tell application "Safari" to set URL of front document to targetUrl -- can't avoid focusing the address bar for fresh pages.
-				true
-			end script
-			exec of retry on result for 3
+			-- script Resilient
+			-- 	tell application "Safari" to set URL of front document to targetUrl -- can't avoid focusing the address bar for fresh pages.
+			-- 	true
+			-- end script
+			-- exec of retry on result for 3
+			
+			-- retry causing double visit to the URL
+			tell application "Safari" to set URL of front document to targetUrl -- can't avoid focusing the address bar for fresh pages.
 			
 			newSafariTabInstance
 		end newWindow
@@ -543,15 +560,15 @@ on new()
 			
 			-- logger's debugf("theUrl: {}", theUrl)
 			tell application "Safari"
-				set theWindow to first window
-				tell theWindow to set current tab to (make new tab with properties {URL:targetUrl})
-				set miniaturized of theWindow to false
-				set tabTotal to count of tabs of theWindow
+				set appWindow to first window
+				tell appWindow to set current tab to (make new tab with properties {URL:targetUrl})
+				set miniaturized of appWindow to false
+				set tabTotal to count of tabs of appWindow
 				
 				(* Safari 15 Fix to intermittent loading bug. *)
 				(* 
 		script BugWaiter
-			tell document of theWindow
+			tell document of appWindow
 				if its name is "Start Page" then return missing value
 
 				if its name is not "Untitled" then return true
@@ -560,11 +577,11 @@ on new()
 			end tell
 		end script
 		set waitResult to retry's exec on result for 3
-		if waitResult is missing value then set URL of document of theWindow to theUrl
+		if waitResult is missing value then set URL of document of appWindow to theUrl
 		*)
 			end tell
 			
-			_new(id of theWindow, tabTotal)
+			_new(id of appWindow, tabTotal)
 		end newTab
 		
 		on newCognito(targetUrl)
@@ -703,37 +720,37 @@ on new()
 					end script
 					exec of retry on result for maxTryTimes by sleepSec
 				end waitForPageLoad
-
+				
 				on waitInSource(substring)
 					script SubstringWaiter
 						if getSource() contains substring then return true
 					end script
 					exec of retry on result for maxTryTimes by sleepSec
 				end waitInSource
-
+				
 				on getSource()
 					tell application "Safari"
 						try
 							return (source of my getDocument()) as text
 						end try
 					end tell
-
+					
 					missing value
 				end getSource
-
+				
 				on getURL()
 					tell application "Safari"
 						try
 							return URL of my getDocument()
 						end try
 					end tell
-
+					
 					missing value
 				end getURL
-
+				
 				on getAddressBarValue()
 					if hasToolBar() is false then return missing value
-
+					
 					tell application "System Events" to tell process "Safari"
 						try
 							set addressBarValue to value of text field 1 of last group of toolbar 1 of my getSysEveWindow()
@@ -743,71 +760,71 @@ on new()
 					end tell
 					missing value
 				end getAddressBarValue
-
+				
 				on goto(targetUrl)
 					script PageWaiter
-
-						-- tell application "Safari" to set URL of document (name of my theWindow) to targetUrl
+						
+						-- tell application "Safari" to set URL of document (name of my appWindow) to targetUrl
 						tell application "Safari" to set URL of my getDocument() to targetUrl
 						true
 					end script
 					exec of retry on result for 2
 					delay 0.1 -- to give waitForPageLoad ample time to enter a loading state.
 				end goto
-
-
+				
+				
 				(* Note: Will dismiss the prompt of the*)
 				on dismissPasswordSavePrompt()
 					focus()
 					script PasswordPrompt
 						tell application "System Events" to tell process "Safari"
 							click button "Not Now" of sheet 1 of front window
-							-- we need system event window, theWindow is app Safari window so it would not work here.
+							-- we need system event window, appWindow is app Safari window so it would not work here.
 							true
 						end tell
 					end script
 					exec of retry on result for 5 -- let's try click it 5 times, ignoring outcomes.
 				end dismissPasswordSavePrompt
-
+				
 				on extractUrlParam(paramName)
 					tell application "Safari" to set _url to URL of my getDocument()
 					set pattern to format {"(?<={}=)\\w+", paramName}
 					set matchedString to regex's findFirst(_url, pattern)
 					if matchedString is "nil" then return missing value
-
+					
 					matchedString
 				end extractUrlParam
-
-
+				
+				
 				on getWindowId()
 					id of appWindow
 				end getWindowId
-
+				
 				on getWindowName()
 					name of appWindow
 				end getWindowName
-
+				
 				on getDocument()
 					tell application "Safari"
 						document (my getWindowName())
 					end tell
 				end getDocument
-
-
+				
+				
 				on getSysEveWindow()
 					tell application "System Events" to tell process "Safari"
 						return window (name of appWindow)
 					end tell
 				end getSysEveWindow
 			end script
-
+			
 			tell application "Safari"
 				set appWindow of SafariTabInstance to window id windowId
 				set _url of SafariTabInstance to URL of document of window id windowId
 				set _tab of SafariTabInstance to item pTabIndex of tabs of appWindow of SafariTabInstance
 			end tell
 			set theInstance to safariJavaScript's decorate(SafariTabInstance)
-
+			
 			(*
 			if javaScriptSupport then
 				set js_tab to std's import("javascript-next")
@@ -819,10 +836,10 @@ on new()
 				set theInstance to jq's newInstance(theInstance)
 			end if
 			*)
-
+			
 			theInstance
 		end _new
-
+		
 		(*
 			Finds the address bar group by iterating from last to first, returning the first group with a text field.
 
@@ -830,13 +847,13 @@ on new()
 		*)
 		on _getAddressBarGroup()
 			if running of application "Safari" is false then return missing value
-
+			
 			set addressBarGroupIndex to 0
 			tell application "System Events" to tell process "Safari"
 				set toolbarGroups to groups of toolbar 1 of front window
 				repeat with i from (count of toolbarGroups) to 1 by -1
 					set nextGroup to item i of toolbarGroups
-
+					
 					if exists text field 1 of nextGroup then
 						set addressBarGroupIndex to i
 						exit repeat
@@ -845,7 +862,7 @@ on new()
 				group addressBarGroupIndex of toolbar 1 of front window
 			end tell
 		end _getAddressBarGroup
-
+		
 	end script
 end new
 
@@ -854,7 +871,7 @@ end new
 on init()
 	if initialized of me then return
 	set initialized of me to true
-
+	
 	set std to script "std"
 	set logger to std's import("logger")'s new("safari")
 	set safariJavaScript to std's import("safari-javascript")
