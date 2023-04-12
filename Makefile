@@ -175,8 +175,17 @@ install-dock:
 	./scripts/compile-lib.sh "macOS-version/12-monterey/dock"
 
 install-notification-center:
+ifeq ($(OS), ventura)
+	./scripts/compile-lib.sh "macOS-version/13-ventura/notification-center"
+	./scripts/compile-lib.sh "macOS-version/13-ventura/notification-center-helper"
+
+else ifeq ($(OS), monterey)
 	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center"
 	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center-helper"
+
+else
+	@echo "Unsupported macOS version for notification-center"
+endif
 
 # 3rd Party Apps Library
 install-1password: install-cliclick
