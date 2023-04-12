@@ -25,7 +25,7 @@ on spotCheck()
 		Manual: Unlocked (yes, no)
 		Manual: Retrieve a password
 		Retrieve a password via mini - Manual (Takes 1s vs 3s for the standard.)
-		Retrieve a OTP via mini
+		Retrieve an OTP via mini
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -35,9 +35,9 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-
-
-
+	
+	
+	
 	set sut to new()
 	set spotCredKey to "AppleScript Core"
 	
@@ -281,6 +281,7 @@ on new()
 		end selectCategory
 		
 		on doGetUsernameAndPassword(credKey)
+			set retry to retryLib's new()
 			script SearchInitializer
 				doClearSearch()
 				doSearch("applescript")
@@ -293,7 +294,7 @@ on new()
 			script CredSearched
 				doClearSearch()
 				doSearch(credKey)
-
+				
 				if doGetUsernamePrivate() is not equal to "applescript" then return true
 			end script
 			
@@ -495,8 +496,8 @@ on new()
 				end repeat
 			end tell
 		end doGetOTPPrivate
-
-
+		
+		
 		(* Private handler, do not invoke directly in client code. Use doGetUsername with built-in retry mechanism instead. *)
 		on doGetUsernamePrivate()
 			tell application "System Events" to tell process "1Password 6"
@@ -513,8 +514,8 @@ on new()
 				end repeat
 			end tell
 		end doGetUsernamePrivate
-
-
+		
+		
 		(* Not accessible so we find the button beside it adjust the pointer from there. *)
 		on _clickTouchId()
 			tell application "System Events" to tell process "1Password 6"
