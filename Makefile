@@ -252,6 +252,9 @@ install-cliclick:
 	./scripts/compile-lib.sh libs/cliclick/cliclick
 	osascript libs/cliclick/setup-cliclick-cli.applescript
 
+install-jira:
+	./scripts/compile-lib.sh libs/jira/jira
+
 
 # Optional with 3rd party app dependency.
 install-json:
