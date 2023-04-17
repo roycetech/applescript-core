@@ -30,7 +30,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Manual: Switch Profile: Found
 		Manual: Switch Profile: Not Found
-		Switch Profile: Atom		
+		Manual: Switch Profile: Percipio
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -42,7 +42,7 @@ on spotCheck()
 	end if
 	
 	set sut to new()
-	if caseDesc starts with "Switch Profile:" then
+	if caseDesc starts with "Manual: Switch Profile:" then
 		set caseProfile to textUtil's stringAfter(caseDesc, "Switch Profile: ")
 		logger's debugf("caseProfile: {}", caseProfile)
 		sut's switchProfile(caseProfile)
@@ -53,6 +53,9 @@ on spotCheck()
 		
 	else if caseIndex is 2 then
 		logger's infof("Switch Profile: Not Found: {}", sut's switchProfile("Unicorn"))
+		
+	else if caseIndex is 3 then
+		logger's infof("Switch Profile: Percipio: {}", sut's switchProfile("Percipio"))
 		
 	end if
 	
