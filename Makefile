@@ -213,6 +213,9 @@ install-step-two:
 install-sequel-ace:
 	./scripts/compile-lib.sh apps/3rd-party/Sequel Ace/4.0.x/sequel-ace
 
+install-stream-deck:
+	./scripts/compile-lib.sh apps/3rd-party/Stream Deck/6.x/stream-deck
+
 install-sublime-text:
 	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/sublime-text
 	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/dec-syseve-with-sublime-text
