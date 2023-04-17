@@ -1,4 +1,4 @@
-global std, retry, regex, kb
+global std, regex, kb, retryLib
 global zoomParticipants, zoomWindow, zoomActions
 global configZoom, configBusiness
 
@@ -159,6 +159,7 @@ on new()
 		
 		
 		on _loginViaSSO()
+			set retry to retryLib's new()
 			set signInDialog to missing value
 			tell application "System Events" to tell process "zoom.us"
 				try
@@ -205,6 +206,7 @@ on new()
 		
 		
 		on doClickJoin()
+			set retry to retryLib's new()
 			tell application "System Events" to tell process "zoom.us"
 				tell window "Zoom" to click (first button whose description is "Join Meeting")
 			end tell
@@ -238,6 +240,7 @@ on new()
 		
 		(* Used to detect that meeting has loaded and is in progress*)
 		on doWaitForMeetingInProgress()
+			set retry to retryLib's new()
 			script UnmuteWaiter
 				tell application "System Events" to tell process "zoom.us"
 					if exists (first button of window "Zoom Meeting" whose description starts with "Unmute") then return true
@@ -257,6 +260,8 @@ on new()
 			@returns "login" or "passcode" or "ready"
 		*)
 		on waitForNextStepAfterJoining()
+			set retry to retryLib's new()
+			
 			script ReadyWaiter
 				tell application "System Events" to tell process "zoom.us"
 					try
@@ -311,7 +316,7 @@ on init()
 	set plutil to std's import("plutil")'s new()
 	set configZoom to plutil's new("zoom.us/config")
 	
-	set retry to std's import("retry")'s new()
+	set retryLib to std's import("retry")
 	set regex to std's import("regex")
 	set kb to std's import("keyboard")'s new()
 	
