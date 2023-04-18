@@ -10,8 +10,15 @@ global CLICLICK_CLI
 		
 	@Session:
 		Pointer Position
+		
+	@Plists
+		config-system
+			cliclick CLI
 
 *)
+
+use script "Core Text Utilities"
+use scripting additions
 
 property initialized : false
 property logger : missing value
@@ -25,6 +32,10 @@ on spotCheck()
 	logger's start()
 	
 	logger's infof("Current Coord: {}:{}", getCurrentCoord())
+	
+	
+	unitTest()
+	return
 	
 	-- Manual Test with Automator.
 	-- Create a Voice Command, and this will try to click on the inaccessible Voice Command input.
@@ -141,7 +152,7 @@ end rclickAtXy
 	-e is for easing, to make it move human-like, sometimes necessary for some
 	UIs to detect and respond to.
 *)
-to lclickAtXy(x, y)
+on lclickAtXy(x, y)
 	saveCurrentPosition()
 	
 	set formattedCoord to formatCoordinates(x, y)
@@ -267,23 +278,18 @@ end getCoord
 
 -- Unit Tests here
 on unitTest()
-	set actual101 to formatCoordinates(1, 1)
-	set case101 to "Case 101: Both positive"
-	std's assert("1,1", actual101, case101)
-	
-	set actual102 to formatCoordinates(1, -1)
-	set case102 to "Case 101: Left positive"
-	std's assert("1,=-1", actual102, case102)
-	
-	set actual103 to formatCoordinates(-1, 1)
-	set case103 to "Case 103: Right positive"
-	std's assert("=-1,1", actual103, case103)
-	
-	set actual104 to formatCoordinates(-1, -1)
-	set case104 to "Case 101: Both negative"
-	std's assert("=-1,=-1", actual104, case104)
-	
-	std's utDone()
+	set utLib to std's import("unit-test")
+	set ut to utLib's new()
+	tell ut
+		newMethod("formatCoordinates")
+		-- expected, actual, description
+		assertEqual("1,1", my formatCoordinates(1, 1), "Both positive")
+		assertEqual("1,=-1", my formatCoordinates(1, -1), "Left positive")
+		assertEqual("=-1,1", my formatCoordinates(-1, 1), "Right positive")
+		assertEqual("=-1,=-1", my formatCoordinates(-1, -1), "Both negative")
+		
+		done()
+	end tell
 end unitTest
 
 
@@ -292,14 +298,14 @@ on formatCoordinates(x, y)
 	if x is less than 0 then set x to "=" & x
 	if y is less than 0 then set y to "=" & y
 	
-	return x & "," & y as text
+	format {"{},{}", {x, y}}
 end formatCoordinates
 
 
 (* Constructor. When you need to load another library, do it here. *)
 on init()
 	try
-	set CLICLICK_CLI to do shell script "plutil -extract \"cliclick CLI\" raw ~/applescript-core/config-system.plist"
+		set CLICLICK_CLI to do shell script "plutil -extract \"cliclick CLI\" raw ~/applescript-core/config-system.plist"
 	on error
 		error "cliclick was not found. Download cli then run make install-cliclick"
 	end try
