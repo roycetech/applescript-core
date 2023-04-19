@@ -280,8 +280,8 @@ on new()
 						perform action "AXShowMenu" of (first menu button of splitter group 1 of splitter group 1 of group 1 of splitter group 1 of window (name of my appWindow) whose title starts with "Run")
 					end tell
 					
-					
 					kb's pressKey("down")
+					kb's pressKey("down") -- Run All Queries
 					kb's pressKey("enter")
 				end runQuery
 				
