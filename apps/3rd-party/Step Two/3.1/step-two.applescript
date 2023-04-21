@@ -92,6 +92,14 @@ on newRetriever(credKey)
 			minimizing the Step Two app window before returning the otp.
 		*)
 		on getOTP()
+			if running of application "Step Two" is false then
+				activate application "Step Two"
+			else
+				tell application "System Events" to tell process "Dock"
+					perform action "AXPress" of UI element "Step Two" of list 1
+				end tell
+			end if
+			
 			local stepTwo
 			set stepTwo to new()
 			set secondsUntilNext to stepTwo's getSecondsRemaining()
