@@ -21,7 +21,7 @@ on spotCheck()
 	
 	-- If you haven't got these imports already.
 	set cases to listUtil's splitByLine("
-		To JSON String
+		Manual: To JSON String
 		Manual: Find a suitable calendar event for testing.
 	")
 	
@@ -35,7 +35,7 @@ on spotCheck()
 	
 	set calendarEventLib to new()
 	if caseIndex is 1 then
-		set sut to calendarEventLib's new({|description|:"Spot Meeting. Starts on Apr 9"})
+		set sut to calendarEventLib's new({|description|:"Spot Meeting. Starts on Apr 9., "})
 		logger's infof("JSON String: {}", sut's toJsonString())
 		
 	else if caseIndex is 2 then
@@ -77,6 +77,7 @@ on new()
 				property body : missing value
 				property active : false
 				property actioned : true
+				property accepted : false
 				
 				on isOnline()
 					meetingId is not missing value
@@ -95,8 +96,8 @@ Passcode: {}
 				
 				(* BattleScar, interpolation bugs out. *)
 				on toJsonString()
-					set attributeNames to listUtil's _split("title, organizer, startTime, endTime, meetingId, meetingPassword, passcode, active, actioned", ", ")
-					set attributeValues to {my title, my organizer, my startTime, my endTime, my meetingId, my meetingPassword, my passcode, my active, my actioned}
+					set attributeNames to listUtil's _split("title, organizer, startTime, endTime, meetingId, meetingPassword, passcode, active, actioned, accepted", ", ")
+					set attributeValues to {my title, my organizer, my startTime, my endTime, my meetingId, my meetingPassword, my passcode, my active, my actioned, my accepted}
 					
 					set nameValueList to {}
 					set jsonBuilder to sb's new("{")
@@ -162,6 +163,7 @@ Passcode: {}
 				-- set its meetingPassword to regex's firstMatchInString("(?<=pwd=)\\w+", meetingDescription)
 				set its meetingPassword to my extractMeetingPassword(meetingStaticText)
 				set its actioned to meetingDescription does not end with "Needs action"
+				set its accepted to meetingDescription does not end with "Needs action" and textUtil's rtrim(meetingDescription) does not end with ","
 				try
 					set startTimePart to regex's firstMatchInString("(?<=at )\\d{1,2}:\\d{2}(?::\\d{2})? [AP]M", meetingDescription)
 					if my referenceDate is missing value then
