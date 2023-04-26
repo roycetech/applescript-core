@@ -305,6 +305,11 @@ on decorate(safariTab)
 			set scriptText to format {"document.querySelector('{}').textContent.trim()", selector}
 			runScriptPlain(scriptText)
 		end textContent
+
+		on attribute(selector, attributeName)
+			set scriptText to format {"document.querySelector('{}')['{}']", {selector, attributeName}}
+			runScriptPlain(scriptText)
+		end textContent
 		
 		on waitForTrueExpression(expression)
 			set scriptText to expression
