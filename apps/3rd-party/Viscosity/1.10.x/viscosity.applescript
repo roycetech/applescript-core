@@ -1,4 +1,4 @@
-global std, retry
+global std, retryLib
 
 property initialized : false
 property logger : missing value
@@ -34,6 +34,7 @@ on spotCheck()
 		end getOTP
 	end script
 	
+	set retry to retryLib's new()
 	set sut to new(OtpRetrieverInstance)
 	exec of retry on sut by 1 for 100
 	-- Takes about 9s to re-connect (otp-less).
@@ -86,25 +87,6 @@ on new(pOtpRetriever)
 		end run
 		
 		
-		on extractOTP()
-			tell pwd
-				set unlocked to waitToUnlockNext()
-				if not unlocked then
-					logger's warn("1Password did not unlock :(")
-					return missing value
-				end if
-				
-				selectCategory("Logins")
-				
-				set theOtp to doGetOTP(WORK_CRED_KEY)
-				
-				quitApp()
-			end tell
-			
-			return theOtp
-		end extractOTP
-		
-		
 		on fillOTP(otp)
 			logger's info("Filling Viscosity with OTP")
 			tell application "System Events" to tell process "Viscosity"
@@ -137,5 +119,5 @@ on init()
 	
 	set std to script "std"
 	set logger to std's import("logger")'s new("viscosity")
-	set retry to std's import("retry")'s new()
+	set retryLib to std's import("retry")
 end init
