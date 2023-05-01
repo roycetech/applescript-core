@@ -292,7 +292,10 @@ on decorate(safariTab)
 		(* *)
 		on selectorExists(selector)
 			set scriptText to format {"document.querySelector('{}') !== null", selector}
-			_runScript(scriptText)
+			try
+				return _runScript(scriptText)
+			end try
+			false
 		end selectorExists
 
 		(* *)
