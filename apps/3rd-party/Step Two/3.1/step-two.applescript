@@ -86,7 +86,7 @@ end spotCheck
 
 on newRetriever(credKey)
 	script OtpRetrieverInstance
-
+		
 		(*
 			@returns a OTP with more than 2 seconds time remaining, and 
 			minimizing the Step Two app window before returning the otp.
@@ -110,8 +110,11 @@ on newRetriever(credKey)
 			
 			stepTwo's clearFilter()
 			set otp to stepTwo's getOtpByCredKey(credKey)
+			
+			-- Below fails to work on actual script.
 			set stepTwoProc to proc's new("Step Two")
 			stepTwoProc's minimize()
+			
 			otp
 		end getOTP
 	end script
@@ -158,7 +161,7 @@ on new()
 						set nextDesc to description of UI element 1 of nextGroup
 					end tell
 					
-					logger's debugf("nextDesc: {}", nextDesc)
+					-- logger's debugf("nextDesc: {}", nextDesc)
 					
 					if nextDesc contains credKey then
 						set tokens to textUtil's split(nextDesc, ",")
@@ -168,7 +171,7 @@ on new()
 			on error the errorMessage number the errorNumber
 				logger's warn(errorMessage)
 			end try
-
+			
 			missing value
 		end getOtpByCredKey
 		
