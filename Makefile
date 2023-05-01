@@ -88,11 +88,13 @@ reveal-stay-open:
 # require a separate make install.
 
 # 1st Party Apps Library
-install-calendar:
-	osascript ./scripts/enter-user-country.applescript
+compile-calendar:
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar"
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar-event"
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/dec-calendar-view"
+
+install-calendar: compile-calendar
+	osascript ./scripts/enter-user-country.applescript
 
 install-system-preferences:
 	./scripts/compile-lib.sh "apps/1st-party/System Preferences/15.0/system-preferences"
