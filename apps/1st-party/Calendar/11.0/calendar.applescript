@@ -91,7 +91,7 @@ on spotCheck()
 				Two online meetings
 				One online, one offline meeting
 		*)
-
+		
 		tell sut
 			set its IS_TEST to true
 			set its TEST_DATETIME to online_and_offline of spotData
@@ -405,7 +405,7 @@ on new()
 			set activeMeetingIdx to 0
 			repeat with idx from (count meetingsToday) to 1 by -1
 				set meetingDetail to item idx of meetingsToday
-(*
+				(*
 				log title of meetingDetail
 				log startTime of meetingDetail
 *)
