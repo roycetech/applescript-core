@@ -118,6 +118,13 @@ install-safari: compile-safari
 	plutil -replace 'FIND_RETRY_MAX' -integer 90 ~/applescript-core/config-system.plist
 	plutil -replace 'FIND_RETRY_SLEEP' -integer 1 ~/applescript-core/config-system.plist
 
+install-safari-technology-preview: compile-safari-technology-preview
+	osascript ./scripts/allow-apple-events-in-safari-technology-preview.applescript
+
+compile-safari-technology-preview:
+	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/safari-technology-preview
+	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/dec-safari-technology-preview-javascript
+
 install-script-editor:
 	make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
 
