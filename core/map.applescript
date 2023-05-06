@@ -247,17 +247,17 @@ on new()
 		
 		
 		(* Simplified Handlers*)
-		to putValue(theKey as text, theValue)
+		on putValue(theKey as text, theValue)
 			setValueForKey(theValue, theKey)
 		end putValue
 		
 		
-		to getValue(theKey as text)
+		on getValue(theKey as text)
 			valueForKey(theKey)
 		end getValue
 		
 		
-		to removeValue(theKey as text)
+		on removeValue(theKey as text)
 			removeValueForKey(theKey)
 		end removeValue
 		
@@ -268,7 +268,7 @@ on new()
 		
 		(* Public SubRoutines *)
 		
-		to hasKey(aKey) -- (object) as boolean
+		on hasKey(aKey) -- (object) as boolean
 			
 			set keyValueIndex to __getIndexForKey(aKey) of me
 			
@@ -279,16 +279,16 @@ on new()
 			return true
 		end hasKey
 		
-		to getKeys() -- (void) as list
+		on getKeys() -- (void) as list
 			-- keys are in a list separate from the values so we need only return the list
 			return __keys
 		end getKeys
 		
-		to getValues() -- (void) as list
+		on getValues() -- (void) as list
 			return __values
 		end getValues
 		
-		to setValueForKey(aValue, aKey) -- (object, object) as boolean			
+		on setValueForKey(aValue, aKey) -- (object, object) as boolean			
 			set keyValueIndex to __getIndexForKey(aKey) of me
 			
 			if keyValueIndex is missing value then
@@ -304,7 +304,7 @@ on new()
 			return true
 		end setValueForKey
 		
-		to removeValueForKey(aKey) -- (string) as void
+		on removeValueForKey(aKey) -- (string) as void
 			
 			-- check if there is a value for the key
 			set theIndex to __getIndexForKey(aKey)
@@ -337,7 +337,7 @@ on new()
 			
 		end removeValueForKey
 		
-		to removeValuesForKeys(keys) -- (list) as void
+		on removeValuesForKeys(keys) -- (list) as void
 			set lastKey to (count keys)
 			repeat with thisKey from 1 to lastKey
 				set theKey to item thisKey of keys
@@ -345,13 +345,13 @@ on new()
 			end repeat
 		end removeValuesForKeys
 		
-		to removeAllValues() -- (void) as void)
+		on removeAllValues() -- (void) as void)
 			set __keys to {}
 			set __values to {}
 			set __keyIndexHash to {}
 		end removeAllValues
 		
-		to valueForKey(aKey) -- (object) as object or (missing value)
+		on valueForKey(aKey) -- (object) as object or (missing value)
 			set keyValueIndex to __getIndexForKey(aKey) of me
 			
 			if keyValueIndex is missing value then
@@ -361,7 +361,7 @@ on new()
 			return item keyValueIndex of __values
 		end valueForKey
 		
-		to valueForIndex(anIndex) -- (integer) as object or (missing value)		
+		on valueForIndex(anIndex) -- (integer) as object or (missing value)		
 			set keysCount to count __keys
 			
 			-- we do not make any assumptions about how they got their index, so we simply check
@@ -372,7 +372,7 @@ on new()
 			return item anIndex of __values
 		end valueForIndex
 		
-		to addValuesForKeys(someValues, someKeys) -- (list, list) -- as boolean
+		on addValuesForKeys(someValues, someKeys) -- (list, list) -- as boolean
 			set keysCount to (count someKeys)
 			set valuesCount to (count someValues)
 			
