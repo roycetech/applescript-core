@@ -12,6 +12,9 @@ global std, regex, plutil, notifCenterHelper
 	
 	@Plists:
 		notification-appname - contains mapping for app id to app name.
+		
+	@Known Issues
+		For grouped notifications, if you want to dismiss the first notification only, the client code should expand the notification first.
 *)
 
 use script "Core Text Utilities"
@@ -72,6 +75,8 @@ on spotCheck()
 		
 		if hasNotice then
 			logger's infof("Notice: {}", notice's toString())
+			logger's infof("Is Stacked: {}", notice's isStacked())
+			
 		end if
 		
 	else if caseIndex is 2 then
@@ -112,7 +117,14 @@ on spotCheck()
 			set hasANotice to exists window "Notification Center"
 			if hasANotice then
 				set currentNotice to sut's new(group 1 of UI element 1 of scroll area 1 of group 1 of window "Notification Center")
+				if currentNotice's isStacked() then
+					sut's expandNotification()
+					delay 0.1 -- We want to dismiss the notification on the top, fails without this delay.
+					set currentNotice to sut's new(last group of UI element 1 of scroll area 1 of group 1 of window "Notification Center")
+				end if
 			end if
+			
+			-- set currentNotice to sut's new(group 1 of UI element 1 of scroll area 1 of group 1 of window "Notification Center")
 		end tell
 		
 		if hasANotice then
@@ -197,7 +209,7 @@ on new()
 		end activateNotifications
 		
 		
-		to notify(theTitle, theSubtitle)
+		on notify(theTitle, theSubtitle)
 			tell application "System Events" to display notification with title theTitle subtitle theSubtitle sound name "Glass"
 		end notify
 		
