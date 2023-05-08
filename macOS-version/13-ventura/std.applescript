@@ -18,13 +18,12 @@ if name of current application is "Script Editor" then spotCheck()
 
 on spotCheck()
 	
-	(*
 	try
 		noo
 	on error the errorMessage number the errorNumber
-		catch("spotCheck-std", errorNumber, errorMessage)
+		-- catch("spotCheck-std", errorNumber, errorMessage)
+		catch("spotCheck-std", errorNumber, "is not allowed to send keystrokes")
 	end try
-	*)
 	
 	init()
 	logger's infof("Username: {}", getUsername())
@@ -101,16 +100,14 @@ on catch(source, errorNumber, errorMessage)
 	if errorMessage contains "is not allowed to send keystrokes" or errorMessage contains "is not allowed assistive access" then
 		
 		try
-			tell application "System Settings"
-				activate
-				reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
-				delay 1
-			end tell
+			activate application "System Settings"
+			delay 1 -- required or else set current pane will fail
 			
-			tell application "System Events" to tell process "System Preferences"
-				click button "Click the lock to make changes." of window "Security & Privacy"
-				std's cueForTouchId()
-			end tell
+			tell application "System Settings"
+				set current pane to pane id "com.apple.settings.PrivacySecurity.extension"
+				anchors of current pane
+				reveal anchor "Privacy_Accessibility" of current pane
+			end tell			
 		end try -- above was designed only for macOS Monterey, breaks on 
 		-- Ventura. TODO: Figure out design for proper handling.
 		return

@@ -6,16 +6,15 @@ help:
 
 	@echo "make install-core - install the core AppleScript libraries in the current user's Library/Script Library folder"
 	@echo "make install-automator - install additional config for spot testing"
-	@echo "make compile-library - compiles a script library.  e.g. make compile-lib SOURCE=src/std"
+	@echo "make compile-library - compiles a script library.  e.g. make compile-lib SOURCE=core/config"
 	@echo "make reveal-config - reveals the default AppleScript Core configurations folder in Finder"
 	@echo "make reveal-lib - reveals the default AppleScript user libraries deployment folder in Finder"
 	@echo "make reveal-apps - reveals the default AppleScript apps deployment folder in Finder"
 	@echo "-s option hides the Make invocation command."
 
 # Simplify to pick all files inside core folder.
-# CORE_LIBS := std config logger plutil string
 CORE_LIBS :=  clipboard config date-time dialog emoji file idler keyboard list \
-logger map plutil process regex retry spot-test std string string-builder \
+logger map plutil process regex retry spot-test string string-builder \
 speech stack switch  system-events ui-util unicodes unit-test window
 
 APPS_PATH=/Applications/AppleScript
@@ -52,7 +51,19 @@ uninstall:
 	# TODO
 
 
-compile-core: $(CORE_LIBS)
+compile-standard:
+ifeq ($(OS), ventura)
+	./scripts/compile-lib.sh macOS-version/13-ventura/std
+
+else ifeq ($(OS), monterey)
+	./scripts/compile-lib.sh macOS-version/12-monterey/std
+
+else
+	@echo "compile-core unimplemented macOS version error"
+endif
+
+
+compile-core: compile-standard $(CORE_LIBS)
 
 compile-lib:
 	./scripts/compile-lib.sh $(SOURCE)
