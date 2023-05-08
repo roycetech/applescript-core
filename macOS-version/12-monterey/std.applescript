@@ -98,18 +98,19 @@ on catch(source, errorNumber, errorMessage)
 	end if
 	
 	if errorMessage contains "is not allowed to send keystrokes" or errorMessage contains "is not allowed assistive access" then
-		
 		try
-			activate application "System Settings"
-			delay 1 -- required or else set current pane will fail
+			tell application "System Preferences"
+				activate
+				reveal anchor "Privacy_Accessibility" of pane id "com.apple.preference.security"
+			end tell
+			delay 1.5 -- 1 Failed.
 			
-			tell application "System Settings"
-				set current pane to pane id "com.apple.settings.PrivacySecurity.extension"
-				anchors of current pane
-				reveal anchor "Privacy_Accessibility" of current pane
-			end tell			
+			tell application "System Events" to tell process "System Preferences"
+				click button "Click the lock to make changes." of window "Security & Privacy"
+			end tell
+			do shell script "afplay /System/Library/Sounds/Glass.aiff"
 		end try
-
+		
 		return
 	end if
 	
