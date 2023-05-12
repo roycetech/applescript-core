@@ -234,7 +234,6 @@ on new()
 			activateNotifications()
 			_expandNotifications()
 			
-			say 1
 			script DeletePastMailScript
 				on next(notice as script)
 					log notice's appName
