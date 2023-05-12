@@ -392,7 +392,7 @@ on unitTest()
 end unitTest
 
 
-to init()
+on init()
 	if initialized of me then return
 	set initialized of me to true
 	
