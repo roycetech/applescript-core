@@ -178,10 +178,16 @@ on new()
 		end confirmWarning
 		
 		
-		(* @return boolean *)
+		(* 
+			@return boolean or missing value on timeout.
+		*)
 		on confirmWarningWithTimeout(theTitle as text, yourMessage as text, timeoutSec)
 			display alert theTitle message yourMessage as critical buttons {"Yes", "No"} default button "no" giving up after timeoutSec
+			if gave up of result then 
+				missing value
+			else
 			button returned of result is equal to "Yes"
+			end if
 		end confirmWarningWithTimeout
 		
 		
