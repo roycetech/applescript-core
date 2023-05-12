@@ -130,6 +130,8 @@ on decorate(mainScript)
 			regex's firstMatchInString("(?<=pwd=)\\w+", meetingDescription)
 		end extractMeetingPassword
 	end script
+
+	std's applyMappedOverride(result)
 end decorate
 
 

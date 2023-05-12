@@ -1,4 +1,4 @@
-global std, regex, textUtil, listUtil, sb
+global std, regex, textUtil, listUtil, sb, kb
 
 (*
 	Wrapper for the calendar UI event. Originally implemented with zoom.us, 
@@ -39,6 +39,11 @@ on spotCheck()
 		logger's infof("JSON String: {}", sut's toJsonString())
 		
 	else if caseIndex is 2 then
+		tell application "System Events" to tell process "Calendar"
+			set uiSut to static text 7 of list 6 of UI element "May 2023" of group 1 of splitter group 1 of window "Calendar"
+		end tell
+		set sut to calendarEventLib's new(uiSut)
+		logger's infof("JSON String: {}", sut's toJsonString())
 		
 	end if
 	
@@ -162,8 +167,29 @@ Passcode: {}
 				set its meetingId to my extractMeetingId(meetingStaticText)
 				-- set its meetingPassword to regex's firstMatchInString("(?<=pwd=)\\w+", meetingDescription)
 				set its meetingPassword to my extractMeetingPassword(meetingStaticText)
+				-- logger's debugf("meetingDescription: {}", meetingDescription)
 				set its actioned to meetingDescription does not end with "Needs action"
-				set its accepted to meetingDescription does not end with "Needs action" and textUtil's rtrim(meetingDescription) does not end with ","
+				-- set its accepted to meetingDescription does not end with "Needs action" and textUtil's rtrim(meetingDescription) does not end with ","
+				
+				set acceptTicked to false
+				set uiActionPerformed to false
+				
+				if not my skipEvent(meetingStaticText) and IS_SPOT is false then
+					tell application "System Events" to tell process "Calendar"
+						try
+							perform action "AXShowMenu" of meetingStaticText -- fails when accessing "my eventUi" from here.
+							set uiActionPerformed to true
+							get value of attribute "AXMenuItemMarkChar" of menu item "Accept" of menu 1 of meetingStaticText
+							set acceptTicked to true
+						on error the errorMessage number the errorNumber
+							logger's warn(errorMessage)
+						end try
+					end tell
+					if uiActionPerformed then kb's pressKey("esc")
+					logger's debugf("acceptTicked: {}", acceptTicked)
+				end if
+				set its accepted to acceptTicked
+				
 				try
 					set startTimePart to regex's firstMatchInString("(?<=at )\\d{1,2}:\\d{2}(?::\\d{2})? [AP]M", meetingDescription)
 					if my referenceDate is missing value then
@@ -200,6 +226,17 @@ Passcode: {}
 		on extractMeetingPassword(meetingStaticText)
 			missing value
 		end extractMeetingPassword
+		
+		(*
+			Used to determine if the current event accept state should be 
+			computed because it is a slow operation which would benefit if we 
+			can skip non-meeting events.
+
+			@returns boolean.
+		*)
+		on skipEvent(meetingStaticText)
+			false
+		end skipEvent
 	end script
 	
 	std's applyMappedOverride(result)
@@ -220,6 +257,7 @@ on init()
 	set textUtil to std's import("string")
 	set listUtil to std's import("list")
 	set sb to std's import("string-builder")
+	set kb to std's import("keyboard")'s new()
 	
 	tell application "System Events"
 		set scriptName to get name of (path to me)

@@ -511,7 +511,6 @@ on init()
 	set sb to std's import("string-builder")
 	set decoratorCalView to std's import("dec-calendar-view")
 	set calendarEvent to std's import("calendar-event")'s new()
-	
 	set counter to std's import("counter")
 	set plutil to std's import("plutil")'s new()
 	set dt to std's import("date-time")
