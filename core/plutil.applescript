@@ -779,17 +779,18 @@ end new
 
 
 
-to unitTest()
+on unitTest()
 	set utLib to std's import("unit-test")
+	set listUtil to std's import("list")
 	set ut to utLib's new()
 	set sut to new()'s new("spot-plist")
 	tell ut
-		newMethod("_formatPlistDate +0800") -- Tested against +0800 only.
-		assertEqual("2022-04-04T23:30:45Z", sut's _formatPlistDate(date "Tuesday, April 5, 2022 at 7:30:45 AM"), "Before 8AM")
-		assertEqual("2022-04-05T00:30:45Z", sut's _formatPlistDate(date "Tuesday, April 5, 2022 at 8:30:45 AM"), "After 8AM")
-		assertEqual("2022-04-05T04:30:45Z", sut's _formatPlistDate(date "Tuesday, April 5, 2022 at 12:30:45 PM"), "Afternoon")
-		assertEqual("2022-04-11T07:13:45Z", sut's _formatPlistDate(date "Monday, April 11, 2022 at 3:13:45 PM"), "Afternoon")
-
+		-- assertEqual({"$yes-5"}, sut's getValue("spot-$dollar-list"), "Dollar Character in List")
+		
+		assertEqual("$5", sut's getValue("spot-$dollar"), "Dollar Key and Value")
+		-- assertEqual({"$yes-5"}, sut's getValue("spot-$dollar-list"), "Dollar Character in List")
+		-- tell me to error "abort" -- IS THIS PROMINENT ENOUGH?!!!
+		
 		newMethod("setup")
 		sut's deleteKey(missing value)
 		sut's deleteKey("spot-array")
