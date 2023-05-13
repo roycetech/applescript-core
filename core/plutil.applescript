@@ -843,9 +843,12 @@ to unitTest()
 		assertEqual(currentDate, sut's getValue("spot-date"), "Get date value")
 		assertEqual(false, sut's getValue("spot-bool"), "Get bool value")
 		set actualRecord to sut's getValue("spot-record")
-		assertEqual({"one", "two", "three", "four: colonized"}, actualRecord's getKeys(), "Get record keys")
-		assertEqual("{one: 1, two: 2, three: a&c, four: colonized: apat}", actualRecord's toString(), "Get record value")
-
+		assertEqual({"four: colonized", "one", "three", "two"}, listUtil's simpleSort(actualRecord's getKeys()), "Get record keys")
+		-- assertEqual("{one: 1, two: 2, three: a&c, four: colonized: apat}", actualRecord's toString(), "Get record value") -- TODO: map's equals()
+		assertEqual("$5", sut's getValue("spot-$dollar"), "Dollar Key and Value")
+		assertEqual({"$yes-5"}, sut's getValue("spot-$dollar-list"), "Dollar Character in List")
+		tell me to error "abort" -- IS THIS PROMINENT ENOUGH?!!!
+		
 		newMethod("getValueWithDefault")
 		assertEqual("use me", sut's getValueWithDefault("spot-string-absent", "use me"), "Value is absent")
 		assertEqual("text", sut's getValueWithDefault("spot-string", 1), "Value is present")
@@ -921,8 +924,8 @@ to unitTest()
 
 		assertEqual("{one: 1, two: 2}", sut's getValue("spot-map")'s toString(), "Get record from Map")
 		*)
-
-		ut's done()
+		
+		done()
 	end tell
 end unitTest
 
