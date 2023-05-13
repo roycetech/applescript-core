@@ -56,8 +56,7 @@ on spotCheck()
 	
 	set cases to listUtil's splitByLine("
 		Start Personal Meeting - End to End
-		Decorated: End Meeting - Prefer to leave meeting vs end the meeting
-		
+		Decorated: End Meeting - Prefer to leave meeting vs end the meeting		
 		Login
 		Is waiting for sign in		
 		Show Participants
@@ -66,6 +65,7 @@ on spotCheck()
 		Reset Windows
 		Is Sharing
 		Raise Hand
+		Manual: Cycle Camera
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -106,6 +106,9 @@ on spotCheck()
 		
 	else if caseIndex is 7 then
 		log getParticipants()
+		
+	else if caseIndex is 10 then
+		sut's cycleCamera()
 		
 	else if caseIndex is 12 then
 		resetWindows()

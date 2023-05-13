@@ -33,6 +33,7 @@ on spotCheck()
 		Manual: Start Screen Sharing
 		Manual: Stop Screen Sharing
 		Manual: End Meeting
+		Manual: Cycle Camera
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -77,6 +78,8 @@ on spotCheck()
 	else if caseIndex is 9 then
 		sut's endMeeting()
 		
+	else if caseIndex is 10 then
+		sut's cycleCamera()
 		
 	else
 		
@@ -99,6 +102,13 @@ on decorate(mainScript)
 	(* Use the same name as the parent because this decorator is only meant to organize the handlers. *)
 	script ZoomInstance
 		property parent : mainScript
+		property currentCamera : missing value
+		
+		(**)
+		on cycleCamera(listOfCamera)
+			# TODO		
+		end cycleCamera
+		
 		
 		on mute()
 			_clickMenuAction("Mute Audio")
