@@ -71,8 +71,8 @@ on spotCheck()
 		
 	else if caseIndex is 9 then
 		(* Toggle below cases. *)
-		-- joinHotspot("iPhone")
-		joinHotspot("Galaxy")
+		joinHotspot("iPhone")
+		-- joinHotspot("Galaxy")
 		
 	else if caseIndex is 10 then
 		(* Toggle below cases. *)
@@ -131,7 +131,7 @@ on joinHotspot(hotspotKey)
 		else if clickResult is missing value then
 			kb's pressKey("esc")
 			logger's fatal("Could not click your hotspot " & hotspotKey & ", make sure it is available")
-
+			
 		else
 			kb's pressKey("esc")
 			

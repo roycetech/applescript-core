@@ -189,7 +189,15 @@ install-macos-monterey: install-control-center install-dock install-notification
 	#TODO
 
 install-control-center:
+ifeq ($(OS), ventura)
+	./scripts/compile-lib.sh "macOS-version/13-ventura/control-center"
+
+else ifeq ($(OS), monterey)
 	./scripts/compile-lib.sh "macOS-version/12-monterey/control-center"
+
+else
+	@echo "Unsupported macOS version for control-center"
+endif
 
 install-dock:
 	./scripts/compile-lib.sh "macOS-version/12-monterey/dock"
