@@ -235,6 +235,12 @@ install-sequel-ace:
 
 install-stream-deck:
 	./scripts/compile-lib.sh apps/3rd-party/Stream Deck/6.x/stream-deck
+	./scripts/compile-lib.sh apps/3rd-party/Stream Deck/6.x/dec-spot-stream-deck
+	plutil \
+		-replace 'SpotTestInstance' \
+		-string 'dec-spot-stream-deck' \
+		~/applescript-core/config-lib-factory.plist
+
 
 install-sublime-text:
 	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/sublime-text

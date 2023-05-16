@@ -391,7 +391,7 @@ on new()
 					_getList(quotedEspacedPlistKey)
 				end getList
 				
-
+				
 				(* 
 					Always returns a list instance. If the the key does not 
 					exist, it returns an empty list instead of a missing value. 
@@ -399,10 +399,10 @@ on new()
 				on getForcedList(plistKey)
 					set fetchedList to getList(plistKey)
 					if fetchedList is not missing value then return fetchedList
-
-					{}					
-				end getList
-
+					
+					{}
+				end getForcedList
+				
 				
 				on _getList(quotedEspacedPlistKey)
 					set array to {}
@@ -419,6 +419,10 @@ on new()
 						return missing value
 					end try
 					
+					-- Band Aid
+					if (offset of "$" in quotedEspacedPlistKey) is greater than 0 then
+						if quotedEspacedPlistKey contains "$" then set quotedEspacedPlistKey to regex's stringByReplacingMatchesInString("\\$", quotedEspacedPlistKey, "\\\\$")
+					end if
 					set getTsvCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\" {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | paste -s -d{} -", {quotedEspacedPlistKey, quotedPlistPosixPath, my linesDelimiter}}
 					
 					set csv to do shell script getTsvCommand
@@ -579,15 +583,15 @@ on new()
 				*)
 				on _getTypedGetterShellTemplate(typeText, plistKey, quotedPlistPosixPath)
 					if plistKey is missing value then return missing value
-					
+
 					set typeClause to ""
 					if typeText is not missing value then set typeClause to "-expect " & typeText
-					
+
 					set shellTemplate to "if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -extract \"$TMP\" raw " & typeClause & " {}; else plutil -extract {} raw " & typeClause & " {}; fi"
 					format {shellTemplate, {plistKey, plistKey, quotedPlistPosixPath, quoted form of plistKey, quotedPlistPosixPath}}
 				end _getTypedGetterShellTemplate
-				
-				
+
+
 				on _escapeAndQuoteKey(plistKey)
 					if plistKey is missing value then return missing value
 
@@ -598,17 +602,27 @@ on new()
 					quoted form of escapedPlistKey
 				end _escapeAndQuoteKey
 
-				(* @listToSet must have similarly element type. *)
+				(*
+					@listToSet must have similarly element type.
+
+					@Known Issues - wouldn't work if there's $ and other xml special characters combined.
+				*)
 				on _insertList(quotedPlistKey, listToPersist)
 					set param to "<array>"
 					if (count of the listToPersist) is greater than 0 then
 						set elementType to _getPlUtilType(first item of listToPersist)
 						repeat with nextElement in listToPersist
-							set param to param & "<" & elementType & ">" & _escapeSpecialCharacters(nextElement) & "</" & elementType & ">"
+							set nextElementValue to nextElement
+							if (offset of "$" in nextElement) is 0 then
+								set nextElementValue to _escapeSpecialCharacters(nextElement)
+							end if
+
+							set param to param & "<" & elementType & ">" & nextElementValue & "</" & elementType & ">"
 						end repeat
 					end if
 					set param to param & "</array>"
 					set setArrayCommand to format {"plutil -replace {} -xml {} {}", {quotedPlistKey, quoted form of param, quotedPlistPosixPath}}
+
 					do shell script setArrayCommand
 				end _insertList
 
@@ -785,12 +799,6 @@ on unitTest()
 	set ut to utLib's new()
 	set sut to new()'s new("spot-plist")
 	tell ut
-		-- assertEqual({"$yes-5"}, sut's getValue("spot-$dollar-list"), "Dollar Character in List")
-		
-		assertEqual("$5", sut's getValue("spot-$dollar"), "Dollar Key and Value")
-		-- assertEqual({"$yes-5"}, sut's getValue("spot-$dollar-list"), "Dollar Character in List")
-		-- tell me to error "abort" -- IS THIS PROMINENT ENOUGH?!!!
-		
 		newMethod("setup")
 		sut's deleteKey(missing value)
 		sut's deleteKey("spot-array")
@@ -817,6 +825,8 @@ on unitTest()
 		sut's setValue("spot-string", "text")
 		sut's setValue("spot-special", "special&<>")
 		sut's setValue("spot-list-special", {"&", "<", ">"}) -- Doesn't look like we need to escape apostrophe and double quotes.
+		sut's setValue("spot-$dollar", "$5")
+		sut's setValue("spot-$dollar-list", {"$yes-5"})
 
 		sut's setValue("spot-string.dotted-key", "string-dotted-value.txt")
 		sut's setValue("spot-integer", 1)
@@ -848,8 +858,7 @@ on unitTest()
 		-- assertEqual("{one: 1, two: 2, three: a&c, four: colonized: apat}", actualRecord's toString(), "Get record value") -- TODO: map's equals()
 		assertEqual("$5", sut's getValue("spot-$dollar"), "Dollar Key and Value")
 		assertEqual({"$yes-5"}, sut's getValue("spot-$dollar-list"), "Dollar Character in List")
-		tell me to error "abort" -- IS THIS PROMINENT ENOUGH?!!!
-		
+
 		newMethod("getValueWithDefault")
 		assertEqual("use me", sut's getValueWithDefault("spot-string-absent", "use me"), "Value is absent")
 		assertEqual("text", sut's getValueWithDefault("spot-string", 1), "Value is present")
@@ -925,7 +934,7 @@ on unitTest()
 
 		assertEqual("{one: 1, two: 2}", sut's getValue("spot-map")'s toString(), "Get record from Map")
 		*)
-		
+
 		done()
 	end tell
 end unitTest
