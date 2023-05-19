@@ -38,28 +38,32 @@ on spotCheck()
 		assertThat of std given condition:sut's findById("SidebarButton") is not missing value, messageOnFail:"Failed spot check"
 		
 	end if
-		logger's info("Passed.")
+	logger's info("Passed.")
 	
 	spot's finish()
 	logger's finish()
 end spotCheck
 
 
-on new(pUiElements)
-	script ElementsInstance
-		property uiElements : pUiElements
-		
-		(*  *)
-		on findById(targetIdentifier)
-			repeat with nextUI in uiElements
-				tell application "System Events"
-					set uiId to get value of attribute "AXIdentifier" of nextUI
-				end tell
-				if uiId is equal to targetIdentifier then return nextUI
-			end repeat
+on new()
+	script UiUtilInstance		
+		(*
+			Use this when the usual format fails. e.g. 'first static text of group 1 of splitter group 1 of front window whose value of attribute "AXIdentifier" is "notes-field"'
+	
+			@returns the UI with the matched attribute or missing value.
+		*)
+		on findUiWithIdAttribute(uiList, idAttribute)
+			tell application "System Events"
+				repeat with nextUIElement in uiList
+					try
+						set uiId to value of attribute "AXIdentifier" of nextUIElement
+						if uiId is equal to the idAttribute then return nextUIElement
+					end try
+				end repeat
+			end tell
 			
 			missing value
-		end findById
+		end findUiWithIdAttribute
 	end script
 end new
 
