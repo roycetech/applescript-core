@@ -1,8 +1,11 @@
-global std, regex, textUtil, listUtil, sb, kb
+global std, regex, textUtil, listUtil, sb, kb, uiUtil
 
 (*
 	Wrapper for the calendar UI event. Originally implemented with zoom.us, 
 	refactored to be vendor-agnostic.
+	
+	@Requires
+		Calendar needs to be in "Day" view.
 *)
 
 property initialized : false
@@ -39,10 +42,14 @@ on spotCheck()
 		logger's infof("JSON String: {}", sut's toJsonString())
 		
 	else if caseIndex is 2 then
+		set IS_SPOT to false
 		tell application "System Events" to tell process "Calendar"
-			set uiSut to static text 7 of list 6 of UI element "May 2023" of group 1 of splitter group 1 of window "Calendar"
+			-- Tested on Week with May 17, 2023
+			set uiSut to static text 9 of list 1 of group 1 of splitter group 1 of window "Calendar"
+			set uiSutBody to uiUtil's findUiWithIdAttribute(UI elements of group 1 of splitter group 1 of window "Calendar", "notes-field") -- Can be text field or static text.
+			-- set uiSutBody to text field 3 of group 1 of splitter group 1 of window "Calendar"
 		end tell
-		set sut to calendarEventLib's new(uiSut)
+		set sut to calendarEventLib's new(uiSut, uiSutBody)
 		logger's infof("JSON String: {}", sut's toJsonString())
 		
 	end if
@@ -59,7 +66,7 @@ end spotCheck
 *)
 on new()
 	script CalendarEventLibrary
-		on new(meetingStaticText)
+		on new(meetingStaticText, meetingBodyTextField)
 			tell application "System Events" to tell process "Calendar"
 				-- logger's debugf("MY IS_SPOT: {}", my IS_SPOT)
 				if my IS_SPOT then
@@ -79,10 +86,12 @@ on new()
 				property endTime : missing value
 				property organizer : missing value
 				property eventUi : meetingStaticText
+				property eventUiDetails : meetingBodyTextField
 				property body : missing value
 				property active : false
 				property actioned : true
 				property accepted : false
+				property facilitator : false
 				
 				on isOnline()
 					meetingId is not missing value
@@ -101,8 +110,8 @@ Passcode: {}
 				
 				(* BattleScar, interpolation bugs out. *)
 				on toJsonString()
-					set attributeNames to listUtil's _split("title, organizer, startTime, endTime, meetingId, meetingPassword, passcode, active, actioned, accepted", ", ")
-					set attributeValues to {my title, my organizer, my startTime, my endTime, my meetingId, my meetingPassword, my passcode, my active, my actioned, my accepted}
+					set attributeNames to listUtil's _split("title, organizer, startTime, endTime, meetingId, meetingPassword, passcode, active, actioned, accepted, facilitator", ", ")
+					set attributeValues to {my title, my organizer, my startTime, my endTime, my meetingId, my meetingPassword, my passcode, my active, my actioned, my accepted, my facilitator}
 					
 					set nameValueList to {}
 					set jsonBuilder to sb's new("{")
@@ -170,22 +179,26 @@ Passcode: {}
 				-- logger's debugf("meetingDescription: {}", meetingDescription)
 				set its actioned to meetingDescription does not end with "Needs action"
 				-- set its accepted to meetingDescription does not end with "Needs action" and textUtil's rtrim(meetingDescription) does not end with ","
+				set its facilitator to my _checkFacilitator(meetingBodyTextField)
 				
 				set acceptTicked to false
-				set uiActionPerformed to false
+				-- set uiActionPerformed to false
 				
 				if not my skipEvent(meetingStaticText) and IS_SPOT is false then
 					tell application "System Events" to tell process "Calendar"
 						try
+							(*
 							perform action "AXShowMenu" of meetingStaticText -- fails when accessing "my eventUi" from here.
 							set uiActionPerformed to true
 							get value of attribute "AXMenuItemMarkChar" of menu item "Accept" of menu 1 of meetingStaticText
 							set acceptTicked to true
-						on error the errorMessage number the errorNumber
-							logger's warn(errorMessage)
+							*)
+							set acceptTicked to "Accepted" is equal to the value of pop up button 2 of group 1 of splitter group 1 of window "Calendar"
+						-- on error the errorMessage number the errorNumber
+							-- logger's warn(errorMessage)
 						end try
 					end tell
-					if uiActionPerformed then kb's pressKey("esc")
+					-- if uiActionPerformed then kb's pressKey("esc")
 					logger's debugf("acceptTicked: {}", acceptTicked)
 				end if
 				set its accepted to acceptTicked
@@ -219,6 +232,7 @@ Passcode: {}
 			missing value
 		end extractMeetingId
 		
+		
 		(* 
 			@Overridable
 			Retrieve the online meeting password based the user's set up. zoom.us, ms teams, etc.
@@ -237,6 +251,11 @@ Passcode: {}
 		on skipEvent(meetingStaticText)
 			false
 		end skipEvent
+		
+		
+		on _checkFacilitator(meetingBodyTextField)
+			false
+		end _checkFacilitator
 	end script
 	
 	std's applyMappedOverride(result)
@@ -258,6 +277,7 @@ on init()
 	set listUtil to std's import("list")
 	set sb to std's import("string-builder")
 	set kb to std's import("keyboard")'s new()
+	set uiUtil to std's import("ui-util")'s new()
 	
 	tell application "System Events"
 		set scriptName to get name of (path to me)
