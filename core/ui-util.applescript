@@ -13,8 +13,9 @@ on spotCheck()
 	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
-		Find By ID - not found
+		Manual: Find By ID - not found
 		Manual: Find By ID - found
+		Manual: Print Attributes
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -29,14 +30,23 @@ on spotCheck()
 	tell application "System Events" to tell process "Safari"
 		set uiButtons to buttons of group 1 of toolbar 1 of front window
 	end tell
-	set sut to new(uiButtons)
+	set sut to new()
 	
+	-- TOFIX:
 	if caseIndex is 1 then
-		assertThat of std given condition:sut's findById("solid") is missing value, messageOnFail:"Failed spot check"
+		tell application "System Events" to tell process "Control Center"
+			assertThat of std given condition:sut's findUiWithIdAttribute(menu bar item 2 of menu bar 1, "x") is missing value, messageOnFail:"Failed spot check"
+		end tell
 		
 	else if caseIndex is 2 then
-		assertThat of std given condition:sut's findById("SidebarButton") is not missing value, messageOnFail:"Failed spot check"
+		tell application "System Events" to tell process "Control Center"
+			assertThat of std given condition:sut's findUiWithIdAttribute(menu bar item 2 of menu bar 1, "com.apple.menuextra.controlcenter") is not missing value, messageOnFail:"Failed spot check"
+		end tell
 		
+	else if caseIndex is 3 then
+		tell application "System Events" to tell process "Control Center"
+			sut's printAttributeValues(menu bar item 2 of menu bar 1)
+		end tell
 	end if
 	logger's info("Passed.")
 	
@@ -46,7 +56,7 @@ end spotCheck
 
 
 on new()
-	script UiUtilInstance		
+	script UiUtilInstance
 		(*
 			Use this when the usual format fails. e.g. 'first static text of group 1 of splitter group 1 of front window whose value of attribute "AXIdentifier" is "notes-field"'
 	
@@ -64,6 +74,19 @@ on new()
 			
 			missing value
 		end findUiWithIdAttribute
+		
+		on printAttributeValues(uiElement)
+			tell application "System Events" to tell process ""
+				
+				set attrList to attributes of uiElement
+				repeat with nextAttribute in attrList
+					try
+						log "Name: " & name of nextAttribute & "Value: " & value of nextAttribute
+					end try
+				end repeat
+			end tell
+			
+		end printAttributeValues
 	end script
 end new
 
