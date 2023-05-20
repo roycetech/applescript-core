@@ -244,6 +244,34 @@ on listEquals(list1, list2)
 	true
 end listEquals
 
+
+(*
+	Created bocause list equals does not behave as expected. Will cast to text first before comparing each elements.
+*)
+on stringElementEquals(list1, list2)
+	if list1 is missing value then return list2 is missing value
+	if list2 is missing value then return list1 is missing value
+	
+	if (count of list1) is not equal to the (count of list2) then return false
+	
+	repeat with i from 1 to number of items in list1
+		if item i of list1 as text is not equal to item i of list2 as text then return false
+	end repeat
+	
+	true
+end stringElementEquals
+
+
+on clone(source)
+	if source is missing value then return missing value
+	
+	set cloned to {} -- Using [] does not work.
+	repeat with nextItem in source
+		copy the nextItem to the end of the cloned
+	end repeat
+	cloned
+end clone
+
 (*
 	Fills an array with elements.
 *)
@@ -326,6 +354,12 @@ on unitTest()
 	set utLib to std's import("unit-test")
 	set ut to utLib's new()
 	tell ut
+		newMethod("clone")
+		assertEquals(missing value, my clone(missing value), "missing value")
+		assertEquals([], my clone([]), "Empty")
+		assertTrue(my stringElementEquals({1, 3}, my clone({1, 3})), "Happy")
+		assertTrue(my stringElementEquals({1, 3}, my clone({1, "3"})), "Caveat")
+		
 		newMethod("remove")
 		assertEqual({"one", "two"}, my remove({"one", "two", "three"}, "three"), "Happy Case")
 		assertEqual({"one", "two", "three"}, my remove({"one", "two", "three"}, "nine"), "Not Found")
@@ -386,6 +420,10 @@ on unitTest()
 		
 		newMethod("listContain")
 		assertTrue(my listContains({"Term-$Cmd"}, "Term-$Cmd"), "With dollar")
+		assertFalse(my listContains({"Term"}, "XTerm"), "Not Found")
+		assertFalse(my listContains({"Term"}, missing value), "missing value")
+		assertFalse(my listContains([], "spot"), "Empty List")
+		assertFalse(my listContains(missing value, "spot"), "Missing list")
 		
 		done()
 	end tell
