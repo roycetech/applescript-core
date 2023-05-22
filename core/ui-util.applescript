@@ -15,6 +15,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Manual: Find By ID - not found
 		Manual: Find By ID - found
+		Manual: Find Containing ID - found
 		Manual: Print Attributes
 	")
 	
@@ -32,7 +33,6 @@ on spotCheck()
 	end tell
 	set sut to new()
 	
-	-- TOFIX:
 	if caseIndex is 1 then
 		tell application "System Events" to tell process "Control Center"
 			assertThat of std given condition:sut's findUiWithIdAttribute(menu bar item 2 of menu bar 1, "x") is missing value, messageOnFail:"Failed spot check"
@@ -44,6 +44,18 @@ on spotCheck()
 		end tell
 		
 	else if caseIndex is 3 then
+		-- Activate Control Center
+		tell application "System Events" to tell process "ControlCenter"
+			try
+				click (first menu bar item of menu bar 1 whose value of attribute "AXIdentifier" is "com.apple.menuextra.controlcenter")
+			end try
+		end tell
+		
+		tell application "System Events" to tell process "Control Center"
+			log sut's findUiContainingIdAttribute(UI elements of group 1 of front window, "controlcenter-focus-modes") is not missing value
+		end tell
+		
+	else if caseIndex is 4 then
 		tell application "System Events" to tell process "Control Center"
 			sut's printAttributeValues(menu bar item 2 of menu bar 1)
 		end tell
@@ -75,13 +87,33 @@ on new()
 			missing value
 		end findUiWithIdAttribute
 		
+		(*
+			Derived from findUiWithIdAttribute as a fix for Apple bug where the 
+			AXIdentifier value is doubled (e.g. controlcenter-focus-modes-controlcenter-focus-modes), 
+	
+			@returns the UI with the matched attribute or missing value.
+		*)
+		on findUiContainingIdAttribute(uiList, idAttributeKeyword)
+			tell application "System Events"
+				repeat with nextUIElement in uiList
+					try
+						set uiId to value of attribute "AXIdentifier" of nextUIElement
+						if uiId contains the idAttributeKeyword then return nextUIElement
+					end try
+				end repeat
+			end tell
+			
+			missing value
+		end findUiContainingIdAttribute
+		
+		
 		on printAttributeValues(uiElement)
 			tell application "System Events" to tell process ""
 				
 				set attrList to attributes of uiElement
 				repeat with nextAttribute in attrList
 					try
-						log "Name: " & name of nextAttribute & "Value: " & value of nextAttribute
+						log "Name: " & name of nextAttribute & ", Value: " & value of nextAttribute
 					end try
 				end repeat
 			end tell
