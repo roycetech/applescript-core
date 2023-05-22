@@ -29,7 +29,7 @@ on spotCheck()
 		
 		Switch to AirPods
 		Is Mic In Use
-		Manual: List of Hotspot (Maybe used to identify your hotpot key, mind the unicode apostrophe)
+		Manual: List of Hotspot (Maybe used to identify your hotpot key, mind the Unicode apostrophe)
 		Manual: Join Hotspot (Not Joined, Already Joined, Not Found)
 		Manual: Join WIFI (Not Joined, Already Joined, Not Found)
 	")

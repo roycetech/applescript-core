@@ -191,6 +191,9 @@ install-macos-monterey: install-control-center install-dock install-notification
 install-control-center:
 ifeq ($(OS), ventura)
 	./scripts/compile-lib.sh "macOS-version/13-ventura/control-center"
+	./scripts/compile-lib.sh "macOS-version/13-ventura/control-center_focus"
+	./scripts/compile-lib.sh "macOS-version/13-ventura/control-center_sound"
+	./scripts/compile-lib.sh "macOS-version/13-ventura/control-center_network"
 
 else ifeq ($(OS), monterey)
 	./scripts/compile-lib.sh "macOS-version/12-monterey/control-center"
