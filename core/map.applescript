@@ -20,7 +20,7 @@ property logger : missing value
 if name of current application is "Script Editor" then spotCheck()
 
 try
-
+	
 on error the errorMessage number the errorNumber
 	logger's finish() -- unlock the script active flag
 	error errorMessage
@@ -216,14 +216,18 @@ on newInstanceFromJson(jsonString)
 end newInstanceFromJson
 
 
-(* @deprecated use newInstanceFromRecord *)
+(* @deprecated use the alias newInstanceFromRecord. *)
 on fromRecord(theRecord as record)
 	set objCDictionary to current application's NSDictionary's dictionaryWithDictionary:theRecord
 	set allKeys to objCDictionary's allKeys()
 	set theMap to new()
 	
 	repeat with theKey in allKeys
-		set nextValue to (objCDictionary's valueForKey:theKey) as text
+		set nextValueRaw to (objCDictionary's valueForKey:theKey)
+		set nextValue to nextValueRaw as text
+		if nextValue is equal to "msng" then -- Workaround, we could not detect the missing value from the way we instantiated the dictionary.
+			set nextValue to missing value
+		end if
 		if theKey as text is equal to "DOMAIN" then set theKey to "domain" -- fix an issue where domain is being converted to upper case automatically.
 		theMap's putValue(theKey as text, nextValue)
 	end repeat
@@ -401,7 +405,7 @@ on new()
 			end repeat
 			set resultBuilder to resultBuilder & "}"
 		end toString
-
+		
 		on toStringPretty()
 			set resultBuilder to "{
 "
@@ -414,7 +418,7 @@ on new()
 			end repeat
 			set resultBuilder to resultBuilder & "
 }"
-		end toString
+		end toStringPretty
 		
 		
 		on toJsonString()
@@ -603,10 +607,14 @@ end new
 	Handler grouped by hundredths.
 	Put the case you are debugging at the top, and move to correct place once verified.
 *)
-to unitTest()
+on unitTest()
 	set utLib to std's import("unit-test")
 	set ut to utLib's new()
 	tell ut
+		newMethod("newInstanceFromRecord - missing value")
+		set sut to my newInstanceFromRecord({none:missing value})
+		assertMissingValue(sut's getValue("none"), "Missing Value")
+		
 		newMethod("newInstanceFromString")
 		set sut to my newInstanceFromString("
 			ts: TypeScript
@@ -629,9 +637,8 @@ to unitTest()
 		sut's putValue("first", "una")
 		assertFalse(sut's isEmpty(), "Non-Empty")
 		
-		ut's done()
+		done()
 	end tell
-	
 end unitTest
 
 
