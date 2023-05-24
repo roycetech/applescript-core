@@ -70,6 +70,7 @@ on spotCheck()
 		logger's infof("First Selected File Path: {}", sut's getFirstSelectionPath())
 		logger's infof("First Selected File URL: {}", sut's getFirstSelectionURL())
 		logger's infof("First Selected Filename: {}", sut's getFirstSelectionName())
+		logger's infof("First Selected Object Type: {}", sut's getFirstSelectionObjectType())
 		
 	else if caseIndex is 3 then
 		set frontTab to sut's getFrontTab()
@@ -373,6 +374,31 @@ on new()
 			set firstSelection to first item of userSelection
 			name of firstSelection
 		end getFirstSelectionName
+		
+		
+		(*
+			@returns 
+				folder - if folder is selected.
+					.app - returns "app".
+				file - the file extension
+		*)
+		on getFirstSelectionObjectType()
+			set selectedFile to missing value
+			try
+				set selectedFile to first item of getSelection()
+			end try
+			if selectedFile is missing value then return missing value
+			
+			set filename to name of selectedFile
+			if class of selectedFile as text is equal to "folder" then 
+				if filename ends with ".app" then return "app"
+				return "folder"
+			end if
+							
+			set filenameTokens to textUtil's split(filename, ".")
+			
+			last item of filenameTokens
+		end getFirstSelectionObjectType
 		
 		
 		on getUserFolder()
