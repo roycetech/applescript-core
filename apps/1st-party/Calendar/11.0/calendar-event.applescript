@@ -38,7 +38,7 @@ on spotCheck()
 	
 	set calendarEventLib to new()
 	if caseIndex is 1 then
-		set sut to calendarEventLib's new({|description|:"Spot Meeting. Starts on Apr 9., "})
+		set sut to calendarEventLib's new({|description|:"Spot Meeting. Starts on Apr 9., "}, missing value)
 		logger's infof("JSON String: {}", sut's toJsonString())
 		
 	else if caseIndex is 2 then
@@ -179,7 +179,9 @@ Passcode: {}
 				-- logger's debugf("meetingDescription: {}", meetingDescription)
 				set its actioned to meetingDescription does not end with "Needs action"
 				-- set its accepted to meetingDescription does not end with "Needs action" and textUtil's rtrim(meetingDescription) does not end with ","
-				set its facilitator to my _checkFacilitator(meetingBodyTextField)
+				try
+					set its facilitator to my _checkFacilitator(meetingBodyTextField)
+				end try -- TOFIX
 				
 				set acceptTicked to false
 				-- set uiActionPerformed to false
@@ -194,7 +196,7 @@ Passcode: {}
 							set acceptTicked to true
 							*)
 							set acceptTicked to "Accepted" is equal to the value of pop up button 2 of group 1 of splitter group 1 of window "Calendar"
-						-- on error the errorMessage number the errorNumber
+							-- on error the errorMessage number the errorNumber
 							-- logger's warn(errorMessage)
 						end try
 					end tell

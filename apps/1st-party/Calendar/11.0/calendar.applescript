@@ -1,4 +1,4 @@
-global std, regex, textUtil, retry, sb, calendarEvent, counter, plutil, dt, kb, configUser
+global std, regex, textUtil, retry, sb, calendarEvent, counter, plutil, dt, kb, configUser, uiutil
 global decoratorCalView, calProcess
 
 use script "Core Text Utilities"
@@ -102,8 +102,8 @@ on spotCheck()
 		logger's infof("Meetings at this time: {}", meetingCount)
 		if meetingCount is not 0 then
 			repeat with nextMeeting in meetingsAtThisTime
-				-- set meetingASDictionary to map's fromRecord(nextMeeting)
-				logger's infof("Next meeting today: {}", nextMeeting's toJSONString())
+				set meetingASDictionary to map's fromRecord(nextMeeting)
+				logger's infof("Next meeting today: {}", meetingASDictionary's toJSONString())
 			end repeat
 		end if
 		
@@ -335,6 +335,7 @@ on new()
 					repeat with nextDay in lists of UI element 1 of group 1 of splitter group 1 of window "Calendar"
 						try
 							set selectedEvent to (first static text of nextDay whose focused is true)
+							-- TOFIX:
 							return calendarEvent's new(selectedEvent)
 							-- on error the errorMessage number the errorNumber
 							-- 	logger's debug(errorMessage) -- Temp log, comment out for prod.	
@@ -372,7 +373,10 @@ on new()
 			
 			tell application "System Events" to tell application process "Calendar"
 				repeat with nextST in static texts of list 1 of group 1 of splitter group 1 of window "Calendar"
-					set meetingDetail to calendarEvent's new(nextST)
+					set uiSutBody to uiutil's findUiWithIdAttribute(UI elements of group 1 of splitter group 1 of window "Calendar", "notes-field") -- Can be text field or static text.
+					-- assertThat of std given condition:uiSutBody is not missing value, messageOnFail:"Unable to get event body"
+					
+					set meetingDetail to calendarEvent's new(nextST, uiSutBody)
 					my _moveToNextEventViaUI()
 					set end of meetingDetails to meetingDetail
 				end repeat
@@ -516,4 +520,5 @@ on init()
 	set dt to std's import("date-time")
 	set calProcess to std's import("process")'s new("Calendar")
 	set kb to std's import("keyboard")'s new()
+	set uiutil to std's import("ui-util")'s new()
 end init
