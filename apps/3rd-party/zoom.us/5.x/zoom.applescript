@@ -3,7 +3,11 @@ global zoomParticipants, zoomWindow, zoomActions
 global configZoom, configBusiness
 
 (*
-	@This script contains the most basic wrapper functions for the current zoom app. Mostly starting a meeting and login-related functions only for the sake of simplicity.
+	This script contains the most basic wrapper functions for the current zoom app. Mostly starting a meeting and login-related functions only for the sake of simplicity.
+
+	@Plists
+		config-business:
+			Domain Key
 
 	@Related:
 		zoom-actions.applescript - contains mic, video, hand raise, end meeting, sound source controls
