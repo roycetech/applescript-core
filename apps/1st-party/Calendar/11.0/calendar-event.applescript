@@ -142,15 +142,15 @@ Passcode: {}
 			set eventOrganizer to missing value
 			set attendeesButton to missing value
 			tell application "System Events" to tell process "Calendar"
-				try
-					set attendeesButton to first button of group 1 of splitter group 1 of window "Calendar" whose description is "Edit Attendees"
-				end try
-				if attendeesButton is missing value then
-					try
-						set attendeesButton to first button of pop over 1 of window "Calendar" whose description is "Edit Attendees"
-					end try
-				end if
-				
+				-- try
+				-- 	set attendeesButton to first button of group 1 of splitter group 1 of window "Calendar" whose description is "Edit Attendees"
+				-- end try
+				-- if attendeesButton is missing value then
+				-- 	try
+				-- 		set attendeesButton to first button of pop over 1 of window "Calendar" whose description is "Edit Attendees"
+				-- 	end try
+				-- end if
+				set attendeesButton to uiutil's findUiWithIdAttribute(buttons of group 1 of splitter group 1 of front window, "invitees-button")				
 				if attendeesButton is not missing value then
 					repeat with nextStaticText in static texts of attendeesButton
 						try
@@ -181,6 +181,7 @@ Passcode: {}
 				-- set its accepted to meetingDescription does not end with "Needs action" and textUtil's rtrim(meetingDescription) does not end with ","
 				try
 					set its facilitator to my _checkFacilitator(meetingBodyTextField)
+					if its facilitator then set its organizer to "you"
 				end try -- TOFIX
 				
 				set acceptTicked to false
@@ -201,7 +202,7 @@ Passcode: {}
 						end try
 					end tell
 					-- if uiActionPerformed then kb's pressKey("esc")
-					logger's debugf("acceptTicked: {}", acceptTicked)
+					-- logger's debugf("acceptTicked: {}", acceptTicked)
 				end if
 				set its accepted to acceptTicked
 				
