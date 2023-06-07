@@ -108,15 +108,18 @@ on main()
 	*)
 	
 	set scriptPosixPath to seTab's getPosixPath()
+	-- logger's debugf("scriptPosixPath: {}", scriptPosixPath)
 	set computedProjectKey to missing value
+
 	repeat with nextPath in projectPaths
+		-- logger's debugf("nextPath: {}", nextPath)
 		if scriptPosixPath starts with nextPath then
 			set filePathTokens to textUtil's split(nextPath, "/")
 			set computedProjectKey to the last item of filePathTokens
 			exit repeat
 		end if
 	end repeat
-	assertThat of std given condition:computedProjectKey is not missing value, messageOnFail:"Error: Make sure you have registered the project containing " & SCRIPT_NAME & ". See its README.md for more details."
+	assertThat of std given condition:computedProjectKey is not missing value, messageOnFail:"Error: Make sure you have registered the project containing \"" & scriptPosixPath & "\". See its README.md for more details."
 	
 	
 	(*		
