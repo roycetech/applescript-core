@@ -31,6 +31,9 @@ on spotCheck()
 		Safari
 		Manual: Run Macro
 		Set/Get Variable
+		Placeholder (So toggle action cases are in the same set)
+		Manual: Editor: Show Actions
+		Manual: Editor: Hide Actions
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -57,15 +60,46 @@ on spotCheck()
 		sut's setVariable("from Script Editor Name", "from Script Editor Value 2")
 		assertThat of std given condition:sut's getVariable("from Script Editor Name") is equal to "from Script Editor Value 2", messageOnFail:"Failed spot check"
 		logger's info("Passed")
+		
+	else if caseIndex is 6 then
+		sut's showActions()
+		
+	else if caseIndex is 7 then
+		sut's hideActions()
 	end if
 	
+	activate
 	spot's finish()
 	logger's finish()
 end spotCheck
 
 
 on new()
-	script KeyboardMaestroInstance
+	script KeyboardMaestroInstance		
+		(* @Warning - Grabs app focus *)
+		on showActions()
+			if running of application "Keyboard Maestro" is false then return
+			
+			activate application "Keyboard Maestro"
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					click menu item "Show Actions" of menu 1 of menu bar item "Actions" of menu bar 1
+				end try
+			end tell
+		end showActions
+		
+		(* @Warning - Grabs app focus *)
+		on hideActions()
+			if running of application "Keyboard Maestro" is false then return
+			
+			activate application "Keyboard Maestro"
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					click menu item "Hide Actions" of menu 1 of menu bar item "Actions" of menu bar 1
+				end try
+			end tell
+		end hideActions
+		
 		(*
 			TODO: move out.
 		*)
