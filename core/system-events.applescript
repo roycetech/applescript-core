@@ -17,7 +17,7 @@ if name of current application is "Script Editor" then spotCheck()
 
 on spotCheck()
 	init()
-	set caseId to "syseve-spotCheck"
+	set caseId to "system-events-spotCheck"
 	logger's start()
 	
 	-- If you haven't got these imports already.

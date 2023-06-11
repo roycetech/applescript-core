@@ -5,6 +5,8 @@ global CLICLICK_CLI
 	Download cli at https://www.bluem.net/en
 	For some reason if you are not moving the mouse pointer far enough, the repositioning of the cursor doesn't change or change but off by a small size. 
 
+	TODO: Refactor to use an instance.
+
 	@Usage:
 		lclick at "UI element" with reset and smoothing
 		
@@ -30,24 +32,43 @@ if name of current application is "osascript" then unitTest()
 on spotCheck()
 	init()
 	logger's start()
-	
+	set thisCaseId to "cliclick-spotCheck"
 	logger's infof("Current Coord: {}:{}", getCurrentCoord())
 	
+	-- If you haven't got these imports already.
+	set listUtil to std's import("list")
 	
-	unitTest()
-	return
+	set cases to listUtil's splitByLine("
+		Unit Test
+		Manual: Click on Show Accessory View - Default
+		Manual: Click on Show Accessory View - Reset
+	")
 	
-	-- Manual Test with Automator.
-	-- Create a Voice Command, and this will try to click on the inaccessible Voice Command input.
-	activate application "Automator"
+	set spotLib to std's import("spot-test")'s new()
+	set spot to spotLib's new(thisCaseId, cases)
+	set {caseIndex, caseDesc} to spot's start()
+	if caseIndex is 0 then
+		logger's finish()
+		return
+	end if
 	
+	if caseIndex is 1 then
+		unitTest()
+		
+	else
+		tell application "System Events" to tell process "Script Editor"
+			set sutUi to checkbox 1 of group 1 of group 1 of toolbar 1 of front window
+		end tell
+		if caseIndex is 2 then
+			lclick at sutUi
+			
+		else if caseIndex is 3 then
+			lclick at sutUi with reset
+			
+		end if
+	end if
 	
-	tell application "System Events" to tell process "Automator"
-		set sutUi to text field 1 of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of front window
-	end tell
-	
-	lclick at the sutUi with reset and smoothing
-	
+	spot's finish()
 	logger's finish()
 end spotCheck
 
@@ -179,7 +200,10 @@ end lclickAtXy
 
 	TODO: @reset needs extensive testing. 2. refactor.
 *)
-on lclick at theUi with reset and smoothing
+-- on lclick at theUi with reset and smoothing
+-- on lclick at theUi with reset:false and smoothing:true
+on lclick at theUi given reset:resetArg : true, smoothing:smoothingArg : true
+	
 	-- WARNING: if we don't log these parameters, compile error :tableflip:. 
 	-- Seems  it's no longer a problem February 19, 2021
 	-- log reset
@@ -188,7 +212,7 @@ on lclick at theUi with reset and smoothing
 	saveCurrentPosition()
 	
 	set smoothingParam to ""
-	if smoothing then set smoothingParam to "-e 1 "
+	if smoothingArg then set smoothingParam to "-e 1 "
 	
 	tell application "System Events"
 		tell theUi
