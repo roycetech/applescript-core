@@ -14,6 +14,7 @@ global IS_SPOT, SCRIPT_NAME
 	@Deployment:
 		1. Run this code, if the app is not yet installed, it will be created.
 		2. Grant accessibility permission to the resulting app.
+		Re-install this app by deleting the Create Automator App.app and redo deployment steps.
 		
 	@Session:
 		Sets the new app name into "New Script Name", for easy fetching when you set the permission after creation.
@@ -110,7 +111,7 @@ on main()
 	set scriptPosixPath to seTab's getPosixPath()
 	-- logger's debugf("scriptPosixPath: {}", scriptPosixPath)
 	set computedProjectKey to missing value
-
+	
 	repeat with nextPath in projectPaths
 		-- logger's debugf("nextPath: {}", nextPath)
 		if scriptPosixPath starts with nextPath then

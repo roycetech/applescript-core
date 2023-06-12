@@ -32,7 +32,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Manual: Load File (App Open, Not Running, Already Loaded)
 		Manual: Document Info (sample.txt, no file, search result, nav bar focused, Settings)
-		Manual: Close Front Tab		
+		Manual: Close Front Tab
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
