@@ -142,6 +142,8 @@ on new()
 		end turnOnDarkMode
 		
 		on turnOnLightMode()
+			activate application "Marked"
+			
 			tell application "System Events" to tell process "Marked"
 				try
 					if value of attribute "AXMenuItemMarkChar" of menu item "Dark Mode" of menu 1 of menu bar item "Preview" of menu bar 1 is missing value then return
@@ -153,6 +155,8 @@ on new()
 		
 		
 		on toggleDarkMode()
+			activate application "Marked"
+			
 			tell application "System Events" to tell process "Marked"
 				try
 					click menu item "Dark Mode" of menu 1 of menu bar item "Preview" of menu bar 1
