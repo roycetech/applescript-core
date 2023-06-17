@@ -17,6 +17,9 @@ global CLICLICK_CLI
 		config-system
 			cliclick CLI
 
+	@Change Log:
+		Last tested on macOS Monterey, fixed the movePointer now working.
+
 *)
 
 use script "Core Text Utilities"
@@ -42,6 +45,7 @@ on spotCheck()
 		Unit Test
 		Manual: Click on Show Accessory View - Default
 		Manual: Click on Show Accessory View - Reset
+		Manual: Move To XY
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -64,6 +68,9 @@ on spotCheck()
 			
 		else if caseIndex is 3 then
 			lclick at sutUi with reset
+
+		else if caseIndex is 4 then
+			moveToXy(0, 0)
 			
 		end if
 	end if
@@ -149,11 +156,15 @@ end movePointer
 (*
 	-e is for easing, to make it move human-like, sometimes necessary for some
 	UIs to detect and respond to.
+
+	@Known Issues:
+		June 16, 2023 - Does not work when smoothing parameter is used.
 *)
 on moveToXy(x, y)
 	set formattedCoord to formatCoordinates(x, y)
 	
-	set clickCommand to CLICLICK_CLI & " -e 1 m:" & formattedCoord
+	-- set clickCommand to CLICLICK_CLI & " -e 1 m:" & formattedCoord
+	set clickCommand to CLICLICK_CLI & " m:" & formattedCoord
 	do shell script clickCommand
 end moveToXy
 
