@@ -63,6 +63,8 @@ else
 endif
 
 
+compile: compile-core
+
 compile-core: compile-standard $(CORE_LIBS)
 
 compile-lib:
@@ -297,8 +299,10 @@ install-dvorak:
 	./scripts/compile-lib.sh core/keyboard
 	plutil -replace 'KeyboardInstance' -string 'dec-keyboard-dvorak-cmd' ~/applescript-core/config-lib-factory.plist
 
-install-cliclick:
+compile-cliclick:
 	./scripts/compile-lib.sh libs/cliclick/cliclick
+
+install-cliclick: compile-cliclick
 	osascript libs/cliclick/setup-cliclick-cli.applescript
 
 install-jira:
