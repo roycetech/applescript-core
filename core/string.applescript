@@ -68,6 +68,11 @@ on spotCheck()
 end spotCheck
 
 
+on substringAfter(sourceText, substring)
+	stringAfter(sourceText, substring)
+end substringAfter
+
+
 on stringAfter(sourceText, substring)
 	if sourceText does not contain substring then return missing value
 	if sourceText ends with substring then return missing value
@@ -637,7 +642,7 @@ end unitTest
 on init()
 	if initialized of me then return
 	set initialized of me to true
-	
+
 	set std to script "std"
 	set logger to std's import("logger")'s new("string")
 end init
