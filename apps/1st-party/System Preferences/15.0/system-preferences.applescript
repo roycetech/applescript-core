@@ -97,6 +97,7 @@ on spotCheck()
 	logger's finish()
 end spotCheck
 
+
 on new()
 	script SystemPreferences
 		on revealAccessibilityDictation()
@@ -140,6 +141,7 @@ on new()
 			true
 		end toggleVoiceVoiceControl
 		
+
 		on clickAccessibilityCommands()
 			if running of application "System Preferences" is false then return false
 			
@@ -177,6 +179,7 @@ on new()
 			
 			true
 		end clickAccessibilityCommands
+		
 		
 		on clickVocabulary()
 			if running of application "System Preferences" is false then return false
