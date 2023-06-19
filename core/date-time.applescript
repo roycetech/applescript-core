@@ -120,6 +120,9 @@ on nextHourSlot(pDateTime as date)
 end nextHourSlot
 
 
+(*
+	@returns date and time in the format MMdd-HHmm
+*)
 on nowForScreenShot()
 	set now to current date
 	set dateString to short date string of now
