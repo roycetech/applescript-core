@@ -325,7 +325,7 @@ end lastIndexOf
 
 
 on replaceAll(sourceText, substring, replacement)
-	
+	replace(sourceText, substring, replacement)
 end replaceAll
 
 
