@@ -1,4 +1,4 @@
-global std, textUtil
+global std, textUtil, unic
 global GENERIC_RESULT_VAR
 
 (* 
@@ -32,8 +32,10 @@ on spotCheck()
 		Manual: Run Macro
 		Set/Get Variable
 		Placeholder (So toggle action cases are in the same set)
+		
 		Manual: Editor: Show Actions
 		Manual: Editor: Hide Actions
+		Manual: Get Current Item Name
 	")
 	
 	set spotLib to std's import("spot-test")'s new()
@@ -66,6 +68,10 @@ on spotCheck()
 		
 	else if caseIndex is 7 then
 		sut's hideActions()
+		
+	else if caseIndex is 8 then
+		logger's infof("Handler result: {}", sut's getCurrentItemName())
+		
 	end if
 	
 	activate
@@ -75,7 +81,28 @@ end spotCheck
 
 
 on new()
-	script KeyboardMaestroInstance		
+	script KeyboardMaestroInstance
+	
+		(*
+			Returns the current focused macro or group name in the Keyboard Maestro Editor.
+		*)
+		on getCurrentItemName()
+			if running of application "Keyboard Maestro" is false then return missing value
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				set editorWindow to missing value
+				try
+					set editorWindow to the first window whose name does not start with "Preferences: "
+				end try
+				if editorWindow is missing value then return
+				
+				set tokens to textUtil's split(name of editorWindow, unic's SEPARATOR)
+			end tell
+			
+			last item of tokens
+		end getCurrentItemName
+		
+		
 		(* @Warning - Grabs app focus *)
 		on showActions()
 			if running of application "Keyboard Maestro" is false then return
@@ -257,6 +284,7 @@ on init()
 	set std to script "std"
 	set logger to std's import("logger")'s new("keyboard-maestro")
 	set textUtil to std's import("string")
+	set unic to std's import("unicodes")
 	
 	set GENERIC_RESULT_VAR to "km_result"
 end init
