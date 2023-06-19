@@ -133,7 +133,7 @@ on dragFromTo(x1, y1, x2, y2)
 	
 	tell application "System Events"
 		-- drag down, drag up, and click.  does not work without the additional click.
-		set clickCommand to CLICLICK_CLI & " -e 1 dd:" & x1 & "," & y1 & " du:" & x2 & "," & y2 & " c:" & x2 & "," & y2
+		set clickCommand to CLICLICK_CLI & " -e 1 dd:" & x1 & "," & y1 & " du:" & x2 & "," & y2  -- & " c:" & x2 & "," & y2
 		-- log clickCommand
 		do shell script clickCommand
 	end tell
