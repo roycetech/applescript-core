@@ -258,14 +258,14 @@ on new()
 			set localPlistPosixPath to AS_CORE_PATH & pPlistName & ".plist"
 			
 			script PlutilInstance
-				property plistFileName : calcPlistFilename
+				property plistFilename : calcPlistFilename
 				property plistName : pPlistName
 				property quotedPlistPosixPath : quoted form of localPlistPosixPath
 				
 				-- HANDLERS ==================================================================
 				
 				on deletePlist()
-					do shell script "rm " & plistFileName
+					do shell script "rm " & plistFilename
 				end deletePlist
 				
 				on setValue(plistKey, newValue)
@@ -310,14 +310,14 @@ on new()
 					
 					tell application "System Events"
 						if newValue is equal to missing value and my getValue(plistKey) is not missing value then
-							tell property list file plistFileName to set value of property list item plistKey to ""
+							tell property list file plistFilename to set value of property list item plistKey to ""
 							return
 						end if
 						
 						if my getValue(plistKey) is equal to missing value then
 							my _newValue(plistKey, newValue)
 						else
-							tell property list file plistFileName to set value of property list item plistKey to newValue
+							tell property list file plistFilename to set value of property list item plistKey to newValue
 						end if
 					end tell
 				end setValue
@@ -491,7 +491,7 @@ on new()
 						return _convertType(plistValue, dataType)
 					end if
 					
-					tell application "System Events" to tell property list file plistFileName
+					tell application "System Events" to tell property list file plistFilename
 						try
 							return value of property list item plistKey
 						on error errorText
@@ -709,7 +709,7 @@ on new()
 				end _convertType
 
 				to _newValue(mapKey, newValue)
-					tell application "System Events" to tell property list file plistFileName
+					tell application "System Events" to tell property list file plistFilename
 						make new property list item at end with properties {kind:class of newValue, name:mapKey, value:newValue}
 					end tell
 				end _newValue
