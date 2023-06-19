@@ -13,9 +13,34 @@ help:
 	@echo "-s option hides the Make invocation command."
 
 # Simplify to pick all files inside core folder.
-CORE_LIBS :=  clipboard config date-time dialog emoji file idler keyboard list \
-logger map plutil process regex retry spot-test string string-builder \
-speech stack switch  system-events ui-util unicodes unit-test window
+CORE_LIBS :=  \
+	clipboard \
+	config \
+	date-time \
+	dialog \
+	emoji \
+	file \
+	idler \
+	keyboard \
+	list \
+	logger \
+	map \
+	plist-buddy \
+	plutil \
+	process \
+	regex \
+	retry \
+	spot-test \
+	string \
+	string-builder \
+	speech \
+	stack \
+	switch \
+	system-events \
+	ui-util \
+	unicodes \
+	unit-test \
+	window
 
 APPS_PATH=/Applications/AppleScript
 
