@@ -98,6 +98,8 @@ on new()
 			false
 		end switchProfile
 	end script
+
+	std's applyMappedOverride(result)
 end new
 
 
