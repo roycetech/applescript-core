@@ -583,25 +583,25 @@ on new()
 				*)
 				on _getTypedGetterShellTemplate(typeText, plistKey, quotedPlistPosixPath)
 					if plistKey is missing value then return missing value
-
+					
 					set typeClause to ""
 					if typeText is not missing value then set typeClause to "-expect " & typeText
-
+					
 					set shellTemplate to "if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -extract \"$TMP\" raw " & typeClause & " {}; else plutil -extract {} raw " & typeClause & " {}; fi"
 					format {shellTemplate, {plistKey, plistKey, quotedPlistPosixPath, quoted form of plistKey, quotedPlistPosixPath}}
 				end _getTypedGetterShellTemplate
-
-
+				
+				
 				on _escapeAndQuoteKey(plistKey)
 					if plistKey is missing value then return missing value
-
+					
 					if regex's matches("^\\d", plistKey) then set plistKey to "_" & plistKey
 					set escapedPlistKey to plistKey
 					if plistKey contains "." then set escapedPlistKey to do shell script (format {"echo \"{}\" | sed 's/\\./\\\\./g'", plistKey})
-
+					
 					quoted form of escapedPlistKey
 				end _escapeAndQuoteKey
-
+				
 				(*
 					@listToSet must have similarly element type.
 
@@ -616,77 +616,77 @@ on new()
 							if (offset of "$" in nextElement) is 0 then
 								set nextElementValue to _escapeSpecialCharacters(nextElement)
 							end if
-
+							
 							set param to param & "<" & elementType & ">" & nextElementValue & "</" & elementType & ">"
 						end repeat
 					end if
 					set param to param & "</array>"
 					set setArrayCommand to format {"plutil -replace {} -xml {} {}", {quotedPlistKey, quoted form of param, quotedPlistPosixPath}}
-
+					
 					do shell script setArrayCommand
 				end _insertList
-
+				
 				on _escapeSpecialCharacters(xmlValue)
 					do shell script "echo \"" & xmlValue & "\" | sed \"s/\\&/\\&amp;/;s/>/\\&gt;/;s/</\\&lt;/;s/'/\\&apos;/\""
 				end _escapeSpecialCharacters
-
-
+				
+				
 				(* Keep this handler here despite being date-specific because this library is considered essential and we don't want to make the date library an essential library by putting a depnedency from an essential library. *)
 				on _formatPlistDate(theDate)
 					set dateString to short date string of theDate
-
+					
 					set myMonth to (first word of dateString) as integer
 					if myMonth is less than 10 then set myMonth to "0" & myMonth
 					set myDom to (second word of dateString) as integer
-
+					
 					set timeString to time string of theDate
-
+					
 					set myHour to ((first word of timeString) as integer)
 					if timeString contains "PM" and myHour is not equal to 12 then set myHour to myHour + 12
 					set myHour to myHour - TZ_OFFSET -- Local PH Timezone adjustment
-
+					
 					if myHour is less than 0 then
 						set myHour to (myHour + 24) mod 24
 						set myDom to myDom - 1 -- problem on new year.
 					end if
-
+					
 					if myDom is less than 10 then set myDom to "0" & myDom
 					if myHour is less than 10 then set myHour to "0" & myHour
 					set myMin to (second word of timeString) as integer
 					if myMin is less than 10 then set myMin to "0" & myMin
-
+					
 					set mySec to (third word of timeString) as integer
 					if mySec is less than 10 then set mySec to "0" & mySec
-
+					
 					format {"20{}-{}-{}T{}:{}:{}Z", {last word of dateString, myMonth, myDom, myHour, myMin, mySec}}
 				end _formatPlistDate
-
+				
 				on _zuluToLocalDate(zuluDateText)
 					if zuluDateText is missing value then return missing value
-
+					
 					set dateTimeTokens to _split(zuluDateText, "T", "string")
 					set datePart to first item of dateTimeTokens
 					set timePart to last item of dateTimeTokens
 					set {yearPart, monthPart, dom} to words of datePart
-
+					
 					set dom to last word of datePart
 					set nextDayFlag to false
 					set timezoneOffset to TZ_OFFSET
 					set hourPart to (first word of timePart as integer) + timezoneOffset -- PH local timezone
 					set amPm to "AM"
-
+					
 					set hourInt to (hourPart as integer) mod 24
 					if hourInt is greater than 11 and hourInt is less than 23 then
 						set amPm to "PM"
 					end if
-
+					
 					if hourInt is less than TZ_OFFSET and hourInt is not 0 then set dom to dom + 1 -- Problem on new year
 					set hourPart to hourPart mod 12
 					set parsableFormat to monthPart & "/" & dom & "/" & yearPart & " " & hourPart & text 3 thru -2 of timePart & " " & amPm
-
+					
 					date parsableFormat
 				end _zuluToLocalDate
-
+				
 				on _getPlUtilType(dataToSave)
 					if class of dataToSave is text then return "string"
 					if class of dataToSave is integer then return "integer"
@@ -695,35 +695,35 @@ on new()
 					if class of dataToSave is list then return "array"
 					if class of dataToSave is real then return "float"
 					if class of dataToSave is record then return "dict"
-
+					
 					missing value
 				end _getPlUtilType
-
+				
 				to _convertType(textValue, plistType)
 					if plistType is "date" then return _zuluToLocalDate(textValue)
 					if plistType is "integer" then return textValue as integer
 					if plistType is "float" then return textValue as real
 					if plistType is "bool" then return textValue is "true"
-
+					
 					textValue
 				end _convertType
-
+				
 				to _newValue(mapKey, newValue)
 					tell application "System Events" to tell property list file plistFilename
 						make new property list item at end with properties {kind:class of newValue, name:mapKey, value:newValue}
 					end tell
 				end _newValue
-
+				
 				-- TO Migrate, from session.
 				on debugOn()
 					getBool("DEBUG_ON")
 				end debugOn
 			end script
 		end new
-
-
+		
+		
 		-- Private Codes below =======================================================
-
+		
 		on _posixSubPathToFolder(subpath, sourceFolder)
 			set calcEndFolder to sourceFolder
 			set pathTokens to _split(subpath, "/", "string")
@@ -736,18 +736,18 @@ on new()
 					end try
 				end repeat
 			end tell
-
+			
 			calcEndFolder
 		end _posixSubPathToFolder
-
-
+		
+		
 		(* Intended to cache the value to reduce events triggered. *)
 		on _getHomeFolderPath()
 			if my homeFolderPath is missing value then set my homeFolderPath to (path to home folder)
 			my homeFolderPath
 		end _getHomeFolderPath
-
-
+		
+		
 		(*
 			WET: Keep it wet because this library will be considered essential and shouldn't have many transitive dependencies to simplify deployment.
 			@elementType - can be integer, float, bool, or string
@@ -757,7 +757,7 @@ on new()
 			set AppleScript's text item delimiters to theDelimiter
 			set theArray to every text item of theString
 			set AppleScript's text item delimiters to oldDelimiters
-
+			
 			set typedArray to {}
 			repeat with nextElement in theArray
 				if elementType is "integer" then
@@ -773,21 +773,21 @@ on new()
 				end if
 				set end of typedArray to typedValue
 			end repeat
-
+			
 			typedArray
 		end _split
-
-
+		
+		
 		on _indexOf(aList, targetElement)
 			repeat with i from 1 to count of aList
 				set nextElement to item i of aList
 				if nextElement as text is equal to targetElement as text then return i
 			end repeat
-
+			
 			return 0
 		end _indexOf
 	end script
-
+	
 	std's applyMappedOverride(result)
 end new
 
@@ -814,7 +814,7 @@ on unitTest()
 		sut's deleteKey("spot-map")
 		sut's deleteKey("spot-special")
 		assertEqual(missing value, sut's getValue("spot-array"), "Clean array key")
-
+		
 		newMethod("setValue")
 		sut's setValue("101 Dalmatian", "Key Starts with Number Breaks")
 		sut's setValue(missing value, "haha")
@@ -827,7 +827,7 @@ on unitTest()
 		sut's setValue("spot-list-special", {"&", "<", ">"}) -- Doesn't look like we need to escape apostrophe and double quotes.
 		sut's setValue("spot-$dollar", "$5")
 		sut's setValue("spot-$dollar-list", {"$yes-5"})
-
+		
 		sut's setValue("spot-string.dotted-key", "string-dotted-value.txt")
 		sut's setValue("spot-integer", 1)
 		sut's setValue("spot-float", 1.5)
@@ -841,7 +841,7 @@ on unitTest()
 		set currentDate to (current date) + zuluAdjust * hours
 		sut's setValue("spot-date", currentDate)
 		sut's setValue("spot-bool", false)
-
+		
 		newMethod("getValue")
 		set arrayValue to sut's getValue(missing value)
 		set arrayValue to sut's getValue("spot-array")
@@ -858,22 +858,22 @@ on unitTest()
 		-- assertEqual("{one: 1, two: 2, three: a&c, four: colonized: apat}", actualRecord's toString(), "Get record value") -- TODO: map's equals()
 		assertEqual("$5", sut's getValue("spot-$dollar"), "Dollar Key and Value")
 		assertEqual({"$yes-5"}, sut's getValue("spot-$dollar-list"), "Dollar Character in List")
-
+		
 		newMethod("getValueWithDefault")
 		assertEqual("use me", sut's getValueWithDefault("spot-string-absent", "use me"), "Value is absent")
 		assertEqual("text", sut's getValueWithDefault("spot-string", 1), "Value is present")
-
+		
 		newMethod("getList")
 		assertMissingValue(sut's getList(missing value), "Missing value")
 		assertEqual({"one", "two"}, sut's getList("spot-array-string"), "Get List")
 		assertMissingValue(sut's getList("unicorn-list"), "Missing key returns missing value")
 		assertEqual({}, sut's getList("spot-array-empty"), "Empty List")
 		assertEqual({}, sut's getList("spot array empty"), "Empty List, Spaced-Key")
-
+		
 		newMethod("getForcedList")
 		assertEqual({"one", "two"}, sut's getForcedList("spot-array-string"), "List exists")
 		assertEqual({}, sut's getForcedList("unicorn-list"), "Missing List")
-
+		
 		newMethod("appendValue")
 		sut's appendValue("spot-array2", 3)
 		assertEqual({3}, sut's getList("spot-array2"), "First element")
@@ -885,7 +885,7 @@ on unitTest()
 		assertEqual({"one", "two", "four"}, sut's getList("spot-array-string"), "Append String")
 		sut's appendValue("spot-array-string", "five.five")
 		assertEqual({"one", "two", "four", "five.five"}, sut's getList("spot-array-string"), "Append dotted string")
-
+		
 		newMethod("removeElement")
 		assertFalse(sut's removeElement(missing value, "two"), "Missing value list")
 		assertFalse(sut's removeElement("spot-array-string", missing value), "Missing value element")
@@ -896,37 +896,37 @@ on unitTest()
 		sut's removeElement("spot-array-string", "five.five")
 		assertEqual({}, sut's getList("spot-array-string"), "Get after removing all element")
 		assertFalse(sut's removeElement("spot-array-string", "Good Putin"), "Remove inexistent element")
-
+		
 		newMethod("getInt")
 		assertMissingValue(sut's getInt(missing value), "Missing value")
 		assertEqual(1, sut's getInt("spot-integer"), "Get integer value")
-
+		
 		newMethod("getReal")
 		assertMissingValue(sut's getReal(missing value), "Missing value")
 		assertEqual(1.5, sut's getReal("spot-float"), "Get real value")
-
+		
 		newMethod("getDateText")
 		assertMissingValue(sut's getDateText(missing value), "Missing value")
 		assertNotMissingValue(sut's getDateText("spot-date"), "Can get date text")
-
+		
 		newMethod("update") -- huh?!
 		sut's setValue("spot-bool", 1)
 		assertEqual(1, sut's getValue("spot-bool"), "Update bool to integer")
-
+		
 		newMethod("hasValue")
 		assertEqual(false, sut's hasValue(missing value), "Missing value")
 		assertEqual(false, sut's hasValue("spot-unicorn"), "Value not found")
 		assertEqual(true, sut's hasValue("spot-bool"), "Value found")
-
+		
 		newMethod("hasValue")
 		assertFalse(sut's hasValue("spot-unicorn"), "Value not found")
 		assertFalse(sut's hasValue(missing value), missing value)
-
+		
 		if mapLib's hasJsonSupport() then
 			newMethod("getRecord")
 			assertEqual("{one: 1, two: 2}", sut's getRecord("spot-map")'s toString(), "Read Record Stored as JSON String")
 		end if
-
+		
 		(*
 		set fetchedMapValue to sut's getValue("spot-map")
 		log fetchedMapValue
@@ -934,7 +934,7 @@ on unitTest()
 
 		assertEqual("{one: 1, two: 2}", sut's getValue("spot-map")'s toString(), "Get record from Map")
 		*)
-
+		
 		done()
 	end tell
 end unitTest
@@ -944,13 +944,13 @@ end unitTest
 on init()
 	set std to script "std"
 	set AS_CORE_PATH to "/Users/" & std's getUsername() & "/applescript-core/"
-
+	
 	if initialized of me then return
 	set initialized of me to true
-
+	
 	set logger to std's import("logger")'s new("plutil")
 	set mapLib to std's import("map")
 	set regex to std's import("regex")
-
+	
 	set TZ_OFFSET to (do shell script "date +'%z' | cut -c 2,3") as integer
 end init
