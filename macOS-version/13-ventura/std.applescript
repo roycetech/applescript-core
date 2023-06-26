@@ -1,5 +1,3 @@
-global std
-
 (*
 	Usage:
 		set std to script "std"
@@ -10,11 +8,11 @@ global std
 		Do not use logger here because it will result in circular dependency.
 *)
 
-property initialized : false
-property logger : missing value
+
+property logger : loggerLib's new("")
 property username : missing value
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	
@@ -25,7 +23,6 @@ on spotCheck()
 		catch("spotCheck-std", errorNumber, "is not allowed to send keystrokes")
 	end try
 	
-	init()
 	logger's infof("Username: {}", getUsername())
 	logger's infof("App Exists no: {}", appExists("Magneto"))
 	logger's infof("App Exists yes: {}", appExists("Script Editor"))
@@ -148,7 +145,6 @@ end getUsername
 
 
 on assertThat given condition:condition as boolean, messageOnFail:message : missing value
-	init()
 	
 	if condition is false then
 		if message is missing value then set message to "Assertion failed"

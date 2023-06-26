@@ -1,39 +1,37 @@
-global std
-
 (*
 	Update the following quite obvious if you read through the template code.:
 	spotCheck()
 		thisCaseId
 		base library instantiation
 
-	init()
 		logger constructor parameter inside init handler
 
 	decorate()
 		instance name
 		handler name
-
 *)
+use listUtil : script "list"
 
-property initialized : false
-property logger : missing value
+use loggerLib : script "logger"
+use safariTechPreviewLib : script "safari-technology-preview"
 
-if name of current application is "Script Editor" then spotCheck()
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("dec-safari-technology-preview-javascript")
+property safariTechPreview : safariTechPreviewLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "dec-safari-technology-preview-javascript"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Basic
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -41,8 +39,7 @@ on spotCheck()
 	end if
 	
 	activate application "Safari Technology Preview"
-	set sut to std's import("safari-technology-preview")'s new()
-	set frontTab to sut's getFrontTab()
+	set frontTab to safariTechPreview's getFrontTab()
 	if name of frontTab is not "ScriptSafariTechnologyPreviewJavaScript" then set frontTab to decorate(frontTab)
 	
 	if caseIndex is 1 then
@@ -77,19 +74,7 @@ on decorate(mainScript)
 		
 		on runScriptPlain(scriptText)
 			set theTab to _getTab()
-			tell application "Safari Technology Preview" to do JavaScript scriptText in theTab			
+			tell application "Safari Technology Preview" to do JavaScript scriptText in theTab
 		end runScriptPlain
 	end script
 end decorate
-
-
--- Private Codes below =======================================================
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("dec-safari-technology-preview-javascript")
-end init

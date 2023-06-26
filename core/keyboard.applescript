@@ -1,4 +1,11 @@
-global std
+(*
+	@Usage:
+		use kbLib : script "keyboard"
+	Or type (Text Expander): uuse kb
+	
+	@Deployment:
+		make compile-lib SOURCE=core/keyboard
+*)
 
 use script "Core Text Utilities"
 use scripting additions
@@ -14,25 +21,24 @@ property NSShiftKeyMask : a reference to 131072
 property NSCommandKeyMask : a reference to 1048576
 property NSEvent : a reference to current application's NSEvent
 
-(*
-	Usage:
-		set kb to std's import("keyboard")
-	Or type (Text Expander): sset kb
-*)
+use std : script "std"
+use loggerLib : script "logger"
+use plutilLib : script "plutil"
+use listUtil : script "list"
+use emoji : script "emoji"
+use spotScript : script "spot-test"
+use overriderLib : script "overrider"
 
-property initialized : false
-property logger : missing value
+property logger : loggerLib's new("keyboard")
+property plutil : plutilLib's new()
+property session : plutil's new("session")
+property overrider : overriderLib's new()
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set caseId to "keyboard-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
-	set emoji to std's import("emoji")
 	
 	-- All spot check cases are manual.
 	set cases to listUtil's splitByLine("
@@ -41,24 +47,25 @@ on spotCheck()
 		Manual: Modifier Pressed
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
+	
+	set spotLib to spotScript's new()
 	set spot to spotLib's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
 	set sut to new()
 	tell sut
 		if caseIndex is 1 then
+			pressKey(0)
+			pressKey(1)
+			pressKey(2)
+			pressKey(3)
+			pressKey(4)
+			pressKey(5)
+			pressKey(6)
+			pressKey(7)
+			pressKey(8)
+			pressKey(9)
 			(*
-		pressKey(0)
-		pressKey(1)
-		pressKey(2)
-		pressKey(3)
-		pressKey(4)
-		pressKey(5)
-		pressKey(6)
-		pressKey(7)
-		pressKey(8)
-		pressKey(9)
 		
 		pressKey("a")
 		pressKey("b")
@@ -87,14 +94,12 @@ on spotCheck()
 		pressKey("y")
 		pressKey("z")
 	*)
-			
 			activate application "Terminal"
 			delay 0.1
 			pressControlKey("c")
-			pressControlC()
 			
 		else if caseIndex is 2 then
-			insertTextByPasting("Hello " & emoji's horn)
+			insertTextByPasting("Hello " & emoji's HORN)
 			
 		else if caseIndex is 3 then
 			delay 1
@@ -257,7 +262,7 @@ on new()
 			end try
 		end insertTextByPasting
 	end script
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
 
 
@@ -326,7 +331,7 @@ on _charToKeycode(key)
 	if key is "down" then return 125
 	if key is "left" then return 123
 	if key is "right" then return 124
-
+	
 	if key is "F1" or key is "f1" then return 122
 	if key is "F2" or key is "f2" then return 120
 	if key is "F3" or key is "f3" then return 99
@@ -339,17 +344,7 @@ on _charToKeycode(key)
 	if key is "F10" or key is "f10" then return 109
 	if key is "F11" or key is "f11" then return 103
 	if key is "F12" or key is "f12" then return 111
-
+	
 	-1
 end _charToKeycode
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-
-	set std to script "std"
-	set logger to std's import("logger")'s new("keyboard")
-end init
-
 -- EOS

@@ -1,18 +1,26 @@
-global std, notificationCenter
+(*
+	@requires notification-center to be deployed first.
+*)
 
-property initialized : false
+use scripting additions
+
+
+use listUtil : script "list"
+
+use loggerLib : script "logger"
+use notificationCenterLib : script "notification-center"
+
+use spotScript : script "spot-test"
+
 property speech : false
-property logger : missing value
+property logger : loggerLib's new("notification-center-helper")
+property notificationCenter : notificationCenterLib's new()
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "notification-center-helper-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Notice Meetings
@@ -20,8 +28,8 @@ on spotCheck()
 		Last Notice
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -45,6 +53,7 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
+
 
 on new()
 	script NotificationCenterHelperInstance
@@ -165,13 +174,3 @@ on new()
 		end _simpleSort
 	end script
 end new
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("notification-center-helper")
-	set notificationCenter to std's import("notification-center")'s new()
-end init

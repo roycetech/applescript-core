@@ -15,15 +15,19 @@
 		plutil -remove 'Display Name' ~/applescript-core/zoom.us/config.plist
 *)
 
-set std to script "std"
-set logger to std's import("logger")'s new("enter-user-info")
-set plutil to std's import("plutil")'s new()
+use scripting additions
 
-set textUtil to std's import("string")
-set listUtil to std's import("list")
+use textUtil : script "string"
+use listUtil : script "list"
+
+use loggerLib : script "logger"
+use plutilLib : script "plutil"
+
+
+property logger : loggerLib's new("enter-user-info")
+property plutil : plutilLib's new()
 
 set configUser to plutil's new("zoom.us/config")
-
 
 set infoKey to "User Meeting ID" -- e.g. 123456789
 set existingValue to ""
@@ -59,7 +63,3 @@ logger's debugf("inputText: {}", inputText)
 
 configUser's setValue(infoKey, inputText)
 logger's infof("The detail: {} is now saved for {}", {inputText, infoKey})
-
-
-
-

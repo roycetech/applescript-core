@@ -1,17 +1,27 @@
-global std, textUtil
+(*
+	@Deployment:
+		make install-terminal
+*)
 
-property initialized : false
-property logger : missing value
+use scripting additions
 
-if name of current application is "Script Editor" then spotCheck()
+use textUtil : script "string"
+use listUtil : script "list"
+
+use loggerLib : script "logger"
+use terminalLib : script "terminal"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("dec-terminal-path")
+property terminal : terminalLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "dec-terminal-path-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Manual: Posix Path
 		Manual: Is User Path (true, false, home path)
@@ -20,8 +30,8 @@ on spotCheck()
 		Manual: Directory Name
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -29,8 +39,7 @@ on spotCheck()
 	end if
 	
 	
-	set termTabMain to std's import("terminal")'s new()
-	set sut to termTabMain's getFrontTab()
+	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)
 	
 	if caseIndex is 1 then
@@ -133,13 +142,3 @@ on decorate(termTabScript)
 		end getDirectoryName
 	end script
 end decorate
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("dec-terminal-path")
-	set textUtil to std's import("string")
-end init

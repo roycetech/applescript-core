@@ -1,21 +1,24 @@
-global std, usr
-
 (*
 	Provides handlers about the meeting window.
 *)
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use usrLib : script "user"
+use zoomLib : script "zoom"
+
+use spotScript : script "spot-test"
+
+property usr : usrLib's new()
+property logger : loggerLib's new("zoom-window")
+property zoomUtil : zoomLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "zoom-window-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Close Home Window (Screen Sharing/Non Sharing)
@@ -24,15 +27,15 @@ on spotCheck()
 		Manual: Turn Off Always on Top
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
 	
-	set sut to std's import("zoom")'s new()
+	set sut to zoomUtil
 	try
 		sut's bringWindowToFront
 	on error
@@ -71,7 +74,6 @@ end newSpotBase
 on decorate(mainScript)
 	script ZoomInstance
 		property parent : mainScript
-		
 		
 		(* POC, use the closeHomeWindow for now. *)
 		on closeNonMeetingWindows()
@@ -166,17 +168,3 @@ on decorate(mainScript)
 		end toggleAlwaysOnTop
 	end script
 end decorate
-
-
--- Private Codes below =======================================================
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set usr to std's import("user")'s new()
-	set logger to std's import("logger")'s new("zoom-window")
-end init

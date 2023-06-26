@@ -1,5 +1,3 @@
-global std
-
 (* 
 	This library is a wrapper to a running process. Error is raised if the app don't exist upon instantiation of this component.
 	
@@ -15,18 +13,18 @@ global std
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
-property logger : missing value
+use loggerLib : script "logger"
+use listUtil : script "list"
+use spotClass : script "spot-test"
 
-if name of current application is "Script Editor" then spotCheck()
+property logger : loggerLib's new("process")
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	logger's start()
 	set caseId to "process-spotCheck"
 	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Inexistent App
 		Manual: Terminate (Launch Automator). (Running/Not Running)
@@ -45,7 +43,7 @@ on spotCheck()
 		Manual: Minimize
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
+	set spotLib to spotClass's new()
 	set spot to spotLib's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
@@ -116,11 +114,11 @@ on spotCheck()
 		assertThat of std given condition:sut's isRunning(), messageOnFail:"Failed spot check"
 		set sut to new("Migration Assistant")
 		assertThat of std given condition:sut's isRunning() is false, messageOnFail:"Failed spot check"
-
+		
 	else if caseIndex is 13 then
-			set sut to new("Script Editor")
-			sut's minimize()
-
+		set sut to new("Script Editor")
+		sut's minimize()
+		
 	end if
 	
 	spot's finish()
@@ -279,16 +277,3 @@ on new(pProcessName)
 		
 	end script
 end new
-
-
-
--- Private Codes below =======================================================
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("process")
-end init
-

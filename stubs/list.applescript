@@ -1,0 +1,3 @@
+(*
+	list.applescript stub
+*)

@@ -1,5 +1,3 @@
-global std, textUtil, retryLib, cliclick, clip, kb
-
 (*
 	Usage:
 		Use the Text Expander: "ppwd"
@@ -7,19 +5,32 @@ global std, textUtil, retryLib, cliclick, clip, kb
 	TODO: 12/4/21 10:05:40> F Error encountered: System Events got an error: Can?t get scroll area 1 of splitter group 1 of window "1Password" of process "1Password 6". Invalid index.
 *)
 
-property initialized : false
+use scripting additions
+
+use textUtil : script "string"
+use listUtil : script "list"
+use cliclick : script "cliclick"
+
+use loggerLib : script "logger"
+use retryLib : script "retry"
+use clipLib : script "clipboard"
+use kbLib : script "keyboard"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("1password")
+property clip : clipLib's new()
+property retry : retryLib's new()
+property kb : kbLib's new()
+
 property initCategory : false
 property waitOtpThreshold : 3 -- 2 is too short, failed January 6, 2021
-property logger : missing value
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "1password-spotCheck"
 	logger's start()
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Unlocked (yes, no)
@@ -28,8 +39,8 @@ on spotCheck()
 		Retrieve an OTP via mini
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -520,22 +531,8 @@ on new()
 		on _clickTouchId()
 			tell application "System Events" to tell process "1Password 6"
 				set theCoord to getCoord of cliclick at button "Unlock" of first window
-				cliclick's lclickAtXY((item 1 of theCoord) - 50, item 2 of theCoord)
+				cliclick's lclickAtXy((item 1 of theCoord) - 50, item 2 of theCoord)
 			end tell
 		end _clickTouchId
 	end script
 end new
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("1password")
-	set textUtil to std's import("string")
-	set retryLib to std's import("retry")
-	set clip to std's import("clipboard")'s new()
-	set cliclick to std's import("cliclick")
-	set kb to std's import("keyboard")'s new()
-end init

@@ -1,8 +1,3 @@
-global std, textUtil, retry
-
-use script "Core Text Utilities"
-use scripting additions
-
 (*
 	Re-designed from scripteditor-tabs.applescript
 
@@ -10,29 +5,41 @@ use scripting additions
 		This script expects that finder preferences has to always
 	display the file extension.
 
-	Compile:
+	@Compile:
 		make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/scripteditor"
 				
 	Usage:
-		set seLib to std's import("script-editor")'s new()
-		set seTab to seLib's getFrontTab()
+		use seLib : script "script-editor"
+		property se : seLib's new()
+		set frontTab to se's getFrontTab()
 		or
-		KM Text Expander: sset se 
+		KM Text Expander: uuse scripteditor
 *)
 
-property initialized : false
-property logger : missing value
-if name of current application is "Script Editor" then spotCheck()
+use script "Core Text Utilities"
+use scripting additions
+
+use fileUtil : script "file"
+use listUtil : script "list"
+use textUtil : script "string"
+
+use configLib : script "config"
+use loggerLib : script "logger"
+use retryLib : script "retry"
+use overriderLib : script "overrider"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("script-editor")
+property configSystem : configLib's new("system")
+property retry : retryLib's new()
+property overrider : overriderLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
-	set thisCaseId to "scripteditor-spotCheck"
+	set thisCaseId to "script-editor-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
-	set fileUtil to std's import("file")
-	set configSystem to std's import("config")'s new("system")
 	
 	set cases to listUtil's splitByLine("
 		Manual: File Info (Core Project, Other Project)
@@ -44,8 +51,8 @@ on spotCheck()
 		Manual: Focus
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -53,7 +60,7 @@ on spotCheck()
 	end if
 	
 	set sut to new()
-	set frontTab to sut's getFrontTab()	
+	set frontTab to sut's getFrontTab()
 	frontTab's focus()
 	
 	set projectPath to configSystem's getValue("AppleScript Core Project Path")
@@ -107,8 +114,8 @@ on new()
 			tell application "Script Editor"
 				if not (window theName exists) then return missing value
 				
-				set theWindow to window theName
-				return my _new(id of theWindow)
+				set appWindow to window theName
+				return my _new(id of appWindow)
 			end tell
 		end findTabWithName
 		
@@ -130,10 +137,10 @@ on new()
 		end getFrontTab
 		
 		(*
-    @posixFilePath the Unix file  path e.g. /Users/...
+			@posixFilePath the Unix file  path e.g. /Users/...
 
-	@returns script instance TODO
-*)
+			@returns script instance TODO
+		*)
 		on openFile(posixFilePath)
 			activate application "Script Editor"
 			
@@ -166,7 +173,7 @@ on new()
 		-- Private Codes below =======================================================
 		on _new(windowId)
 			script ScriptEditorInstance
-				property theWindow : missing value -- app window, not syseve window.
+				property appWindow : missing value -- app window, not syseve window.
 				property suffixedName : missing value
 				
 				on focus()
@@ -174,12 +181,12 @@ on new()
 					
 					tell application "System Events" to tell process "Script Editor"
 						try -- Fix the nasty bug where it focuses but it's still not considered as the main window targeted by the menu command merge all windows.
-							click menu item (name of document of my theWindow) of menu 1 of menu bar item "Window" of menu bar 1
+							click menu item (name of document of my appWindow) of menu 1 of menu bar item "Window" of menu bar 1
 						end try
 					end tell
 					
 					tell application "Script Editor"
-						set index of my theWindow to 1
+						set index of my appWindow to 1
 					end tell
 				end focus
 				
@@ -220,7 +227,7 @@ on new()
 							click button "Cancel" of window "Open"
 						end if
 						
-						tell window (name of my theWindow)
+						tell window (name of my appWindow)
 							set logTabState to (value of first radio button of first radio group whose description is "log") as text
 							if logTabState is not "1" then click (first radio button of first radio group whose description is "log")
 							click checkbox "Messages" of group 1 of splitter group 1 of splitter group 1
@@ -237,18 +244,18 @@ on new()
 				on getContents()
 					if running of application "Script Editor" is false then return
 					
-					contents of document of my theWindow
+					contents of document of my appWindow
 				end getContents
 				
 				on setContents(newText as text)
 					if running of application "Script Editor" is false then return
 					
-					set contents of document of my theWindow to newText
+					set contents of document of my appWindow to newText
 				end setContents
 				
 				(* @returns the filename without the path. *)
 				on getScriptName()
-					name of theWindow
+					name of appWindow
 				end getScriptName
 				
 				(* @returns the extension-less filename. *)
@@ -268,7 +275,7 @@ on new()
 					
 					set projectSubPath to "applescript-core/"
 					tell application "Script Editor"
-						set resourcePath to path of document of theWindow
+						set resourcePath to path of document of appWindow
 					end tell
 					text ((offset of projectSubPath in resourcePath) + (length of projectSubPath)) thru -1 of resourcePath
 				end getResourcePath
@@ -282,11 +289,11 @@ on new()
 					if running of application "Script Editor" is false then return missing value
 					
 					tell application "Script Editor"
-						set frontDoc to document of theWindow
+						set frontDoc to document of appWindow
 						set projectSubPath to "applescript/"
-						set resourcePath to path of document of theWindow
+						set resourcePath to path of document of appWindow
 						set theResourcePath to text ((offset of projectSubPath in resourcePath) + (length of projectSubPath)) thru -1 of resourcePath
-						{posixPath:path of document of theWindow, name:name of document of theWindow, resourcePath:theResourcePath}
+						{posixPath:path of document of appWindow, name:name of document of appWindow, resourcePath:theResourcePath}
 					end tell
 				end getDetail
 				
@@ -300,7 +307,7 @@ on new()
 					logger's debug("New Script Name: " & newScriptName)
 					
 					tell application "Script Editor"
-						tell document of my theWindow
+						tell document of my appWindow
 							-- compile
 							save as "text" in targetFolder & newScriptName
 						end tell
@@ -318,7 +325,7 @@ on new()
 					logger's debug("New Script Name: " & newScriptName)
 					
 					tell application "Script Editor"
-						tell document of my theWindow
+						tell document of my appWindow
 							compile
 							save as "script" in targetFolder & newScriptName
 						end tell
@@ -326,14 +333,14 @@ on new()
 				end saveAsScript
 				
 				(*
-		    @targetFolder Mac OS colon separated format for the script destination.
-		*)
+		    			@targetFolder Mac OS colon separated format for the script destination.
+				*)
 				on saveAsStayOpenApp(targetFolder)
 					if running of application "Script Editor" is false then return
 					
 					set newScriptName to textUtil's replace(getScriptName(), ".applescript", ".app")
 					tell application "Script Editor"
-						tell document of my theWindow
+						tell document of my appWindow
 							compile
 							save as "application" in targetFolder & newScriptName with stay open
 						end tell
@@ -344,14 +351,14 @@ on new()
 				on closeTab()
 					if running of application "Script Editor" is false then return
 					
-					tell application "Script Editor" to close theWindow
+					tell application "Script Editor" to close appWindow
 				end closeTab
 				
 				on saveDocument()
 					if running of application "Script Editor" is false then return
 					
 					tell application "Script Editor"
-						save document of my theWindow
+						save document of my appWindow
 					end tell
 				end saveDocument
 				
@@ -359,7 +366,7 @@ on new()
 					if running of application "Script Editor" is false then return
 					
 					tell application "System Events" to tell process "Script Editor"
-						button "Revert" of sheet 1 of window (name of my theWindow) exists
+						button "Revert" of sheet 1 of window (name of my appWindow) exists
 					end tell
 				end hasSavePrompt
 				
@@ -367,7 +374,7 @@ on new()
 					if running of application "Script Editor" is false then return
 					
 					tell application "System Events" to tell process "Script Editor"
-						click button "Revert" of sheet 1 of window (name of my theWindow)
+						click button "Revert" of sheet 1 of window (name of my appWindow)
 					end tell
 				end respondRevert
 				
@@ -375,7 +382,7 @@ on new()
 					if running of application "Script Editor" is false then return
 					
 					tell application "Script Editor"
-						compile document of my theWindow
+						compile document of my appWindow
 					end tell
 				end compileDocument
 				
@@ -383,7 +390,7 @@ on new()
 					if running of application "Script Editor" is false then return
 					
 					tell application "Script Editor"
-						set posixPath to path of document of theWindow
+						set posixPath to path of document of appWindow
 					end tell
 					
 					if my suffixedName is not missing value then -- Means it has been exported as workaround to assistive access bug.
@@ -397,46 +404,32 @@ on new()
 				(* @returns the mac os notation folder of this script *)
 				on getScriptLocation()
 					if running of application "Script Editor" is false then return
-
+					
 					tell application "Script Editor" -- Wrapped due to error, was fine before.
-						set sut to path of document of theWindow
-						set scriptName to name of document of theWindow
+						set sut to path of document of appWindow
+						set scriptName to name of document of appWindow
 					end tell
 					set scriptNameLength to count of scriptName
 					set reducedLength to (sut's length) - scriptNameLength
 					set location to text 1 thru reducedLength of sut
 					(POSIX file location) as text
 				end getScriptLocation
-
+				
 				on mergeAllWindows()
 					if running of application "Script Editor" is false then return
-
+					
 					focus()
-
+					
 					tell application "System Events" to tell process "Script Editor"
 						click menu item "Merge All Windows" of menu 1 of menu bar item "Window" of menu bar 1
 					end tell
 				end mergeAllWindows
 			end script
-
-			tell application "Script Editor" to set theWindow of ScriptEditorInstance to window id windowId
-
+			
+			tell application "Script Editor" to set appWindow of ScriptEditorInstance to window id windowId
+			
 			ScriptEditorInstance
 		end _new
 	end script
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
-
-
-(* Constructor. When you need to load another library, do it here. *)
-(* When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-
-	set std to script "std"
-
-	set logger to std's import("logger")'s new("script-editor")
-	set textUtil to std's import("string")
-	set retry to std's import("retry")'s new()
-end init

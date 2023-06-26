@@ -1,26 +1,36 @@
-global std, usr, kb, process
-global SHARING_WIN_NAME, SELECT_SHARE_WIN_NAME, SHARING_STATUSBAR_WIN_NAME
-
 (*
 	This decorator provides zoom action handlers.
 	
 	@Related:
 		zoom.applescript
 
+	@Deployment:
+		make compile-lib SOURCE=apps/3rd-party/zoom.us/5.x/zoom-actions
 *)
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use usrLib : script "user"
+use kbLib : script "keyboard"
+use processLib : script "process"
+use zoomLib : script "zoom"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("zoom-actions")
+property usr : usrLib's new()
+property kb : kbLib's new()
+
+property SHARING_WIN_NAME : "zoom share toolbar window"
+property SELECT_SHARE_WIN_NAME : "Select a window or an application that you want to share"
+property SHARING_STATUSBAR_WIN_NAME : "zoom share statusbar window"
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "zoom-actions-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Unmute
@@ -36,15 +46,15 @@ on spotCheck()
 		Manual: Cycle Camera
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
 	
-	set sut to std's import("zoom")'s new()
+	set sut to zoomLib's new()
 	try
 		sut's unmute
 	on error
@@ -300,24 +310,3 @@ on decorate(mainScript)
 		end _clickMainButton
 	end script
 end decorate
-
-
--- Private Codes below =======================================================
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set usr to std's import("user")'s new()
-	
-	set logger to std's import("logger")'s new("zoom-actions")
-	set kb to std's import("keyboard")'s new()
-	set process to std's import("process")
-	
-	set SHARING_WIN_NAME to "zoom share toolbar window"
-	set SELECT_SHARE_WIN_NAME to "Select a window or an application that you want to share"
-	set SHARING_STATUSBAR_WIN_NAME to "zoom share statusbar window"
-end init

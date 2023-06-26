@@ -1,22 +1,27 @@
-global std, fileUtil, regex
-
 (*
 	@Installation:
 		make install-marked
 *)
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
+use fileUtil : script "file"
+use regex : script "regex"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use configLib : script "config"
 
-to spotCheck()
-	init()
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("marked")
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+
+
+on spotCheck()
 	set thisCaseId to "marked-spotCheck"
 	logger's start()
 	
-	set listUtil to std's import("list")
-	set configSystem to std's import("config")'s new("system")
+	set configSystem to configLib's new("system")
 	
 	set cases to listUtil's splitByLine("
 		Open File - Not Running
@@ -39,8 +44,8 @@ to spotCheck()
 	set testFile1 to examplesPath & "/example-1.md"
 	set testFile2 to examplesPath & "/example-2.md"
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -163,8 +168,8 @@ on new()
 			Would it be faster if we use MON?
 			@returns true if the operation completes without issues.
 		*)
-		on openFileAsync(posixFilepath)
-			if not fileUtil's posixFilePathExists(posixFilepath) then return missing value
+		on openFileAsync(posixFilePath)
+			if not fileUtil's posixFilePathExists(posixFilePath) then return missing value
 			
 			if running of application "Marked" is false then
 				activate application "Marked"
@@ -178,7 +183,7 @@ on new()
 			
 			tell application "Marked"
 				ignoring application responses
-					open posixFilepath
+					open posixFilePath
 				end ignoring
 			end tell
 		end openFileAsync
@@ -187,8 +192,8 @@ on new()
 			Would it be faster if we use MON?
 			@returns true if the operation completes without issues.
 		*)
-		on openFile(posixFilepath)
-			if not fileUtil's posixFilePathExists(posixFilepath) then return missing value
+		on openFile(posixFilePath)
+			if not fileUtil's posixFilePathExists(posixFilePath) then return missing value
 			
 			if running of application "Marked" is false then
 				activate application "Marked"
@@ -201,7 +206,7 @@ on new()
 			if not isFirstWindow then set frontMarkedTab to getFrontTab()
 			
 			tell application "Marked"
-				open posixFilepath
+				open posixFilePath
 				delay 0.1
 				set tabInstance to my _new(front window)
 			end tell
@@ -319,16 +324,3 @@ on new()
 		end _getSysEveWindowCount
 	end script
 end new
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("Marked")
-	
-	set fileUtil to std's import("file")
-	set regex to std's import("regex")
-end init

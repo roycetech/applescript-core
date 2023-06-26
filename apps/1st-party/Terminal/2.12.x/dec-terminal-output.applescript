@@ -1,21 +1,28 @@
-global std, retry, textUtil, kb
-
 (*
 		
 *)
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
+use textUtil : script "string"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use kbLib : script "keyboard"
+use retryLib : script "retry"
+use terminalLib : script "terminal"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("dec-terminal-output")
+property retry : retryLib's new()
+property kb : kbLib's new()
+property terminal : terminalLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "dec-terminal-output-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Manual: Recent Output
 		Manual: Last Output (With/out lastCommand, Shell, Non-Shell)
@@ -26,8 +33,8 @@ on spotCheck()
 		Clear
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -35,8 +42,7 @@ on spotCheck()
 	end if
 	
 	
-	set termTabMain to std's import("terminal")'s new()
-	set frontTab to termTabMain's getFrontTab()
+	set frontTab to terminal's getFrontTab()
 	
 	-- override the existing so we can test the current implementation.	
 	set frontTab to decorate(frontTab)
@@ -184,7 +190,7 @@ on decorate(termTabScript)
 					if outputContains(nextTarget) then return nextTarget
 				end repeat
 			end script
-			exec of retry on result for my commandRunMax by my commandRetrySleepSec
+			exec of retry on result for my commandRunMax by my commandRetrySleepSeconds
 		end waitForOutput
 		
 		on outputContains(targetText)
@@ -203,15 +209,3 @@ on decorate(termTabScript)
 		end clear
 	end script
 end decorate
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("dec-terminal-output")
-	set retry to std's import("retry")'s new()
-	set textUtil to std's import("string")
-	set kb to std's import("keyboard")'s new()
-end init

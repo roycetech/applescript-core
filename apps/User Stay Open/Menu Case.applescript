@@ -1,13 +1,9 @@
-global std, notif, textUtil, MapClass, emoji, listUtil, speech, switch, uni, sessionPlist, spotLib
-global SCRIPT_NAME, IDLE_SECONDS, CASES, CASE_ID, CASE_INDEX, AUTO_INCREMENT
-global IS_SPOT
-
 (*
-	@Deployment
-		Run "Create Dockless App.app" while this script is loaded in Script Editor.
+	@Manual Deployment:
+		Run "Create Menu App.app" while this script is loaded in Script Editor.
 
 	@Optional:
-		Create the app "Run Script Editor" to automatically trigger run after 
+		Create the app "Run Script Editor 2.app" to automatically trigger run after 
 		selecting a test case.
 
 	@Known Issues:
@@ -19,7 +15,7 @@ global IS_SPOT
 *)
 
 use framework "Foundation"
-use framework "AppKit" 
+use framework "AppKit"
 use framework "Cocoa"
 
 use script "Core Text Utilities"
@@ -31,17 +27,49 @@ property defaults : class "NSUserDefaults"
 property internalMenuItem : class "NSMenuItem"
 property externalMenuItem : class "NSMenuItem"
 property newMenu : class "NSMenu"
-property logger : missing value
 
-init()
+use std : script "std"
 
-set IDLE_SECONDS to 5
-set IS_SPOT to name of current application is "Script Editor"
+use textUtil : script "string"
+use listUtil : script "list"
+use emoji : script "emoji"
+use unic : script "unicodes"
 
-tell application "System Events" to set SCRIPT_NAME to get name of (path to me)
+--use loggerLib : script "logger"
+--use speechLib : script "speech"
+--use mapLib : script "map"
+--use switchLib : script "switch"
+use plutilLib :
+
+
+use spotScript : script "spot-test"
+
+-- property logger : loggerLib's new("Menu Case")
+-- property speech : speechLib's new(missing value)
+property plutil : plutilLib's new()
+
+property session : plutil's new("session")
+property isSpot : false
+property idleSeconds : 5
+property cases : {}
+property caseId : missing value
+property caseIndex : 1
+property autoIncrement : false
+
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then set isSpot to true
+
+set spotLib to spotScript's new()
+spotLib's setSessionCaseIndex(0)
+set spotLib to missing value
+
+session's setValue("Current Case Index", 0)
+session's setValue("Case Labels", {})
+session's deleteKey("Case ID")
+
 logger's start()
 
-if IS_SPOT then
+if isSpot then
 	idle {}
 else
 	makeStatusBar()
@@ -58,7 +86,7 @@ on makeStatusBar()
 	set bar to current application's NSStatusBar's systemStatusBar
 	set StatusItem to bar's statusItemWithLength:-1.0
 	
-	set currentCaseIndex to sessionPlist's getInt("Current Case Index")
+	set currentCaseIndex to session's getInt("Current Case Index")
 	StatusItem's setTitle:("C:" & currentCaseIndex)
 	
 	set newMenu to current application's NSMenu's alloc()'s initWithTitle:"Custom"
@@ -78,24 +106,24 @@ on makeMenus()
 	clearMenuItems()
 	-- newMenu's removeAllItems() -- Causes brief duplication because it awaits UI refresh.
 	
-	set currentCaseIndex to sessionPlist's getInt("Current Case Index")
+	set currentCaseIndex to session's getInt("Current Case Index")
 	
 	StatusItem's setTitle:(getMenuBarIcon() & currentCaseIndex)
 	
-	if sessionPlist's getString("Case ID") is not missing value then
-		set sessionCaseId to sessionPlist's getString("Case ID")
+	if session's getString("Case ID") is not missing value then
+		set sessionCaseId to session's getString("Case ID")
 		set titleMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:(sessionCaseId) action:("autoIncrementAction:") keyEquivalent:"")
 		(newMenu's addItem:titleMenuItem)
 		(titleMenuItem's setEnabled:false)
 		
-		set autoIncrementState to switch's active("Auto Increment Case Index")
+		set autoIncrementState to switchLib's active("Auto Increment Case Index")
 		set autoIncMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:("Auto Increment") action:("autoIncrementAction:") keyEquivalent:"")
 		autoIncMenuItem's setState:(autoIncrementState)
 		(newMenu's addItem:autoIncMenuItem)
 		(autoIncMenuItem's setTarget:me)
 		
-		set altLabel to "Auto Increment " & uni's ARROW_RIGHT & " OFF"
-		if switch's inactive("Auto Increment Case Index") then set altLabel to "Auto Increment " & uni's ARROW_RIGHT & " ON"
+		set altLabel to "Auto Increment " & unic's ARROW_RIGHT & " OFF"
+		if switchLib's inactive("Auto Increment Case Index") then set altLabel to "Auto Increment " & unic's ARROW_RIGHT & " ON"
 		
 		set autoIncAltMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:altLabel action:("autoIncrementAction:") keyEquivalent:"")
 		set autoIncAltMenuItem's alternate to true
@@ -108,14 +136,14 @@ on makeMenus()
 		_addMenuSeparator()
 	end if
 	
-	repeat with i from 1 to number of items in CASES
-		set this_item to item i of CASES
+	repeat with i from 1 to number of items in cases
+		set this_item to item i of cases
 		-- if i is equal to currentCaseIndex then
 		-- 	set this_item to this_item & " " & emoji's CHECK
 		-- end if
 		
 		set thisMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:this_item action:("menuAction:") keyEquivalent:"")
-		thisMenuItem's setState:(i is equal to currentCaseIndex)
+		(thisMenuItem's setState:(i is equal to currentCaseIndex))
 		(newMenu's addItem:thisMenuItem)
 		(thisMenuItem's setTarget:me)
 		
@@ -137,39 +165,37 @@ end makeMenus
 
 
 on idle
-	-- init()
-	
 	try
-		set currentCases to CASES
-		set retrievedCases to sessionPlist's getList("Case Labels")
+		set currentCases to cases
+		set retrievedCases to session's getList("Case Labels")
 		if retrievedCases is missing value then set retrievedCases to {}
 		
 		set casesCountChanged to (count of currentCases) is not equal to (count of retrievedCases)
-		set caseIndexChanged to CASE_INDEX is not equal to sessionPlist's getInt("Current Case Index")
-		set caseIdChanged to CASE_ID is not equal to sessionPlist's getString("Case ID")
-		set autoIncrementChanged to AUTO_INCREMENT is not equal to switch's active("Auto Increment Case Index")
+		set caseIndexChanged to my caseIndex is not equal to session's getInt("Current Case Index")
+		set caseIdChanged to my caseId is not equal to session's getString("Case ID")
+		set autoIncrementChanged to my autoIncrement is not equal to switchLib's active("Auto Increment Case Index")
 		
-		set CASES to retrievedCases
+		set cases to retrievedCases
 		
 		if casesCountChanged or caseIndexChanged or caseIdChanged or autoIncrementChanged then
-			if IS_SPOT is false then makeMenus()
+			if my isSpot is false then makeMenus()
 			if casesCountChanged or caseIdChanged then tell speech to speak("Menu Cases Updated")
-			set CASE_ID to sessionPlist's getString("Case ID")
-			set CASE_INDEX to sessionPlist's getInt("Current Case Index")
-			set AUTO_INCREMENT to switch's active("Auto Increment Case Index")
+			set my caseId to session's getString("Case ID")
+			set my caseIndex to session's getInt("Current Case Index")
+			set my autoIncrement to switchLib's active("Auto Increment Case Index")
 		else
-			StatusItem's setTitle:(getMenuBarIcon() & CASE_INDEX)
+			StatusItem's setTitle:(getMenuBarIcon() & my caseIndex)
 		end if
 	on error the errorMessage number the errorNumber
 		std's catch(me, errorMessage, errorNumber)
 	end try
 	
-	IDLE_SECONDS
+	my idleSeconds
 end idle
 
 
 on getMenuBarIcon()
-	if switch's active("Auto Increment Case Index") then return emoji's PENCIL_DOWN
+	if switchLib's active("Auto Increment Case Index") then return emoji's PENCIL_DOWN
 	
 	emoji's PENCIL_FLAT
 end getMenuBarIcon
@@ -183,14 +209,14 @@ on menuAction:sender
 	set isChecked to (sender's state() = 1)
 	if isChecked then set cleanMenuItem to text 1 thru ((length of cleanMenuItem) - 2) of cleanMenuItem
 	
-	set newIndex to listUtil's indexOf(CASES, cleanMenuItem)
-	sessionPlist's setValue("Current Case Index", newIndex)
+	set newIndex to listUtil's indexOf(cases, cleanMenuItem)
+	session's setValue("Current Case Index", newIndex)
 	spotLib's setSessionCaseIndex(newIndex)
-	set CASE_INDEX to newIndex
+	set my caseIndex to newIndex
 	if changeAutoIncrement then
-		set autoIncSwitch to switch's new("Auto Increment Case Index")
+		set autoIncSwitch to switchLib's new("Auto Increment Case Index")
 		autoIncSwitch's toggle()
-		set AUTO_INCREMENT to not AUTO_INCREMENT
+		set my autoIncrement to not my autoIncrement
 	end if
 	
 	activate application "Script Editor"
@@ -201,7 +227,7 @@ end menuAction:
 
 
 on autoIncrementAction:sender
-	set autoIncSwitch to switch's new("Auto Increment Case Index")
+	set autoIncSwitch to switchLib's new("Auto Increment Case Index")
 	autoIncSwitch's toggle()
 	
 	makeMenus()
@@ -217,34 +243,3 @@ on _addMenuSeparator()
 	set sepMenuItem to (current application's NSMenuItem's separatorItem())
 	(newMenu's addItem:sepMenuItem)
 end _addMenuSeparator
-
-
-property initialized : false
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("Menu Case")
-	set textUtil to std's import("string")
-	set MapClass to std's import("Map")
-	set emoji to std's import("emoji")
-	set listUtil to std's import("list")
-	set speech to std's import("speech")'s new()
-	set switch to std's import("switch")
-	set uni to std's import("unicodes")
-	set plutil to std's import("plutil")'s new()
-	set sessionPlist to plutil's new("session")
-	set spotLib to std's import("spot-test")'s new()
-	spotLib's setSessionCaseIndex(0)
-	
-	sessionPlist's setValue("Current Case Index", 0)
-	sessionPlist's setValue("Case Labels", {})
-	sessionPlist's deleteKey("Case ID")
-	
-	set CASES to {}
-	set CASE_ID to missing value
-	set CASE_INDEX to 1
-	set AUTO_INCREMENT to false
-end init

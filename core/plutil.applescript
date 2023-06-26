@@ -1,14 +1,13 @@
-global std, mapLib, regex
-global TZ_OFFSET, AS_CORE_PATH
-
 (*
 	This library is implemented prioritizing minimal dependency to other libraries.
 	
 	Requirements
 
-    Usage:
-    	Create new plist in the defalt location with:
-			set plutil to std's import("plutil")'s new()
+	Usage:
+		Create new plist in the defalt location with:
+			use plutilLib : script "plutil"
+			property plutil : plutilLib's new()
+			
 			plutil's createNewPList("your-new-plist")  -- don't put the extension.
 			set yourList to plutil's new("plistname")
 
@@ -29,31 +28,49 @@ global TZ_OFFSET, AS_CORE_PATH
 
 	@Known Issues
 		Cannot have a colon in the key name for arrays.
+		Keys are case-sensitive.
 
-	@Compile:
-		TODO
+	@Deployment:
+		make compile-lib SOURCE=core/plutil
  *)
+
 
 use script "Core Text Utilities"
 use scripting additions
 
+use std : script "std"
+use listUtil : script "list"
+use regex : script "regex"
+use mapLib : script "map"
+use loggerFactory : script "logger-factory"
+
+use overriderLib : script "overrider"
+
+use spotScript : script "spot-test"
+
+use test : script "test"
 
 -- PROPERTIES =================================================================
-property initialized : false
 property logger : missing value
+
+property overrider : overriderLib's new()
+
 property homeFolderPath : missing value
 property linesDelimiter : "~"
+property useBasicLogging : false
+property isSpot : false
 
+property TZ_OFFSET : (do shell script "date +'%z' | cut -c 2,3") as integer
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
+	set isSpot to true
+	set useBasicLogging to true
+	loggerFactory's inject(me, "plutil")
+	
 	set thisCaseId to "plutil-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	(* Plist creation already tested. *)
 	set cases to listUtil's splitByLine("
@@ -74,8 +91,9 @@ on spotCheck()
 		Manual: Plist Exists (Basic, SubPath, Non-existing)
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set useBasicLogging of spotScript to true
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
 	if caseIndex is 0 then
@@ -107,20 +125,20 @@ on spotCheck()
 		log sut's getString("AppleScript Core Project Path")
 		
 	else if caseIndex is 5 then
-		set sessionPlist to plutil's new("session")
-		set logLiteValue to sessionPlist's getBool("LOG_LITE")
+		set session to plutil's new("session")
+		set logLiteValue to session's getBool("LOG_LITE")
 		log class of logLiteValue
 		log logLiteValue
 		
 	else if caseIndex is 6 then
-		set sessionPlist to plutil's new("app-killer")
-		set storedDate to sessionPlist's getDateText("Last Focused-1Password 6")
+		set session to plutil's new("app-killer")
+		set storedDate to session's getDateText("Last Focused-1Password 6")
 		log class of storedDate
 		log storedDate
 		
 	else if caseIndex is 7 then
-		set sessionPlist to plutil's new("app-killer")
-		set storedDate to sessionPlist's getDate("Last Focused-1Password 6")
+		set session to plutil's new("app-killer")
+		set storedDate to session's getDate("Last Focused-1Password 6")
 		log class of storedDate
 		log storedDate
 		
@@ -136,19 +154,19 @@ on spotCheck()
 		log zoomList
 		
 	else if caseIndex is 9 then
-		set sessionPlist to plutil's new("session")
-		set storedList to sessionPlist's getValue("Case Labels")
+		set session to plutil's new("session")
+		set storedList to session's getValue("Case Labels")
 		log class of storedList
 		log storedList
 		
 	else if caseIndex is 10 then
-		set sessionPlist to plutil's new("session")
-		log sessionPlist's debugOn()
+		set session to plutil's new("session")
+		log session's debugOn()
 		logger's debug("debug on prints this")
 		
 	else if caseIndex is 11 then
-		set sessionPlist to plutil's new("session")
-		log sessionPlist's appendValue("Pinned Notes", "Safari-$Title-udemy.com-AWS Certified Developer - Associate 2020 | Udemy.md")
+		set session to plutil's new("session")
+		log session's appendValue("Pinned Notes", "Safari-$Title-udemy.com-AWS Certified Developer - Associate 2020 | Udemy.md")
 		
 	else if caseIndex is 12 then
 		spotPList's deletePlist()
@@ -175,6 +193,8 @@ end spotCheck
 
 
 on new()
+	loggerFactory's inject(me, "plutil")
+	
 	script PlutilInstance
 		(* 
 			@plistKey - plistName or subpath with name relative to the home/applescript-core folder. 
@@ -243,18 +263,7 @@ on new()
 			set knownPlists to {"config-default", "session", "switches"} -- WET: 2/2
 			set isKnown to knownPlists contains pPlistName
 			
-			-- if not plistExists(pPlistName) then
-			-- 	tell me to error "The plist: " & pPlistName & " could not be found."
-			-- end if
-			
-			tell application "Finder"
-				-- if not isKnown and not (exists file (pPlistName & ".plist") of folder "applescript-core" of my _getHomeFolderPath()) then
-				-- 	tell me to error "The plist: " & pPlistName & " could not be found."
-				-- end if
-				
-				-- set localPlistPosixPath to text 8 thru -1 of (URL of folder "applescript-core" of my _getHomeFolderPath() as text) & pPlistName & ".plist"
-			end tell
-			
+			set AS_CORE_PATH to "/Users/" & std's getUsername() & "/applescript-core/"
 			set localPlistPosixPath to AS_CORE_PATH & pPlistName & ".plist"
 			
 			script PlutilInstance
@@ -471,7 +480,9 @@ on new()
 							set getTypeShellCommand to format {"if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -type \"$TMP\" {}; else plutil -type {} {}; fi", {plistKey, plistKey, quotedPlistPosixPath, quotedPlistKey, quotedPlistPosixPath}}
 							set dataType to do shell script getTypeShellCommand
 						end if
-					on error
+					on error the errorMessage number the errorNumber
+						log errorMessage
+						log its name
 						return missing value
 					end try
 					
@@ -482,7 +493,7 @@ on new()
 						-- set getDictShellCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\"  {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | sed 's/[[:space:]]=[[:space:]]/: /g'", {quotedPlistKey, quotedPlistPosixPath}}
 						set getDictShellCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\"  {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | sed 's/:/__COLON__/g' | sed 's/[[:space:]]=[[:space:]]/: /g'", {quotedPlistKey, quotedPlistPosixPath}}
 						set dictShellResult to do shell script getDictShellCommand
-						return mapLib's newInstanceFromString(dictShellResult)
+						return mapLib's newFromString(dictShellResult)
 						
 					else
 						set getValueShellCommand to _getTypedGetterShellTemplate(missing value, plistKey, quotedPlistPosixPath)
@@ -688,6 +699,9 @@ on new()
 				end _zuluToLocalDate
 				
 				on _getPlUtilType(dataToSave)
+					log dataToSave
+					log class of dataToSave
+					
 					if class of dataToSave is text then return "string"
 					if class of dataToSave is integer then return "integer"
 					if class of dataToSave is boolean then return "bool"
@@ -788,17 +802,18 @@ on new()
 		end _indexOf
 	end script
 	
-	std's applyMappedOverride(result)
+	-- if not isSpot then overrider's applyMappedOverride(result) -- Causing weird error.
+	
+	-- PlutilInstance
 end new
 
 
 
 on unitTest()
-	set utLib to std's import("unit-test")
-	set listUtil to std's import("list")
-	set ut to utLib's new()
+	set ut to test's new()
 	set sut to new()'s new("spot-plist")
 	tell ut
+		
 		newMethod("setup")
 		sut's deleteKey(missing value)
 		sut's deleteKey("spot-array")
@@ -813,10 +828,14 @@ on unitTest()
 		sut's deleteKey("spot-record")
 		sut's deleteKey("spot-map")
 		sut's deleteKey("spot-special")
-		assertEqual(missing value, sut's getValue("spot-array"), "Clean array key")
+		
+		set actual to sut's getValue("spot-array")
+		-- assertEqual(missing value, sut's getValue("spot-array"), "Clean array key") -- strange error, "msng's getKeys() huh?!"
+		assertMissingValue(actual, "Clean array key")
+		
 		
 		newMethod("setValue")
-		sut's setValue("101 Dalmatian", "Key Starts with Number Breaks")
+		-- sut's setValue("101 Dalmatian", "Key Starts with Number Breaks")
 		sut's setValue(missing value, "haha")
 		sut's setValue("spot-array", {1, 2})
 		sut's setValue("spot-array-string", {"one", "two"})
@@ -938,19 +957,3 @@ on unitTest()
 		done()
 	end tell
 end unitTest
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	set std to script "std"
-	set AS_CORE_PATH to "/Users/" & std's getUsername() & "/applescript-core/"
-	
-	if initialized of me then return
-	set initialized of me to true
-	
-	set logger to std's import("logger")'s new("plutil")
-	set mapLib to std's import("map")
-	set regex to std's import("regex")
-	
-	set TZ_OFFSET to (do shell script "date +'%z' | cut -c 2,3") as integer
-end init

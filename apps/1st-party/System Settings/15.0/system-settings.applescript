@@ -1,5 +1,3 @@
-global std, retry, usr
-
 (*
 	Library wrapper for the System Settings app. This was cloned from the original System Preferences app of macOS Monterey.  
 	Some handlers have more additional requirements than others.  See handler's documentation for more 
@@ -15,18 +13,25 @@ global std, retry, usr
 		https://derflounder.wordpress.com/2022/10/25/opening-macos-venturas-system-settings-to-desired-locations-via-the-command-line/
 *)
 
-property initialized : false
-property logger : missing value
+use scripting additions
 
-if name of current application is "Script Editor" then spotCheck()
+use listUtil : script "list"
+
+use loggerLib : script "logger"
+use retryLib : script "retry"
+use usrLib : script "user"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("system-settings")
+property retry : retryLib's new()
+property usr : usrLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
-	set thisCaseId to "system-preferences-spotCheck"
+	set thisCaseId to "system-settings-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Quit App (Running/Not Running)
@@ -45,8 +50,8 @@ on spotCheck()
 		Manual: revealKeyboardDictation
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	-- spot's setAutoIncrement(true)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
@@ -110,7 +115,7 @@ on spotCheck()
 end spotCheck
 
 on new()
-	script SystemPreferences
+	script SystemSettings
 		on printPaneIds()
 			tell application "System Settings"
 				set panesList to id of panes
@@ -135,7 +140,7 @@ on new()
 			end tell
 			
 			script PanelWaiter
-				tell application "System Events" to tell process "System Preferences"
+				tell application "System Events" to tell process "System Settings"
 					if (value of radio button "Privacy" of tab group 1 of window "Security & Privacy") is 0 then return missing value
 				end tell
 				true
@@ -237,7 +242,7 @@ on new()
 			if running of application "System Settings" is false then return false
 			
 			(* Detect when Commands List is already visible. *)
-			tell application "System Events" to tell process "System Preferences"
+			tell application "System Events" to tell process "System Settings"
 				try
 					set listPresent to exists (table 1 of scroll area 1 of sheet 1 of window "Accessibility")
 					set addButtonPresent to exists (first button of group 1 of sheet 1 of window "Accessibility" whose description is "add")
@@ -250,7 +255,7 @@ on new()
 			logger's debug("Not already showing target sheet")
 			
 			script ClickRetrier
-				tell application "System Events" to tell process "System Preferences" to tell window "Accessibility" to tell first group
+				tell application "System Events" to tell process "System Settings" to tell window "Accessibility" to tell first group
 					try
 						click (first button whose name starts with "Vocabulary")
 					end try
@@ -259,7 +264,7 @@ on new()
 			if (exec of retry on result for 50 by 0.1) is false then return false
 			
 			script FilterWaiter
-				tell application "System Events" to tell process "System Preferences" to tell window "Accessibility"
+				tell application "System Events" to tell process "System Settings" to tell window "Accessibility"
 					if exists (first button of group 1 of sheet 1 of window "Accessibility" whose description is "add") then return true
 				end tell
 			end script
@@ -343,7 +348,7 @@ on new()
 		on unlockSecurityAccessibilityPrivacy()
 			usr's cueForTouchId()
 			script WindowWaiter
-				tell application "System Events" to tell process "System Preferences"
+				tell application "System Events" to tell process "System Settings"
 					click button "Click the lock to make changes." of window "Security & Privacy"
 				end tell
 				true
@@ -351,7 +356,7 @@ on new()
 			exec of retry on result for 10 by 0.5
 			
 			script UnlockWaiter
-				tell application "System Events" to tell application process "System Preferences"
+				tell application "System Events" to tell application process "System Settings"
 					try
 						button "Click the lock to prevent further changes." of window "Security & Privacy" exists
 					end try
@@ -380,18 +385,5 @@ on new()
 			end repeat
 		end quitApp
 	end script
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
-
-
--- Private Codes below =======================================================
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set my logger to std's import("logger")'s new("system-preferences")
-	set retry to std's import("retry")'s new()
-	set usr to std's import("user")'s new()
-end init

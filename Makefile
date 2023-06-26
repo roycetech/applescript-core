@@ -12,35 +12,52 @@ help:
 	@echo "make reveal-apps - reveals the default AppleScript apps deployment folder in Finder"
 	@echo "-s option hides the Make invocation command."
 
-# Simplify to pick all files inside core folder.
+# 	The stub prefix is intentional to avoid the warning for Makefile that wants
+# 	to avoid having a similar target.
+STUB_LIBS :=  \
+	stubs/config \
+	stubs/list \
+	stubs/string \
+	stubs/notification-center-helper \
+	stubs/spot-test \
+	stubs/user
+
+# 	config
+
+# Needs to be ordered because the use script will compile dependent scripts.
+# Transitive scripts need to be compiled first before it can be referenced by
+# another library.
 CORE_LIBS :=  \
-	clipboard \
+	logger-factory \
+	overrider \
+	test \
+	unit-test \
+	list \
+	string \
+	regex \
+	map \
+	plutil \
 	config \
-	date-time \
-	dialog \
 	emoji \
+	switch \
+	clipboard \
+	date-time \
+	speech \
+	dialog \
 	file \
 	idler \
 	keyboard \
-	list \
-	logger \
-	map \
 	plist-buddy \
-	plutil \
 	process \
-	regex \
 	retry \
-	spot-test \
-	string \
 	string-builder \
-	speech \
 	stack \
-	switch \
 	system-events \
 	ui-util \
 	unicodes \
-	unit-test \
-	window
+	window \
+	logger \
+	spot-test \
 
 APPS_PATH=/Applications/AppleScript
 
@@ -63,14 +80,17 @@ _init:
 	./scripts/compile-bundle.sh 'core/Core Text Utilities'
 	plutil -replace 'Project applescript-core' -string "`pwd`" ~/applescript-core/config-system.plist
 
-install: _init compile-core
+install: _init compile
 	touch ~/applescript-core/logs/applescript-core.log
 	osascript scripts/setup-applescript-core-project-path.applescript
 	./scripts/setup-switches.sh
 	@echo "Installation done"
 
+$(STUB_LIBS): Makefile
+	./scripts/compile-lib.sh $@
+
 $(CORE_LIBS): Makefile
-	./scripts/compile-lib.sh core/$@
+	./scripts/compile-lib.sh core/$@ || true
 
 uninstall:
 	# TODO
@@ -87,10 +107,23 @@ else
 	@echo "compile-core unimplemented macOS version error"
 endif
 
+compile-core-bundle:
+	@echo "Core Bundle compiled."
+	./scripts/compile-bundle.sh 'core/Core Text Utilities'
 
-compile: compile-core
 
-compile-core: compile-standard $(CORE_LIBS)
+
+# There are circular dependency issue that needs to be considered. You may need
+# to re-order the build of the script depending on which script is needed first.
+compile: compile-stub compile-standard compile-core-bundle compile-core compile-control-center compile-user
+
+compile-stub: $(STUB_LIBS)
+	@echo "Stubs compiled. This target is meant to help compile other scripts. \
+Make sure this is not the last target you run, otherwise the scripts that \
+need the real libary will fail."
+
+compile-core: $(CORE_LIBS)
+	@echo "Core libraries compiled."
 
 compile-lib:
 	./scripts/compile-lib.sh $(SOURCE)
@@ -127,9 +160,9 @@ reveal-stay-open:
 
 # 1st Party Apps Library
 compile-calendar:
-	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar"
-	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar-event"
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/dec-calendar-view"
+	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar-event"
+	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar"
 
 install-calendar: compile-calendar
 	osascript ./scripts/enter-user-country.applescript
@@ -141,9 +174,10 @@ install-system-settings:
 	./scripts/compile-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 
 
-compile-safari:
-	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari
+compile-safari: compile-dock
+	./scripts/compile-lib.sh stubs/safari
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-javascript
+	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari
 
 compile-chrome:
 	./scripts/compile-lib.sh  apps/1st-party/Chrome/110.0/chrome.applescript
@@ -160,8 +194,8 @@ install-safari-technology-preview: compile-safari-technology-preview
 	osascript ./scripts/allow-apple-events-in-safari-technology-preview.applescript
 
 compile-safari-technology-preview:
-	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/safari-technology-preview
 	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/dec-safari-technology-preview-javascript
+	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/safari-technology-preview
 
 install-script-editor:
 	make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
@@ -184,18 +218,20 @@ uninstall-automator:
 
 compile-terminal:
 ifeq ($(OS), ventura)
-	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/terminal
+	./scripts/compile-lib.sh stubs/terminal
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-output
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-path
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-prompt
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-run
+	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/terminal
 
 else ifeq ($(OS), monterey)
-	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/terminal
+	./scripts/compile-lib.sh stubs/terminal
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-output
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-path
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-run
+	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/terminal
 
 else
 	@echo "Hello Something Else"
@@ -215,7 +251,7 @@ install-terminal-ec2-ssh: ## Add support to basic ec2 SSH
 install-macos-monterey: install-control-center install-dock install-notification-center
 	#TODO
 
-install-control-center:
+compile-control-center:
 ifeq ($(OS), ventura)
 	./scripts/compile-lib.sh "macOS-version/13-ventura/control-center"
 	./scripts/compile-lib.sh "macOS-version/13-ventura/control-center_focus"
@@ -229,17 +265,19 @@ else
 	@echo "Unsupported macOS version for control-center"
 endif
 
-install-dock:
+compile-dock:
 	./scripts/compile-lib.sh "macOS-version/12-monterey/dock"
+
+install-dock: compile-dock
 
 install-notification-center:
 ifeq ($(OS), ventura)
-	./scripts/compile-lib.sh "macOS-version/13-ventura/notification-center"
 	./scripts/compile-lib.sh "macOS-version/13-ventura/notification-center-helper"
+	./scripts/compile-lib.sh "macOS-version/13-ventura/notification-center"
 
 else ifeq ($(OS), monterey)
-	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center"
 	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center-helper"
+	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center"
 
 else
 	@echo "Unsupported macOS version for notification-center"
@@ -296,12 +334,13 @@ install-viscosity:
 	./scripts/compile-lib.sh apps/3rd-party/Viscosity/1.10.x/viscosity
 
 compile-zoom:
-	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom
+	./scripts/compile-lib.sh stubs/zoom
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/dec-user-zoom
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-window
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-participants
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/dec-calendar-event-zoom
+	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom
 
 install-zoom: compile-zoom
 	mkdir -p ~/applescript-core/zoom.us/
@@ -314,7 +353,7 @@ install-zoom: compile-zoom
 install-counter:
 	./scripts/compile-lib.sh libs/counter-plist/counter
 
-install-user:
+compile-user:
 	./scripts/compile-lib.sh libs/user/user
 
 
@@ -337,6 +376,10 @@ install-jira:
 # Optional with 3rd party app dependency.
 install-json:
 	./scripts/compile-lib.sh libs/json/json
+
+
+compile-logger:
+	./scripts/compile-lib.sh core/logger
 
 install-log4as:
 	./scripts/compile-lib.sh libs/log4as/log4as

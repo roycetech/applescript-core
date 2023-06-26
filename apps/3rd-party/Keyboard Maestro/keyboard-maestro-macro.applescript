@@ -1,17 +1,14 @@
-global std
+use loggerLib : script "logger"
+use listUtil : script "list"
+use spotScript : script "spot-test"
 
-property initialized : false
-property logger : missing value
+property logger : loggerLib's new("keyboard-maestro-macro")
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "keyboard-maestro-macro-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: New Instance (Missing, Present)
@@ -19,8 +16,8 @@ on spotCheck()
 		Manual: Disable Macro, get state
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -51,7 +48,6 @@ on spotCheck()
 	end if
 	
 	spot's finish()
-	
 	logger's finish()
 end spotCheck
 
@@ -92,16 +88,3 @@ on new(pMacroName)
 		
 	end script
 end new
-
-
--- Private Codes below =======================================================
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("keyboard-maestro-macro")
-end init

@@ -1,26 +1,26 @@
-global std
-
 (* 
 	Usage:
-		set cp to std's import("clipboard")'s new()
+		use clipboardLib : script "clipboard"
+
+		property cp : clipboardLib's new()
 		
 	NOTE: Currently only supports text contents. May support other data types in the future.
 *)
 
 use scripting additions
 
-property logger : missing value
-property initialized : false
+use loggerLib : script "logger"
+use listUtil : script "list"
+use spotScript : script "spot-test"
 
-if name of current application is "Script Editor" then spotCheck()
+property logger : loggerLib's new("clipboard")
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "clipboard-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Manual: Extract From a Script
 		Manual: Save the Clipboard value
@@ -29,8 +29,8 @@ on spotCheck()
 		Manual Copy That Word (None, One Word, Multi)
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -191,17 +191,3 @@ on new()
 		end copyThatWord
 	end script
 end new
-
-
-
-
-
--- Private Codes below =======================================================
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("clipboard")
-end init

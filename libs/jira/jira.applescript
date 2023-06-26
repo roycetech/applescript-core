@@ -1,15 +1,18 @@
-global std
-
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+
+use testLib : script "test"
+
+property logger : loggerLib's new("jira")
+property test : testLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	logger's start()
 	
 	unitTest()
@@ -20,13 +23,14 @@ end spotCheck
 
 (*  *)
 on formatUrl(label, theUrl)
+	log 3
 	format {"[{}|{}]", {label, theUrl}}
 end formatUrl
 
+
 -- Private Codes below =======================================================
 on unitTest()
-	set utLib to std's import("unit-test")
-	set ut to utLib's new()
+	set ut to test's new()
 	tell ut
 		newMethod("formatUrl")
 		assertEqual("[Google|http.google]", my formatUrl("Google", "http.google"), "Happy Case")
@@ -34,14 +38,3 @@ on unitTest()
 		done()
 	end tell
 end unitTest
-
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("jira")
-end init

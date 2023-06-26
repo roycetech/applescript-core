@@ -1,26 +1,33 @@
-global std, textUtil
-
 (*
-	Usage:
-		set listUtil to std's import("list")
+	@Usage:
+		use listUtil : script "list"
+		
+	@Deployment:
+		make compile-lib SOURCE=core/list
 *)
 
-property initialized : false
-property logger : missing value
+use scripting additions
+
+use loggerLib : script "logger"
+use spotScript : script "spot-test"
+use testLib : script "test"
+use textUtil : script "string"
+
+property logger : loggerLib's new("list")
+property test : testLib's new()
 
 -- #%+= are probably worth considering.
 property linesDelimiter : "@"
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 if name of current application is "osascript" then unitTest()
 
 on spotCheck()
-	init()
 	set thisCaseId to "list-spotCheck"
 	logger's start()
 	
 	set cases to splitByLine("
-		Unit Test		
+		Unit Test
 		Split By Line (TODO: presence of single quote results in error)
 		Trailing empty line
 		Split with trim
@@ -35,15 +42,17 @@ on spotCheck()
 		Split By Line - With Dollar Sign
 	")
 	
+	log 3
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
 	
+	log 4
 	if caseIndex is 1 then
 		unitTest()
 		
@@ -109,7 +118,7 @@ two'"
 	end if
 	
 	spot's finish()
-	my logger's finish()
+	logger's finish()
 end spotCheck
 
 
@@ -351,8 +360,7 @@ end _replaceAll
 
 
 on unitTest()
-	set utLib to std's import("unit-test")
-	set ut to utLib's new()
+	set ut to test's new()
 	tell ut
 		newMethod("clone")
 		assertEquals(missing value, my clone(missing value), "missing value")
@@ -428,13 +436,3 @@ on unitTest()
 		done()
 	end tell
 end unitTest
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("list")
-	set textUtil to std's import("string")
-end init

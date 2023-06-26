@@ -1,5 +1,3 @@
-global std, retry, usr
-
 (*
 	Library wrapper for the System Preferences app. Some handlers have more 
 	additional requirements than others.  See handler's documentation for more 
@@ -12,18 +10,28 @@ global std, retry, usr
 		make compile-lib SOURCE="apps/1st-party/System Preferences/15.0/system-preferences"		
 *)
 
-property initialized : false
-property logger : missing value
+use scripting additions
 
-if name of current application is "Script Editor" then spotCheck()
+use listUtil : script "list"
+
+use loggerLib : script "logger"
+use retryLib : script "retry"
+use usrLib : script "user"
+
+use overriderLib : script "overrider"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("")
+property retry : retryLib's new()
+property usr : usrLib's new()
+property overrider : overriderLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "system-preferences-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Quit App (Running/Not Running)
@@ -39,8 +47,8 @@ on spotCheck()
 		Manual: Click Vocabulary
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	-- spot's setAutoIncrement(true)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
@@ -141,7 +149,7 @@ on new()
 			true
 		end toggleVoiceVoiceControl
 		
-
+		
 		on clickAccessibilityCommands()
 			if running of application "System Preferences" is false then return false
 			
@@ -343,18 +351,5 @@ on new()
 			end repeat
 		end quitApp
 	end script
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
-
-
--- Private Codes below =======================================================
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set my logger to std's import("logger")'s new("system-preferences")
-	set retry to std's import("retry")'s new()
-	set usr to std's import("user")'s new()
-end init

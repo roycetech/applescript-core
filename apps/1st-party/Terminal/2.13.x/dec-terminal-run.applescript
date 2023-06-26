@@ -1,6 +1,3 @@
-global std, retry, textUtil, sessionPlist
-global SESSION_PLIST
-
 (*
 	@Session:
 		
@@ -9,18 +6,35 @@ global SESSION_PLIST
 use script "Core Text Utilities"
 use scripting additions
 
-property logger : missing value
-property initialized : false
+use listUtil : script "list"
+use textUtil : script "string"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use retryLib : script "retry"
+use plutilLib : script "plutil"
+use terminalLib : script "terminal"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("dec-terminal-run")
+property retry : retryLib's new()
+property plutil : plutilLib's new()
+property terminal : terminalLib's new()
+
+property session : plutil's new("session")
+
+property SESSION_PLIST : missing value
+
+tell application "Finder"
+	set my SESSION_PLIST to text 8 thru -1 of (URL of folder "applescript-core" of (path to home folder) as text) & "session.plist"
+end tell
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "term-ext-run-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Manual: Run Shell
 		Manual: Run Shell Void
@@ -28,17 +42,15 @@ on spotCheck()
 		Manual: Run and Wait
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
 	
-	
-	set termTabMain to std's import("terminal")'s new()
-	set sut to termTabMain's getFrontTab()
+	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)
 	
 	if caseIndex is 1 then
@@ -76,8 +88,8 @@ on decorate(termTabScript)
 			set lastCommand to shellCommand
 			set propertyName to format {"runShell-{}", my getTabName()}
 			-- logger's debugf("Using session property: {}", propertyName)
-			-- sessionPlist's removeValue(propertyName)
-			sessionPlist's deleteKey(propertyName)
+			-- session's removeValue(propertyName)
+			session's deleteKey(propertyName)
 			-- logger's debugf("Running Command: \"{}\"", bashCommand)
 			
 			set calcCommmand to format {"plutil -replace {} -string \"`{}`\" {}", {quoted form of propertyName, shellCommand, SESSION_PLIST}}
@@ -90,7 +102,7 @@ on decorate(termTabScript)
 				end if
 				do script calcCommmand in my appWindow
 				script CommandWaiter
-					set commandResult to sessionPlist's getValue(propertyName)
+					set commandResult to session's getValue(propertyName)
 					if commandResult is not missing value and the length of commandResult is greater than 0 then return commandResult
 					set theText to the history of selected tab of appWindow
 					set theText to textUtil's rtrim(theText as text)
@@ -101,14 +113,14 @@ on decorate(termTabScript)
 				end script
 			end tell
 			
-			set waitResult to exec of retry on CommandWaiter for my commandRunMax by my commandRetrySleepSec
+			set waitResult to exec of retry on CommandWaiter for my commandRunMax by my commandRetrySleepSeconds
 			if waitResult is missing value or waitResult is equal to NO_RESULT then
 				logger's warn("Bash Script did not communicate OK via session.plist")
-				sessionPlist's deleteKey(propertyName)
+				session's deleteKey(propertyName)
 				return missing value
 			end if
 			
-			sessionPlist's deleteKey(propertyName)
+			session's deleteKey(propertyName)
 			return waitResult
 		end runShell
 		
@@ -146,20 +158,3 @@ on decorate(termTabScript)
 		end doCd
 	end script
 end decorate
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("dec-terminal-run")
-	set retry to std's import("retry")'s new()
-	set textUtil to std's import("string")
-	set plutil to std's import("plutil")'s new()
-	set sessionPlist to plutil's new("session")
-	
-	tell application "Finder"
-		set SESSION_PLIST to text 8 thru -1 of (URL of folder "applescript-core" of (path to home folder) as text) & "session.plist"
-	end tell
-end init

@@ -1,16 +1,16 @@
-global std
+use listUtil : script "list"
 
-property initialized : false
-property logger : missing value
+use loggerLib : script "logger"
 
-if name of current application is "Script Editor" then spotCheck()
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("ui-util")
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "ui-util-spotCheck"
 	logger's start()
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Find By ID - not found
@@ -19,8 +19,8 @@ on spotCheck()
 		Manual: Print Attributes
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -121,15 +121,3 @@ on new()
 		end printAttributeValues
 	end script
 end new
-
-
--- Private Codes below =======================================================
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("ui-util")
-end init

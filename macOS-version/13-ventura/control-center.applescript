@@ -1,5 +1,3 @@
-global std, kb, unic
-
 (* 
 	NOTE: This script requires accessibility access, grant when prompted.
 	
@@ -7,18 +5,25 @@ global std, kb, unic
 
 *)
 
-property initialized : false
-property logger : missing value
+use unic : script "unicodes"
+use listUtil : script "list"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use kbLib : script "keyboard"
+
+use spotScript : script "spot-test"
+use decoratorNetwork : "control-center_network"
+use decoratorSound : "control-center_sound"
+use decoratorFocus : "control-center_focus"
+
+property logger : loggerLib's new("control-center")
+property kb : kbLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "control-center-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Show Widgets 
@@ -36,8 +41,8 @@ on spotCheck()
 		Manual: Join WIFI (Not Joined, Already Joined, Not Found)
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -96,11 +101,7 @@ on spotCheck()
 end spotCheck
 
 
-on new()
-	set decoratorNetwork to std's import("control-center_network")
-	set decoratorSound to std's import("control-center_sound")
-	set decoratorFocus to std's import("control-center_focus")
-	
+on new()	
 	script ControlCenterInstance
 		property decorators : []
 		
@@ -129,14 +130,3 @@ on new()
 	decoratorSound's decorate(result)
 	decoratorNetwork's decorate(result)
 end new
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set unic to std's import("unicodes")
-	set logger to std's import("logger")'s new("control-center")
-end init

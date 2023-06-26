@@ -1,5 +1,3 @@
-global std, listUtil, sb, textUtil, json
-
 (* 
 	ASDictionary code derived from:
 	Author(s): Philip Regan
@@ -8,32 +6,44 @@ global std, listUtil, sb, textUtil, json
 	NOT SUPPORTED: 
 		- Map of Maps!
 		- Saving to plist.
+		
+	@Deployment:
+		make compile-lib SOURCE=core/map
 *)
 
 use framework "Foundation"
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
+use listUtil : script "list"
+use textUtil : script "string"
+
+use loggerFactory : script "logger-factory"
+use configLib : script "config"
+use sbLib : script "string-builder"
+
+use spotScript : script "spot-test"
+
+use testLib : script "test"
+
 property logger : missing value
+property config : configLib's new("system")
 
-if name of current application is "Script Editor" then spotCheck()
+property test : testLib's new()
 
-try
-	
-on error the errorMessage number the errorNumber
-	logger's finish() -- unlock the script active flag
-	error errorMessage
-end try
+property jsonLib : missing value
+property useBasicLogging : false
 
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
-	set thisCaseId to "Map-spotCheck"
+	log 1
+	set useBasicLogging to true
+	loggerFactory's inject(me, "map")
+	log 2
+	set thisCaseId to "map-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set config to std's import("config")'s new("system")
+	log 3
 	
 	set cases to listUtil's splitByLine("
 		Unit Test
@@ -49,19 +59,24 @@ on spotCheck()
 		Dollar Sign
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	log 4
+	set useBasicLogging of spotScript to true
+	set spotClass to spotScript's new()
+	log 5
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
 	
+	log 6
 	if caseIndex is 1 then
+		log 7
 		unitTest()
 		
 	else if caseIndex is 2 then
-		set plistMap to config's getCategoryValue("system", "test map")
+		set plistMap to config's getValue("test map")
 		set sut to fromRecord(plistMap)
 		repeat with nextKey in sut's getKeys()
 			log nextKey & " - " & sut's getValue(nextKey)
@@ -69,7 +84,7 @@ on spotCheck()
 		log sut's toString()
 		
 	else if caseIndex is 3 then
-		set sut to newInstanceFromString("
+		set sut to newFromString("
 		ts: TypeScript
 		md: Markdown
 		applescript: AppleScript
@@ -89,7 +104,7 @@ on spotCheck()
 		log sut's toString()
 		
 	else if caseIndex is 4 then
-		set sut to newInstanceFromJson("{\"ts\": \"TypeScript\", \"md\": \"Markdown\"}")
+		set sut to newFromJson("{\"ts\": \"TypeScript\", \"md\": \"Markdown\"}")
 		log sut's toString()
 		
 	else if caseIndex is 5 then
@@ -107,12 +122,12 @@ on spotCheck()
 		set dictShellResult to do shell script getDictShellCommand
 		logger's debugf("dictShellResult: {}", dictShellResult)
 		
-		set sut to newInstanceFromString(dictShellResult)
+		set sut to newFromString(dictShellResult)
 		log sut's toString()
 		log sut's getKeys()
 		
 	else if caseIndex is 7 then
-		set sut to newInstanceFromString("
+		set sut to newFromString("
 			amazing OWA: kmtrigger://macro=Open%20Safari%20Group&amp;value=amazing%20OWA
 			Personal OWA: kmtrigger://macro=Open%20Safari%20Group&amp;value=personal%20OWA
 			IT Support Ticket: mailto:aPE.that.Rapport@amazing.com.au?body=LOCATION%3A%20Remote%0ALOB%3A%20Mobile%20%28Engineering%29%0ATeam%20Lead%3A%20Joyce%20Avestro%0AIssue/%20Request%3A%0ATime:%0AOther%20Details%3A
@@ -121,7 +136,7 @@ on spotCheck()
 		
 	else if caseIndex is 8 then
 		set fried to new()
-		set mav to newInstanceFromString("
+		set mav to newFromString("
 			agent: none
 			lawyer: max
 			noone: nic	
@@ -133,7 +148,7 @@ on spotCheck()
 		log friedSon's toString()
 		
 	else if caseIndex is 9 then
-		set sut to newInstanceFromString("
+		set sut to newFromString("
 			amazing OWA: kmtrigger://macro=Open%20Safari%20Group&amp;value=amazing%20OWA$Special
 		")
 		log sut's toString()
@@ -166,7 +181,7 @@ on spotCheck()
 end spotCheck
 
 
-on newInstanceFromString(theText)
+on newFromString(theText)
 	set mapLines to listUtil's splitByLine(theText as text)
 	set theMap to new()
 	repeat with nextLine in mapLines
@@ -180,18 +195,20 @@ on newInstanceFromString(theText)
 	end repeat
 	
 	theMap
-end newInstanceFromString
+end newFromString
 
 
-on newInstanceFromRecord(theRecord as record)
+on newFromRecord(theRecord as record)
 	fromRecord(theRecord)
-end newInstanceFromRecord
+end newFromRecord
 
 
 on hasJsonSupport()
 	if not std's appExists("com.vidblishen.jsonhelper") then return false
+	
 	try
-		set json to std's import("json")
+		set jsonScriptName to "json"
+		set my json to script jsonScriptName
 		return true
 	end try
 	
@@ -199,13 +216,13 @@ on hasJsonSupport()
 end hasJsonSupport
 
 
-on newInstanceFromJson(jsonString)
+on newFromJson(jsonString)
 	if hasJsonSupport() is false then
 		error "The app 'JSON Helper' available in the App Store is required for this operation."
 	end if
 	
-	set jsonRecord to json's fromJsonString(jsonString)
-	return newInstanceFromRecord(jsonRecord)
+	set jsonRecord to jsonLib's fromJsonString(jsonString)
+	return newFromRecord(jsonRecord)
 	
 	set keyList to __keys of jsonRecord
 	set newRecord to new()
@@ -213,7 +230,7 @@ on newInstanceFromJson(jsonString)
 		newRecord's putValue(nextKey, |nextKey| of jsonRecord)
 	end repeat
 	newRecord
-end newInstanceFromJson
+end newFromJson
 
 
 (* @deprecated use the alias newInstanceFromRecord. *)
@@ -424,7 +441,7 @@ on new()
 		on toJsonString()
 			set keyList to getKeys()
 			set nameValueList to {}
-			set mainJsonBuilder to sb's new("{")
+			set mainJsonBuilder to sbLib's new("{")
 			repeat with i from 1 to count of keyList
 				if i is not 1 then
 					mainJsonBuilder's append(", ")
@@ -592,8 +609,8 @@ on new()
 			log __JoinList(output, " ") of me
 		end __printNode
 		
-		on __JoinList(theList, TheDelimiter)
-			set AppleScript's text item delimiters to {TheDelimiter}
+		on __JoinList(theList, theDelimiter)
+			set AppleScript's text item delimiters to {theDelimiter}
 			set theListAsText to theList as text
 			set AppleScript's text item delimiters to ""
 			return theListAsText
@@ -608,48 +625,51 @@ end new
 	Put the case you are debugging at the top, and move to correct place once verified.
 *)
 on unitTest()
-	set utLib to std's import("unit-test")
-	set ut to utLib's new()
+	set useBasicLogging of test to true
+	set ut to test's new()
 	tell ut
+		log 8
 		newMethod("newInstanceFromRecord - missing value")
-		set sut to my newInstanceFromRecord({none:missing value})
+		set sut to my newFromRecord({|none|:missing value})
+		log 9
 		assertMissingValue(sut's getValue("none"), "Missing Value")
+		log 10
 		
-		newMethod("newInstanceFromString")
-		set sut to my newInstanceFromString("
+		newMethod("newFromString")
+		set sut to my newFromString("
 			ts: TypeScript
 			md: Markdown
 		")
-		assertEqual("TypeScript", sut's getValue("ts"), "First Item")
+		log 11
+		set actual to sut's getValue("ts")
+		log actual
+		log its name
+		log name of sut
+		log useBasicLogging of sut
+		assertEqual("1", "1", "grrr")
+		log 11.5
+		assertEqual("TypeScript", "TypeScript", "First Item")
+		log 12
 		assertEqual("Markdown", sut's getValue("md"), "Second Item")
-		assertEqual(missing value, sut's getValue("nah"), "Not found")
+		log 13
+		assertMissingValue(sut's getValue("nah"), "Not found")
 		
+		log 14
 		newMethod("toJsonString")
 		assertEqual("{\"ts\": \"TypeScript\", \"md\": \"Markdown\"}", sut's toJsonString(), "Basic")
 		
+		log 13
 		newMethod("clear")
 		sut's clear()
 		assertEqual("{}", sut's toJsonString(), "Basic")
 		
+		log 14
 		newMethod("isEmpty")
 		set sut to my new()
 		assertTrue(sut's isEmpty(), "Empty")
 		sut's putValue("first", "una")
 		assertFalse(sut's isEmpty(), "Non-Empty")
-		
+		log 99
 		done()
 	end tell
 end unitTest
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("map")
-	set listUtil to std's import("list")
-	set sb to std's import("string-builder")
-	set textUtil to std's import("string")
-end init

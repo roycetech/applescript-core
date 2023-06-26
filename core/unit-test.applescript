@@ -1,15 +1,15 @@
-global std
-
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
+use loggerFactory : script "logger-factory"
+
+property useBasicLogging : false
 property logger : missing value
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
+	loggerFactory's inject(me, "unit-test")
 	logger's start()
 	
 	set ut to new()
@@ -21,7 +21,7 @@ on spotCheck()
 		newMethod("isOdd")
 		assertEqual(false, isOdd(0), "Happy Case for 0")
 		assertEqual(true, isOdd(1), "Happy Case for 1")
-		assertEqual(false, isOdd(2), "Happy Case for 2") 
+		assertEqual(false, isOdd(2), "Happy Case for 2")
 		
 		done()
 	end tell
@@ -46,8 +46,6 @@ end isOdd
 
 (* Used for unit testing *)
 on assert(expected, actual, message)
-	init()
-	
 	logger's info(message)
 	
 	if actual is not equal to expected then
@@ -79,15 +77,15 @@ on new()
 			set methodCounter to methodCounter + 100
 			set method to pMethod
 		end newMethod
-
+		
 		on newScenario(pScenario)
 			newMethod(pScenario)
-		end newMethod
-
+		end newScenario
+		
 		on newFeature(pFeature)
 			newMethod(pFeature)
-		end newMethod
-
+		end newFeature
+		
 		on assertEquals(expected, actual, caseDesc)
 			assertEqual(expected, actual, caseDesc)
 		end assertEquals
@@ -119,7 +117,7 @@ on new()
 		
 		on fail(caseDesc)
 			error "Assertion failed for \"" & caseDesc & "\": Expected not to reach this code"
-		end
+		end fail
 		
 		on done()
 			logger's info("All unit test cases passed.")
@@ -131,13 +129,3 @@ on new()
 		end formatCaseIndexed
 	end script
 end new
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("unit-test")
-end init

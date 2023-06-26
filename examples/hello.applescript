@@ -1,4 +1,5 @@
-set std to script "std"
-set logger to std's import("logger")'s new("hello")
+use loggerLib : script "logger"
+
+property logger : loggerLib's new("hello")
 
 logger's info("Hello AppleScript Core!")

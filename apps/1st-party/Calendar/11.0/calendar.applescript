@@ -1,9 +1,3 @@
-global std, regex, textUtil, retry, sb, calendarEvent, counter, plutil, dt, kb, configUser, uiutil
-global decoratorCalView, calProcess
-
-use script "Core Text Utilities"
-use scripting additions
-
 (*
 	@Plists
 		counter
@@ -28,19 +22,52 @@ use scripting additions
 		- Add multiple timezone support.
 *)
 
-property initialized : false
-property logger : missing value
 
-if name of current application is "Script Editor" then spotCheck()
+-- global std, regex, textUtil, retry, sb, calendarEvent, counter, plutil, dt, kb, configUser, uiutil
+-- global decoratorCalView, calProcess
+
+use script "Core Text Utilities"
+use scripting additions
+
+use listUtil : script "list"
+use textUtil : script "string"
+use regex : script "regex"
+use counter : script "counter"
+use dt : script "date-time"
+
+use decoratorCalendarView : script "dec-calendar-view"
+use calendarEvent : script "calendar-event"
+
+use loggerLib : script "logger"
+use overriderLib : script "overrider"
+use sbLib : script "string-builder"
+use uiutilLib : script "ui-util"
+use retryLib : script "retry"
+use configLib : script "config"
+use mapLib : script "map"
+use plutilLib : script "plutil"
+use processLib : script "process"
+use kbLib : script "keyboard"
+
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("calendar")
+property uiutil : uiutilLib's new()
+property retry : retryLib's new()
+property plutil : plutilLib's new()
+property configUser : configLib's new("user")
+property calendarProcess : processLib's new("Calendar")
+property kb : kbLib's new()
+
+property overrider : overriderLib's new()
+
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "calendar-next-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
-	set map to std's import("map")
 	
 	(* Manual Visual Verification. *)
 	set cases to listUtil's splitByLine("
@@ -64,8 +91,8 @@ on spotCheck()
 	(* Manually configure this. *)
 	set spotData to {online_only:date "Wednesday, January 26, 2022 at 7:30:00 AM", online_and_offline:date "Wednesday, November 23, 2022 at 7:00:00 AM"}
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -103,7 +130,7 @@ on spotCheck()
 		if meetingCount is not 0 then
 			repeat with nextMeeting in meetingsAtThisTime
 				set meetingASDictionary to map's fromRecord(nextMeeting)
-				logger's infof("Next meeting today: {}", meetingASDictionary's toJSONString())
+				logger's infof("Next meeting today: {}", meetingASDictionary's toJsonString())
 			end repeat
 		end if
 		
@@ -131,7 +158,7 @@ on spotCheck()
 		set selectedEvent to sut's getSelectedEvent()
 		if selectedEvent is missing value then error "Select an event in week-view to demonstrate this feature. Other view types are not yet implemented."
 		
-		logger's infof("Selected Event JSON: {}", selectedEvent's toJSONString())
+		logger's infof("Selected Event JSON: {}", selectedEvent's toJsonString())
 		
 	else if caseIndex is 8 then
 		
@@ -437,7 +464,7 @@ on new()
 	end script
 	
 	decoratorCalView's decorate(CalendarInstance)
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
 
 
@@ -498,27 +525,3 @@ on _asDate(dateParam)
 	
 	date dateParam
 end _asDate
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("calendar")
-	
-	set configUser to std's import("config")'s new("user")
-	set textUtil to std's import("string")
-	set regex to std's import("regex")
-	set retry to std's import("retry")'s new()
-	set sb to std's import("string-builder")
-	set decoratorCalView to std's import("dec-calendar-view")
-	set calendarEvent to std's import("calendar-event")'s new()
-	set counter to std's import("counter")
-	set plutil to std's import("plutil")'s new()
-	set dt to std's import("date-time")
-	set calProcess to std's import("process")'s new("Calendar")
-	set kb to std's import("keyboard")'s new()
-	set uiutil to std's import("ui-util")'s new()
-end init

@@ -1,27 +1,31 @@
-global std, textUtil
-global CR
-
 (*
 	Note: does not print properly when run in ST3.
 	WARNING: Do not use the Core Text Utilities. It results to a not so
 	visible crash for some scripts that are triggered via Voice Command.
+	
+	@Deployment:
+		make compile-lib SOURCE=core/logger
 *)
 
+global CR
+
+use scripting additions
+
+use textUtil : script "string"
+use overriderLib : script "overrider"
+
+property overrider : overriderLib's new()
 property filename : "applescript-core.log"
-property logFilePath : missing value
-property level : 1
 property name : missing value
 property logOverride : false
 property startSeconds : 0
 property logLite : missing value
 
-property initialized : false
+set CR to ASCII character 13
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
-	
 	set sut to new("logger")
 	
 	tell sut
@@ -43,9 +47,14 @@ on spotCheck()
 end spotCheck
 
 
-on new(pObjectName)
+(* Instantiates a logger without overrides *)
+on newBase(pObjectName)
+	set logSubDir to "applescript-core:logs:"
+	
 	script LoggerInstance
 		property objectName : pObjectName
+		property logFilePath : (path to home folder as text) & logSubDir & filename
+		property level : 1
 		
 		on start()
 			set theLabel to "Running: [" & objectName & "]"
@@ -125,22 +134,8 @@ on new(pObjectName)
 		
 		
 		on debug(thisInfo)
-			-- try
-			-- 	sessionPlist
-			-- on error
-			-- 	set plutil to std's import("plutil")'s new()
-			-- 	set sessionPlist to plutil's new("session")
-			-- end try
-			
-			-- if sessionPlist's debugOn() is false then return
-			
-			-- -- if config's debugOn() is true then
-			-- if sessionPlist's debugOn() is true then
-			-- 	info("D " & _toString(thisInfo))
-			-- end if
-
 			info("D " & _toString(thisInfo))
-		end debug		
+		end debug
 		
 		on warn(thisMessage)
 			info("W " & _toString(thisMessage))
@@ -216,29 +211,20 @@ on new(pObjectName)
 		end _toString
 		
 		
-		to _repeatText(theText, ntimes)
+		on _repeatText(theText, ntimes)
 			set theResult to ""
 			repeat ntimes times
 				set theResult to theResult & theText
 			end repeat
 		end _repeatText
 	end script
-	
-	std's applyMappedOverride(result)
+end newBase
+
+
+on new(pObjectName)
+	set basicInstance to newBase(pObjectName)
+	script LoggerOverridableInstance
+		property parent : basicInstance
+	end script
+	overrider's applyMappedOverride(result)
 end new
-
-
-on init()
-	set CR to ASCII character 13
-	
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set configDefault to std's import("config")'s new("default")
-	set textUtil to std's import("string")
-	
-	set logSubDir to configDefault's getValue("LOG_SUBDIR")
-	if logSubDir is missing value then set logSubDir to "applescript-core:logs:"
-	set logFilePath to (path to home folder as text) & logSubDir & filename
-end init

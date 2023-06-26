@@ -1,25 +1,25 @@
-global std, textUtil
-
 use script "Core Text Utilities"
 use scripting additions
 
 (*
 	Usage:
-		set fileUtil to std's import("file")
+		use fileUtil : script "file"
 *)
 
-property initialized : false
-property logger : missing value
+use loggerLib : script "logger"
+use listUtil : script "list"
+use textUtil : script "string"
+use spotScript : script "spot-test"
+use testLib : script "test"
 
-if name of current application is "Script Editor" then spotCheck()
+property test : testLib's new()
+property logger : loggerLib's new("file")
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "file-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Unit Test
@@ -28,14 +28,16 @@ on spotCheck()
 		Read Text File
 		Manual: POSIX Folder Exist
 	")
-	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	log 1
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
+	
+	log 2
 	
 	set userPath to format {"/Users/{}", std's getUsername()}
 	
@@ -162,24 +164,12 @@ end convertPathToPOSIXString
 -- Private Codes below =======================================================
 
 
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("file")
-	set textUtil to std's import("string")
-end init
-
-
 on unitTest()
-	set utLib to std's import("unit-test")
-	set ut to utLib's new()
+	set ut to test's new()
 	tell ut
 		newMethod("getBaseFileName")
 		assertEqual("sublimetext3.applescript", my getBaseFileName("/Users/cloud.strife/projects/@rt-learn-lang/applescript/DEPLOYED/Common/sublimetext3.applescript"), "Happy Case")
 		
-		ut's done()
+		done()
 	end tell
 end unitTest

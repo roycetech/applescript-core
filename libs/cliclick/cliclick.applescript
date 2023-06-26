@@ -1,6 +1,3 @@
-global std, textUtil, sessionPlist
-global CLICLICK_CLI
-
 (* 
 	Download cli at https://www.bluem.net/en
 	For some reason if you are not moving the mouse pointer far enough, the repositioning of the cursor doesn't change or change but off by a small size. 
@@ -25,21 +22,39 @@ global CLICLICK_CLI
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
-property logger : missing value
+use textUtil : script "string"
+use listUtil : script "list"
+
+use loggerLib : script "logger"
+use plutilLib : script "plutil"
+
+use spotScript : script "spot-test"
+use testLib : script "test"
+
+property logger : loggerLib's new("cliclick")
+property plutil : plutilLib's new()
+property test : testLib's new()
+
+property session : plutil's new("session")
+
+property CLICLICK_CLI : missing value
+
 property savedPosition : missing value
 
-if name of current application is "Script Editor" then spotCheck()
+
+try
+	set CLICLICK_CLI to do shell script "plutil -extract \"cliclick CLI\" raw ~/applescript-core/config-system.plist"
+on error
+	error "cliclick was not found. Download cli then run make install-cliclick"
+end try
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 if name of current application is "osascript" then unitTest()
 
 on spotCheck()
-	init()
 	logger's start()
 	set thisCaseId to "cliclick-spotCheck"
 	logger's infof("Current Coord: {}:{}", getCurrentCoord())
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Unit Test
@@ -48,8 +63,8 @@ on spotCheck()
 		Manual: Move To XY
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -68,7 +83,7 @@ on spotCheck()
 			
 		else if caseIndex is 3 then
 			lclick at sutUi with reset
-
+			
 		else if caseIndex is 4 then
 			moveToXy(0, 0)
 			
@@ -104,7 +119,6 @@ end clickRelative
 	Usage: drag from {350, -1250} onto {1020, -1355}
 *)
 on drag from startPos onto endPos
-	init()
 	
 	set origPos to do shell script CLICLICK_CLI & " p:."
 	set origPos to textUtil's replace(origPos, "-", "=-")
@@ -133,7 +147,7 @@ on dragFromTo(x1, y1, x2, y2)
 	
 	tell application "System Events"
 		-- drag down, drag up, and click.  does not work without the additional click.
-		set clickCommand to CLICLICK_CLI & " -e 1 dd:" & x1 & "," & y1 & " du:" & x2 & "," & y2  -- & " c:" & x2 & "," & y2
+		set clickCommand to CLICLICK_CLI & " -e 1 dd:" & x1 & "," & y1 & " du:" & x2 & "," & y2 -- & " c:" & x2 & "," & y2
 		-- log clickCommand
 		do shell script clickCommand
 	end tell
@@ -271,7 +285,7 @@ on saveCurrentPosition()
 	set origPos to do shell script CLICLICK_CLI & " p:."
 	set origPos to textUtil's replace(origPos, "-", "=-")
 	set my savedPosition to origPos
-	sessionPlist's setValue("Pointer Position", origPos)
+	session's setValue("Pointer Position", origPos)
 end saveCurrentPosition
 
 
@@ -289,7 +303,7 @@ end getCurrentCoord
 
 
 on restorePosition()
-	set savedPosition to sessionPlist's getValue("Pointer Position")
+	set savedPosition to session's getValue("Pointer Position")
 	logger's debugf("Restoring pointer to: {}", savedPosition)
 	do shell script CLICLICK_CLI & " m:" & savedPosition
 end restorePosition
@@ -313,8 +327,7 @@ end getCoord
 
 -- Unit Tests here
 on unitTest()
-	set utLib to std's import("unit-test")
-	set ut to utLib's new()
+	set ut to test's new()
 	tell ut
 		newMethod("formatCoordinates")
 		-- expected, actual, description
@@ -335,22 +348,3 @@ on formatCoordinates(x, y)
 	
 	format {"{},{}", {x, y}}
 end formatCoordinates
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	try
-		set CLICLICK_CLI to do shell script "plutil -extract \"cliclick CLI\" raw ~/applescript-core/config-system.plist"
-	on error
-		error "cliclick was not found. Download cli then run make install-cliclick"
-	end try
-	
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("cliclick")
-	set textUtil to std's import("string")
-	set plutil to std's import("plutil")'s new()
-	set sessionPlist to plutil's new("session")
-end init

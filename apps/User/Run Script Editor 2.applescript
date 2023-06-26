@@ -1,5 +1,3 @@
-global std, seLib
-
 (*
 	This script will trigger the run button of the front window of Script Editor. 
 	Useful as a follow up process after selecting a new case using Menu Case.app.
@@ -11,21 +9,21 @@ global std, seLib
 
 *)
 
-property logger : missing value
+use scripting additions
+
+use loggerLib : script "logger"
+use seLib : script "script-editor"
+
+property logger : loggerLib's new("Run Script Editor 2")
+property se : seLib's new()
 
 on run argv
 	tell application "System Events" to set scriptName to get name of (path to me)
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new(scriptName)
 	
 	set IS_MAIN_SCRIPT to (count of argv) is 0
 	if IS_MAIN_SCRIPT then
 		logger's start()
 	end if
-	
-	-- = Imports and Initialize constants below = -- 
-	set seLib to std's import("script-editor")'s new()
 	
 	try
 		main()

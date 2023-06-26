@@ -1,28 +1,29 @@
-global std
-
 (*
+	This library is used to detect if the user is idle for a given time.
 *)
 
-property initialized : false
-property logger : missing value
+use scripting additions
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use listUtil : script "list"
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("idler")
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "idler-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Manual: Idle for seconds
 		Manual: Is Idle
 		Manual: Idle in seconds
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -74,12 +75,3 @@ on new(pAwayThresholdSeconds)
 		end idleInSeconds
 	end script
 end new
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("idler")
-end init

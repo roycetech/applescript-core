@@ -1,7 +1,4 @@
-global std, textUtil, retry, uni, regex, syseve, winUtil, kb
 
-use script "Core Text Utilities"
-use scripting additions
 
 (*
     Script terminal.applescript.
@@ -14,7 +11,8 @@ use scripting additions
 		macOS Ventura
 
 	@Usage:
-		set terminal to std's import("terminal")'s new()
+		use terminalLib : script "terminal"
+		property terminal : terminalLib's new()
 		set foundTab to terminal's findTabWithName("project-dir-name", "tab_name")
 		set shellResult to foundTab's runShell("echo yo", "temp key")
 		
@@ -42,27 +40,49 @@ use scripting additions
 
 *)
 
-property logger : missing value
-property initialized : false
-property SEPARATOR : missing value
+use script "Core Text Utilities"
+use scripting additions
+
+use textUtil : script "string"
+use listUtil : script "list"
+use emoji : script "emoji"
+use regex : script "regex"
+use unic : script "unicodes"
+
+use loggerLib : script "logger"
+use kbLib : script "keyboard"
+use winUtil : script "window"
+use syseveLib : script "system-events"
+use retryLib : script "retry"
+
+use extOutput : "dec-terminal-output"
+use extRun : "dec-terminal-run"
+use extPath : "dec-terminal-path"
+use extPrompt : "dec-terminal-prompt"
+
+property logger : loggerLib's new("terminal")
+property kb : kbLib's new()
+property winUtil : winUtilLib's new()
+property syseve : syseveLib's new()
+property retry : retryLib's new()
+
+-- set main to me
+
+property SEPARATOR : unic's SEPARATOR
 
 (* Used so we can distinguish between script handlers vs instance handlers with the same name. *)
 property main : missing value
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 (*
 	Not for unit test codes because we are visually checking window behavior.
 	Transient snippets, delete code once verified.
 *)
 on spotCheck()
-	init()
 	set thisCaseId to "terminal-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
-	set emoji to std's import("emoji")
+		
 	set cases to listUtil's splitByLine("
 		Manual: Front Tab and Info
 		Manual: New Tab, Find
@@ -80,8 +100,8 @@ on spotCheck()
 		Manual: Set Tab Name
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -314,12 +334,7 @@ on new()
 					if termProcesses contains "-zsh" then set localPromptEndChar to "%"
 				end tell
 			end tell
-			
-			set extOutput to std's import("dec-terminal-output")
-			set extRun to std's import("dec-terminal-run")
-			set extPath to std's import("dec-terminal-path")
-			set extPrompt to std's import("dec-terminal-prompt")
-			
+						
 			script TerminalTabInstance
 				property appWindow : missing value -- will be set to app window (not sys eve window)
 				property |instance name| : missing value
@@ -327,7 +342,7 @@ on new()
 				(* Will only for for bash and zsh, not for ohmyzsh. *)
 				property promptEndChar : localPromptEndChar -- designed for bash only.
 				property commandRunMax : 100
-				property commandRetrySleepSec : 3
+				property commandRetrySleepSeconds : 3
 				property lastCommand : missing value
 				property maintainName : false
 				property preferredName : ""
@@ -466,7 +481,7 @@ on new()
 					end if
 					
 					-- zsh
-					set tokens to {uni's OMZ_ARROW, uni's OMZ_GIT_X}
+					set tokens to {unic's OMZ_ARROW, unic's OMZ_GIT_X}
 					set gitPromptPattern to format {"{}  [0-9a-zA-Z_\\s-]+\\sgit:\\([a-zA-Z0-9/_\\.()-]+\\)(?: {})?\\s?", tokens}
 					set gitPattern to gitPromptPattern & ".+$" -- with a typed command
 					
@@ -570,29 +585,7 @@ on new()
 			extPath's decorate(result)
 			extPrompt's decorate(result)
 			
-			std's applyMappedOverride(result)
+			overrider's applyMappedOverride(result)
 		end new
 	end script
 end new
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	set main to me
-	
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("terminal")
-	
-	set textUtil to std's import("string")
-	set retry to std's import("retry")'s new()
-	set uni to std's import("unicodes")
-	set regex to std's import("regex")
-	set syseve to std's import("system-events")'s new()
-	set winUtil to std's import("window")'s new()
-	set kb to std's import("keyboard")'s new()
-	
-	set SEPARATOR to uni's SEPARATOR
-end init

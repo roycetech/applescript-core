@@ -1,5 +1,3 @@
-global std, regex, plutil, notifCenterHelper
-
 (* 
 	User/client facing library. 
 	
@@ -20,8 +18,16 @@ global std, regex, plutil, notifCenterHelper
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
+use regex : script "regex"
+
+use loggerLib : script "logger"
+use plutilLib : script "plutil"
+use notificationCenterHelperLib : script "notification-center-helper"
+
+property logger : loggerLib's new("notification-center")
+property plutil : plutilLib's new()
+property notificationCenterHelper : notificationCenterHelperLib's new()
 
 (*
 	Problem with expanding notification of a Slack status report.
@@ -32,15 +38,12 @@ property logger : missing value
 		Dismiss All dismissed only one notification.
 *)
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "notification-spotCheck"
 	logger's start()
 	
-	
-	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Manual: Stacked Notice Details - toString()
 		Manual: App Names
@@ -54,8 +57,8 @@ on spotCheck()
 		Manual: Expand Notification
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
 	if caseIndex is 0 then
@@ -97,7 +100,7 @@ on spotCheck()
 				-- 				log notice's toString()
 			end next
 		end script
-		notifCenterHelper's _forEach(result)
+		notificationCenterHelper's _forEach(result)
 		
 	else if caseIndex is 4 then
 		set sutAppName to "Mail"
@@ -252,7 +255,7 @@ on new()
 					notice's dismiss()
 				end next
 			end script
-			notifCenterHelper's _reverseLoop(result)
+			notificationCenterHelper's _reverseLoop(result)
 		end dismissByTitleAndSubtitle
 		
 		
@@ -267,7 +270,7 @@ on new()
 					notice's dismiss()
 				end next
 			end script
-			notifCenterHelper's _reverseLoop(result)
+			notificationCenterHelper's _reverseLoop(result)
 		end dismissByTitle
 		
 		
@@ -284,7 +287,7 @@ on new()
 					notice's deleteNotice()
 				end next
 			end script
-			notifCenterHelper's _reverseLoop(result)
+			notificationCenterHelper's _reverseLoop(result)
 		end deleteEmailNotifications
 		
 		
@@ -307,7 +310,7 @@ on new()
 					if notice's appName is equal to the appName then set end of appNotifications to notice
 				end next
 			end script
-			notifCenterHelper's _forEach(result)
+			notificationCenterHelper's _forEach(result)
 			
 			appNotifications
 		end getNotificationsByAppName
@@ -323,7 +326,7 @@ on new()
 					set retval to retval & notice's appName
 				end next
 			end script
-			notifCenterHelper's _forEach(result)
+			notificationCenterHelper's _forEach(result)
 			
 			retval
 		end getAppNames
@@ -493,21 +496,9 @@ Is Stacked: {}
 					if noticeAppName is equal to appName then notice's clickNotice()
 				end next
 			end script
-			notifCenterHelper's _reverseLoop(result)
+			notificationCenterHelper's _reverseLoop(result)
 		end _expandNotifications
 	end script
 end new
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("notification-center")
-	set regex to std's import("regex")
-	set plutil to std's import("plutil")'s new()
-	set notifCenterHelper to std's import("notification-center-helper")'s new()
-end init
 
 -- End Of Script

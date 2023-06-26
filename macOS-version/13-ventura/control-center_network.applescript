@@ -1,37 +1,43 @@
-global std, kb, retryLib, listUtil
-
 (*
 	This script provides network-specific functions to the control-center library.
 *)
 
-property initialized : false
-property logger : missing value
 
-if name of current application is "Script Editor" then spotCheck()
+use listUtil : script "list"
+
+use loggerLib : script "logger"
+use kbLib : script "keyboard"
+use retryLib : script "retry"
+use ccLib : script "control-center"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("control-center_network")
+property kb : kbLib's new()
+property retry : retryLib's new()
+property cc : ccLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "control-center_network-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.	
 	set cases to listUtil's splitByLine("
 		Manual: List of Hotspot (Maybe used to identify your hotpot key, mind the Unicode apostrophe, test no hotspot available)
 		Manual: Join Hotspot (Not Joined, Already Joined, Not Found)
 		Manual: Join WIFI (Not Joined, Already Joined, Not Found)
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
 	
-	set sut to std's import("control-center")'s new()
-	set sut to decorate(sut)
-	
+	set sut to decorate(cc)
 	if caseIndex is 1 then
 		set hotspots to sut's getListOfAvailableHotspot()
 		if the number of items in hotspots is 0 then
@@ -186,7 +192,7 @@ on decorate(mainScript)
 			end if
 		end _activateWifiPane
 	end script
-
+	
 	if the decorators of mainScript is missing value then
 		set mainScript's decorators to []
 	end if
@@ -194,19 +200,5 @@ on decorate(mainScript)
 	set the end of ControlCenterNetworkDecorated's decorators to the name of ControlCenterNetworkDecorated
 	
 	ControlCenterNetworkDecorated
-
-end decorate
-
-
--- Private Codes below =======================================================
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
 	
-	set std to script "std"
-	set logger to std's import("logger")'s new("control-center_network")
-	set kb to std's import("keyboard")'s new()
-	set retryLib to std's import("retry")
-	set listUtil to std's import("list")
-end init
+end decorate

@@ -1,7 +1,8 @@
-global std, syseve, retry, kb, configSystem
 
 (* 
-	Previously Bloody Flaky. Let's see if it has improved. This script creates an app for the user and stores it in /Applications/AppleScript folder
+	Previously Bloody Flaky. Let's see if it has improved. This script creates 
+	an app for the user and stores it in /Applications/AppleScript folder. A 
+	code template is hard coded in the body of this script.
 	
 	@Requires:
 		keyboard-maestro.applescript (Let's see if we can detach this.)
@@ -16,21 +17,36 @@ global std, syseve, retry, kb, configSystem
 		Wipes out clipboard contents.
 *)
 
-property initialized : false
-property logger : missing value
+use scripting additions
+
+use std : script "std"
+use listUtil : script "list"
+
+use loggerLib : script "logger"
+use configLib : script "config"
+use syseveLib : script "system-events"
+use kbLib : script "keyboard"
+use processLib : script "process"
+use retryLib : script "retry"
+use overriderLib : script "overrider"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("automator")
+property configSystem : configLib's new("system")
+property syseve : syseveLib's new()
+property kb : kbLib's new()
+property retry : retryLib's new()
+property overrider : overriderLib's new()
+
 property documentType : missing value
 property windowName : missing value
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "automator-spotCheck"
 	logger's start()
-	
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: E2E: Create New App Script
@@ -38,8 +54,8 @@ on spotCheck()
 		Manual: Show Side Bar
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -47,9 +63,6 @@ on spotCheck()
 	end if
 	
 	set sut to new()
-	
-	set configSystem to std's import("config")'s new("system")
-	
 	if caseIndex is 1 then
 		tell sut
 			forceQuitApp()
@@ -210,11 +223,15 @@ on new()
 				-- set the code
 				set theCodeTextArea to text area 1 of scroll area 1 of splitter group 1 of group 1 of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my newWindowName)
 				set value of theCodeTextArea to "
+use scripting additions
+
+use configLib : script \"config\"
+use fileUtil : script \"file\"
+
+property configUser : configLib's new(\"user\")
+
 on run {input, parameters}
 	(* Your script goes here *)
-	set std to script \"std\"
-	set fileUtil to std's import(\"file\")
-	set configUser to std's import(\"config\")'s new(\"user\")
 	set projectPath to configUser's getValue(\"Project " & projectPathKey & "\")
 	set scriptFilePath to projectPath & \"/" & resourcePath & "\"
 	set scriptMon to fileUtil's convertPosixToMacOsNotation(scriptFilePath)
@@ -261,7 +278,7 @@ end run
 		
 		on triggerSave()
 			if running of application "Automator" is false then return
-						
+			
 			kb's pressCommandKey("s")
 		end triggerSave
 		
@@ -374,23 +391,5 @@ end run
 		end forceQuitApp
 	end script
 	
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
-
-
--- Private Codes below =======================================================
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-
-	set std to script "std"
-	set logger to std's import("logger")'s new("automator")
-
-	set proc to std's import("process")
-	set syseve to std's import("system-events")'s new()
-	set retry to std's import("retry")'s new()
-	set kb to std's import("keyboard")'s new()
-
-	set configSystem to std's import("config")'s new("system")
-end init

@@ -1,5 +1,3 @@
-global std
-
 (* 
 	Prerequisites:
 		zoom.applescript installed.
@@ -13,19 +11,22 @@ global std
 		make remove-lib SOURCE=libs/user/dec-user-zoom
 		plutil -remove 'UserInstance' ~/applescript-core/config-lib-factory.plist
 *)
+use std : script "std"
+use listUtil : script "list"
 
-property initialized : false
-property logger : missing value
+use loggerLib : script "logger"
+use usrLib : script "user"
 
-if name of current application is "Script Editor" then spotCheck()
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("dec-user-zoom")
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+
 
 on spotCheck()
-	init()
-	set caseId to "dec-user-zoom"
+	set caseId to "dec-user-zoom-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	-- All spot check cases are manual.
 	set cases to listUtil's splitByLine("
@@ -33,19 +34,19 @@ on spotCheck()
 		Manual: Is screen sharing (yes, no)
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
+	set spotLib to spotScript's new()
 	set spot to spotLib's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
-	set sut to std's import("user")'s new()
-	if name of sut is not "UserZoomInstance" then set sut to decorate(sut)
+	set sut to usrLib's new()
+	set sut to decorate(sut)
 	
 	if caseIndex is 1 then
 		logger's infof("In Meeting: {}", sut's isInMeeting())
 		
 	else if caseIndex is 2 then
 		logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
-	
+		
 	end if
 	
 	spot's finish()
@@ -55,8 +56,6 @@ end spotCheck
 
 (* *)
 on decorate(baseScript)
-	init()
-	
 	script UserZoomInstance
 		property parent : baseScript
 		
@@ -65,7 +64,7 @@ on decorate(baseScript)
 				continue isInMeeting()
 				return
 			end if
-
+			
 			if running of application "zoom.us" is false then return false
 			
 			tell application "System Events" to tell process "zoom.us"
@@ -90,19 +89,10 @@ on decorate(baseScript)
 			if std's appExists("zoom.us") is false then return false
 			
 			try
-				set zoomApp to std's import("zoom")
+				script "zoom"
 				return true
 			end try
 			false
 		end _isZoomInstalled
 	end script
 end decorate
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("dec-user-zoom")
-end init

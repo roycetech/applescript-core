@@ -1,22 +1,33 @@
-global std
-global SWITCHES
-
 (*
 	NOTE: The key do not need to exist in the flag.plist, it will be created 
 	when its value is set.
 
-	Usage:
-		set yourFlag to new("Flag Name")
+	@Usage:
+		use switchLib : script "switch"
+		set yourFlag to switchLib's new("Flag Name")
 		yourFlag's turnOn()
+		
+	@Deployment:
+		make compile-lib SOURCE=core/switch
 *)
 
-property initialized : false
-property logger : missing value
+use loggerFactory : script "logger-factory"
+use utLib : script "unit-test"
+use testLib : script "test"
+use plutilScript : script "plutil"
 
-if name of current application is "Script Editor" then spotCheck()
+property logger : missing value
+property plutilLib : plutilScript's new()
+property switchPlist : plutilLib's new("switches")
+property test : missing value
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
+	loggerFactory's inject(me, "switch")
+	set useBasicLogging of testLib to true
+	set test to testLib's new()
+	
 	logger's start()
 	
 	unitTest()
@@ -40,13 +51,14 @@ on inactive(featureName)
 	not active(featureName)
 end inactive
 
-on new(pFeatureName as text)
+on new(pFeatureName)
+	
 	script SwitchInstance
 		property featureName : pFeatureName
 		
 		(*  *)
 		on active()
-			set theValue to SWITCHES's getValue(featureName)
+			set theValue to switchPlist's getValue(featureName)
 			if theValue is "" or theValue is missing value then return false
 			theValue
 		end active
@@ -69,7 +81,7 @@ on new(pFeatureName as text)
 		end turnOff
 		
 		on setValue(boolValue)
-			SWITCHES's setValue(featureName, boolValue)
+			switchPlist's setValue(featureName, boolValue)
 		end setValue
 	end script
 end new
@@ -93,15 +105,15 @@ on unitTest()
 	
 	script Hook
 		on reinit()
-			SWITCHES's deleteKey(UT_KEY_MISSING)
-			SWITCHES's setValue(UT_KEY_OFF, false)
-			SWITCHES's setValue(UT_KEY_ON, true)
+			switchPlist's deleteKey(UT_KEY_MISSING)
+			switchPlist's setValue(UT_KEY_OFF, false)
+			switchPlist's setValue(UT_KEY_ON, true)
 		end reinit
 	end script
 	set Hook to result
 	
-	set utLib to std's import("unit-test")
-	set ut to utLib's new()
+	set ut to test's new()
+	
 	tell ut
 		newMethod("active")
 		
@@ -151,17 +163,4 @@ on unitTest()
 		
 		done()
 	end tell
-	
 end unitTest
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("switch")
-	set plutil to std's import("plutil")'s new()
-	set SWITCHES to plutil's new("switches")
-end init

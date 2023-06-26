@@ -1,6 +1,3 @@
-global std
-global countDaily, countKeys, countTotal
-
 (*
 	Compile:
 		make compile-lib SOURCE=libs/counter-plist/counter
@@ -9,7 +6,6 @@ global countDaily, countKeys, countTotal
 	because it triggers a weird error where reference to countTotal is lost 
 	despite being a globally declared variable.
 *)
--- global countDaily, countDailyList, countKeys, countTotal, countDates
 
 (*
 	PList Design:
@@ -24,31 +20,57 @@ global countDaily, countKeys, countTotal
 
 	UPDATE: 
 		Removed logging to countDailyList because plutil is crashing due to the data size.
+		
+	TODO: Should we refactor this to use instances? June 22, 2023 3:04 PM
 *)
+
+if not plutil's plistExists(countDailyName) then
+	plutil's createNewPList(countDailyName)
+end if
+
+if not plutil's plistExists(countKeysName) then
+	plutil's createNewPList(countKeysName)
+end if
+
+if not plutil's plistExists(countTotalName) then
+	plutil's createNewPList(countTotalName)
+end if
 
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use plutilLib : script "plutil"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("counter")
+property plutil : plutilLib's new()
+
+property countDailyName : "counter-daily"
+property countKeysName : "counter-all-keys"
+property countTotalName : "counter-total"
+
+property countDaily : plutil's new(countDailyName)
+property countKeys : plutil's new(countKeysName)
+property countTotal : plutil's new(countTotalName)
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "counter-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Total
 		Increment
 		Clear
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -75,8 +97,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 	
-	
-	
 	(*	
 	log hasScriptRunToday(theKey)
 	
@@ -94,7 +114,6 @@ end spotCheck
 
 
 on totalToday(theKey)
-	init()
 	set todayDate to _formatDate(short date string of (current date))
 	set keyToday to format {"{}-{}", {theKey, todayDate}}
 	
@@ -106,18 +125,7 @@ end totalToday
 
 (**)
 on increment(theKey)
-	init()
 	set todayDate to _formatDate(short date string of (current date))
-	
-	-- set todayList to countDailyList's getValue(todayDate)
-	-- if todayList is missing value then set todayList to {}
-	-- if todayList does not contain theKey then set end of todayList to theKey
-	-- countDailyList's setValue(todayDate, todayList)
-	
-	-- set allDates to countDates's getValue("All Dates")
-	-- if allDates is missing value then set allDates to {}
-	-- if allDates does not contain todayDate then set end of allDates to todayDate
-	-- countDates's setValue("All Dates", allDates)
 	
 	set keyCount to countTotal's getInt(theKey)
 	if keyCount is missing value then set keyCount to 0
@@ -131,14 +139,15 @@ on increment(theKey)
 	countDaily's setValue(keyToday, keyTodayCount)
 end increment
 
+
 (*  *)
 on totalAll(theKey)
-	init()
 	set theCount to countTotal's getInt(theKey)
 	if theCount is missing value then return 0
 	
 	theCount
 end totalAll
+
 
 (* 
 	Useful if you want lets say to do something every nth run. 
@@ -147,7 +156,6 @@ end totalAll
 	@return boolean.	
 *)
 on isNthRun(theKey as text, nth as integer)
-	init()
 	assertThat of std given condition:nth is greater than 0, messageOnFail:format {"The nth:{} must be a positive integer", nth}
 	
 	set totalCount to countTotal's getInt(theKey)
@@ -158,7 +166,6 @@ end isNthRun
 
 
 on clear(theKey)
-	init()
 	set todayDate to _formatDate(short date string of (current date))
 	set keyToday to format {"{}-{}", {theKey, todayDate}}
 	countTotal's setValue(theKey, 0)
@@ -204,36 +211,8 @@ on _formatDate(dateString)
 	"20" & last word of dateString & "/" & first word of dateString & "/" & second word of dateString
 end _formatDate
 
+
 on _stripExtension(scriptName)
 	if scriptName ends with ".applescript" then set scriptName to text 1 thru ((length of scriptName) - (length of ".applescript")) of scriptName
 	scriptName
 end _stripExtension
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("counter")
-	set plutil to std's import("plutil")'s new()
-	
-	set countDailyName to "counter-daily"
-	if not plutil's plistExists(countDailyName) then
-		plutil's createNewPList(countDailyName)
-	end if
-	set countDaily to plutil's new(countDailyName)
-	
-	set countKeysName to "counter-all-keys"
-	if not plutil's plistExists(countKeysName) then
-		plutil's createNewPList(countKeysName)
-	end if
-	set countKeys to plutil's new(countKeysName)
-	
-	set countTotalName to "counter-total"
-	if not plutil's plistExists(countTotalName) then
-		plutil's createNewPList(countTotalName)
-	end if
-	set countTotal to plutil's new(countTotalName)
-end init

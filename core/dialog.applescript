@@ -1,19 +1,22 @@
-global std, speech, listUtil
-
 use script "Core Text Utilities"
 use scripting additions
 
-property logger : missing value
-property initialized : false
+use loggerLib : script "logger"
+use listUtil : script "list"
+use speechLib : script "speech"
+use spotScript : script "spot-test"
+use testLib : script "test"
 
-if name of current application is "Script Editor" then spotCheck()
+property logger : loggerLib's new("dialog")
+property speech : speechLib's new(missing value)
+property test : testLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "dialog-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.
 	set cases to listUtil's splitByLine("
 		Show 2 Choices
 		Manual: Show 2 Choices with Timeout (Timeout/Non-Timeout)
@@ -26,7 +29,7 @@ on spotCheck()
 		Manual: Show choices from a list (Options: missing value, empty, happy, mismatch-default)
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
+	set spotLib to spotScript's new()
 	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
@@ -54,8 +57,7 @@ on spotCheck()
 		logger's infof("Result: {}", sut's showChoicesWithDefault("Choices with default", "Choose", {"Yes", "No"}, "No"))
 		
 	else if caseIndex is 8 then
-		set utLib to std's import("unit-test")
-		set ut to utLib's new()
+		set ut to test's new()
 		
 		set optionsList to {"Option 1", "Option 2", "Option 3"}
 		try
@@ -183,10 +185,10 @@ on new()
 		*)
 		on confirmWarningWithTimeout(theTitle as text, yourMessage as text, timeoutSec)
 			display alert theTitle message yourMessage as critical buttons {"Yes", "No"} default button "no" giving up after timeoutSec
-			if gave up of result then 
+			if gave up of result then
 				missing value
 			else
-			button returned of result is equal to "Yes"
+				button returned of result is equal to "Yes"
 			end if
 		end confirmWarningWithTimeout
 		
@@ -201,17 +203,3 @@ on new()
 		end showWarningDialog
 	end script
 end new
-
-
-
--- Private Codes below =======================================================
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("dialog")
-	set speech to std's import("speech")'s new()
-	set listUtil to std's import("list")
-end init

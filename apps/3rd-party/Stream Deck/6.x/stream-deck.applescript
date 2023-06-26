@@ -1,5 +1,3 @@
-global std
-
 (* 
 	This script wraps some of the Elgato Stream Deck app functionality.
 	This script is slow when changing profile via menu so we just ignored the 
@@ -13,19 +11,28 @@ global std
 		Run `make install` from this file's sub directory.		
 *)
 
-property logger : missing value
-property initialized : false
+use std : script "std"
+use loggerFactory : script "logger-factory"
+use listUtil : script "list"
+use textUtil : script "string"
+use spotScript : script "spot-test"
+use overriderLib : script "overrider"
 
-if name of current application is "Script Editor" then spotCheck()
+property logger : missing value
+property overrider : overriderLib's new()
+property useBasicLogging : false
+property isSpot : false
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then
+	set isSpot to true
+	spotCheck()
+end if
 
 on spotCheck()
-	init()
+	set useBasicLogging to true
+	loggerFactory's inject(me, "stream-deck")
 	set thisCaseId to "stream-deck-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
-	set textUtil to std's import("string")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Switch Profile: Found
@@ -33,8 +40,9 @@ on spotCheck()
 		Manual: Switch Profile: Percipio
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set useBasicLogging of spotScript to true
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -60,7 +68,6 @@ on spotCheck()
 	end if
 	
 	spot's finish()
-	
 	logger's finish()
 end spotCheck
 
@@ -69,6 +76,7 @@ end spotCheck
 on new()
 	if std's appExists("Elgato Stream Deck") is false then error "Elgato Stream Deck app needs to be installed"
 	
+	loggerFactory's inject(me, "stream-deck")
 	script StreamDeckInstance
 		
 		(* 
@@ -98,18 +106,7 @@ on new()
 			false
 		end switchProfile
 	end script
-
-	std's applyMappedOverride(result)
-end new
-
-
--- Private Codes below =======================================================
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
 	
-	set std to script "std"
-	set logger to std's import("logger")'s new("stream-deck")
-end init
+	if not isSpot then overrider's applyMappedOverride(result)
+	StreamDeckInstance
+end new

@@ -1,22 +1,24 @@
-global std
-
 (*
 	Usage:
-		set std to script "std"
-		
-		IMPORTANT: Do not remove the init() at the start of each handler. This 
-		is critical in this library, because this library is loaded differently from the rest.
+		use std : script "std"
 		
 		Do not use logger here because it will result in circular dependency.
+
+	@Deployment:
+		make compile-lib SOURCE=macOS-version/12-monterey/std
 *)
 
-property initialized : false
+use scripting additions
+
+use loggerFactory : script "logger-factory"
+
 property logger : missing value
 property username : missing value
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me, "std")
 	
 	try
 		noo
@@ -25,7 +27,6 @@ on spotCheck()
 		catch("spotCheck-std", errorNumber, "is not allowed to send keystrokes")
 	end try
 	
-	init()
 	logger's infof("Username: {}", getUsername())
 	logger's infof("App Exists no: {}", appExists("Magneto"))
 	logger's infof("App Exists yes: {}", appExists("Script Editor"))
@@ -35,61 +36,10 @@ on spotCheck()
 	assertThat given condition:1 + 3 < 4, messageOnFail:"failed on second assertion"
 end spotCheck
 
-(*
-	Loads a script library from the users Library/Script Library folder.
-
-	@return the reference to the loaded library.
-*)
-on import(moduleName)
-	init() -- do not remove.
-	
-	set theScript to script moduleName
-	try -- in case init is not defined. Other errors not expected.
-		-- logger's debug(moduleName & " " & (initialized of theScript))
-		
-		if not initialized of theScript then
-			-- logger's debug("Initializing script: " & moduleName)
-			theScript's init()
-		end if
-	end try
-	
-	theScript
-end import
-
-
-on applyMappedOverride(scriptObj)
-	set scriptName to the name of the scriptObj
-	set factory to missing value
-	try
-		set factory to do shell script "plutil -extract '" & scriptName & "' raw ~/applescript-core/config-lib-factory.plist"
-		-- set csv to do shell script "/usr/libexec/PlistBuddy -c \"Print :'" & scriptName & "'\" ~/applescript-core/config-lib-factory.plist | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | paste -s -d, -"
-		
-		set oldDelimiters to AppleScript's text item delimiters
-		set AppleScript's text item delimiters to ","
-		set array to every text item of csv
-		set AppleScript's text item delimiters to oldDelimiters
-		repeat with nextElement in the array
-			try
-				set factoryScript to import(nextElement)
-				set scriptObj to factoryScript's decorate(scriptObj)
-			end try
-			
-		end repeat
-		return scriptObj
-	end try
-	
-	if factory is not missing value then
-		set factoryScript to import(factory)
-		return factoryScript's decorate(scriptObj)
-	end if
-	
-	scriptObj
-end applyMappedOverride
-
 
 (* My general catch handler for all my scripts. Used as top most only. *)
 on catch(source, errorNumber, errorMessage)
-	init() -- do not remove.
+	loggerFactory's inject(me, "std")
 	
 	if errorMessage contains "user canceled" or errorMessage contains "abort" then
 		logger's warn(errorMessage)
@@ -149,9 +99,12 @@ end getUsername
 
 
 on assertThat given condition:condition as boolean, messageOnFail:message : missing value
-	init()
+	loggerFactory's inject(me, "std")
 	
 	if condition is false then
+		-- set loggerLib to script "logger"
+		-- set logger to loggerLib's new()
+		
 		if message is missing value then set message to "Assertion failed"
 		
 		tell me to error message
@@ -166,14 +119,3 @@ on ternary(condition, ifTrue, otherwise)
 	
 	otherwise
 end ternary
-
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set logger to script "logger"
-	logger's init()
-	set logger to logger's new("std")
-end init

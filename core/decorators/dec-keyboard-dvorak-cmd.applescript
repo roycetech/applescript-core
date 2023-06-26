@@ -1,5 +1,3 @@
-global std
-
 use script "Core Text Utilities"
 use scripting additions
 
@@ -7,22 +5,24 @@ use scripting additions
 	Compile:
 		make install-dvorak
 	
-	Usage:
-		set kb to std's import("keyboard")'s new()
 *)
 
-property initialized : false
-property logger : missing value
 
-if name of current application is "Script Editor" then spotCheck()
+use listUtil : script "list"
+
+use loggerLib : script "logger"
+use kbLib : script "keyboard"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("dec-keyboard-dvorak-cmd")
+property kb : kbLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set caseId to "dec-keyboard-dvorak-cmd-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	-- All spot check cases are manual.
 	set cases to listUtil's splitByLine("
@@ -33,12 +33,11 @@ on spotCheck()
 		Manual: pressControlShiftKey (dvorak/us input);
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
+	set spotClass to spotScript's new()
 	set spot to spotLib's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
-	set sut to std's import("keyboard")'s new()
-	if name of sut is not "KeyboardDvorakCmd" then set sut to decorate(sut)
+	set sut to decorate(kb)
 	
 	if caseIndex is 1 then
 		tell sut
@@ -92,7 +91,7 @@ on spotCheck()
 		
 	else if caseIndex is 4 then
 		tell sut to typeText("hello")
-
+		
 	else if caseIndex is 5 then
 		tell sut to pressControlShiftKey("c") -- should key code 34 for i.
 	end if
@@ -135,7 +134,7 @@ on decorate(baseScript)
 			set dvorakKey to _toDvorak(keyToPress)
 			continue pressControlShiftKey(dvorakKey)
 		end pressControlShiftKey
-
+		
 		on pressOptionKey(keyToPress)
 			if not isDvorak() then
 				continue pressOptionKey(keyToPress)
@@ -145,7 +144,7 @@ on decorate(baseScript)
 			set dvorakKey to _toDvorak(keyToPress)
 			continue pressOptionKey(dvorakKey)
 		end pressOptionKey
-
+		
 		
 		on typeText(theText)
 			tell application "System Events" to keystroke theText
@@ -192,14 +191,5 @@ on decorate(baseScript)
 		end _toDvorak
 	end script
 end decorate
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("dec-keyboard-dvorak-cmd")
-end init
 
 -- EOS

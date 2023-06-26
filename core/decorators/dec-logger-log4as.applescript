@@ -1,49 +1,39 @@
-global std
-
 (*
 	@Plists:
 		config-lib-factory - Add an override "LoggerSpeechAndTrackingInstance => dec-logger-speech-and-tracking" to use this as override.
 *)
 
-property initialized : false
+use log4asLib : script "log4as"
 
-(* *)
+use overriderLib : script "overrider"
 
-on decorate(baseScript)
-	init()
-	
-	set localLog4as to std's import("log4as")'s new()
+property log4as : log4asLib's new()
+
+property overrider : overriderLib's new()
+
+on decorate(baseScript)	
 	script LoggerLog4ASInstance
 		property parent : baseScript
-		prop log4as : localLog4as
-		property Level : {OFF:0, IGNORE:1, DEBUG:2, INFO:3, WARN:4, ERR:5} -- WET 2/2 copy in log4as.applescript
+		property level : {OFF:0, info:1, debug:2, warn:3, ERR:4} -- WET 2/2 copy in log4as.applescript
 		
 		on debug(logMessage)
-			if localLog4as's isPrintable(parent's objectName, DEBUG of Level) is false then return
+			if log4as's isPrintable(parent's objectName, debug of level) is false then return
 			
 			continue debug(logMessage)
 		end debug
-
+		
 		on info(logMessage)
-			if localLog4as's isPrintable(parent's objectName, INFO of Level) is false then return
+			if log4as's isPrintable(parent's objectName, info of level) is false then return
 			
 			continue info(logMessage)
-		end debug
-
+		end info
+		
 		on warn(logMessage)
-			if localLog4as's isPrintable(parent's objectName, WARN of Level) is false then return
+			if log4as's isPrintable(parent's objectName, warn of level) is false then return
 			
 			continue info(logMessage)
-		end debug
+		end warn
 	end script
 	
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end decorate
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-end init

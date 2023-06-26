@@ -15,13 +15,27 @@ global std, retryLib, kb, textUtil, uiUtil, listUtil
 		focus-mode-activity-com.apple.donotdisturb.mode.driving
 *)
 
-property initialized : false
-property logger : missing value
 
-if name of current application is "Script Editor" then spotCheck()
+use listUtil : script "list"
+use textUtil : script "string"
+
+use loggerLib : script "logger"
+use kbLib : script "keyboard"
+use retryLib : script "retry"
+use uiutilLib : script "ui-util"
+use ccLib : script "control-center"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("control-center_focus")
+property kb : kbLib's new()
+property retry : retryLib's new()
+property uiUtil : uiutilLib's new()
+property cc : ccLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "control-conter_focus-spotCheck"
 	logger's start()
 	
@@ -36,8 +50,8 @@ on spotCheck()
 		Manual: Activate Focus Pane (Mic on/off)
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -45,8 +59,7 @@ on spotCheck()
 	end if
 	
 	-- activate application ""
-	set sut to std's import("control-center")'s new()
-	set sut to decorate(sut)
+	set sut to decorate(cc)
 	
 	if caseIndex is 1 then
 		logger's infof("DND Status: {}", sut's getDNDStatus())
@@ -264,21 +277,3 @@ on decorate(mainScript)
 	
 	ControlCenterFocusDecorated
 end decorate
-
-
--- Private Codes below =======================================================
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("control-center_focus")
-	set retryLib to std's import("retry")
-	set kb to std's import("keyboard")'s new()
-	set textUtil to std's import("string")
-	set uiUtil to std's import("ui-util")'s new()
-	set listUtil to std's import("list")
-end init

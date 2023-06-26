@@ -1,14 +1,10 @@
-global std, configSystem, retry
-
 (*
 	Usage:
 		See spotCheck
 
 	Testing Template:
-		set std to script "std"
-		set logger to std's import("logger")
-
-		set safari to std's import("safari")'s new()
+		use safariLib : script "safari"
+		property safari : safariLib's new()
 		
 	@Plists
 		config-system
@@ -22,18 +18,27 @@ global std, configSystem, retry
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use configLib : script "config"
+use retryLib : script "retry"
+use safariLib : script "safari"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("safari-javascript")
+
+
+property configSystem : configLib's new("system")
+property retry : retryLib's new()
+property safari : safariLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "safari-javascript-next-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	(* Tests are based on current apple.com website, very likely to change in the future. *)
 	set cases to listUtil's splitByLine("
@@ -43,17 +48,15 @@ on spotCheck()
 		Retrieve Value
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
 	
-	
-	set sut to std's import("safari")'s new()
-	set sutTab to sut's newTab("https://www.apple.com")
+	set sutTab to safari's newTab("https://www.apple.com")
 	
 	try
 		sutTab's _runScript
@@ -111,7 +114,7 @@ on decorate(safariTab)
 			set scriptText to format {"document.querySelector('{}').value", {selector}}
 			_runScript(scriptText)
 		end getValue
-
+		
 		on getValueByName(elementName)
 			set scriptText to format {"document.getElementsByName('{}')[0].value", {elementName}}
 			_runScript(scriptText)
@@ -297,7 +300,7 @@ on decorate(safariTab)
 			end try
 			false
 		end selectorExists
-
+		
 		(* *)
 		on namedElementExists(elementName)
 			set scriptText to format {"document.getElementsByName('{}').length > 0", elementName}
@@ -308,11 +311,11 @@ on decorate(safariTab)
 			set scriptText to format {"document.querySelector('{}').textContent.trim()", selector}
 			runScriptPlain(scriptText)
 		end textContent
-
+		
 		on attribute(selector, attributeName)
 			set scriptText to format {"document.querySelector('{}')['{}']", {selector, attributeName}}
 			runScriptPlain(scriptText)
-		end textContent
+		end attribute
 		
 		on waitForTrueExpression(expression)
 			set scriptText to expression
@@ -423,16 +426,3 @@ on decorate(safariTab)
 	set findRetrySleep of SafariJavaScriptInstance to configSystem's getValue("FIND_RETRY_SLEEP")
 	SafariJavaScriptInstance
 end decorate
-
-
--- Private Codes below =======================================================
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set configSystem to std's import("config")'s new("system")
-	set logger to std's import("logger")'s new("safari-javascript")
-	set retry to std's import("retry")'s new()
-end init

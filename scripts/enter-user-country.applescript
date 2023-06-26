@@ -10,14 +10,19 @@
 	@Uninstall:
 		plutil -remove 'User Country' ~/applescript-core/config-user.plist
 *)
+
+use scripting additions
+
+use textUtil : script "string"
+use listUtil : script "list"
+
+use loggerLib : script "logger"
+use plutilLib : script "plutil"
+
+property logger : loggerLib's new("enter-user-country")
+property plutil : plutilLib's new()
+
 set infoKey to "User Country" -- e.g. Philippines
-
-set std to script "std"
-set logger to std's import("logger")'s new("enter-user-country")
-set plutil to std's import("plutil")'s new()
-
-set textUtil to std's import("string")
-set listUtil to std's import("list")
 
 set configUser to plutil's new("config-user")
 

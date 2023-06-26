@@ -1,28 +1,27 @@
-global std, idlerLib
-
 (*
 	@Usage:
-		1. Declare retryLib as global variable.
-		2. Import and set to retryLib inside init()
-		3. Create new instance with:
-			set retry to retryLib's new()
+		use retryLib : script "retry"
+		property retry : retryLib's new()
 			
 	@Installation:
-		make compile-core
+		make compile
 *)
 
-property initialized : false
-property logger : missing value
+use scripting additions
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use listUtil : script "list"
+use spotScript : script "spot-test"
+use idlerLib : script "idler"
+
+property logger : loggerLib's new("retry")
+property spotLib : spotScript's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "retry-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Activate when Idle
@@ -30,7 +29,6 @@ on spotCheck()
 		Manual: Success on retry
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
 	set spot to spotLib's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
@@ -142,17 +140,3 @@ on wait on theUi for nseconds
 	
 	return false
 end wait
-
-
--- Private Codes below =======================================================
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("retry")
-	set idlerLib to std's import("idler")
-end init

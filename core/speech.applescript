@@ -1,133 +1,232 @@
-global std, textUtil, regex
-global TRANS_CONFIG
-
 (*
-	TODO: Refactor, simplify.
 	TOFIX: Circular dependency to logger resulting to missing value for this script's logger.
 		Appears to be fixed by doing the import inside the handler, observe if there's performance degradation.
 
-	Update the "custom text-to-speech.plist" to add customization.
+	Update the "text-to-speech-_default.plist" to add customization. This is also required for the integration testing.
 
 	Use Samantha as the speaker for the best experience.
-
-TODO: 
-	- Add optional parameter
+	
+	@Known Issues:
+		Do not implement a logger inside any of the non-test handlers as that would result in a circular dependency with the logging library.
+	
+	@Plists:
+		text-to-speech_default
+	
+	@Deployment:
+		make compile-lib SOURCE=core/speech
 *)
 
--- PROPERTIES =================================================================
-property initialized : false
-property logger : missing value
+use script "Core Text Utilities"
+use scripting additions
 
-if name of current application is "Script Editor" then spotCheck()
+use std : script "std"
+
+use textUtil : script "string"
+use listUtil : script "list"
+use regex : script "regex"
+use loggerFactory : script "logger-factory"
+
+use userLib : script "user"
+use plutilLib : script "plutil"
+use plistBuddyLib : script "plist-buddy"
+use mapLib : script "map"
+use usrLib : script "user"
+
+use spotScript : script "spot-test"
+
+use testLib : script "test"
+
+-- PROPERTIES =================================================================
+property logger : missing value
+property usr : userLib's new()
+property plutil : plutilLib's new()
+
+property useBasicLogging : false
+property isSpot : false
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then
+	set isSpot to true
+	spotCheck()
+end if
 
 on spotCheck()
-	init()
+	set useBasicLogging of me to true
+	loggerFactory's inject(me, "speech")
+	
+	set thisCaseId to "speech-spotCheck"
 	logger's start()
 	
+	set cases to listUtil's splitByLine("
+		Integration Test
+		Manual: Random
+		Manual: Private: Load Plist
+		Manual: Private: Localize Message
+	")
 	
-	set sut to new()
-	-- unitTest()
+	set useBasicLogging of spotScript to true
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
+	set {caseIndex, caseDesc} to spot's start()
+	if caseIndex is 0 then
+		logger's finish()
+		return
+	end if
 	
-	sut's speak("Deploying...")
-	-- speak("hello")
+	if caseIndex is 1 then
+		integrationTest()
+		
+	else if caseIndex is 2 then
+		set sut to new(missing value)
+		sut's speak("2904")
+		sut's speak("hello")
+		
+	else if caseIndex is 3 then
+		set sut to new("text-to-speech_ama")
+		sut's _loadTranslations()
+		
+	else if caseIndex is 4 then
+		set sut to new("text-to-speech_ama")
+		sut's _loadTranslations()
+		logger's infof("Handler result: {}", sut's _localizeMessage("Is xlarge smaller than std?"))
+		
+	end if
 	
-	
-	
+	spot's finish()
 	logger's finish()
 end spotCheck
 
-
 -- HANDLERS =================================================================
 
-on new()
+(*
+	@Final - maybe getting too complex if we want to make this extensible.
+*)
+on new(pLocalizationConfigName)
+	loggerFactory's inject(me, "speech")
+	
 	script SpeechInstance
-		
 		property quiet : false
 		property synchronous : false
 		property waitNextWords : false -- Same purpose as speakSynchronously()
 		property logging : true
 		
-		on speak(rawText as text)
-			if logger is missing value then set logger to std's import("logger")'s new("speech") -- weird error.
-			try
-				set usr to std's import("user")'s new()
-				if usr's isInMeeting() then
-					logger's info("SILENCED: " & rawText)
-					return
-				end if
-			on error the errorMessage number the errorNumber -- ignore if user script is not installed.
-				logger's warn(errorMessage)
+		(* Flag to indicate if the plist has been loaded into memory. *)
+		property _translationsLoaded : false
+		property _localizationConfigName : missing value
+		property _translationKeys : {}
+		property _translationsDictionary : missing value
+		
+		
+		on _loadTranslations()
+			set _translationsLoaded to true
+			if not plutil's plistExists(_localizationConfigName) then
+				logger's warnf("Localization was not found: {}", _localizationConfigName)
 				return
-			end try
+			end if
 			
-			set textToSpeak to rawText
-			
+			logger's infof("Configuring localization using: {}", _localizationConfigName)
 			try
-				if TRANS_CONFIG is missing value then
-					logger's warn("Text to Speech configuration is missing.")
-				else
-					set translatables to TRANS_CONFIG's getValue("raw")
-					set translations to TRANS_CONFIG's getValue("translated")
-				end if
-			on error -- undefined during system error catching
-				set TRANS_CONFIG to missing value
-				set translatables to {}
+				set localSpeecMapping to plutil's new(_localizationConfigName)
+			on error the errorMessage number the errorNumber
+				set localSpeecMapping to missing value
 			end try
 			
 			
-			if TRANS_CONFIG is missing value or translatables is missing value then set translatables to {}
-			
-			repeat with idx from 1 to count of translatables
-				set nextTranslatable to item idx of translatables
-				set nextTranslation to item idx of translations
+			set plistBuddy to plistBuddyLib's new(_localizationConfigName)
+			set _translationKeys to plistBuddy's getKeys()
+			set _translationsDictionary to mapLib's new()
+			repeat with nextKey in _translationKeys
+				-- logger's debugf("nextKey: {}", nextKey)
+				set nextValue to plistBuddy's getValue(nextKey)
+				-- logger's debugf("nextValue: {}", nextValue)
+				_translationsDictionary's putValue(nextKey, nextValue)
+			end repeat
+		end _loadTranslations
+		
+		
+		on _localizeMessage(message)
+			set localizedMessage to message as text
+			repeat with nextTranslatable in _translationKeys
 				set isRegex to nextTranslatable starts with "/" and nextTranslatable ends with "/"
 				if isRegex then
+					set nextTranslation to _translationsDictionary's getValue(nextTranslatable)
 					set pattern to text 2 thru ((count of nextTranslatable) - 1) of nextTranslatable
 					
-					if regex's matchesInString(pattern, textToSpeak) then
-						-- if regex's matched(textToSpeak, pattern) then
-						set textToSpeak to regex's replace(textToSpeak, pattern, nextTranslation)
+					if regex's matchesInString(pattern, localizedMessage) then
+						logger's debugf("Translating pattern: '{}' to '{}'", {nextTranslatable, nextTranslation})
+						set localizedMessage to regex's replace(localizedMessage, pattern, nextTranslation)
 					end if
-				else if textToSpeak contains nextTranslatable then
-					set textToSpeak to textUtil's replace(textToSpeak, nextTranslatable, nextTranslation)
+					
+				else if localizedMessage contains nextTranslatable then
+					-- warzone, values from the plist needs to be coerced into text to make it work.
+					set nextTranslation to _translationsDictionary's getValue(nextTranslatable)
+					-- logger's debugf("Translating: '{}' to '{}'", {nextTranslatable, nextTranslation})
+					
+					-- logger's debugf("localizedMessage before: {}", localizedMessage)
+					set localizedMessage to textUtil's replace(localizedMessage, nextTranslatable as text, nextTranslation as text)
+					-- logger's debugf("localizedMessage after: {}", localizedMessage)
+					
 				end if
 			end repeat
+			-- logger's debugf("localizedMessage: {}", localizedMessage)
 			
+			localizedMessage
+		end _localizeMessage
+		
+		
+		(* @returns the translated text if present, otherwise the original text to passed. *)
+		on speak(rawText)
+			if not _translationsLoaded then _loadTranslations()
+			
+			(*
+				User library has multiple dependencies that may conflict during spot checking so let's skip this during spot checks.
+			*)
+			if not isSpot then
+				try
+					if usr's isInMeeting() then
+						logger's info("SILENCED: " & rawText)
+						return rawText
+					end if
+				on error the errorMessage number the errorNumber -- ignore if user script is not installed.
+					logger's warn(errorMessage)
+					return rawText
+				end try
+			end if
+			
+			set textToSpeak to _localizeMessage(rawText)
 			if my quiet then return textToSpeak
 			
 			if my waitNextWords then
 				say textToSpeak
 				set my waitNextWords to false
+				
 			else if my synchronous then
 				say textToSpeak
+				
 			else
 				say textToSpeak without waiting until completion
 			end if
 			
-			return textToSpeak
+			textToSpeak
 		end speak
 		
 		
-		on speakAndLog(rawText as text)
+		on speakAndLog(rawText)
 			speak(rawText)
 			if synchronous then
 				set prefix to "S+ "
 			else
 				set prefix to "S* "
 			end if
-
-			if logger is missing value then set logger to std's import("logger")'s new("speech") -- weird error.
-
+			
 			logger's info(prefix & rawText)
 		end speakAndLog
 		
 		
-		on speakSynchronously(rawText as text)
-			if logging then 
-				set logger to std's import("logger")'s new("speech") -- bandaid
+		on speakSynchronously(rawText)
+			if logging then
 				logger's info("S+ " & rawText)
 			end if
-
+			
 			set origState to synchronous
 			set synchronous to true
 			speak(rawText)
@@ -135,70 +234,41 @@ on new()
 		end speakSynchronously
 		
 		
-		on speakSynchronouslyWithLogging(rawText as text)
-			if logger is missing value then set logger to std's import("logger")'s new("speech") -- weird error.
-
+		on speakSynchronouslyWithLogging(rawTex)
 			logger's info(rawText)
 			speakSynchronously(rawText)
 		end speakSynchronouslyWithLogging
 	end script
+	
+	
+	tell SpeechInstance
+		set its _localizationConfigName to pLocalizationConfigName
+		if pLocalizationConfigName is missing value then set its _localizationConfigName to "text-to-speech_default"
+		-- logger's debugf("localizationConfigName: {}", its _localizationConfigName)
+	end tell
+	
+	SpeechInstance
 end new
 
 
--- Private Codes below =======================================================
-
-on unitTest()
-	set my quiet to true
+(*
+	@requires the "custom text-to-speech.plist"
+*)
+on integrationTest()
+	set sut to new(missing value)
+	set quiet of sut to true
 	
-	set actual101 to speak("2904")
-	set case101 to "Case 101: Happy scenario"
-	std's assert("2-9 0-4", actual101, case101)
-	
-	set actual102 to speak("2906")
-	set case102 to "Case 102: Unrecognized text"
-	std's assert("2906", actual102, case102)
-	
-	set actual103 to speak(2904)
-	set case103 to "Case 103: Numbers"
-	std's assert("2-9 0-4", actual103, case103)
-	
-	set actual104 to speak("QA")
-	set case104 to "Case 104: Exact text match"
-	std's assert("Q-A", actual104, case104)
-	
-	set actual105 to speak("The variable se is not defined")
-	set case105 to "Case 105: Inline text"
-	std's assert("The variable s-e is not defined", actual105, case105)
-	
-	set actual105b to speak("The selenium is not defined")
-	set case105b to "Case 105b: Whole word selenium match"
-	std's assert("The selenium is not defined", actual105b, case105b)
-	
-	
-	logger's info("All unit test cases passed.")
-	
-	set my quiet to false
-end unitTest
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	
-	set my quiet to false
-	set logger to std's import("logger")'s new("speech")
-	set textUtil to std's import("string")
-	set regex to std's import("regex")
-	set switch to std's import("switch")
-	set plutil to std's import("plutil")'s new()
-	set usr to std's import("user")'s new()
-	
-	try
-		set TRANS_CONFIG to plutil's new("custom text-to-speech")
-	on error
-		set TRANS_CONFIG to missing value
-	end try
-end init
+	set useBasicLogging of testLib to true
+	set test to testLib's new()
+	set ut to test's new()
+	tell ut
+		newMethod("speak")
+		assertEqual("2-9 0-4", sut's speak("2904"), "Happy scenario")
+		assertEqual("2906", sut's speak("2906"), "Unregistered text")
+		assertEqual("2-9 0-4", sut's speak(2904), "Numbers")
+		assertEqual("Q-A", sut's speak("QA"), "Exact text match")
+		assertEqual("The variable s-e is not defined", sut's speak("The variable se is not defined"), "Inline text")
+		assertEqual("The selenium is not defined", sut's speak("The selenium is not defined"), "Whole word selenium match")
+		done()
+	end tell
+end integrationTest

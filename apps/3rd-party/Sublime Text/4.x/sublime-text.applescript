@@ -1,15 +1,10 @@
-global std, configSystem, unic, textUtil, listUtil, finder, kb
-global ST_CLI
-
-use script "Core Text Utilities"
-use scripting additions
-
 (*
 	The app Sublime Text behaves differently as compared to first party Apple apps in terms of how it handles its windows. 
 	Each individual project tabs are not treated as separate windows as compared to first party apps.
 
 	@Usage:
-       	set st to std's import("sublime-text")'s new  -- Text Expander: "sset st"
+       	use stLib : script "sublime-text"
+       property st : stLib's new()  -- Text Expander: "uuse st"
 		
 	@Installation:
 		From this sub-directory, run: `make install`
@@ -22,13 +17,31 @@ use scripting additions
  	NOTE: if AXDocument is missing, usually when filename is missing value then restart Sublime Text.
 *)
 
-property initialized : false
-property logger : missing value
+use script "Core Text Utilities"
+use scripting additions
 
-if name of current application is "Script Editor" then spotCheck()
+use textUtil : script "string"
+use listUtil : script "list"
+use unic : script "unicodes"
+
+use loggerLib : script "logger"
+use finderLib : script "finder"
+use configLib : script "config"
+use kbLib : script "keyboard"
+
+property logger : loggerLib's new("")
+property finder : finderLib's new()
+property kb : kbLib's new()
+property configSystem : configLib's new("system")
+
+property ST_CLI : missing value
+
+set ST_CLI to quoted form of (do shell script "plutil -extract \"Sublime Text CLI\" raw ~/applescript-core/config-system.plist")
+
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "sublime-text-spotCheck"
 	logger's start()
 	
@@ -44,8 +57,8 @@ on spotCheck()
 		Run Remote File - e2e
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
 	set sut to new()
@@ -264,7 +277,7 @@ on new()
 					return true
 				end try
 			end tell
-
+			
 			false
 		end focusWindowEndingWith
 		
@@ -313,21 +326,21 @@ on new()
 		*)
 		on getWindowProjectNames()
 			if not running of application "Sublime Text" then return
-
+			
 			tell application "System Events" to tell process "Sublime Text"
 				set windowNames to the name of windows
 				set projectNames to {}
 				repeat with nextWindowTitle in windowNames
-					set end of projectNames to the last item of textUtil's split(nextWindowTitle, unic's separator)
+					set end of projectNames to the last item of textUtil's split(nextWindowTitle, unic's SEPARATOR)
 				end repeat
 			end tell
 			projectNames
 		end getWindowProjectNames
-
-
+		
+		
 		on getOpenProjectNames()
 			if not running of application "Sublime Text" then return {}
-
+			
 			set projectNames to {}
 			tell application "System Events" to tell process "Sublime Text"
 				try
@@ -336,22 +349,22 @@ on new()
 						set nextMenuName to the name of nextMenu
 						if nextMenuName is missing value then exit repeat
 						
-						set end of projectNames to last item of textUtil's split(nextMenuName, unic's separator)
+						set end of projectNames to last item of textUtil's split(nextMenuName, unic's SEPARATOR)
 					end repeat
 				end try
 			end tell
 			projectNames
 		end getOpenProjectNames
-
-
+		
+		
 		on getWindowsCount()
 			if not running of application "Sublime Text" then return 0
-
+			
 			tell application "System Events" to tell process "Sublime Text"
 				count of windows
 			end tell
 		end getWindowsCount
-
+		
 		(*
 			Get project of the front most Sublime Text window.
 			Might not work if the opened resource is not part of a saved project.
@@ -418,7 +431,7 @@ on new()
 		
 		on closeProject()
 			if running of application "Sublime Text" is false then return
-
+			
 			tell application "System Events" to tell process "Sublime Text"
 				try
 					click menu item "Close Project" of menu 1 of menu bar item "Project" of menu bar 1
@@ -426,7 +439,7 @@ on new()
 			end tell
 		end closeProject
 		
-
+		
 		(* Sends a close tab key stroke combination. *)
 		on closeTab()
 			kb's pressCommandKey("w")
@@ -460,23 +473,5 @@ on new()
 		end _findProjectFolder
 	end script
 	
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	set ST_CLI to quoted form of (do shell script "plutil -extract \"Sublime Text CLI\" raw ~/applescript-core/config-system.plist")
-	
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("sublime-text")
-	set configSystem to std's import("config")'s new("system")
-	set unic to std's import("unicodes")
-	set textUtil to std's import("string")
-	set listUtil to std's import("list")
-	set finder to std's import("finder")'s new()
-	set kb to std's import("keyboard")'s new()
-end init

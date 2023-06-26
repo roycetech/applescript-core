@@ -1,6 +1,3 @@
-global std, retry, regex, dock, winUtil, safariJavaScript, textUtil, uiUtil, unic, kb
-global jsSafariTechPreviewDecorator
-
 (*
 	This script library is a wrapper to Safari Technology Preview application.
 	Copied from safari.applescript
@@ -19,13 +16,12 @@ global jsSafariTechPreviewDecorator
 		SafariTechnologyPreviewTabInstance - wrapper to a Safari tab.
 
 	Debugging existing tab:
-		set std to script "std"
-		set logger to std's import("logger")'s new("adhoc")
-
-		set safari to std's import("Safari Technology Preview")'s new()
-		set javascriptSupport of safTabLib to true
-
-		set theTab to safTabLib's getFrontTab()
+		use loggerLib : script "logger"
+		use safariTechPreviewLib : script "safari-technology-preview"
+		
+		property logger : loggerLib's new("ad hoc")
+		property safariTechPreview : safariTechPreviewLib's new()
+		set theTab to safariTechPreview's getFrontTab()
 		tell theTab
 			log name of its appWindow as text
 			return
@@ -38,21 +34,38 @@ global jsSafariTechPreviewDecorator
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
-property logger : missing value
+use textUtil : script "string"
+use listUtil : script "list"
+use regex : script "regex"
+use unic : script "unicodes"
+use safariJavaScript : script "safari-javascript"
+use jsSafariTechPreviewDecorator : script "dec-safari-technology-preview-javascript"
+
+use loggerLib : script "logger"
+use retryLib : script "retry"
+use dockLib : script "dock"
+use kbLib : script "keyboard"
+use uiutilLib : script "ui-util"
+use winUtilLib : script "window"
+
+use spotScript : script "spot-test"
+
+
+property logger : loggerLib's new("safari-technology-preview")
+property retry : retryLib's new()
+property dock : dockLib's new()
+property kb : kbLib's new()
+property uiutil : uiutilLib's new()
+property winUtil : winUtilLib's new()
 
 property javaScriptSupport : false
 property jQuerySupport : false
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "safari-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Front Tab
@@ -72,8 +85,8 @@ on spotCheck()
 		Manual: Select OTP
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -334,7 +347,7 @@ on new()
 				set groupOneButtons to buttons of group 1 of toolbar 1 of front window
 			end tell
 			
-			set sideBarButton to uiUtil's new(groupOneButtons)'s findById("SidebarButton")
+			set sideBarButton to uiutil's new(groupOneButtons)'s findById("SidebarButton")
 			tell application "System Events" to click sideBarButton
 		end showSideBar
 		
@@ -352,7 +365,7 @@ on new()
 				set groupOneButtons to buttons of group 1 of toolbar 1 of front window
 			end tell
 			
-			set sideBarButton to uiUtil's new(groupOneButtons)'s findById("SidebarButton")
+			set sideBarButton to uiutil's new(groupOneButtons)'s findById("SidebarButton")
 			script CloseWaiter
 				tell application "System Events" to click sideBarButton
 				if isSideBarVisible() is false then return true
@@ -909,23 +922,3 @@ on new()
 		
 	end script
 end new
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("Safari Technology Preview")
-	set safariJavaScript to std's import("safari-javascript")
-	set retry to std's import("retry")'s new()
-	set regex to std's import("regex")
-	set dock to std's import("dock")'s new()
-	set winUtil to std's import("window")'s new()
-	set textUtil to std's import("string")
-	set uiUtil to std's import("ui-util")
-	set unic to std's import("unicodes")
-	set kb to std's import("keyboard")'s new()
-	set jsSafariTechPreviewDecorator to std's import("dec-safari-technology-preview-javascript")
-end init

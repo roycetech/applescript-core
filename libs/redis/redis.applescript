@@ -1,6 +1,3 @@
-global std, dt
-global REDIS_CLI, CR
-
 (*
 	This library is implemented as copy from plutil.
 	This is slightly slower than plutil, and different use case so make sure you 
@@ -14,8 +11,12 @@ global REDIS_CLI, CR
 		make install-redis
 
 	@Usage:
-		property redis : missing value
-		set redis to std's import("redis")'s new(0) -- 0 for no timeout 
+		use redisLib : script "redis"
+
+		property redis : redisLib's new(0) -- 0 for no timeout 
+
+	@Deployment:
+		make compile-lib SOURCE=libs/redis/redis
 
 	@Troubleshooting:
 		When you do an update, make sure to re-run the setup-redis-cli.applescript
@@ -27,29 +28,40 @@ global REDIS_CLI, CR
 use script "Core Text Utilities"
 use scripting additions
 
-
 -- PROPERTIES =================================================================
-property initialized : false
+
+use listUtil : script "list"
+use dt : script "date-time"
+
+use loggerFactory : script "logger-factory"
+use spotScript : script "spot-test"
+use testLib : script "test"
+
+
 property logger : missing value
 
+property CR : ASCII character 13
+property REDIS_CLI : do shell script "plutil -extract \"Redis CLI\" raw ~/applescript-core/config-system.plist"
+property useBasicLogging : false
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then
+	set useBasicLogging to true
+	spotCheck()
+end if
 
 on spotCheck()
-	init()
+	loggerFactory's inject(me, "redis")
 	set thisCaseId to "redis-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Unit Test
-		
 		Manual: Zulu Date
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set useBasicLogging of spotScript to true
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -91,20 +103,20 @@ on spotCheck()
 		log sut's getString("DB_NAME")
 		
 	else if caseIndex is 6 then
-		set sessionPlist to new("session")
-		set logLiteValue to sessionPlist's getBool("LOG_LITE")
+		set session to new("session")
+		set logLiteValue to session's getBool("LOG_LITE")
 		log class of logLiteValue
 		log logLiteValue
 		
 	else if caseIndex is 7 then
-		set sessionPlist to new("app-killer")
-		set storedDate to sessionPlist's getDateText("Last Focused-1Password 6")
+		set session to new("app-killer")
+		set storedDate to session's getDateText("Last Focused-1Password 6")
 		log class of storedDate
 		log storedDate
 		
 	else if caseIndex is 8 then
-		set sessionPlist to new("app-killer")
-		set storedDate to sessionPlist's getDate("Last Focused-1Password 6")
+		set session to new("app-killer")
+		set storedDate to session's getDate("Last Focused-1Password 6")
 		log class of storedDate
 		log storedDate
 		
@@ -120,19 +132,19 @@ on spotCheck()
 		log zoomList
 		
 	else if caseIndex is 10 then
-		set sessionPlist to new("session")
-		set storedList to sessionPlist's getValue("Case Labels")
+		set session to new("session")
+		set storedList to session's getValue("Case Labels")
 		log class of storedList
 		log storedList
 		
 	else if caseIndex is 11 then
-		set sessionPlist to new("session")
-		log sessionPlist's debugOn()
+		set session to new("session")
+		log session's debugOn()
 		logger's debug("debug on prints this")
 		
 	else if caseIndex is 12 then
-		set sessionPlist to new("session")
-		log sessionPlist's appendValue("Pinned Notes", "Safari-$Title-udemy.com-AWS Certified Developer - Associate 2020 | Udemy.md")
+		set session to new("session")
+		log session's appendValue("Pinned Notes", "Safari-$Title-udemy.com-AWS Certified Developer - Associate 2020 | Udemy.md")
 		
 	end if
 	
@@ -145,6 +157,8 @@ end spotCheck
 	@pTimeoutSeconds - 0 for no expiration.
 *)
 on new(pTimeoutSeconds)
+	loggerFactory's inject(me, "redis")
+	
 	script RedisInstance
 		-- 0 for no expiration.
 		property timeoutSeconds : pTimeoutSeconds
@@ -287,6 +301,7 @@ on new(pTimeoutSeconds)
 				return missing value
 			end try
 			
+			
 			if dataType is "list" then
 				return _getList(quotedPlistKey)
 				
@@ -294,7 +309,7 @@ on new(pTimeoutSeconds)
 				-- set getDictShellCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\"  {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | sed 's/[[:space:]]=[[:space:]]/: /g'", {quotedPlistKey, quotedPlistPosixPath}}
 				set getDictShellCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\"  {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | sed 's/:/__COLON__/g' | sed 's/[[:space:]]=[[:space:]]/: /g'", {quotedPlistKey, quotedPlistPosixPath}}
 				set dictShellResult to do shell script getDictShellCommand
-				return mapLib's newInstanceFromString(dictShellResult)
+				return mapLib's newFromString(dictShellResult)
 				
 			else
 				set getValueShellCommand to format {"{} get {}", {REDIS_CLI, quotedPlistKey}}
@@ -302,7 +317,7 @@ on new(pTimeoutSeconds)
 				return _convertType(plistValue, dataType)
 			end if
 			
-			tell application "System Events" to tell property list file plistFileName
+			tell application "System Events" to tell property list file plistFilename
 				try
 					return value of property list item plistKey
 				on error errorText
@@ -563,10 +578,10 @@ on _indexOf(aList, targetElement)
 end _indexOf
 
 
-
 on unitTest()
-	set utLib to std's import("unit-test")
-	set ut to utLib's new()
+	set useBasicLogging of testLib to true
+	set test to testLib's new()
+	set ut to test's new()
 	set UT_REDIS_TIMEOUT to 2
 	set sut to new(UT_REDIS_TIMEOUT)
 	tell ut
@@ -585,7 +600,7 @@ on unitTest()
 		sut's deleteKey("spot-false")
 		sut's deleteKey("spot-record")
 		sut's deleteKey("spot-map")
-		assertEqual(missing value, sut's getValue("spot-array"), "Clean array key")
+		assertMissingValue(sut's getValue("spot-array"), "Clean array key")
 		
 		newMethod("setValue")
 		sut's setValue(missing value, "haha")
@@ -603,7 +618,8 @@ on unitTest()
 		sut's setValue("spot text", "Multi word key")
 		
 		newMethod("getValue")
-		assertEqual(missing value, sut's getValue(missing value), "missing value key")
+		assertMissingValue(sut's getValue(missing value), "missing value key")
+		assertEqual("Multi word key", sut's getValue("spot text"), "Spaced Key")
 		assertEqual("Multi word key", sut's getValue("spot text"), "Spaced Key")
 		-- assertEqual({"1", "2"}, sut's getValue("spot-array"), "Array of integers") -- Int not supported
 		
@@ -687,20 +703,7 @@ on unitTest()
 		assertMissingValue(sut's getValue("spot-array-string"), "missing value expected after timeout elapsed")
 		assertMissingValue(sut's getValue("spot-array-one-time-set"), "missing value expected after timeout elapsed")
 		
-		ut's done()
+		done()
 	end tell
 end unitTest
 
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	set REDIS_CLI to do shell script "plutil -extract \"Redis CLI\" raw ~/applescript-core/config-system.plist"
-	
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("redis")
-	set dt to std's import("date-time")
-	set CR to ASCII character 13
-end init

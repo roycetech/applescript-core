@@ -1,22 +1,44 @@
+(*
+	@Deployment:
+		make compile-lib SOURCE=core/config		
+*)
+
+use plutilScript : script "plutil"
+use loggerLib : script "logger"
+
+property logger : loggerLib's new("config")
+property plutilLib : plutilScript's new()
 property filename : "~/applescript-core/config-default.plist"
-property plutil : missing value
 
 (*
     Usage:
-        set config to std's import("config")'s new("<config suffix>")
-        set DEPLOY_DIR to config's getCategoryValue("work", "DEPLOY_DIR")
+        use configLib :  script "config"
+        
+    property configUser : configLib's new("user")
+    
+    set DEPLOY_DIR to configUser's getValue("User Key")
 
     TODO: Optimize by creating new handlers with type like getValueString.
 *)
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	log "start"
+	logger's start()
 	set sut to new("system")
 	
+	log "^Existing Data start  =================="
+	-- log sut's getValue("AppleScript Core Project Path")
+	logger's infof("Raw value mapping: {}", sut's getValue("AppleScript Core Project Path"))
+	logger's infof("Category value mapping: {}", sut's getCategoryValue("lib-factory", "UserInstance"))
+	logger's infof("Defaults value mapping: {}", sut's getDefaultsValue("$Spot Check"))
+	
+	logger's finish()
+	
+	return
+	
 	(* Manual verifications. *)
-	log "^Missing Data/Plist start"
+	log "^Missing Data/Plist start =================="
 	log sut's getValue("Non Existent!")
 	try
 		log sut's getCategoryValue("xlib-factory", "logger") -- Missing Config
@@ -25,10 +47,6 @@ on spotCheck()
 	log sut's getCategoryValue("lib-factory", "xlogger")
 	log sut's getDefaultsValue("x$Spot Check")
 	
-	log "^Existing Data"
-	log sut's getValue("AppleScript Core Project Path")
-	log sut's getCategoryValue("lib-factory", "logger")
-	log sut's getDefaultsValue("$Spot Check")
 	
 	(*
 	log getCategoryValue("work", "VPN Websites")
@@ -37,7 +55,6 @@ on spotCheck()
 	log getCategoryValue("bss", "DB_NAME")
 	*)
 	-- log getDefaultsValue("TERM_SEP")
-	log "end"
 end spotCheck
 
 
@@ -66,58 +83,25 @@ on new(pConfigName)
 		
 		
 		on getCategoryValue(category, configKey)
-			set IS_SPOT to (name of current application is "Script Editor")
+			-- log "getCategoryValue category1: " & category & ", key: " & configKey
+			set IS_SPOT to {"Script Editor", "Script Debugger"} contains the name of current application
 			
-			if plutil is missing value then
-				set plutilLib to script "plutil"
-				plutilLib's init()
-				set plutil to plutilLib's new()
-			end if
-			
-			if categoryPlist is missing value then
+			-- log "configName: " & configName
+			if categoryPlist is missing value or category is not equal to the configName then
 				set computedPlistName to "config-" & category
 				if knownPlists contains computedPlistName then
-					set categoryPlist to plutil's new(computedPlistName)
-
-				else if plutil's plistExists(computedPlistName) then
-					set categoryPlist to plutil's new(computedPlistName)
+					set categoryPlist to plutilLib's new(computedPlistName)
+					
+				else if plutilLib's plistExists(computedPlistName) then
+					set categoryPlist to plutilLib's new(computedPlistName)
 					set end of knownPlists to computedPlistName
-
-				else 
+					
+				else
 					return missing value
 				end if
 			end if
-
+			
 			return categoryPlist's getValue(configKey)
-			
-			if IS_SPOT then
-				set startSeconds to do shell script "date +%s"
-				-- log "measuring..." & category & ":" & configKey
-			end if
-			
-			set plistItems to {filename, category, 1, configKey}
-			try
-				set startSeconds to do shell script "date +%s"
-				-- log "measuring..."
-				tell application "System Events"
-					set theElement to property list file (filename as text) -- root element
-				end tell
-				set T2s to do shell script "date +%s"
-				set elapsed to T2s - startSeconds
-				
-				-- log "elapsed: " & elapsed
-				repeat with anItem in rest of plistItems -- add on the sub items 
-					try
-						set anItem to anItem as integer -- index number?
-					end try
-					tell application "System Events"
-						set theElement to (get property list item anItem of theElement)
-					end tell
-				end repeat
-				tell application "System Events" to return value of theElement
-			on error errMess number errNum
-				error "getValue error:  " & errMess & " (" & errNum & ")" -- pass it on
-			end try
 		end getCategoryValue
 		
 		

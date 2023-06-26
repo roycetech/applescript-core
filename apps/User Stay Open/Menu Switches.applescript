@@ -1,9 +1,3 @@
-global std, notif, configUser, textUtil, MapClass, emoji, switch, sessionPlist, listUtil
-global SCRIPT_NAME, IDLE_SECONDS
-global SWITCHES_LIST, SWITCHES_ID, SESSION_SWITCHES_LIST, SESSION_SWITCHES_ID
-
-global IS_SPOT
-
 (*
 	TODO: 
 		Change to green check mark if a script is active and thus our helper is not going to interrupt.
@@ -29,12 +23,6 @@ global IS_SPOT
 use framework "Foundation"
 use framework "AppKit"
 
-use script "Core Text Utilities"
-use scripting additions
-
-property initialized : false
-property logger : missing value
-
 property StatusItem : missing value
 property selectedMenu : ""
 property defaults : class "NSUserDefaults"
@@ -44,9 +32,39 @@ property newMenu : class "NSMenu"
 property switchesCount : 0
 property sessionSwitchesCount : 0
 
-set IS_SPOT to name of current application is "Script Editor"
+global std, notif, configUser, textUtil, MapClass, emoji, switch, session, listUtil
+global SCRIPT_NAME, IDLE_SECONDS
+global SWITCHES_LIST, SWITCHES_ID, SESSION_SWITCHES_LIST, SESSION_SWITCHES_ID
 
-init()
+
+use script "Core Text Utilities"
+use scripting additions
+
+use std : script "std"
+use listUtil : script "list"
+use textUtil : script "string"
+use emoji : script "emoji"
+
+use loggerLib : script "logger"
+use switchLib : script "switch"
+use configLib : script "config"
+use mapLib : script "map"
+use plutilLib : script "plutil"
+
+property logger : loggerLib's new("Menu Switches")
+property configUser : configLib's new("user")
+property plutil : plutilLib's new()
+
+property session : plutil's new("session")
+
+property SCRIPT_NAME : missing value
+property SWITCHES_ID : missing value
+property isSpot : false
+
+tell application "System Events" to set SCRIPT_NAME to get name of (path to me)
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then set isSpot to true
+
 logger's start()
 
 set IDLE_SECONDS to 60
@@ -96,7 +114,7 @@ on makeMenus()
 	(newMenu's addItem:appNameMenuItem)
 	(appNameMenuItem's setEnabled:false)
 	
-	if sessionPlist's getBool("Script Active") is true then
+	if session's getBool("Script Active") is true then
 		set clearActiveMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:"Clear Active Script Flag" action:("clearActiveAction:") keyEquivalent:"")
 		(newMenu's addItem:clearActiveMenuItem)
 		(clearActiveMenuItem's setTarget:me)
@@ -132,11 +150,11 @@ on makeMenus()
 		set this_item to item i of SESSION_SWITCHES_LIST
 		if SESSION_SWITCHES_ID is not equal to "{" then set SESSION_SWITCHES_ID to SESSION_SWITCHES_ID & ", "
 		
-		set SESSION_SWITCHES_ID to SESSION_SWITCHES_ID & this_item & ": " & sessionPlist's getBool(this_item)
+		set SESSION_SWITCHES_ID to SESSION_SWITCHES_ID & this_item & ": " & session's getBool(this_item)
 		if this_item as text is equal to "-" then
 			set thisMenuItem to (current application's NSMenuItem's separatorItem())
 		else
-			if sessionPlist's getBool(this_item) then set this_item to this_item & " " & emoji's CHECK
+			if session's getBool(this_item) then set this_item to this_item & " " & emoji's CHECK
 			set thisMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:this_item action:("menuSessionToggler:") keyEquivalent:"")
 		end if
 		-- (thisMenuItem's setEnabled:false)		
@@ -180,7 +198,7 @@ end idle
 
 
 on scriptStateHasChanged()
-	set currentActiveState to sessionPlist's getBool("Script Active")
+	set currentActiveState to session's getBool("Script Active")
 	currentActiveState is not equal to SCRIPT_ACTIVE_FLAG
 end scriptStateHasChanged
 
@@ -201,7 +219,6 @@ end listHasChanged
 
 
 on updateStatus(menuItem as text)
-	init()
 	
 	set flagItem to switch's new(menuItem)
 	flagItem's toggle()
@@ -209,10 +226,9 @@ on updateStatus(menuItem as text)
 end updateStatus
 
 on updateSessionStatus(menuItem as text)
-	init()
 	
-	set currentState to sessionPlist's getBool(menuItem)
-	sessionPlist's setValue(menuItem, not currentState)
+	set currentState to session's getBool(menuItem)
+	session's setValue(menuItem, not currentState)
 	
 	if IS_SPOT is false then makeMenus()
 end updateSessionStatus
@@ -249,7 +265,7 @@ end checkForUpdatedList
 
 
 on clearActiveAction:sender
-	sessionPlist's setValue("Script Active", false)
+	session's setValue("Script Active", false)
 end clearActiveAction:
 
 (* Handles menu click action for the regular (non-session) switches *)
@@ -276,24 +292,3 @@ on menuSessionToggler:sender
 		std's catch(me, errorMessage, errorNumber)
 	end try
 end menuSessionToggler:
-
-
-(* Constructor *)
-on init()
-	tell application "System Events" to set SCRIPT_NAME to get name of (path to me)
-	set SWITCHES_ID to missing value
-	
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("Menu Switches")
-	set switch to std's import("switch")
-	set emoji to std's import("emoji")
-	set configUser to std's import("config")'s new("user")
-	set textUtil to std's import("string")
-	set MapClass to std's import("map")
-	set plutil to std's import("plutil")'s new()
-	set sessionPlist to plutil's new("session")
-	set listUtil to std's import("list")
-end init

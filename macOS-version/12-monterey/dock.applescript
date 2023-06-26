@@ -1,21 +1,25 @@
-global std, retryLib, kb
-
 (*
 	For the Assign to Desktop menu item to appear, there has to be more than one 
 	Desktop "Spaces" available.
 *)
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use retryLib : script "retry"
+use kbLib : script "keyboard"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("dock")
+property retry : retryLib's new()
+property kb : kbLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+
 on spotCheck()
-	init()
 	set thisCaseId to "dock-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Assign to Desktop 1
@@ -35,8 +39,8 @@ on spotCheck()
 		Manual: Click App
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -182,7 +186,11 @@ on new()
 			set retry to retryLib's new()
 			script MenuWaiter
 				tell application "System Events" to tell process "Dock"
-					click menu item "New Window" of first menu of UI element "Safari" of list 1
+					
+
+
+
+					
 					true
 				end tell
 			end script
@@ -229,17 +237,3 @@ on new()
 		end assignToDesktop
 	end script
 end new
-
-
--- Private Codes below =======================================================
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("dock")
-	set retryLib to std's import("retry")
-	set kb to std's import("keyboard")'s new()
-end init

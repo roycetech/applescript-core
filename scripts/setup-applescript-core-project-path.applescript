@@ -21,11 +21,16 @@
 		plutil -remove 'AppleScript Core Project Path' ~/applescript-core/config-system.plist
 *)
 
-set std to script "std"
-set logger to std's import("logger")'s new("setup-applescript-core-project-path")
-set plutil to std's import("plutil")'s new()
+use scripting additions
 
-set textUtil to std's import("string")
+use textUtil : script "string"
+use listUtil : script "list"
+
+use loggerLib : script "logger"
+use plutilLib : script "plutil"
+
+property logger : loggerLib's new("setup-applescript-core-project-path")
+property plutil : plutilLib's new()
 
 set username to short user name of (system info)
 set PROJECT_PATH_KEY to "AppleScript Core Project Path"
@@ -41,7 +46,6 @@ do shell script "plutil -replace '" & PROJECT_PATH_KEY & "' -string \"" & projec
 
 
 set projectKey to "Project applescript-core"
-set listUtil to std's import("list")
 set configUser to plutil's new("config-user")
 if configUser's hasValue(projectKey) then
 	logger's infof("The project: {} is already registered", projectKey)

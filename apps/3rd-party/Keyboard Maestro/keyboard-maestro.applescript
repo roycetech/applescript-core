@@ -1,6 +1,3 @@
-global std, textUtil, unic
-global GENERIC_RESULT_VAR
-
 (* 
 	WARNING: This script is still heavily user customised, TODO: to make it more generic and document required changes to Keyboard Maestro. 
 	
@@ -14,18 +11,27 @@ global GENERIC_RESULT_VAR
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
+use textUtil : script "string"
+use unic : script "unicodes"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use testLib : script "test"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("keyboard-maestro")
+property test : testLib's new()
+
+property GENERIC_RESULT_VAR : "km_result"
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 if name of current application is "osascript" then unitTest()
 
 on spotCheck()
-	init()
 	set thisCaseId to "spotCheck-keyboard-maestro"
 	logger's start()
 	
-	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Run Unit Tests
 		Safari
@@ -38,8 +44,8 @@ on spotCheck()
 		Manual: Get Current Item Name
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -82,7 +88,7 @@ end spotCheck
 
 on new()
 	script KeyboardMaestroInstance
-	
+		
 		(*
 			Returns the current focused macro or group name in the Keyboard Maestro Editor.
 		*)
@@ -200,14 +206,14 @@ on new()
 			runScript("App Safari Send Text")
 		end sendSafariText
 		
-		
+		(*
 		(*
 			Note: Still fails silently, retry mitigates the issue.
 			@returns true on successful passing of command.
 		*)
 		on sendSlackText(theText as text)
 			if runScript("App Slack Prepare For Automation") is false then -- reduce the macro to simply check if input box is ready.
-				set cq to std's import("command-queue")
+				set cq to std's importx("command-queue")
 				
 				logger's info("Slack seems unready, registering command...")
 				cq's add("slack-command", theText)
@@ -248,7 +254,7 @@ on new()
 				true
 			end tell
 		end sendSlackText
-		
+		*)
 		
 		on getVariable(varName)
 			tell application "Keyboard Maestro Engine" to getvariable varName
@@ -264,27 +270,12 @@ end new
 -- Private Codes below =======================================================
 
 on unitTest()
-	set utLib to std's import("unit-test")
-	set ut to utLib's new()
+	set ut to test's new()
 	set sut to new()
 	tell ut
 		newMethod("createTriggerLink")
 		assertEqual("kmtrigger://m=Open%20in%20QuickNote&value=Hello%20World", sut's createTriggerLink("Open in QuickNote", "hello world"), "With Parameter")
 		
-		ut's done()
+		done()
 	end tell
 end unitTest
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("keyboard-maestro")
-	set textUtil to std's import("string")
-	set unic to std's import("unicodes")
-	
-	set GENERIC_RESULT_VAR to "km_result"
-end init

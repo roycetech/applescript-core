@@ -1,5 +1,3 @@
-global std, speech
-
 (*
 	@Plists:
 		config-lib-factory - Add an override "LoggerInstance => dec-logger-speech-and-tracking" to use this as override.
@@ -8,33 +6,41 @@ global std, speech
 		make compile-lib SOURCE=core/decorators/dec-logger-speech-and-tracking
 *)
 
-property initialized : false
+use speechLib : script "speech"
+use overriderLib : script "overrider"
+
+property speech : speechLib's new(missing value)
+property overrider : overriderLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+
+on spotCheck()
+	set sut to decorate(newSpotBase())
+	sut's fatal("hello")
+end spotCheck
+
+on newSpotBase()
+	script SpotBaseInstance
+		on fatal(logMessage)
+			log "spot fatal: " & logMessage
+		end fatal
+	end script
+end newSpotBase
+
 
 (* *)
-
 on decorate(baseScript)
-	init()
-	
 	script LoggerSpeechAndTrackingInstance
 		property parent : baseScript
 		
 		on fatal(logMessage)
 			continue fatal(logMessage)
-			
+						
 			if logMessage does not contain "User canceled" then
 				if (count of characters of logMessage) is less than 141 then speech's speak(logMessage)
 			end if
 		end fatal
 	end script
 	
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end decorate
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set speech to std's import("speech")'s new()
-end init

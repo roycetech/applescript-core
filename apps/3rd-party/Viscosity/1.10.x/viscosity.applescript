@@ -1,23 +1,28 @@
-global std, retryLib
-
-property initialized : false
-property logger : missing value
-
 (*
 	@Testing:
 		Uses Step Two app for testing. Other apps may be used as well like 1Password.
 *)
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use retryLib : script "retry"
+use processLib : script "process"
+use configLib : script "config"
+use stepTwoLib : script "step-two"
+
+property config : configLib's new()
+
+property logger : loggerLib's new("")
+property retry : retryLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "viscosity-spotCheck"
 	logger's start()
 	
-	set stepTwo to std's import("step-two")'s new()
-	set configBusiness to std's import("config")'s new("business")
-	set viscosityProcess to std's import("process")'s new("Viscosity")
+	set stepTwo to configLib's new()
+	set configBusiness to configLib's new("business")
+	set viscosityProcess to processLib's new("Viscosity")
 	viscosityProcess's terminate()
 	
 	set domainKey to configBusiness's getValue("Domain Key")
@@ -72,7 +77,7 @@ on new(pOtpRetriever)
 				
 				if exists (button "OK" of (first window whose name starts with "Viscosity")) then
 					logger's info("Getting OTP...")
-					set otp to my OtpRetriever's getOTP()
+					set otp to my otpRetriever's getOTP()
 					logger's debugf("otp: {}", otp)
 					if otp is not missing value then
 						my fillOTP(otp)
@@ -98,26 +103,3 @@ on new(pOtpRetriever)
 	end script
 end new
 
-
--- Private Codes below =======================================================
-
-(*
-	Handler grouped by hundredths.
-	Put the case you are debugging at the top, and move to correct place once verified.
-*)
-on unitTest()
-	set actual101 to matched("amazing", "maz")
-	set case101 to "Case 101: Found"
-	std's assert(true, actual101, case101)
-end unitTest
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("viscosity")
-	set retryLib to std's import("retry")
-end init

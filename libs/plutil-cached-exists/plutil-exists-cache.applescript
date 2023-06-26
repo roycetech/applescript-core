@@ -1,17 +1,15 @@
-global std, redis
-global PLIST_EXISTS_CACHE
-
 (* 
 	Prerequisites:
 		redis
 *)
 
-property initialized : false
+use redisLib : script "redis"
+
+property redis : redisLib's new()
+property PLIST_EXISTS_CACHE : redisLib's new(1 * minutes)
 
 (* *)
-
 on decorate(baseScript)
-	init()
 	
 	script PlutilExistsCachedInstance
 		property parent : baseScript
@@ -28,13 +26,3 @@ on decorate(baseScript)
 		end plistExists
 	end script
 end decorate
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set redisLib to std's import("redis")
-	set PLIST_EXISTS_CACHE to redisLib's new(1 * minutes)
-end init

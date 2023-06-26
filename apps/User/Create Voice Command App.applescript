@@ -1,4 +1,4 @@
-global std, usr, fileUtil, textUtil, syseve, emoji, sessionPlist, seLib, automator, configUser
+global std, usr, fileUtil, textUtil, syseve, emoji, session, seLib, automator, configUser
 global SCRIPT_NAME, IS_SPOT
 
 (*
@@ -19,29 +19,42 @@ global SCRIPT_NAME, IS_SPOT
 		Fails to trigger the keystroke detection on the Command Input as of February 5, 2023. Without this, the save keystroke fails because the value in the input field is not detected.
 *)
 
-property logger : missing value
+use scripting additions
+
+use std : script "std"
+use textUtil : script "string"
+use fileUtil : script "file"
+use emoji : script "emoji"
+
+use loggerLib : script "logger"
+use usrLib : script "user"
+use syseveLib : script "system-events"
+use plutilLib : script "plutil"
+use seLib : script "script-editor"
+use automatorLib : script "automator"
+use configLib : script "config"
+
+property logger : loggerLib's new("Create Voice Command App")
+property usr : usrLib's new()
+property syseve : syseveLib's new()
+property plutil : plutilLib's new()
+property se : seLib's new()
+property automator : automatorLib's new()
+property configUser : configLib's new("user")
+
+property session : plutil's new("session")
+
+property SCRIPT_NAME : missing value
+property isSpot : false
 
 tell application "System Events" to set SCRIPT_NAME to get name of (path to me)
-
-set std to script "std"
-set logger to std's import("logger")'s new(SCRIPT_NAME)
 
 
 logger's start()
 
 -- = Start of Code below =====================================================
-set usr to std's import("user")'s new()
-set fileUtil to std's import("file")
-set textUtil to std's import("string")
-set syseve to std's import("system-events")'s new()
-set emoji to std's import("emoji")
-set plutil to std's import("plutil")'s new()
-set sessionPlist to plutil's new("session")
-set seLib to std's import("script-editor")'s new()
-set automator to std's import("automator")'s new()
-set configUser to std's import("config")'s new("user")
 
-set IS_SPOT to name of current application is "Script Editor"
+if {"Script Editor", "Script Debugger"} contains the name of current application then set my isSpot to true
 
 try
 	main()
@@ -63,19 +76,19 @@ on main()
 	set thisAppName to text 1 thru ((offset of "." in SCRIPT_NAME) - 1) of SCRIPT_NAME
 	if IS_SPOT then
 		logger's info("Switching to a test file for to create voice command for")
-		set seTab to seLib's findTabWithName("hello.applescript")
+		set seTab to se's findTabWithName("hello.applescript")
 		if seTab is missing value then
 			error "You must open the hello.applescript in Script Editor"
 		end if
 		seTab's focus()
 	else
-		set seTab to seLib's getFrontTab()
+		set seTab to se's getFrontTab()
 	end if
 	logger's infof("Current File Open: {}", seTab's getScriptName())
 	
 	set baseScriptName to seTab's getBaseScriptName()
 	logger's infof("Base Script Name:  {}", baseScriptName)
-	sessionPlist's setValue("New Script Name", baseScriptName & ".app")
+	session's setValue("New Script Name", baseScriptName & ".app")
 	
 	
 	logger's info("Conditionally quitting existing automator app...")

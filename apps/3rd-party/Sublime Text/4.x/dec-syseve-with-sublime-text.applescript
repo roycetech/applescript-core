@@ -9,30 +9,31 @@ global std
 		Install/Uninstall this with the other Sublime Text related libraries by 
 		running `make install` or make uninstall in this file's sub directory.
 *)
+use listUtil : script "list"
 
-property initialized : false
-property logger : missing value
+use spotScript : script "spot-test"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use syseveLib : script "system-events"
+
+property logger : loggerLib's new("dec-syseve-with-sublime-text")
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set caseId to "dec-keyboard-dvorak-cmd-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	-- All spot check cases are manual.
 	set cases to listUtil's splitByLine("
 		Basic Test
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(caseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
-	set sut to std's import("system-events")'s new()
+	set sut to syseveLib's new()
 	if name of sut is not "SyseveSublimeTextInstance" then set sut to decorate(sut)
 	
 	activate application "Sublime Text"
@@ -51,7 +52,6 @@ end spotCheck
 (* *)
 
 on decorate(baseScript)
-	init()
 	
 	script SyseveSublimeTextInstance
 		property parent : baseScript
@@ -65,12 +65,3 @@ on decorate(baseScript)
 		
 	end script
 end decorate
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("dec-syseve-with-sublimetext")
-end init

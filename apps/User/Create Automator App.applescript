@@ -1,7 +1,3 @@
-global std, fileUtil, textUtil, syseve, retry, sessionPlist, configUser
-global seLib, automator
-global IS_SPOT, SCRIPT_NAME
-
 (* 
 	This app is used to create an app using automator for the current document that is opened in the Script Editor app. Apps created via automator does not suffer from the problem of permission error as compared to apps exported via Script Editor, or compiled via osacompile.
 
@@ -26,32 +22,45 @@ global IS_SPOT, SCRIPT_NAME
 		Reads config-user.plist - AppleScript Projects Path
 *)
 
-property logger : missing value
+use scripting additions
 
-tell application "System Events" to set SCRIPT_NAME to get name of (path to me)
-set IS_SPOT to false
-if name of current application is "Script Editor" then set IS_SPOT to true
+use std : script "std"
+use fileUtil : script "file"
+use textUtil : script "string"
 
-set std to script "std"
-set logger to std's import("logger")'s new(SCRIPT_NAME)
+use loggerLib : script "logger"
+use syseveLib : script "system-events"
+use retryLib : script "retry"
+use plutilLib : script "plutil"
+use seLib : script "script-editor"
+use configLib : script "config"
+use automatorLib : script "automator"
+
+property logger : loggerLib's new("Create Automator App")
+property syseve : syseveLib's new()
+property retry : retryLib's new()
+property plutil : plutilLib's new()
+property se : seLib's new()
+property configUser : configLib's new("user")
+property automator : automatorLib's new()
+
+property scriptName : missing value
+property isSpot : false
+
+property session : plutil's new("session")
+
+tell application "System Events" to set scriptName to get name of (path to me)
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then set my isSpot to true
 
 logger's start()
 
 -- = Start of Code below =====================================================
-set syseve to std's import("system-events")'s new()
-set fileUtil to std's import("file")
-set textUtil to std's import("string")
-set retry to std's import("retry")'s new()
-set plutil to std's import("plutil")'s new()
-set sessionPlist to plutil's new("session")
-set seLib to std's import("script-editor")'s new()
-set automator to std's import("automator")'s new()
-set configUser to std's import("config")'s new("user")
 
 try
 	main()
 on error the errorMessage number the errorNumber
-	std's catch(SCRIPT_NAME, errorNumber, errorMessage)
+	std's catch(scriptName, errorNumber, errorMessage)
 end try
 
 logger's finish()
@@ -66,31 +75,32 @@ on main()
 		return
 	end if
 	
-	set thisAppName to text 1 thru ((offset of "." in SCRIPT_NAME) - 1) of SCRIPT_NAME
+	set thisAppName to text 1 thru ((offset of "." in scriptName) - 1) of scriptName
 	logger's debugf("thisAppName: {}", thisAppName)
 	
-	if IS_SPOT and std's appExists(thisAppName) is true then
+	if my isSpot and std's appExists(thisAppName) is true then
 		set testScriptName to "Run Script Editor 2.applescript"
-		set seTab to seLib's findTabWithName(testScriptName)
+		set seTab to se's findTabWithName(testScriptName)
 		if seTab is missing value then
 			logger's infof("The test script {} was not found", testScriptName)
 			return
 		end if
 		seTab's focus()
 	else
-		set seTab to seLib's getFrontTab()
+		set seTab to se's getFrontTab()
 	end if
 	logger's infof("Current File Open: {}", seTab's getScriptName())
 	
 	set baseScriptName to seTab's getBaseScriptName()
 	logger's info("Base Script Name:  " & baseScriptName)
-	sessionPlist's setValue("New Script Name", baseScriptName & ".app")
+	session's setValue("New Script Name", baseScriptName & ".app")
 	-- logger's info("Target POSIX path:  " & targetPosixPath)
 	
 	(*
 	set targetMonPath to fileUtil's convertPosixToMacOsNotation(targetPosixPath)
 	logger's info("Target MON path:  " & targetMonPath)
 	*)
+	
 	
 	logger's info("Conditionally quitting existing automator app...")
 	automator's forceQuitApp()
@@ -132,7 +142,7 @@ on main()
 	*)
 	
 	logger's debugf("computedProjectKey: {}", computedProjectKey)
-	-- sessionPlist's setValue(CURRENT_AS_PROJECT, selectedProjectKey)
+	-- session's setValue(CURRENT_AS_PROJECT, selectedProjectKey)
 	
 	set projectPath to configUser's getValue("Project " & computedProjectKey)
 	logger's debugf("projectPath: {}", projectPath)

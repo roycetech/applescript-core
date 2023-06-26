@@ -1,5 +1,3 @@
-global std, regex, config, uiUtil
-
 (*
 	Zoom-specific handlers to determine the meeting ID, password, and to check if you are the meeting facilitator (creator)
 
@@ -20,25 +18,40 @@ global std, regex, config, uiUtil
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
+use regex : script "regex"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use plutilLib : script "plutil"
+use uiutilLib : script "ui-util"
+use calendarLib : script "calendar"
+use calendarEventLib : script "calendar-event"
+
+use overriderLib : script "overrider"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("dec-calendar-event-zoom")
+property plutil : plutilLib's new()
+property config : plutil's new("zoom.us/config")
+property uiutil : uiutilLib's new()
+property calendar : calendarLib's new()
+property calendarEvent : calendarEventLib's new()
+
+property overrider : overriderLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "dec-calendar-event-zoom-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Extract Info
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -46,8 +59,6 @@ on spotCheck()
 	end if
 	
 	activate application "Calendar"
-	set calendar to std's import("calendar")'s new()
-	set calendarEvent to std's import("calendar-event")'s new()
 	
 	set decoratedEvent to decorate(calendarEvent)
 	logger's debugf("Name of calendar event: {}", name of decoratedEvent)
@@ -84,7 +95,7 @@ on _spotGetSelectedEvent(decoratedEvent)
 		
 		try
 			set selectedEvent to first static text of list 1 of subTarget whose focused is true
-			set selectedEventBody to uiUtil's findUiWithIdAttribute(UI elements of subTarget, "notes-field")
+			set selectedEventBody to uiutil's findUiWithIdAttribute(UI elements of subTarget, "notes-field")
 		end try -- When none is selected on the iterated dow.
 	end tell
 	
@@ -159,22 +170,5 @@ on decorate(mainScript)
 		end extractMeetingPassword
 	end script
 	
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end decorate
-
-
--- Private Codes below =======================================================
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("dec-calendar-event-zoom")
-	set regex to std's import("regex")
-	set plutil to std's import("plutil")'s new()
-	set config to plutil's new("zoom.us/config")
-	set uiUtil to std's import("ui-util")'s new()
-end init

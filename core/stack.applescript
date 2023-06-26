@@ -1,12 +1,12 @@
-global std
+use loggerLib : script "logger"
+use testLib : script "test"
 
-property initialized : false
-property logger : missing value
+property logger : loggerLib's new("stack")
+property test : testLib's new()
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "stack-spotCheck"
 	logger's start()
 	
@@ -60,9 +60,7 @@ end new
 	Put the case you are debugging at the top, and move to correct place once verified.
 *)
 on unitTest()
-	set utLib to std's import("unit-test")
-	set ut to utLib's new()
-	
+	set ut to test's new()	
 	set stack to new()
 	
 	tell ut
@@ -84,13 +82,3 @@ on unitTest()
 		ut's done()
 	end tell
 end unitTest
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("stack")
-end init

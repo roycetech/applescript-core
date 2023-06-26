@@ -1,30 +1,49 @@
-global std, regex
+(*
+	@Deployment:
+		make compile-lib SOURCE=core/plist-buddy
+*)
 
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
+use std : script "std"
+
+use textUtil : script "string"
+use listUtil : script "list"
+use regex : script "regex"
+use loggerFactory : script "logger-factory"
+
+use spotScript : script "spot-test"
+
+use testLib : script "test"
+
+property test : testLib's new()
+
+property useBasicLogging : false
 property logger : missing value
 property CLI : "/usr/libexec/PlistBuddy"
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
+	set useBasicLogging to true
+	loggerFactory's inject(me, "plist-buddy")
+	
 	set thisCaseId to "plist-buddy-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
-	
 	set cases to listUtil's splitByLine("
-		Manual: Delete add a key-value pair (existing, non-existing, root not/found)
+		Integration Test
+
+		Manual: Add a key-value pair (existing, non-existing, root not/found)
 		Manual: Delete a root key (existing, non-existing)
 		Manual: Delete a key-value pair
+		Manual: Get Keys
+		Manual: Get Value
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -33,13 +52,29 @@ on spotCheck()
 	
 	set sut to new("plist-spot")
 	if caseIndex is 1 then
-		logger's infof("Handler result: {}", sut's addDictionaryKeyValue("added", "add subkey", "add subvalue"))
+		integrationTest()
 		
 	else if caseIndex is 2 then
-		logger's infof("Handler result: {}", sut's deleteRootKey("snone"))
+		logger's infof("Handler result: {}", sut's addDictionaryKeyValue("added", "add subkey", "add subvalue"))
 		
 	else if caseIndex is 3 then
+		logger's infof("Handler result: {}", sut's deleteRootKey("snone"))
+		
+	else if caseIndex is 4 then
 		logger's infof("Handler result: {}", sut's deleteDictionaryKeyValue("spot", "second"))
+		
+	else if caseIndex is 5 then
+		set keys to sut's getKeys()
+		if the number of items in keys is 0 then
+			logger's info("The plist doesn't have any items")
+		else
+			repeat with nextKey in keys
+				logger's infof("Next Key: {}", nextKey)
+			end repeat
+		end if
+		
+	else if caseIndex is 5 then
+		logger's infof("Handler result: {}", sut's getValue("_README"))
 		
 	end if
 	
@@ -50,6 +85,8 @@ end spotCheck
 
 (*  *)
 on new(pPlistName)
+	loggerFactory's inject(me, "plist-buddy")
+	
 	set AS_CORE_PATH to "/Users/" & std's getUsername() & "/applescript-core/"
 	set localPlistPosixPath to AS_CORE_PATH & pPlistName & ".plist"
 	try
@@ -64,6 +101,34 @@ on new(pPlistName)
 		property plistFilename : calcPlistFilename
 		property plistName : pPlistName
 		property quotedPlistPosixPath : quoted form of localPlistPosixPath
+		
+		on getValue(keyName)
+			set escapedKey to _escapeKey(keyName)
+			-- logger's debugf("escapedKey: {}", escapedKey)
+			
+			set command to format {"{} -c \"Print :'{}'\"  {}", {CLI, escapedKey, quotedPlistPosixPath}}
+			-- logger's debugf("command: {}", command)
+			
+			do shell script command
+		end getValue
+		
+		(*
+			WARNING: tilde character is used as separator, this will break if it is used in any of the keys.
+		*)
+		on getKeys()
+			set command to format {"{} -c \"Print\" {} | grep -E '^\\s*[^[:space:]]+\\s*=' | awk '{print $1}' | paste -s -d~ -", {CLI, quotedPlistPosixPath}}
+			-- logger's debugf("command: {}", command)
+			
+			try
+				set csv to do shell script command
+				return textUtil's split(csv, "~")
+			on error the errorMessage number the errorNumber
+				logger's warn(errorMessage)
+			end try
+			
+			{}
+		end getKeys
+		
 		
 		(*
 			@returns true if delete is successful, false if any errors encountered like when the element was not found.
@@ -115,6 +180,15 @@ on new(pPlistName)
 		end deleteDictionaryKeyValue
 		
 		
+		(*
+			This escaping is likely incomplete but it supports what I need for now. Will update when I get more bandwidth in the future.
+		*)
+		on _escapeKey(keyName)
+			set escapedKey to keyName
+			textUtil's replace(escapedKey, "\\", "\\\\\\\\")
+		end _escapeKey
+		
+		
 		on _getType(dataToSave)
 			if class of dataToSave is text then return "string"
 			if class of dataToSave is list then return "array"
@@ -132,25 +206,14 @@ on new(pPlistName)
 end new
 
 
--- Private Codes below =======================================================
-
-(*
-	Handler grouped by hundredths.
-	Put the case you are debugging at the top, and move to correct place once verified.
-*)
-on unitTest()
-	set actual101 to matched("amazing", "maz")
-	set case101 to "Case 101: Found"
-	std's assert(true, actual101, case101)
-end unitTest
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
+on integrationTest()
+	set sut to new("plist-spot")
 	
-	set std to script "std"
-	set logger to std's import("logger")'s new("plist-buddy")
-	set regex to std's import("regex")
-end init
+	set ut to test's new()
+	tell ut
+		newMethod("getValue")
+		assertEqual("A.P. ", sut's getValue("/aP\\b/"), "Regular Expression key")
+		assertEqual(" and one third", sut's getValue("/\\.6{3,}7?/"), "Regular Expression key 2")
+	end tell
+	
+end integrationTest

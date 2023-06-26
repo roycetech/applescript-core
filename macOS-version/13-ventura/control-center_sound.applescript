@@ -1,12 +1,9 @@
-global std, kb, listUtil, retryLib
-
 (*
 	Update the following quite obvious if you read through the template code.:
 	spotCheck()
 		thisCaseId
 		base library instantiation
 
-	init()
 		logger constructor parameter inside init handler
 
 	decorate()
@@ -15,25 +12,34 @@ global std, kb, listUtil, retryLib
 
 *)
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use kbLib : script "keyboard"
+use retryLib : script "retry"
+use ccLib : script "control-center"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("control-center_sound")
+property kb : kbLib's new()
+property retry : retryLib's new()
+property cc : ccLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "#extensionLessName#-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.
 	set cases to listUtil's splitByLine("
 		Manual: Is Mic In Use
 		Manual: Switch to AirPods (N/A, Happy, Already Selected)
 		Manual: Switch to Default (Happy, Already Selected)
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -41,8 +47,7 @@ on spotCheck()
 	end if
 	
 	-- activate application ""
-	set sut to std's import("control-center")'s new()
-	set sut to decorate(sut)
+	set sut to decorate(cc)
 	
 	if caseIndex is 1 then
 		logger's infof("Handler Result: {}", sut's isMicInUse())
@@ -132,19 +137,3 @@ on decorate(mainScript)
 	
 	ControlCenterSoundDecorated
 end decorate
-
-
--- Private Codes below =======================================================
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("control-center_sound")
-	set kb to std's import("keyboard")'s new()
-	set listUtil to std's import("list")
-	set retryLib to std's import("retry")
-end init

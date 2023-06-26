@@ -1,30 +1,36 @@
-global std, textUtil
-
 (*
 	Usage:
-		set regex to std's import("regex")
+		use regex : script "regex"
 
 	Tried both sed and ruby.  Let's use ruby for more flexibility and familiarity.
 	WARNING: Do not use unicode characters, it does not work with the ruby commandline!
+	
+	@Deployment:
+		make compile-lib SOURCE=core/regex
 *)
-
-property initialized : false
-property logger : missing value
-
-if name of current application is "Script Editor" then spotCheck()
 
 use framework "Foundation"
 use scripting additions
 
+use std : script "std"
+use loggerLib : script "logger"
+use textUtil : script "string"
+use listUtil : script "list"
+
+use spotScript : script "spot-test"
+
+use testLib : script "test"
+
+property test : testLib's new()
+
+property logger : loggerLib's new("regex")
+property useBasicLogging : false
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "regex-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
-	set uni to std's import("unicodes")
 	
 	set cases to listUtil's splitByLine("
 		Unit Test
@@ -32,19 +38,24 @@ on spotCheck()
 		Case Insensitive Match
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	log 2
+	set spotClass to spotScript's new()
+	log 3
+	set spot to spotClass's new(thisCaseId, cases)
+	log 4
 	set {caseIndex, caseDesc} to spot's start()
+	log 5
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
 	
+	log 3
 	if caseIndex is 1 then
 		unitTest()
 		
 	else if caseIndex is 2 then
-		log stringByReplacingMatchesInString(uni's OMZ_ARROW & "  [a-zA-Z-]+\\sgit:\\([a-zA-Z0-9/-]+\\)(?: " & uni's OMZ_GIT_X & ")?\\s", uni's OMZ_ARROW & "  mobile-gateway git:(feature/MT-3644-Mobile-Gateway-create-service-adapter) " & uni's OMZ_GIT_X & " docker network", "")
+		log stringByReplacingMatchesInString(unic's OMZ_ARROW & "  [a-zA-Z-]+\\sgit:\\([a-zA-Z0-9/-]+\\)(?: " & unic's OMZ_GIT_X & ")?\\s", unic's OMZ_ARROW & "  mobile-gateway git:(feature/MT-3644-Mobile-Gateway-create-service-adapter) " & unic's OMZ_GIT_X & " docker network", "")
 		
 		log stringByReplacingMatchesInString("hello", "hello world", "")
 		log firstMatchInString("\\w+", "hello world")
@@ -63,16 +74,16 @@ on spotCheck()
 end spotCheck
 
 on numberOfMatchesInString(pattern as text, searchString as text)
-	set regex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
-	return (regex's numberOfMatchesInString:searchString options:0 range:{location:0, |length|:(count searchString)}) as integer
+	set nsregex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
+	return (nsregex's numberOfMatchesInString:searchString options:0 range:{location:0, |length|:(count searchString)}) as integer
 end numberOfMatchesInString
 
 
 on matchesInString(pattern as text, searchString as text)
 	set anNSString to current application's NSString's stringWithString:searchString
 	set stringLength to anNSString's |length|()
-	set theRegex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
-	set match to theRegex's firstMatchInString:anNSString options:0 range:{0, stringLength}
+	set nsregex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
+	set match to nsregex's firstMatchInString:anNSString options:0 range:{0, stringLength}
 	if match is not missing value then return true
 	
 	false
@@ -84,9 +95,9 @@ on firstMatchInString(pattern, searchString)
 	
 	set anNSString to current application's NSString's stringWithString:searchString
 	set stringLength to anNSString's |length|()
-	set theRegex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
+	set nsregex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
 	
-	set match to theRegex's firstMatchInString:anNSString options:0 range:{0, stringLength}
+	set match to nsregex's firstMatchInString:anNSString options:0 range:{0, stringLength}
 	
 	if match is not missing value then
 		set matchRange to match's numberOfRanges()
@@ -107,9 +118,9 @@ on firstMatchInStringNoCase(pattern, searchString)
 		set anNSString to current application's NSString's stringWithString:searchString
 		set stringLength to anNSString's |length|()
 		set caseInsensitiveOption to current application's NSRegularExpressionCaseInsensitive
-		set theRegex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:caseInsensitiveOption |error|:(missing value)
+		set nsregex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:caseInsensitiveOption |error|:(missing value)
 		
-		set match to theRegex's firstMatchInString:anNSString options:0 range:{0, stringLength}
+		set match to nsregex's firstMatchInString:anNSString options:0 range:{0, stringLength}
 		if match is missing value then return missing value
 		
 		set matchRange to match's numberOfRanges()
@@ -125,16 +136,16 @@ on lastMatchInString(pattern, searchString)
 	
 	set anNSString to current application's NSString's stringWithString:searchString
 	set stringLength to anNSString's |length|()
-	set theRegex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
+	set nsregex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
 	
-	set matches to theRegex's matchesInString:anNSString options:0 range:{0, stringLength}
+	set matches to nsregex's matchesInString:anNSString options:0 range:{0, stringLength}
 	
 	if (matches's |count|()) > 0 then
 		set lastMatch to (matches's lastObject())'s range()
-		text ((lastMatch's location) + 1) thru ((lastMatch's location) + (lastMatch's |length|)) of searchString
-	else
-		return missing value
+		return text ((lastMatch's location) + 1) thru ((lastMatch's location) + (lastMatch's |length|)) of searchString
 	end if
+	
+	missing value
 end lastMatchInString
 
 
@@ -142,16 +153,17 @@ on stringByReplacingMatchesInString(pattern, searchString, replacement)
 	set searchNSString to current application's NSString's stringWithString:searchString
 	set replaceNSString to current application's NSString's stringWithString:replacement
 	set stringLength to searchNSString's |length|()
-	set theRegex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
-	(theRegex's stringByReplacingMatchesInString:searchNSString options:0 range:{0, stringLength} withTemplate:replaceNSString) as text
+	set nsregex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
+	(nsregex's stringByReplacingMatchesInString:searchNSString options:0 range:{0, stringLength} withTemplate:replaceNSString) as text
 end stringByReplacingMatchesInString
 
 
 (* @returns list {offset, length} *)
 on rangeOfFirstMatchInString(pattern, searchString)
+	if searchString is missing value then return missing value
 	
-	set regex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
-	set matchRange to (regex's rangeOfFirstMatchInString:searchString options:0 range:{location:0, |length|:(count searchString)})
+	set nsregex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
+	set matchRange to (nsregex's rangeOfFirstMatchInString:searchString options:0 range:{location:0, |length|:(count searchString)})
 	{(matchRange's location) + 1, matchRange's |length|}
 end rangeOfFirstMatchInString
 
@@ -203,8 +215,7 @@ end escapePattern
 	Put the case you are debugging at the top, and move to correct place once verified.
 *)
 on unitTest()
-	set utLib to std's import("unit-test")
-	set ut to utLib's new()
+	set ut to test's new()
 	tell ut
 		newMethod("lastMatchInString")
 		assertMissingValue(my lastMatchInString("\\w", missing value), "String is missing value")
@@ -235,19 +246,6 @@ on unitTest()
 		assertMissingValue(my rangeOfFirstMatchInString("\\w", missing value), "String is missing value")
 		assertEquals({16, 5}, my rangeOfFirstMatchInString("\\d+", "Hello prisoner 14867"), "Happy Case")
 		
-		
 		done()
 	end tell
-	
-	logger's info("All unit test cases passed.")
 end unitTest
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("regex")
-	set textUtil to std's import("string")
-end init

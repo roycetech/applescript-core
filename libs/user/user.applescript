@@ -1,31 +1,43 @@
-global std, cc, zoomApp
-
 (* 
 	This script is very user-specific. For example, it is assumed that a user 
 	uses a particular set of versioned apps. Might be better to leave this out 
 	of this framework but let's give it a try 
 
 	@Usage:
-		set usr to std's import("user")
+		use userLib : script "user"
+		
+		property usr : userLib's new()
 		
 	@Deployment:
 		make compile-lib SOURCE=libs/user/user
+		
+	@Troubleshooting:
+		Zoom is not yet tested at this time. June 25, 2023 5:22 PM. Test that library set before adding it to the config-lib-factory.
 
 	Note: we use usr to avoid clash with the built-in AppleScript identifier.
 *)
 
-property initialized : false
-property logger : missing value
+use scripting additions
 
-if name of current application is "Script Editor" then spotCheck()
+use std : script "std"
+use listUtil : script "list"
+
+use loggerLib : script "logger"
+use ccLib : script "control-center"
+use overriderLib : script "overrider"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("user")
+property cc : ccLib's new()
+
+property overrider : overriderLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "user-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Info
@@ -34,13 +46,14 @@ on spotCheck()
 		Manual: Done Audible Cue		
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
+	
 	
 	set sut to new()
 	if caseIndex is 1 then
@@ -57,7 +70,7 @@ on spotCheck()
 		
 	else if caseIndex is 4 then
 		sut's done()
-				
+		
 	end if
 	
 	spot's finish()
@@ -108,21 +121,5 @@ on new()
 		end getOsMajorVersion
 		
 	end script
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
-
-
-
-
--- Private Codes below =======================================================
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("user")
-	set cc to std's import("control-center")
-end init

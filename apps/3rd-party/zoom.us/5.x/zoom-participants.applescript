@@ -1,12 +1,9 @@
-global std, usr, retry, regex
-
 (*
 	Update the following quite obvious if you read through the template code.:
 	spotCheck()
 		thisCaseId
 		base library instantiation
 
-	init()
 		logger constructor parameter inside init handler
 
 	decorate()
@@ -15,18 +12,26 @@ global std, usr, retry, regex
 
 *)
 
-property initialized : false
-property logger : missing value
+use regex : script "regex"
+use listUtil : script "list"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use retryLib : script "retry"
+use usrLib : script "user"
+use zoomUtilLib : script "zoom"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("zoom-participants")
+property retry : retryLib's new()
+property usr : usrLib's new()
+property zoomUtil : zoomUtilLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "#zoom-participants-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Is Participants View Visible
@@ -35,15 +40,15 @@ on spotCheck()
 		Manual: Get Participants
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
 	
-	set sut to std's import("zoom")'s new()
+	set sut to zoomUtil
 	try
 		sut's isParticipantSidebarVisible
 	on error
@@ -181,20 +186,3 @@ on decorate(mainScript)
 		end hideParticipants
 	end script
 end decorate
-
-
--- Private Codes below =======================================================
-
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set usr to std's import("user")'s new()
-	set logger to std's import("logger")'s new("zoom-participants")
-	set retry to std's import("retry")'s new()
-	set regex to std's import("regex")
-end init

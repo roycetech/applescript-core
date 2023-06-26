@@ -1,4 +1,3 @@
-global std, regex, textUtil, listUtil, sb, kb, uiUtil
 
 (*
 	Wrapper for the calendar UI event. Originally implemented with zoom.us, 
@@ -8,28 +7,48 @@ global std, regex, textUtil, listUtil, sb, kb, uiUtil
 		Calendar needs to be in "Day" view.
 *)
 
-property initialized : false
-property logger : missing value
-property referenceDate : missing value
-property IS_SPOT : false -- global initially, breaks when ran as dependency.
+use scripting additions
 
-if name of current application is "Script Editor" then spotCheck()
+use listUtil : script "list"
+use textUtil : script "string"
+use regex : script "regex"
+
+use loggerLib : script "logger"
+use kbLib : script "keyboard"
+use sbLib : script "string-builder"
+use uiutilLib : script "ui-util"
+
+use spotScript : script "spot-test"
+use overriderLib : script "overrider"
+
+property overrider : overriderLib's new()
+
+property logger : loggerLib's new("calendar-event")
+property kb : kbLib's new()
+property uiutil : uiutilLib's new()
+
+property referenceDate : missing value
+property isSpot : false
+
+tell application "System Events"
+	set scriptName to get name of (path to me)
+end tell
+set my isSpot to scriptName is equal to "calendar-event.applescript"
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "calendar-event-spotCheck"
 	logger's start()
 	
-	set IS_SPOT to true
-	
-	-- If you haven't got these imports already.
+	set my isSpot to true
 	set cases to listUtil's splitByLine("
 		Manual: To JSON String
 		Manual: Find a suitable calendar event for testing.
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -46,7 +65,7 @@ on spotCheck()
 		tell application "System Events" to tell process "Calendar"
 			-- Tested on Week with May 17, 2023
 			set uiSut to static text 9 of list 1 of group 1 of splitter group 1 of window "Calendar"
-			set uiSutBody to uiUtil's findUiWithIdAttribute(UI elements of group 1 of splitter group 1 of window "Calendar", "notes-field") -- Can be text field or static text.
+			set uiSutBody to uiutil's findUiWithIdAttribute(UI elements of group 1 of splitter group 1 of window "Calendar", "notes-field") -- Can be text field or static text.
 			-- set uiSutBody to text field 3 of group 1 of splitter group 1 of window "Calendar"
 		end tell
 		set sut to calendarEventLib's new(uiSut, uiSutBody)
@@ -150,7 +169,7 @@ Passcode: {}
 				-- 		set attendeesButton to first button of pop over 1 of window "Calendar" whose description is "Edit Attendees"
 				-- 	end try
 				-- end if
-				set attendeesButton to uiutil's findUiWithIdAttribute(buttons of group 1 of splitter group 1 of front window, "invitees-button")				
+				set attendeesButton to uiutil's findUiWithIdAttribute(buttons of group 1 of splitter group 1 of front window, "invitees-button")
 				if attendeesButton is not missing value then
 					repeat with nextStaticText in static texts of attendeesButton
 						try
@@ -261,29 +280,5 @@ Passcode: {}
 		end _checkFacilitator
 	end script
 	
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
-
-
-
--- Private Codes below =======================================================
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("calendar-event")
-	set regex to std's import("regex")
-	set textUtil to std's import("string")
-	set listUtil to std's import("list")
-	set sb to std's import("string-builder")
-	set kb to std's import("keyboard")'s new()
-	set uiUtil to std's import("ui-util")'s new()
-	
-	tell application "System Events"
-		set scriptName to get name of (path to me)
-		set my IS_SPOT to scriptName is equal to "calendar-event.applescript"
-	end tell
-end init

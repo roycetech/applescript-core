@@ -1,23 +1,23 @@
-global std, usr
-
 (*
 	Decorator for view-related functionality. The main goal of this decorator 
 	is to group together the view-related functions to keep the main component
 	small.
 *)
+use listUtil : script "list"
 
-property initialized : false
-property logger : missing value
+use loggerLib : script "logger"
+use usrLib : script "user"
 
-if name of current application is "Script Editor" then spotCheck()
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("dec-calendar-view")
+property usr : usrLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "cal-ext-view-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Current Calendar View (Day, Week, Month, Year)
@@ -32,8 +32,8 @@ on spotCheck()
 		Switch View - Year
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -88,7 +88,7 @@ on decorate(mainScript)
 			
 			tell application "System Events" to tell process "Calendar"
 				set selectedRadio to get value of radio group 1 of group 2 of toolbar 1 of window "Calendar"
-				if usr's getOSMajorVersion() is less than 13 then return title of selectedRadio
+				if usr's getOsMajorVersion() is less than 13 then return title of selectedRadio
 				
 				return description of selectedRadio -- Ventura (13)
 			end tell
@@ -135,16 +135,3 @@ on decorate(mainScript)
 	end script
 end decorate
 
-
--- Private Codes below =======================================================
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("dec-calendar-view")
-	set usr to std's import("user")'s new()
-end init

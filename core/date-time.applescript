@@ -1,21 +1,23 @@
-global std, textUtil, regex, listUtil
-
 use framework "Foundation"
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
-property logger : missing value
+use loggerLib : script "logger"
+use textUtil : script "string"
+use regex : script "regex"
+use listUtil : script "list"
+use spotScript : script "spot-test"
+use testLib : script "test"
+
+property logger : loggerLib's new("date-time")
+property test : testLib's new()
 property timeBufferMin : 2
 
-if name of current application is "Script Editor" then spotCheck()
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "date-time-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
 	
 	set cases to listUtil's splitByLine("
 		Run unit tests
@@ -25,8 +27,8 @@ on spotCheck()
 		Manual: Zulu Date
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -338,8 +340,7 @@ end _isWorkTime
 
 
 on unitTest()
-	set utLib to std's import("unit-test")
-	set ut to utLib's new()
+	set ut to test's new()
 	
 	
 	(* Parameterized is too slow.
@@ -422,16 +423,3 @@ on unitTest()
 		
 	end tell
 end unitTest
-
-
--- required when run using automator-voice control.
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("date-time")
-	set textUtil to std's import("string")
-	set regex to std's import("regex")
-	set listUtil to std's import("list")
-end init

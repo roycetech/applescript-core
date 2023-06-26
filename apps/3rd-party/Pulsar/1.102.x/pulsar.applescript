@@ -1,6 +1,3 @@
-global std, retry, fileUtil, textUtil, cp, kb, uni
-global RESERVED_DOC_NAMES
-
 (*
 	Library wrapper for Pulsar app. Converted from atom.applescript.
 	
@@ -16,27 +13,43 @@ global RESERVED_DOC_NAMES
 use script "Core Text Utilities"
 use scripting additions
 
-property logger : missing value
-property initialized : false
+use std : script "std"
+use fileUtil : script "file"
+use unic : script "unicodes"
+use textUtil : script "string"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use listUtil : script "list"
+use retryLib : script "retry"
+use configLib : script "config"
+use spotScript : script "spot-test"
+use kbLib : script "keyboard"
+use syseveLib : script "system-events"
+use clipLib : script "clipboard"
+
+property logger : loggerLib's new("pulsar")
+property configSystem : configLib's new("system")
+property retry : retryLib's new()
+property kb : kbLib's new()
+property syseve : syseveLib's new()
+property clip : clipLib's new()
+
+property RESERVED_DOC_NAMES : {"Settings", "Project", "Project Find Results", "Welcome Guide"}
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "pulsar-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
-	set configSystem to std's import("config")'s new("system")
 	set cases to listUtil's splitByLine("
 		Manual: Load File (App Open, Not Running, Already Loaded)
 		Manual: Document Info (sample.txt, no file, search result, nav bar focused, Settings)
 		Manual: Close Front Tab
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -86,14 +99,14 @@ on new()
 				set windowTitle to name of window 1
 			end tell
 			
-			set tokens to textUtil's split(windowTitle, uni's SEPARATOR)
+			set tokens to textUtil's split(windowTitle, unic's SEPARATOR)
 			
 			set docNameFromTitle to first item of tokens
 			
 			if docNameFromTitle is not "Project" then return docNameFromTitle
 			
 			set docPath to _extractDocPathByHotkey()
-			fileUtil's getBaseFilename(docPath)
+			fileUtil's getBaseFileName(docPath)
 		end getCurrentDocumentName
 		
 		(* 
@@ -110,7 +123,7 @@ on new()
 				set windowTitle to name of front window
 			end tell
 			
-			set titleTokens to textUtil's split(windowTitle, uni's SEPARATOR)
+			set titleTokens to textUtil's split(windowTitle, unic's SEPARATOR)
 			if the number of titleTokens is 1 then return missing value
 			
 			set firstItemInTitle to first item of titleTokens
@@ -173,7 +186,7 @@ on new()
 				set windowTitle to name of front window
 			end tell
 			
-			set titleTokens to textUtil's split(windowTitle, uni's SEPARATOR)
+			set titleTokens to textUtil's split(windowTitle, unic's SEPARATOR)
 			set folderPath to last item of titleTokens
 			set expandedFolderPath to textUtil's replace(folderPath, "~", "/Users/" & std's getUsername())
 			textUtil's replace(docPath, expandedFolderPath & "/", "")
@@ -217,22 +230,3 @@ on new()
 		end _extractDocPathByHotkey
 	end script
 end new
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	set RESERVED_DOC_NAMES to {"Settings", "Project", "Project Find Results", "Welcome Guide"}
-	
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("pulsar")
-	set retry to std's import("retry")
-	set fileUtil to std's import("file")
-	set syseve to std's import("system-events")
-	set uni to std's import("unicodes")
-	set textUtil to std's import("string")
-	set cp to std's import("clipboard")'s new()
-	set kb to std's import("keyboard")'s new()
-end init

@@ -1,26 +1,36 @@
-global std
-
-
 (*
-	Usage:
-		set textUtil to std's import("string")
+	@Usage:
+		use textUtil : script "string"
+
+	Logger depends on this script so we cannot use logger here because it will result in a circular dependency.
 
 	Online Tool:
 		https://www.urlencoder.io
+		
+	@Deployment:
+		make compile-lib SOURCE=core/string
 *)
+use scripting additions
 
-property initialized : false
+use listUtil : script "list"
+use loggerFactory : script "logger-factory"
+
+use spotScript : script "spot-test"
+
+use testLib : script "test"
+
 property logger : missing value
+property test : missing value
 
 if {"Script Debugger", "Script Editor"} contains the name of current application then spotCheck()
 
+
 on spotCheck()
-	init()
+	set useBasicLogging of testLib to true
+	loggerFactory's inject(me, "string")
+	
 	set thisCaseId to "string-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Unit Test
@@ -28,8 +38,8 @@ on spotCheck()
 		Encode Multi Line Command
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -126,24 +136,6 @@ end replaceFirst
 on removeUnicode(textWithUnicodeChar)
 	do shell script "echo " & quoted form of textWithUnicodeChar & " | iconv -c -f utf-8 -t ascii || true"
 end removeUnicode
-
-
-(* Does not encode the parens () *)
-(* 
-on urlEncode(input)
-	set jqPath to "/opt/homebrew/bin/jq"
-	if jada's isWorkMac() then set jqPath to "/usr/local/bin/jq"
-	
-	do shell script "printf %s '" & input & "' | " & jqPath & " -sRr @uri"
-	
-	(* Fails when used in Workflow with some weird selector error.
-	tell current application's NSString to set rawUrl to stringWithString_(input)
-	set theEncodedURL to rawUrl's stringByAddingPercentEscapesUsingEncoding:4 -- 4 is NSUTF8StringEncoding
-	
-	theEncodedURL as Unicode text
-	*)
-end urlEncode
-*)
 
 
 (* 
@@ -247,16 +239,17 @@ end format
 
 
 on title(theWord)
+	set AppleScript's text item delimiters to ""
 	ucase(first character of theWord) & rest of characters of theWord
 end title
 
 
-to lower(theText)
+on lower(theText)
 	do shell script "echo '" & theText & "' | tr '[:upper:]' '[:lower:]'"
 end lower
 
 
-to upper(theText)
+on upper(theText)
 	do shell script "echo '" & theText & "' | tr '[:lower:]' '[:upper:]'"
 end upper
 
@@ -464,8 +457,7 @@ end removeEnding
 
 
 on unitTest()
-	set utLib to std's import("unit-test")
-	set ut to utLib's new()
+	set ut to test's new()
 	tell ut
 		newMethod("ltrim")
 		assertEqual("SELECT", my ltrim("
@@ -534,115 +526,6 @@ $('{}') = '{}';", {"a", "hello"})
 		assertEqual("Hell", my removeEnding("Hello", "o"), "Basic")
 		assertEqual("Hello", my removeEnding("Hello", "not found"), "Not found")
 		
-		
 		done()
 	end tell
-	
-	return
-	
-	set actual101 to lastIndexOf("/Users/cloud.strife/projects/@rt-learn-lang/applescript/DEPLOYED/Common/sublimetext3.applescript", "*")
-	set case101 to "Case 101: Last Index Of - Not found"
-	std's assert(0, actual101, case101)
-	
-	set actual102 to lastIndexOf("/Users/cloud.strife", "/")
-	set case102 to "Case 102: Last Index Of - Found"
-	std's assert(7, actual102, case102)
-	
-	
-	set actual801 to splitWithTrim("
-	one,
-	two
-	", ",")
-	set case801 to "Case 801: splitWithTrim - happy"
-	std's assert({"one", "two"}, actual801, case801)
-	
-	set actual701 to replaceFirst("three one plus one", "one", "two")
-	set case701 to "Case 701: replaceFirst - happy"
-	std's assert("three two plus one", actual701, case701)
-	
-	set actual1 to replace("The amazing race", "The amazing race", "Great script")
-	log "Case 1: Replace entire text: " & actual1
-	if actual1 is not "Great script" then error "Assertion failed for case 1: " & actual1
-	
-	set actual2 to replace("abcdefg", "abc", "xyz")
-	log "Case 2: Replace Beginning: " & actual2
-	if actual2 is not "xyzdefg" then error "Assertion failed for case 2: " & actual2
-	
-	set actual5 to replace("", "cde", "")
-	log "Case 5: Replace an empty string: " & actual5
-	if actual5 is not "" then error "Assertion failed for case 5: " & actual5
-	
-	set actual6 to replace("abcdefg", "cde", "")
-	log "Case 6: Replace with an empty string: " & actual6
-	if actual6 is not "abfg" then error "Assertion failed for case 6: " & actual6
-	
-	set actual7 to replace("abcdefg", "xyz", "123")
-	log "Case 7: Replace not found: " & actual7
-	if actual7 is not "abcdefg" then error "Assertion failed for case 7: " & actual7
-	
-	set actual8 to replace("abcdefgabc", "b", "88")
-	log "Case 8: Replace multiple: " & actual8
-	if actual8 is not "a88cdefga88c" then error "Assertion failed for case 8: " & actual8
-	
-	set actual9 to replace("Macintosh HD:Users:cloud.strife:projects:@rt-learn-lang:applescript:DEPLOYED:Common:sublimetext3.applescript", ".applescript", ".scpt")
-	log "Case 9: Replace multiple: " & actual9
-	if actual9 is not "Macintosh HD:Users:cloud.strife:projects:@rt-learn-lang:applescript:DEPLOYED:Common:sublimetext3.scpt" then error "Assertion failed for case 9: " & actual9
-	
-	
-	set actual201 to rtrim("1234  ")
-	set case201 to "Case 201: Basic scenario"
-	std's assert("1234", actual201, case201)
-	
-	set actual202 to rtrim("  ")
-	set case202 to "Case 202: Spaces only"
-	std's assert("", actual202, case202)
-	
-	set actual203 to rtrim("1234")
-	set case203 to "Case 203: No trailing space"
-	std's assert("1234", actual203, case203)
-	
-	set actual204 to rtrim("1234
-")
-	set case204 to "Case 204: Space and newline"
-	std's assert("1234", actual204, case204)
-	
-	set actual301 to trim("    1234 abc    ")
-	set case301 to "Case 301: Space and newline"
-	std's assert("1234 abc", actual301, case301)
-	
-	set actual501 to format("Hello {}", "baby")
-	set case501 to "Case 501: format - Single token"
-	std's assert("Hello baby", actual501, case501)
-	
-	set actual502 to format("Hello {}, how are you {}", {"baby", "love"})
-	set case502 to "Case 502: format - Multi token"
-	std's assert("Hello baby, how are you love", actual502, case502)
-	
-	set actual503 to format("Hello {}, how are you {}", {"baby", "love/care"})
-	set case503 to "Case 503: format - With forward slash"
-	std's assert("Hello baby, how are you love/care", actual503, case503)
-	
-	set actual504 to format(" -i {} ec2-user", "~/.ssh/test.pem")
-	set case504 to "Case 504: format - With forward slash - Actual"
-	std's assert(" -i ~/.ssh/test.pem ec2-user", actual504, case504)
-	
-	set actual601 to substringFrom("", 5)
-	set case601 to "Case 601: substringFrom - empty string, postive index"
-	std's assert("", actual601, case601)
-	
-	newMethod("lastIndexOf")
-	assertEqual(26, my lastIndexOf("an apple a day makes the apple vendor happy", "apple"), "Found Word")
-	assertEqual(0, my lastIndexOf("/Users/cloud.strife/projects/@rt-learn-lang/applescript/DEPLOYED/Common/sublimetext3.applescript", "*"), "Not Found")
-	assertEqual(7, my lastIndexOf("/Users/cloud.strife", "/"), "Found")
-	
-	logger's info("All unit test cases passed.")
 end unitTest
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-
-	set std to script "std"
-	set logger to std's import("logger")'s new("string")
-end init

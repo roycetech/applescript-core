@@ -1,5 +1,3 @@
-global std, uni, textUtil, listUtil
-
 use script "Core Text Utilities"
 use scripting additions
 
@@ -8,8 +6,9 @@ use scripting additions
 	Each individual project tabs are not treated as separate windows as compared to first party apps.
 
 	@Usage:
-		set tm to std's import("text-mate")'s new()
-	-- Text Expander: "sset st"
+		use tmLib : script "text-mate"
+		property tm : tmLi's new()
+	-- Text Expander: "uuse tb"
 		
 	@Installation:
 		make install-text-mate
@@ -18,16 +17,23 @@ use scripting additions
  	NOTE: if AXDocument is missing, usually when filename is missing value then restart Sublime Text.
 *)
 
-property initialized : false
-property logger : missing value
+use textUtil : script "string"
+use listUtil : script "list"
+use unic : script "unicodes"
 
-if name of current application is "Script Editor" then spotCheck()
+use loggerLib : script "logger"
+use configLib : script "config"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("text-mate")
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "text-mate-spotCheck"
 	logger's start()
-	set configSystem to std's import("config")'s new("system")
+	set configSystem to configLib's new("system")
 	
 	set cases to listUtil's splitByLine("
 		Manual: Current File details (No file, Find Result, Ordinary File)
@@ -37,8 +43,8 @@ on spotCheck()
 		Run Remote File - e2e
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
 	set sut to new()
@@ -101,7 +107,7 @@ on new()
 				
 				set windomName to name of first window
 			end tell
-			set windowNameTokens to textUtil's split(windomName, uni's SEPARATOR)
+			set windowNameTokens to textUtil's split(windomName, unic's SEPARATOR)
 			first item of windowNameTokens
 		end getCurrentDocumentName
 		
@@ -276,7 +282,7 @@ on new()
 					
 					(*
 					set oldDelimiters to AppleScript's text item delimiters
-					set AppleScript's text item delimiters to uni's SEPARATOR
+					set AppleScript's text item delimiters to unic's SEPARATOR
 					set theArray to every text item of theWindowTitle
 					set retval to last item of theArray
 					set AppleScript's text item delimiters to oldDelimiters
@@ -287,7 +293,7 @@ on new()
 			
 			set csv to textUtil's split(windowTitle, ",")
 			set projectPart to first item of csv
-			set filenameAndProject to textUtil's split(projectPart, uni's SEPARATOR)
+			set filenameAndProject to textUtil's split(projectPart, unic's SEPARATOR)
 			last item of filenameAndProject
 		end getCurrentProjectFolderName
 		
@@ -351,18 +357,5 @@ on new()
 		end _findProjectFolder
 	end script
 	
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("text-mate")
-	set uni to std's import("unicodes")
-	set textUtil to std's import("string")
-	set listUtil to std's import("list")
-end init

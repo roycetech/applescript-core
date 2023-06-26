@@ -1,5 +1,3 @@
-global std, textUtil, kb
-
 (*
 	For consistency:
 		Posix directories should never end with "/", it's up to the client to append it along with the file.
@@ -17,19 +15,25 @@ global std, textUtil, kb
 use script "Core Text Utilities"
 use scripting additions
 
-property initialized : false
-property logger : missing value
+use std : script "std"
+use textUtil : script "string"
+use listUtil : script "list"
 
+use loggerLib : script "logger"
+use kbLib : script "keyboard"
+use overriderLib : script "overrider"
 
-if name of current application is "Script Editor" then spotCheck()
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("")
+property kb : kbLib's new()
+property overrider : overriderLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "finder-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	(* Have a Finder window open and manually verify result. *)
 	set cases to listUtil's splitByLine("
@@ -48,8 +52,8 @@ on spotCheck()
 		Manual: Posix to Folder (View in Replies: User Path, Non-User Path)
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -390,11 +394,11 @@ on new()
 			if selectedFile is missing value then return missing value
 			
 			set filename to name of selectedFile
-			if class of selectedFile as text is equal to "folder" then 
+			if class of selectedFile as text is equal to "folder" then
 				if filename ends with ".app" then return "app"
 				return "folder"
 			end if
-							
+			
 			set filenameTokens to textUtil's split(filename, ".")
 			
 			last item of filenameTokens
@@ -500,22 +504,5 @@ on new()
 			calcEndFolder
 		end _posixSubPathToFolder
 	end script
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
-
-
-
-
--- Private Codes below =======================================================
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("finder")
-	set textUtil to std's import("string")
-	set kb to std's import("keyboard")'s new()
-end init

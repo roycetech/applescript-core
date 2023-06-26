@@ -1,25 +1,34 @@
-global std, retry, textUtil, uni, regex
-
-use script "Core Text Utilities"
-use scripting additions
-
 (*
 	@Known Issues:
 		
 *)
 
-property initialized : false
-property logger : missing value
+use script "Core Text Utilities"
+use scripting additions
 
-if name of current application is "Script Editor" then spotCheck()
+use listUtil : script "list"
+use textUtil : script "string"
+use regex : script "regex"
+use unic : script "unicodes"
+use extOutput : "dec-terminal-output"
+use fileUtil : script "file"
+
+use loggerLib : script "logger"
+use retryLib : script "retry"
+use terminalLib : script "terminal"
+
+use spotScript : script "spot-test"
+
+property logger : loggerLib's new("dec-terminal-prompt")
+property retry : retryLib's new()
+property terminal : terminalLib's new()
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "dec-terminal-prompt-spotCheck"
 	logger's start()
 	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	set cases to listUtil's splitByLine("
 		Manual: Is Shell Prompt - zsh, bash, docker with/out command, redis, sftp, EC2 ssh
 		Manual: Wait for Prompt
@@ -30,17 +39,15 @@ on spotCheck()
 		Manual: Last Command (Git/Non, With/out, Waiting for MFA)
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
 	
-	set extOutput to std's import("dec-terminal-output")
-	set termTabMain to std's import("terminal")'s new()
-	termTabMain's getFrontTab()
+	terminal's getFrontTab()
 	set frontTab to decorate(result)
 	set sut to extOutput's decorate(result)
 	
@@ -84,7 +91,7 @@ on decorate(termTabScript)
 			The implementation depends on your current bash or zsh theme.
 		*)
 		on gitPromptPattern()
-			set tokens to {uni's OMZ_ARROW, uni's OMZ_GIT_X}
+			set tokens to {unic's OMZ_ARROW, unic's OMZ_GIT_X}
 			format {"{}  [0-9a-zA-Z_\\s-]+\\sgit:\\([a-zA-Z0-9/_\\.()-]+\\)(?: {})?\\s?", tokens}
 		end gitPromptPattern
 		
@@ -99,7 +106,7 @@ on decorate(termTabScript)
 			Includes the space suffix.
 		*)
 		on getNonGitPrefix()
-			uni's OMZ_ARROW & "  "
+			unic's OMZ_ARROW & "  "
 		end getNonGitPrefix
 		
 		
@@ -108,7 +115,6 @@ on decorate(termTabScript)
 		*)
 		on isGitDirectory()
 			-- logger's debug("isGitDirectory...")
-			set fileUtil to std's import("file")
 			return fileUtil's posixFolderPathExists(getPosixPath() & "/.git")
 			
 			set subjectLine to getPromptText()
@@ -166,7 +172,7 @@ on decorate(termTabScript)
 			if isSSH() then
 				return true
 				
-			else if isZsh() then
+			else if isZSH() then
 				-- logger's debug("zsh...")
 				set promptText to getPromptText()
 				-- logger's debugf("promptText: {}", promptText)
@@ -208,7 +214,7 @@ on decorate(termTabScript)
 		*)
 		on getPromptText()
 			-- logger's debug("getPromptText...")
-			if not isZsh() then
+			if not isZSH() then
 				logger's warn("Bash is not yet implemented.")
 				return missing value
 			end if
@@ -224,7 +230,7 @@ on decorate(termTabScript)
 			
 			
 			
-			set position to textUtil's lastIndexOf(recentBuffer, uni's OMZ_ARROW) -- TODO: Move out.
+			set position to textUtil's lastIndexOf(recentBuffer, unic's OMZ_ARROW) -- TODO: Move out.
 			-- logger's debugf("position: {}", position)
 			if position is not 0 then
 				set promptText to text position thru -1 of recentBuffer
@@ -357,16 +363,3 @@ on decorate(termTabScript)
 		end getPrompt
 	end script
 end decorate
-
-
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("dec-terminal-prompt")
-	set retry to std's import("retry")'s new()
-	set textUtil to std's import("string")
-	set uni to std's import("unicodes")
-	set regex to std's import("regex")
-end init

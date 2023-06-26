@@ -1,7 +1,3 @@
-global std, regex, kb, retryLib
-global zoomParticipants, zoomWindow, zoomActions
-global configZoom, configBusiness
-
 (*
 	This script contains the most basic wrapper functions for the current zoom app. Mostly starting a meeting and login-related functions only for the sake of simplicity.
 
@@ -24,9 +20,6 @@ global configZoom, configBusiness
 		Sign in Dialog always appear with a meeting window regardless if already authonticated. So we try to sign in again because closing the window stops the meeting.
 *)
 
-use script "Core Text Utilities"
-use scripting additions
-
 (*
 	Usage:
 		-- join given id:"12345678"
@@ -45,18 +38,39 @@ use scripting additions
 				Zoom User Meeting ID
 *)
 
-property initialized : false
-property logger : missing value
+use listUtil : script "list"
+use regex : script "regex"
+
+use zoomActions : script "zoom-actions"
+use zoomParticipants : script "zoom-participants"
+use zoomWindow : script "zoom-window"
+
+use loggerLib : script "logger"
+use configLib : script "config"
+use plutilLib : script "plutil"
+use retryLib : script "retry"
+use kbLib : script "keyboard"
+use overriderLib : script "overrider"
+
+use spotScript : script "spot-test"
+
+property configBusiness : configLib's new("business")
+property plutil : plutilLib's new()
+property configZoom : plutil's new("zoom.us/config")
+property retry : retryLib's new()
+property kb : kbLib's new()
+property overrider : overriderLib's new()
+
+use script "Core Text Utilities"
+use scripting additions
+
+property logger : loggerLib's new("zoom")
 
 if the name of current application is "Script Editor" then spotCheck()
 
 on spotCheck()
-	init()
 	set thisCaseId to "zoom-spotCheck"
 	logger's start()
-	
-	-- If you haven't got these imports already.
-	set listUtil to std's import("list")
 	
 	set cases to listUtil's splitByLine("
 		Start Personal Meeting - End to End
@@ -72,8 +86,8 @@ on spotCheck()
 		Manual: Cycle Camera
 	")
 	
-	set spotLib to std's import("spot-test")'s new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -308,26 +322,5 @@ on new()
 	zoomParticipants's decorate(result)
 	zoomWindow's decorate(result)
 	
-	std's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
-
-
-(* Constructor. When you need to load another library, do it here. *)
-on init()
-	if initialized of me then return
-	set initialized of me to true
-	
-	set std to script "std"
-	set logger to std's import("logger")'s new("zoom.us")
-	set configBusiness to std's import("config")'s new("business")
-	set plutil to std's import("plutil")'s new()
-	set configZoom to plutil's new("zoom.us/config")
-	
-	set retryLib to std's import("retry")
-	set regex to std's import("regex")
-	set kb to std's import("keyboard")'s new()
-	
-	set zoomActions to std's import("zoom-actions")
-	set zoomParticipants to std's import("zoom-participants")
-	set zoomWindow to std's import("zoom-window")
-end init
