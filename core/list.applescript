@@ -8,12 +8,12 @@
 
 use scripting additions
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use spotScript : script "spot-test"
 use testLib : script "test"
 use textUtil : script "string"
 
-property logger : loggerLib's new("list")
+property logger : loggerFactory's newBasic("list")
 property test : testLib's new()
 
 -- #%+= are probably worth considering.
