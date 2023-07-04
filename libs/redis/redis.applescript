@@ -15,7 +15,7 @@
 
 		property redis : redisLib's new(0) -- 0 for no timeout 
 
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=libs/redis/redis
 
 	@Troubleshooting:
@@ -23,6 +23,8 @@
 		to update the cli location.
 		Run "brew services restart redis" to fix the issue with "MISCONF Redis 
 		is configured to save RDB snapshots, but it's currently unable to persist to disk"
+
+	@Last Modified: 2023-06-26 11:15:33
  *)
 
 use script "Core Text Utilities"
@@ -59,7 +61,6 @@ on spotCheck()
 		Manual: Zulu Date
 	")
 	
-	set useBasicLogging of spotScript to true
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -162,9 +163,11 @@ on new(pTimeoutSeconds)
 	script RedisInstance
 		-- 0 for no expiration.
 		property timeoutSeconds : pTimeoutSeconds
+		
 		on setValue(plistKey, newValue)
 			
 			if plistKey is missing value then return
+			if newValue is missing value then deleteKey(plistKey)
 			
 			set quotedPlistKey to quoted form of plistKey
 			set dataType to class of newValue
@@ -498,13 +501,13 @@ on new(pTimeoutSeconds)
 			if myHour is less than 10 then set myHour to "0" & myHour
 			set myMin to (second word of timeString) as integer
 			if myMin is less than 10 then set myMin to "0" & myMin
-			
+
 			set mySec to (third word of timeString) as integer
 			if mySec is less than 10 then set mySec to "0" & mySec
-			
+
 			format {"20{}-{}-{}T{}:{}:{}Z", {last word of dateString, myMonth, myDom, myHour, myMin, mySec}}
 		end _formatPlistDate
-		
+
 		-- TO Migrate, from session.
 		on debugOn()
 			getBool("DEBUG_ON")
@@ -528,7 +531,7 @@ on _split(theString, theDelimiter, plistType)
 	set AppleScript's text item delimiters to theDelimiter
 	set theArray to every text item of theString
 	set AppleScript's text item delimiters to oldDelimiters
-	
+
 	set typedArray to {}
 	repeat with nextElement in theArray
 		if plistType is "integer" then
@@ -544,7 +547,7 @@ on _split(theString, theDelimiter, plistType)
 		end if
 		set end of typedArray to typedValue
 	end repeat
-	
+
 	typedArray
 end _split
 
@@ -553,18 +556,18 @@ on _splitByLine(theString as text)
 	if theString contains (CR) then
 		return _split(theString, CR, "string") -- assuming this is shell command result, we have to split by CR.
 	end if
-	
+
 	-- Only printable ASCII characters below 127 works. tab character don't work.
 	set SEP to "@" -- #%+= are probably worth considering.
-	
+
 	if theString contains SEP or theString contains "\"" then error "Sorry but you can't have " & SEP & " or double quote in the text :("
 	if theString contains "$" and theString contains "'" then error "Sorry, but you can't have a dollar sign and a single quote in your string"
-	
+
 	set theQuote to "\""
 	if theString contains "$" then set theQuote to "'"
 	set command to "echo " & theQuote & theString & theQuote & " | awk 'NF {$1=$1;print $0}' | paste -s -d" & SEP & " - | sed 's/" & SEP & "[[:space:]]*/" & SEP & "/g' | sed 's/[[:space:]]*" & SEP & "/" & SEP & "/g' | sed 's/^" & SEP & "//' | sed 's/" & SEP & SEP & "//g' | sed 's/" & SEP & "$//'" -- failed when using escaped/non escaped plus instead of asterisk.
 	set csv to do shell script command
-	
+
 	_split(csv, SEP, "string")
 end _splitByLine
 
@@ -573,13 +576,12 @@ on _indexOf(aList, targetElement)
 		set nextElement to item i of aList
 		if nextElement as text is equal to targetElement as text then return i
 	end repeat
-	
+
 	return 0
 end _indexOf
 
 
 on unitTest()
-	set useBasicLogging of testLib to true
 	set test to testLib's new()
 	set ut to test's new()
 	set UT_REDIS_TIMEOUT to 2
@@ -601,7 +603,7 @@ on unitTest()
 		sut's deleteKey("spot-record")
 		sut's deleteKey("spot-map")
 		assertMissingValue(sut's getValue("spot-array"), "Clean array key")
-		
+
 		newMethod("setValue")
 		sut's setValue(missing value, "haha")
 		sut's setValue("spot-array", {1, 2})
@@ -616,13 +618,14 @@ on unitTest()
 		sut's setValue("spot-false", false)
 		sut's setValue("spot-true", true)
 		sut's setValue("spot text", "Multi word key")
-		
+		sut's setValue("spot missing", missing value)
+
 		newMethod("getValue")
 		assertMissingValue(sut's getValue(missing value), "missing value key")
 		assertEqual("Multi word key", sut's getValue("spot text"), "Spaced Key")
 		assertEqual("Multi word key", sut's getValue("spot text"), "Spaced Key")
 		-- assertEqual({"1", "2"}, sut's getValue("spot-array"), "Array of integers") -- Int not supported
-		
+
 		set arrayValue to sut's getValue("spot-array")
 		assertEqual(2, count of arrayValue, "Get array count")
 		assertEqual("1", first item of arrayValue, "Get array element first")
@@ -634,15 +637,15 @@ on unitTest()
 		assertEqual({"one", "two", "three", "four: colonized"}, actualRecord's getKeys(), "Get record keys")
 		assertEqual("{one: 1, two: 2, three: a&c, four: colonized: apat}", actualRecord's toString(), "Get record value")
 		*)
-		
+
 		newMethod("getValueWithDefault")
 		assertEqual("use me", sut's getValueWithDefault("spot-string-absent", "use me"), "Value is absent")
 		assertEqual("text", sut's getValueWithDefault("spot-string", 1), "Value is present")
-		
+
 		newMethod("getList")
 		assertMissingValue(sut's getList(missing value), "Missing value")
 		assertEqual({"one", "two"}, sut's getList("spot-array-string"), "Get List")
-		
+
 		newMethod("appendValue")
 		sut's appendValue("spot-array2", 3)
 		assertEqual({"3"}, sut's getList("spot-array2"), "First element")
@@ -654,7 +657,7 @@ on unitTest()
 		assertEqual({"one", "two", "four"}, sut's getList("spot-array-string"), "Append String")
 		sut's appendValue("spot-array-string", "five.five")
 		assertEqual({"one", "two", "four", "five.five"}, sut's getList("spot-array-string"), "Append dotted string")
-		
+
 		newMethod("removeElement")
 		assertEqual(0, sut's removeElement(missing value, "two"), "Missing value list")
 		assertEqual(0, sut's removeElement("spot-array-string", missing value), "Missing value element")
@@ -665,44 +668,44 @@ on unitTest()
 		sut's removeElement("spot-array-string", "five.five")
 		assertEqual({}, sut's getList("spot-array-string"), "Get after removing all element")
 		assertEqual(0, sut's removeElement("spot-array-string", "Good Putin"), "Remove inexistent element")
-		
+
 		newMethod("getInt")
 		assertMissingValue(sut's getInt(missing value), "Missing value")
 		assertEqual(1, sut's getInt("spot-integer"), "Get integer value")
-		
+
 		newMethod("getReal")
 		assertMissingValue(sut's getReal(missing value), "Missing value")
 		assertEqual(1.5, sut's getReal("spot-float"), "Get real value")
-		
+
 		newMethod("getBool")
 		assertFalse(sut's getBool("spot-none"), "Missing Value is False")
 		assertTrue(sut's getBool("spot-true"), "Verify True")
 		assertFalse(sut's getBool("spot-false"), "Verify False")
-		
+
 		newMethod("update") -- huh?!
 		sut's setValue("spot-bool", 1)
 		assertEqual(1, sut's getInt("spot-bool"), "Update bool to integer")
-		
+
 		newMethod("hasValue")
 		assertFalse(sut's hasValue(missing value), "Missing value")
 		assertFalse(sut's hasValue("spot-unicorn"), "Value not found")
 		assertTrue(sut's hasValue("spot-bool"), "Value found")
-		
+
 		newMethod("hasValue")
 		assertFalse(sut's hasValue("spot-unicorn"), "Value not found")
 		assertFalse(sut's hasValue(missing value), missing value)
-		
+
 		logger's infof("Delaying by {} to force timeout", UT_REDIS_TIMEOUT)
 		delay UT_REDIS_TIMEOUT
 		newScenario("getValue with expiry")
 		assertMissingValue(sut's getValue("spot-string"), "missing value expected after timeout elapsed")
-		
+
 		newScenario("Expiring List")
 		assertMissingValue(sut's getValue("spot-array"), "missing value expected after timeout elapsed")
 		assertMissingValue(sut's getValue("spot-array2"), "missing value expected after timeout elapsed")
 		assertMissingValue(sut's getValue("spot-array-string"), "missing value expected after timeout elapsed")
 		assertMissingValue(sut's getValue("spot-array-one-time-set"), "missing value expected after timeout elapsed")
-		
+
 		done()
 	end tell
 end unitTest
