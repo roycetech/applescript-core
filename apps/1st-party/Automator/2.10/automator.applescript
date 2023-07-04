@@ -9,12 +9,14 @@
 		user-specific keyboard maestro macro: Automator: Click At Command Phrase Input
 		clipboard.applescript - Some input fields could not be manipulated directly so the clipboard is utilized.
 	
-	@Install:
+	@Build:
 		make install-automator
 
 	WARNING: 
 		Assumes automator is not used or opened for purposes other than the exclusive use of this script.
 		Wipes out clipboard contents.
+
+	@Last Modified: 2023-07-04 14:05:31
 *)
 
 use scripting additions
@@ -22,22 +24,24 @@ use scripting additions
 use std : script "std"
 use listUtil : script "list"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use configLib : script "config"
 use syseveLib : script "system-events"
 use kbLib : script "keyboard"
 use processLib : script "process"
 use retryLib : script "retry"
+
 use overriderLib : script "overrider"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("automator")
-property configSystem : configLib's new("system")
-property syseve : syseveLib's new()
-property kb : kbLib's new()
-property retry : retryLib's new()
-property overrider : overriderLib's new()
+property logger : missing value
+
+property kb : missing value
+property configSystem : missing value
+property syseve : missing value
+property retry : missing value
+property overrider : missing value
 
 property documentType : missing value
 property windowName : missing value
@@ -45,6 +49,7 @@ property windowName : missing value
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me, "automator")
 	set thisCaseId to "automator-spotCheck"
 	logger's start()
 	
@@ -124,6 +129,13 @@ end spotCheck
 
 
 on new()
+	loggerFactory's inject(me, "automator")
+	set kb to kbLib's new()
+	set configSystem to configLib's new("system")
+	set syseve to syseveLib's new()
+	set retry to retryLib's new()
+	set overrider to overriderLib's new()
+	
 	(* Note: Handlers are ordered by which step they are called. *)
 	script AutomatorInstance
 		property newWindowName : missing value
@@ -228,10 +240,11 @@ use scripting additions
 use configLib : script \"config\"
 use fileUtil : script \"file\"
 
-property configUser : configLib's new(\"user\")
+property configUser : missing value
 
 on run {input, parameters}
 	(* Your script goes here *)
+	set configUser to configLib's new(\"user\")
 	set projectPath to configUser's getValue(\"Project " & projectPathKey & "\")
 	set scriptFilePath to projectPath & \"/" & resourcePath & "\"
 	set scriptMon to fileUtil's convertPosixToMacOsNotation(scriptFilePath)
@@ -341,16 +354,10 @@ end run
 			end tell
 		end clickSave
 		
-		
-		
-		
-		
-		
-		
 		(*
-	Fails when automator is active in the dock, and it could not be killed
-	programmatically. Thus the pkill. Re-written on December 19, 2022.
-*)
+			Fails when automator is active in the dock, and it could not be killed
+			programmatically. Thus the pkill. Re-written on December 19, 2022.
+		*)
 		on forceQuitApp()
 			if running of application "Automator" is false then return
 			

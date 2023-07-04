@@ -5,6 +5,11 @@
 	
 	@Requires
 		Calendar needs to be in "Day" view.
+		
+	@Build:
+		make compile-lib SOURCE=apps/1st-party/Calendar/11.0/calendar-event
+
+	@Last Modified: 2023-07-04 14:05:31
 *)
 
 use scripting additions
@@ -33,11 +38,13 @@ property isSpot : false
 tell application "System Events"
 	set scriptName to get name of (path to me)
 end tell
-set my isSpot to scriptName is equal to "calendar-event.applescript"
+
+set isSpot to scriptName is equal to "calendar-event.applescript"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	set skip of overrider to true
 	set thisCaseId to "calendar-event-spotCheck"
 	logger's start()
 	
@@ -88,7 +95,7 @@ on new()
 		on new(meetingStaticText, meetingBodyTextField)
 			tell application "System Events" to tell process "Calendar"
 				-- logger's debugf("MY IS_SPOT: {}", my IS_SPOT)
-				if my IS_SPOT then
+				if my isSpot then
 					set meetingDescription to |description| of meetingStaticText
 				else
 					set meetingDescription to description of meetingStaticText
@@ -133,7 +140,7 @@ Passcode: {}
 					set attributeValues to {my title, my organizer, my startTime, my endTime, my meetingId, my meetingPassword, my passcode, my active, my actioned, my accepted, my facilitator}
 					
 					set nameValueList to {}
-					set jsonBuilder to sb's new("{")
+					set jsonBuilder to sbLib's new("{")
 					repeat with i from 1 to count of attributeNames
 						if i is not 1 then jsonBuilder's append(", ")
 						set nextName to item i of attributeNames
@@ -206,7 +213,7 @@ Passcode: {}
 				set acceptTicked to false
 				-- set uiActionPerformed to false
 				
-				if not my skipEvent(meetingStaticText) and IS_SPOT is false then
+				if not my skipEvent(meetingStaticText) and isSpot is false then
 					tell application "System Events" to tell process "Calendar"
 						try
 							(*
