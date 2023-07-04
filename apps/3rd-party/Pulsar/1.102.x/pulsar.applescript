@@ -8,6 +8,11 @@
 		Project - When a project folder is selected on the side bar
 		Project Find Results
 		Welcome Guide
+		
+	@Last Modified: 2023-07-02 14:58:20
+	@Tab: AC 🚧	
+	@Build:
+		make compile-pulsar
 *)
 
 use script "Core Text Utilities"
@@ -18,7 +23,8 @@ use fileUtil : script "file"
 use unic : script "unicodes"
 use textUtil : script "string"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
+
 use listUtil : script "list"
 use retryLib : script "retry"
 use configLib : script "config"
@@ -27,18 +33,19 @@ use kbLib : script "keyboard"
 use syseveLib : script "system-events"
 use clipLib : script "clipboard"
 
-property logger : loggerLib's new("pulsar")
-property configSystem : configLib's new("system")
-property retry : retryLib's new()
-property kb : kbLib's new()
-property syseve : syseveLib's new()
-property clip : clipLib's new()
+property logger : missing value
+property configSystem : missing value
+property retry : missing value
+property kb : missing value
+property syseve : missing value
+property clip : missing value
 
 property RESERVED_DOC_NAMES : {"Settings", "Project", "Project Find Results", "Welcome Guide"}
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me, "pulsar")
 	set thisCaseId to "pulsar-spotCheck"
 	logger's start()
 	
@@ -82,6 +89,13 @@ end spotCheck
 
 
 on new()
+	loggerFactory's inject(me, "pulsar")
+	set configSystem to configLib's new("system")
+	set retry to retryLib's new()
+	set kb to kbLib's new()
+	set syseve to syseveLib's new()
+	set clip to clipLib's new()
+	
 	script PulsarInstance
 		on openFile(posixPath)
 			set pathUrl to posixPath

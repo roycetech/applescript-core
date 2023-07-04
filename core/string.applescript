@@ -7,7 +7,7 @@
 	Online Tool:
 		https://www.urlencoder.io
 		
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/string
 *)
 use scripting additions
@@ -20,15 +20,12 @@ use spotScript : script "spot-test"
 use testLib : script "test"
 
 property logger : missing value
-property test : missing value
 
 if {"Script Debugger", "Script Editor"} contains the name of current application then spotCheck()
 
 
 on spotCheck()
-	set useBasicLogging of testLib to true
-	loggerFactory's inject(me, "string")
-	
+	loggerFactory's injectBasic(me, "string")
 	set thisCaseId to "string-spotCheck"
 	logger's start()
 	
@@ -457,6 +454,7 @@ end removeEnding
 
 
 on unitTest()
+	set test to testLib's new()
 	set ut to test's new()
 	tell ut
 		newMethod("ltrim")

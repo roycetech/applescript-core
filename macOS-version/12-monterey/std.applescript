@@ -4,7 +4,7 @@
 		
 		Do not use logger here because it will result in circular dependency.
 
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=macOS-version/12-monterey/std
 *)
 
@@ -12,16 +12,17 @@ use scripting additions
 
 use loggerFactory : script "logger-factory"
 
+-- property logger : loggerFactory's newBasic("std") -- Problematic. Assignment outcome is unpredictable.
 property logger : missing value
-property username : missing value
+property username : short user name of (system info)
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's inject(me, "std")
+	loggerFactory's injectBasic(me, "spot")
 	
 	try
-		noo
+		-- noo
 	on error the errorMessage number the errorNumber
 		-- catch("spotCheck-std", errorNumber, errorMessage)
 		catch("spotCheck-std", errorNumber, "is not allowed to send keystrokes")
@@ -30,16 +31,15 @@ on spotCheck()
 	logger's infof("Username: {}", getUsername())
 	logger's infof("App Exists no: {}", appExists("Magneto"))
 	logger's infof("App Exists yes: {}", appExists("Script Editor"))
-	return
 	
 	assertThat given condition:1 + 3 < 10, messageOnFail:"failed on first assertion"
-	assertThat given condition:1 + 3 < 4, messageOnFail:"failed on second assertion"
+	-- assertThat given condition:1 + 3 < 4, messageOnFail:"failed on second assertion"
 end spotCheck
 
 
 (* My general catch handler for all my scripts. Used as top most only. *)
 on catch(source, errorNumber, errorMessage)
-	loggerFactory's inject(me, "std")
+	loggerFactory's injectBasic(me, "std")
 	
 	if errorMessage contains "user canceled" or errorMessage contains "abort" then
 		logger's warn(errorMessage)
@@ -74,13 +74,13 @@ on catch(source, errorNumber, errorMessage)
 end catch
 
 
--- on appExists(bundleId)
--- 	try
--- 		tell application "Finder" to get application file id bundleId
--- 		return true
--- 	end try
--- 	false
--- end appExists
+on appWithIdExists(bundleId)
+	try
+		tell application "Finder" to get application file id bundleId
+		return true
+	end try
+	false
+end appWithIdExists
 
 
 on appExists(appName)
@@ -99,9 +99,9 @@ end getUsername
 
 
 on assertThat given condition:condition as boolean, messageOnFail:message : missing value
-	loggerFactory's inject(me, "std")
-	
 	if condition is false then
+		loggerFactory's injectBasic(me, "std")
+		
 		-- set loggerLib to script "logger"
 		-- set logger to loggerLib's new()
 		
@@ -119,3 +119,11 @@ on ternary(condition, ifTrue, otherwise)
 	
 	otherwise
 end ternary
+
+
+(*  *)
+on nvl(nonMissingValue, ifMissingValue)
+	if nonMissingValue is missing value then return ifMissingValue
+	
+	nonMissingValue
+end nvl

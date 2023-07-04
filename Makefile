@@ -90,7 +90,7 @@ $(STUB_LIBS): Makefile
 	./scripts/compile-lib.sh $@
 
 $(CORE_LIBS): Makefile
-	./scripts/compile-lib.sh core/$@ || true
+	./scripts/compile-lib.sh core/$@
 
 uninstall:
 	# TODO
@@ -115,15 +115,18 @@ compile-core-bundle:
 
 # There are circular dependency issue that needs to be considered. You may need
 # to re-order the build of the script depending on which script is needed first.
+build: compile
+
 compile: compile-stub compile-standard compile-core-bundle compile-core compile-control-center compile-user
 
 compile-stub: $(STUB_LIBS)
 	@echo "Stubs compiled. This target is meant to help compile other scripts. \
 Make sure this is not the last target you run, otherwise the scripts that \
-need the real libary will fail."
+need the real library will fail."
 
 compile-core: $(CORE_LIBS)
 	@echo "Core libraries compiled."
+
 
 compile-lib:
 	./scripts/compile-lib.sh $(SOURCE)
@@ -153,6 +156,12 @@ reveal-apps:
 reveal-stay-open:
 	open $(APPS_PATH)/Stay\ Open
 
+
+test-unit:
+test-integration:
+test-all:
+#
+#
 
 # Extra Libraries ================================
 # Suggestion: Install related core libraries so that related updates don't
@@ -284,14 +293,20 @@ else
 endif
 
 # 3rd Party Apps Library
-install-1password: install-cliclick
-	./scripts/compile-lib.sh apps/3rd-party/1Password/v6/1password
+compile-one-password:
+	./scripts/compile-lib.sh apps/3rd-party/1Password/v6/one-password
+
+install-1password: compile-one-password install-cliclick
 
 install-atom:  ## Deprecated
 	./scripts/compile-lib.sh apps/3rd-party/Atom/1.60.0/atom
 
-install-pulsar:
+
+compile-pulsar:
 	./scripts/compile-lib.sh apps/3rd-party/Pulsar/1.102.x/pulsar
+
+install-pulsar: compile-pulsar
+
 
 install-keyboard-maestro:
 	./scripts/compile-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro
@@ -300,14 +315,18 @@ install-keyboard-maestro:
 install-last-pass:
 	./scripts/compile-lib.sh apps/3rd-party/LastPass/4.4.x/last-pass
 
-install-marked:
+compile-marked:
 	./scripts/compile-lib.sh apps/3rd-party/Marked/2.6.18/marked
 
 install-step-two:
 	./scripts/compile-lib.sh apps/3rd-party/Step Two/3.1/step-two
 
-install-sequel-ace:
+
+compile-sequel-ace:
 	./scripts/compile-lib.sh apps/3rd-party/Sequel Ace/4.0.x/sequel-ace
+
+install-sequel-ace: compile-sequel-ace
+
 
 install-stream-deck:
 	./scripts/compile-lib.sh apps/3rd-party/Stream Deck/6.x/stream-deck
@@ -318,9 +337,11 @@ install-stream-deck:
 		~/applescript-core/config-lib-factory.plist
 
 
-install-sublime-text:
+compile-sublime-text:
 	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/sublime-text
 	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/dec-syseve-with-sublime-text
+
+install-sublime-text: compile-sublime-text
 	osascript ./scripts/setup-sublime-text-cli.applescript
 	plutil \
 		-replace 'SysEveInstance' \
@@ -374,23 +395,28 @@ install-jira:
 
 
 # Optional with 3rd party app dependency.
-install-json:
+compile-json:
 	./scripts/compile-lib.sh libs/json/json
+
+install-json: compile-json
 
 
 compile-logger:
 	./scripts/compile-lib.sh core/logger
 
-install-log4as:
+
+compile-log4as:
 	./scripts/compile-lib.sh libs/log4as/log4as
 	./scripts/compile-lib.sh core/decorators/dec-logger-log4as
+
+install-log4as: compile-log4as
 # 	plutil -replace 'LoggerSpeechAndTrackingInstance' -string 'dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
 	plutil -replace 'LoggerInstance' -string 'dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
-	cp -n plist.template ~/applescript-core/log4as.plist || true
+	cp -n libs/log4as/log4as.plist.template ~/applescript-core/log4as.plist || true
 	plutil -replace 'defaultLevel' -string 'DEBUG' ~/applescript-core/log4as.plist
 	plutil -replace 'printToConsole' -bool true ~/applescript-core/log4as.plist
 	plutil -replace 'writeToFile' -bool true ~/applescript-core/log4as.plist
-	plutil -insert Categories -xml "<dict></dict>" ~/applescript-core/log4as.plist || true
+	plutil -insert categories -xml "<dict></dict>" ~/applescript-core/log4as.plist || true
 
 compile-redis:
 	./scripts/compile-lib.sh libs/redis/redis

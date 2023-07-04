@@ -7,13 +7,16 @@
 		- Map of Maps!
 		- Saving to plist.
 		
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/map
 *)
 
 use framework "Foundation"
 use script "Core Text Utilities"
+
 use scripting additions
+
+use std : script "std"
 
 use listUtil : script "list"
 use textUtil : script "string"
@@ -27,24 +30,16 @@ use spotScript : script "spot-test"
 use testLib : script "test"
 
 property logger : missing value
-property config : configLib's new("system")
-
-property test : testLib's new()
-
 property jsonLib : missing value
-property useBasicLogging : false
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	log 1
-	set useBasicLogging to true
-	loggerFactory's inject(me, "map")
-	log 2
+	loggerFactory's injectBasic(me, "map")
 	set thisCaseId to "map-spotCheck"
 	logger's start()
-	log 3
 	
+	set config to configLib's new("system")
 	set cases to listUtil's splitByLine("
 		Unit Test
 		From PList - Skip this
@@ -57,12 +52,11 @@ on spotCheck()
 		Debug multiple colon
 		Map of Maps
 		Dollar Sign
+
+		Has JSON Support
 	")
 	
-	log 4
-	set useBasicLogging of spotScript to true
 	set spotClass to spotScript's new()
-	log 5
 	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
@@ -70,9 +64,7 @@ on spotCheck()
 		return
 	end if
 	
-	log 6
 	if caseIndex is 1 then
-		log 7
 		unitTest()
 		
 	else if caseIndex is 2 then
@@ -152,6 +144,11 @@ on spotCheck()
 			amazing OWA: kmtrigger://macro=Open%20Safari%20Group&amp;value=amazing%20OWA$Special
 		")
 		log sut's toString()
+		
+		
+	else if caseIndex is 11 then
+		logger's infof("Has JSON Support: {}", hasJsonSupport())
+		
 	end if
 	
 	
@@ -204,7 +201,8 @@ end newFromRecord
 
 
 on hasJsonSupport()
-	if not std's appExists("com.vidblishen.jsonhelper") then return false
+	if not std's appWithIdExists("com.vidblishen.jsonhelper") then return false
+	-- if not std's appExists("JSON Helper") then return false
 	
 	try
 		set jsonScriptName to "json"
@@ -258,9 +256,6 @@ on new()
 		(* Private properties *)
 		property __keys : {}
 		property __values : {}
-		
-		property __checkDataIntegrity : true
-		
 		
 		on isEmpty()
 			(number of getKeys()) is 0
@@ -625,51 +620,35 @@ end new
 	Put the case you are debugging at the top, and move to correct place once verified.
 *)
 on unitTest()
-	set useBasicLogging of test to true
+	set test to testLib's new()
 	set ut to test's new()
 	tell ut
-		log 8
 		newMethod("newInstanceFromRecord - missing value")
-		set sut to my newFromRecord({|none|:missing value})
-		log 9
+		set sut to my newFromRecord({none:missing value})
 		assertMissingValue(sut's getValue("none"), "Missing Value")
-		log 10
 		
 		newMethod("newFromString")
 		set sut to my newFromString("
 			ts: TypeScript
 			md: Markdown
 		")
-		log 11
 		set actual to sut's getValue("ts")
-		log actual
-		log its name
-		log name of sut
-		log useBasicLogging of sut
-		assertEqual("1", "1", "grrr")
-		log 11.5
 		assertEqual("TypeScript", "TypeScript", "First Item")
-		log 12
 		assertEqual("Markdown", sut's getValue("md"), "Second Item")
-		log 13
 		assertMissingValue(sut's getValue("nah"), "Not found")
 		
-		log 14
 		newMethod("toJsonString")
 		assertEqual("{\"ts\": \"TypeScript\", \"md\": \"Markdown\"}", sut's toJsonString(), "Basic")
 		
-		log 13
 		newMethod("clear")
 		sut's clear()
 		assertEqual("{}", sut's toJsonString(), "Basic")
 		
-		log 14
 		newMethod("isEmpty")
 		set sut to my new()
 		assertTrue(sut's isEmpty(), "Empty")
 		sut's putValue("first", "una")
 		assertFalse(sut's isEmpty(), "Non-Empty")
-		log 99
 		done()
 	end tell
 end unitTest

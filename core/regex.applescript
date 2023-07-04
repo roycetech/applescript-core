@@ -5,7 +5,7 @@
 	Tried both sed and ruby.  Let's use ruby for more flexibility and familiarity.
 	WARNING: Do not use unicode characters, it does not work with the ruby commandline!
 	
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/regex
 *)
 
@@ -13,22 +13,23 @@ use framework "Foundation"
 use scripting additions
 
 use std : script "std"
-use loggerLib : script "logger"
+
 use textUtil : script "string"
 use listUtil : script "list"
+
+
+use loggerFactory : script "logger-factory"
 
 use spotScript : script "spot-test"
 
 use testLib : script "test"
 
-property test : testLib's new()
-
-property logger : loggerLib's new("regex")
-property useBasicLogging : false
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "regex")
 	set thisCaseId to "regex-spotCheck"
 	logger's start()
 	
@@ -38,19 +39,14 @@ on spotCheck()
 		Case Insensitive Match
 	")
 	
-	log 2
 	set spotClass to spotScript's new()
-	log 3
 	set spot to spotClass's new(thisCaseId, cases)
-	log 4
 	set {caseIndex, caseDesc} to spot's start()
-	log 5
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
 	
-	log 3
 	if caseIndex is 1 then
 		unitTest()
 		
@@ -215,6 +211,7 @@ end escapePattern
 	Put the case you are debugging at the top, and move to correct place once verified.
 *)
 on unitTest()
+	set test to testLib's new()
 	set ut to test's new()
 	tell ut
 		newMethod("lastMatchInString")

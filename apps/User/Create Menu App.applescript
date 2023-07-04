@@ -5,7 +5,7 @@
 	This app is created for menu-type stay open apps because doing it via 
 	osacompile breaks the app.
 	
-	@Deployment:
+	@Build:
 		Run "Create Automator App" while this script is loaded in Script Editor.
 		Grant Accessibility permission to the generated app.
 	
@@ -19,14 +19,15 @@ use scripting additions
 use std : script "std"
 
 use switchLib : script "switch"
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use seLib : script "script-editor"
 use speechLib : script "speech"
 use retryLib : script "retry"
 use plutilLib : script "plutil"
 use finderLib : script "finder"
 
-property logger : loggerLib's new("Create Menu App")
+property logger : missing value
+
 property se : seLib's new()
 property retry : retryLib's new()
 property plutil : plutilLib's new()
@@ -37,10 +38,11 @@ property session : plutil's new("session")
 property speech : speechLib's new(missing value)
 
 property scriptName : missing value
-property isSpot : false
+property isSpot : {"Script Editor", "Script Debugger"} contains the name of current application
 
 tell application "System Events" to set scriptName to get name of (path to me)
-if {"Script Editor", "Script Debugger"} contains the name of current application then set isSpot to true
+
+loggerFactory's injectBasic(me, "Create Menu App")
 
 logger's start()
 
@@ -55,7 +57,6 @@ logger's finish()
 
 -- HANDLERS ==================================================================
 on main()
-	
 	if running of application "Script Editor" is false then
 		logger's info("This app was designed to deploy the currently opened document in Script Editor")
 		return

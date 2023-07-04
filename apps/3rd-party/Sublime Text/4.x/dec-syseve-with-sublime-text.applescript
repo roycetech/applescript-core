@@ -1,5 +1,3 @@
-global std
-
 (* 
 	@Prerequisites:
 		Sublime Text app installed.
@@ -9,18 +7,20 @@ global std
 		Install/Uninstall this with the other Sublime Text related libraries by 
 		running `make install` or make uninstall in this file's sub directory.
 *)
+use std : script "std"
+
 use listUtil : script "list"
+use loggerFactory : script "logger-factory"
+use syseveLib : script "system-events"
 
 use spotScript : script "spot-test"
 
-use loggerLib : script "logger"
-use syseveLib : script "system-events"
-
-property logger : loggerLib's new("dec-syseve-with-sublime-text")
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "dec-syseve-with-sublime-text")
 	set caseId to "dec-keyboard-dvorak-cmd-spotCheck"
 	logger's start()
 	
@@ -40,7 +40,10 @@ on spotCheck()
 	delay 0.01
 	
 	if caseIndex is 1 then
-		logger's infof("Process Name: {}", sut's getFrontAppName())
+		set appName to sut's getFrontAppName()
+		logger's infof("Process Name: {}", appName)
+		assertThat of std given condition:sut's getFrontAppName() is "Sublime Text", messageOnFail:"Expected app name is 'Sublime Text' but got " & appName
+		logger's info("Passed")
 		
 	end if
 	activate
@@ -52,6 +55,7 @@ end spotCheck
 (* *)
 
 on decorate(baseScript)
+	loggerFactory's injectBasic(me, "dec-syseve-with-sublime-text")
 	
 	script SyseveSublimeTextInstance
 		property parent : baseScript

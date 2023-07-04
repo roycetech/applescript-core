@@ -1,4 +1,8 @@
 (*
+
+	@Requires:
+		Permission to access the Calendar app.
+		
 	@Plists
 		counter
 			calendar.getMeetingsAtThisTime - for other scripts to limit this 
@@ -15,15 +19,18 @@
 	When parsing meetings for the day, list of records will be returned. In 
 	parallel, a list ACTIVE_MEETINGs will contain the references to the UI.
 	
+	
 	TODO: 
 		Broken when using 24H time format.
 		- Organizer still unreliably derived as of March 2, 2022
 		- Re-implement using native scripting
 		- Add multiple timezone support.
+
+	@Build:
+		make compile-calendar
 *)
 
-
--- global std, regex, textUtil, retry, sb, calendarEvent, counter, plutil, dt, kb, configUser, uiutil
+-- global regex, textUtil, retry, sb, calendarEvent, counter, plutil, dt, kb, configUser, uiutil
 -- global decoratorCalView, calProcess
 
 use script "Core Text Utilities"
@@ -34,11 +41,11 @@ use textUtil : script "string"
 use regex : script "regex"
 use counter : script "counter"
 use dt : script "date-time"
+use loggerFactory : script "logger-factory"
 
 use decoratorCalendarView : script "dec-calendar-view"
 use calendarEvent : script "calendar-event"
 
-use loggerLib : script "logger"
 use overriderLib : script "overrider"
 use sbLib : script "string-builder"
 use uiutilLib : script "ui-util"
@@ -49,24 +56,25 @@ use plutilLib : script "plutil"
 use processLib : script "process"
 use kbLib : script "keyboard"
 
-
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("calendar")
-property uiutil : uiutilLib's new()
-property retry : retryLib's new()
-property plutil : plutilLib's new()
-property configUser : configLib's new("user")
-property calendarProcess : processLib's new("Calendar")
-property kb : kbLib's new()
+property logger : missing value
+property uiutil : missing value
+property retry : missing value
+property plutil : missing value
+property configUser : missing value
+property calendarProcess : missing value
+property kb : missing value
 
 property overrider : overriderLib's new()
-
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	set thisCaseId to "calendar-next-spotCheck"
+	loggerFactory's injectBasic(me, "calendar")
+	set skip of overrider to true
+	
+	set thisCaseId to "calendar-spotCheck"
 	logger's start()
 	
 	(* Manual Visual Verification. *)
@@ -223,6 +231,14 @@ end spotCheck
 
 
 on new()
+	loggerFactory's injectBasic(me, "calendar")
+	set uiutil to uiutilLib's new()
+	set retry to retryLib's new()
+	set plutil to plutilLib's new()
+	set configUser to configLib's new("user")
+	set calendarProcess to processLib's new("Calendar")
+	set kb to kbLib's new()
+	
 	script CalendarInstance
 		property IS_TEST : false
 		property TEST_DATETIME : missing value
@@ -401,7 +417,6 @@ on new()
 			tell application "System Events" to tell application process "Calendar"
 				repeat with nextST in static texts of list 1 of group 1 of splitter group 1 of window "Calendar"
 					set uiSutBody to uiutil's findUiWithIdAttribute(UI elements of group 1 of splitter group 1 of window "Calendar", "notes-field") -- Can be text field or static text.
-					-- assertThat of std given condition:uiSutBody is not missing value, messageOnFail:"Unable to get event body"
 					
 					set meetingDetail to calendarEvent's new(nextST, uiSutBody)
 					my _moveToNextEventViaUI()
@@ -463,7 +478,7 @@ on new()
 		end getOnlineMeetingsAtThisTime
 	end script
 	
-	decoratorCalView's decorate(CalendarInstance)
+	decoratorCalendarView's decorate(CalendarInstance)
 	overrider's applyMappedOverride(result)
 end new
 

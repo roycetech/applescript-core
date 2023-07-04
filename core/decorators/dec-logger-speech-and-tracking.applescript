@@ -19,6 +19,7 @@ on spotCheck()
 	sut's fatal("hello")
 end spotCheck
 
+
 on newSpotBase()
 	script SpotBaseInstance
 		on fatal(logMessage)
@@ -27,7 +28,6 @@ on newSpotBase()
 	end script
 end newSpotBase
 
-
 (* *)
 on decorate(baseScript)
 	script LoggerSpeechAndTrackingInstance
@@ -35,7 +35,7 @@ on decorate(baseScript)
 		
 		on fatal(logMessage)
 			continue fatal(logMessage)
-						
+			
 			if logMessage does not contain "User canceled" then
 				if (count of characters of logMessage) is less than 141 then speech's speak(logMessage)
 			end if

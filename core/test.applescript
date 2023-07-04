@@ -1,23 +1,19 @@
 (*
-	@Deployment:
+	@Tab: AC
+	@Build:
 		make compile-lib SOURCE=core/test
 *)
 
 use script "Core Text Utilities"
 use scripting additions
 
-use loggerLib : script "logger"
 use loggerFactory : script "logger-factory"
 
 property logger : missing value
 
-(* This is used when this library is used to test a core library to make sure it doesn't go into a circular dependency. *)
-property useBasicLogging : false
-
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	set useBasicLogging to true
 	loggerFactory's inject(me, "test")
 	logger's start()
 	
@@ -75,8 +71,8 @@ end assert
 -- Private Codes below =======================================================
 
 on new()
-	loggerFactory's inject(me, "test")
-	
+	loggerFactory's injectBasic(me, "test")
+
 	script TestInstance
 		property method : missing value
 		property methodCounter : 0
@@ -117,15 +113,25 @@ on new()
 		
 		on assertNotMissingValue(actual, caseDesc)
 			set caseDescIndexed to formatCaseIndexed(caseDesc)
+			logger's info(caseDescIndexed)
+
 			if actual is missing value then error "Assertion failed for \"" & caseDesc & "\": Expected any value, but got missing value instead."
+		end assertNotMissingValue
+
+		on assertHasValue(actual, caseDesc)
+			assertNotMissingValue(actual, caseDesc)
 		end assertNotMissingValue
 		
 		on assertMissingValue(actual, caseDesc)
 			set caseDescIndexed to formatCaseIndexed(caseDesc)
+			logger's info(caseDescIndexed)
+
 			if actual is not missing value then error "Assertion failed for \"" & caseDesc & "\": Expected missing value, but got \"" & actual & "\" value instead."
 		end assertMissingValue
 		
 		on fail(caseDesc)
+			logger's info(formatCaseIndexed(caseDesc))
+
 			error "Assertion failed for \"" & caseDesc & "\": Expected not to reach this code"
 		end fail
 		

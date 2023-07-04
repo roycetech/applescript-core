@@ -1,18 +1,24 @@
 (*
 	This library is used to detect if the user is idle for a given time.
+	
+	@Build:
+		make compile-lb SOURCE=core/idler
 *)
 
 use scripting additions
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
+
 use listUtil : script "list"
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("idler")
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "idler")
+	
 	set thisCaseId to "idler-spotCheck"
 	logger's start()
 	
@@ -33,21 +39,21 @@ on spotCheck()
 	set sutThreshold to 2
 	set sut to new(sutThreshold)
 	if caseIndex is 1 then
-		log sut's isIdleFor(1)
+		logger's infof("Handler result: {}", sut's isIdleFor(1))
 		delay 2
-		log sut's isIdleFor(1)
+		logger's infof("Handler result after 2 seconds sleep: {}", sut's isIdleFor(1))
 		
 	else if caseIndex is 2 then
-		log sut's isIdle() -- false
+		logger's infof("Handler result: {}", sut's isIdle())
 		delay 1
-		log sut's isIdle() -- still false
-		delay 1
-		log sut's isIdle() -- true
+		logger's infof("Handler result after 1 second: {}", sut's isIdle())
+		delay 1.5
+		logger's infof("Handler result after another 1 second: {}", sut's isIdle())
 		
 	else if caseIndex is 3 then
-		log sut's idleInSeconds()
+		logger's infof("Handler result: {}", sut's idleInSeconds())
 		delay 1.5
-		log sut's idleInSeconds()
+		logger's infof("Handler result: {}", sut's idleInSeconds())
 		
 	end if
 	

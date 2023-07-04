@@ -9,15 +9,17 @@
 
 use scripting additions
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use listUtil : script "list"
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("clipboard")
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "clipboard")
+	
 	set thisCaseId to "clipboard-spotCheck"
 	logger's start()
 	

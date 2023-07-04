@@ -1,20 +1,35 @@
 (*
-	@Installation:
-		make install-marked
+	@Last Modified: 2023-07-02 20:43:45
+	
+	@Version: 2.16.18
+	
+	@Build:
+		make compile-marked
+
+	@Known Issues:
+		July 2, 2023 8:39 PM - Application keeps reference to closed windows, we need to use System Events instead to check actual windows.
 *)
+
+use std : script "std"
 
 use listUtil : script "list"
 use fileUtil : script "file"
 use regex : script "regex"
 
+use loggerFactory : script "logger-factory"
+
+
 use loggerLib : script "logger"
 use configLib : script "config"
 
-property logger : loggerLib's new("marked")
+use spotScript : script "spot-test"
+
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
-to spotCheck()
+on spotCheck()
+	loggerFactory's injectBasic(me, "marked")
 	set thisCaseId to "marked-spotCheck"
 	logger's start()
 	
@@ -28,7 +43,7 @@ to spotCheck()
 		Get Front Tab - Manual (Test Zoomed and non Zoomed)
 		
 		Manual: Find Tab With Name
-		Close Tab
+		Manual: Close Tab
 		Open File - Free Style 1-2s
 		Open File Asynchronous
 		Toggle Dark Mode
@@ -92,20 +107,24 @@ to spotCheck()
 		logger's infof("Open file: {}", markedTab1's getDocumentName())
 		
 	else if caseIndex is 5 then
-		set frontTab to getFrontTab()
-		logger's infof("Open file: {}", frontTab's getDocumentName())
+		set frontTab to sut's getFrontTab()
+		if frontTab is missing value then
+			logger's info("No window found")
+			
+		else
+			logger's infof("Open document name: {}", frontTab's getDocumentName())
+		end if
 		
 	else if caseIndex is 6 then
-		-- set mdTab to findTabWithName("Safari-general.md")
-		set mdTab to sut's findTabWithName("Installer-general.md")
-		if mdTab is not missing value then log mdTab's getDocumentName()
+		set mdTab to sut's findTabWithName("Safari-general.md")
+		assertThat of std given condition:mdTab is not missing value, messageOnFail:"Expected found but missing"
 		
 		set mdTabMissing to sut's findTabWithName("Safari-general.mdx")
-		log mdTabMissing
-		-- log isDocOpen("Safari-general.mdx")
+		assertThat of std given condition:(mdTabMissing is missing value), messageOnFail:"Expected missing but present"
+		logger's info("Passed.")
 		
 	else if caseIndex is 7 then
-		set mdTab to sut's findTabWithName("Sublime Text-general.md")
+		set mdTab to sut's findTabWithName("example-2.md")
 		if mdTab is not missing value then mdTab's closeTab()
 		
 	else if caseIndex is 8 then
@@ -130,6 +149,8 @@ to spotCheck()
 end spotCheck
 
 on new()
+	loggerFactory's injectBasic(me, "marked")
+	
 	script MarkedInstance
 		on turnOnDarkMode()
 			tell application "System Events" to tell process "Marked"
@@ -227,6 +248,7 @@ on new()
 		
 		on getFrontTab()
 			if running of application "Marked" is false then return missing value
+			if _getSysEveWindowCount() is 0 then return missing value
 			
 			tell application "Marked"
 				try
@@ -238,11 +260,21 @@ on new()
 		end getFrontTab
 		
 		
+		(*
+			@Known Issues:
+				Application keeps reference to closed windows, we need to use System Events instead to check actual windows.
+		*)
 		on findTabWithName(documentName)
+			if running of application "Marked" is false then return missing value
+			
+			tell application "System Events" to tell process "Marked"
+				if (count of (windows whose name contains documentName)) is 0 then return missing value
+			end tell
+			
 			try
 				tell application "Marked"
 					-- set appWindow to first window whose name is documentName
-					set appWindow to first window whose name starts with documentName
+					set appWindow to first window whose name contains documentName
 				end tell
 			on error
 				return missing value
@@ -267,6 +299,9 @@ on new()
 			script MarkedTabInstance
 				property appWindow : pAppWindow
 				
+				(*
+					NOTE: Take into account when the document is zoomed, the percentage is displayed in the window title.
+				*)
 				on getDocumentName()
 					set windowName to name of appWindow
 					set zoomLessName to regex's firstMatchInString(".*(?=\\s\\(\\d{2}%\\))", windowName)

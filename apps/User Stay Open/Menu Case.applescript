@@ -8,7 +8,8 @@
 
 	@Known Issues:
 		Upon cases change, the menu items gets duplicated, but gets fixed after 
-		a few seconds. 
+		a few seconds.
+		Could not export as app as of June 27, 2023 2:50 PM.
 
 	Refreshes menu automatically every 5.
 	NOTE: On Option+click, must hold option longer for the handler to detect it.
@@ -28,6 +29,7 @@ property internalMenuItem : class "NSMenuItem"
 property externalMenuItem : class "NSMenuItem"
 property newMenu : class "NSMenu"
 
+
 use std : script "std"
 
 use textUtil : script "string"
@@ -35,29 +37,34 @@ use listUtil : script "list"
 use emoji : script "emoji"
 use unic : script "unicodes"
 
---use loggerLib : script "logger"
---use speechLib : script "speech"
---use mapLib : script "map"
---use switchLib : script "switch"
-use plutilLib :
-
+use loggerFactory : script "logger-factory"
+use speechLib : script "speech"
+use mapLib : script "map"
+use switchLib : script "switch"
+use plutilLib : script "plutil"
 
 use spotScript : script "spot-test"
 
--- property logger : loggerLib's new("Menu Case")
--- property speech : speechLib's new(missing value)
-property plutil : plutilLib's new()
+property logger : missing value
+property speech : speechLib's new(missing value)
+
+property plutil : plutilLib's new() -- WARNING: This line is causing problems exporting this file as an app.
 
 property session : plutil's new("session")
+
+-- property isSpot : {"Script Editor", "Script Debugger"} contains the name of current application
+-- Spot remained true after deploying!
 property isSpot : false
+
 property idleSeconds : 5
 property cases : {}
 property caseId : missing value
 property caseIndex : 1
 property autoIncrement : false
 
+loggerFactory's injectBasic(me, "Menu Case")
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then set isSpot to true
+logger's start()
 
 set spotLib to spotScript's new()
 spotLib's setSessionCaseIndex(0)
@@ -67,7 +74,9 @@ session's setValue("Current Case Index", 0)
 session's setValue("Case Labels", {})
 session's deleteKey("Case ID")
 
-logger's start()
+
+set isSpot to {"Script Editor", "Script Debugger"} contains the name of current application
+
 
 if isSpot then
 	idle {}
@@ -107,7 +116,6 @@ on makeMenus()
 	-- newMenu's removeAllItems() -- Causes brief duplication because it awaits UI refresh.
 	
 	set currentCaseIndex to session's getInt("Current Case Index")
-	
 	StatusItem's setTitle:(getMenuBarIcon() & currentCaseIndex)
 	
 	if session's getString("Case ID") is not missing value then
@@ -165,7 +173,7 @@ end makeMenus
 
 
 on idle
-	try
+	try		
 		set currentCases to cases
 		set retrievedCases to session's getList("Case Labels")
 		if retrievedCases is missing value then set retrievedCases to {}
@@ -183,7 +191,7 @@ on idle
 			set my caseId to session's getString("Case ID")
 			set my caseIndex to session's getInt("Current Case Index")
 			set my autoIncrement to switchLib's active("Auto Increment Case Index")
-		else
+		else if not isSpot then
 			StatusItem's setTitle:(getMenuBarIcon() & my caseIndex)
 		end if
 	on error the errorMessage number the errorNumber

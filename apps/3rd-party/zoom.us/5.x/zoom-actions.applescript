@@ -4,7 +4,7 @@
 	@Related:
 		zoom.applescript
 
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=apps/3rd-party/zoom.us/5.x/zoom-actions
 *)
 

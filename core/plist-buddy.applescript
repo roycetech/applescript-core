@@ -1,5 +1,5 @@
 (*
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/plist-buddy
 *)
 
@@ -10,25 +10,28 @@ use std : script "std"
 
 use textUtil : script "string"
 use listUtil : script "list"
+
 use regex : script "regex"
+
 use loggerFactory : script "logger-factory"
+
+use configLib : script "config"
 
 use spotScript : script "spot-test"
 
 use testLib : script "test"
 
-property test : testLib's new()
-
-property useBasicLogging : false
 property logger : missing value
 property CLI : "/usr/libexec/PlistBuddy"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
+-- /usr/libexec/PlistBuddy -c "Print ':Code:\ CFML\ Lint'"  '/Users/rye/Projects/@amaysim-ph/applescript-core/test/fixtures/plist-buddy-test.plist'
+
+-- /usr/libexec/PlistBuddy -c "Print ':mobile-bss\\:Code\\:\\ CFML\\ Lint'"  '/Users/rye/Projects/@amaysim-ph/applescript-core/test/fixtures/plist-buddy-test.plist'
+
 on spotCheck()
-	set useBasicLogging to true
-	loggerFactory's inject(me, "plist-buddy")
-	
+	loggerFactory's injectBasic(me, "plist-buddy")
 	set thisCaseId to "plist-buddy-spotCheck"
 	logger's start()
 	
@@ -85,7 +88,7 @@ end spotCheck
 
 (*  *)
 on new(pPlistName)
-	loggerFactory's inject(me, "plist-buddy")
+	loggerFactory's injectBasic(me, "plist-buddy")
 	
 	set AS_CORE_PATH to "/Users/" & std's getUsername() & "/applescript-core/"
 	set localPlistPosixPath to AS_CORE_PATH & pPlistName & ".plist"
@@ -99,28 +102,51 @@ on new(pPlistName)
 	
 	script PlistBuddyInstance
 		property plistFilename : calcPlistFilename
-		property plistName : pPlistName
 		property quotedPlistPosixPath : quoted form of localPlistPosixPath
 		
-		on getValue(keyName)
-			set escapedKey to _escapeKey(keyName)
-			-- logger's debugf("escapedKey: {}", escapedKey)
+		(* Unused here but present so it can be queried when debugging. *)
+		property plistName : pPlistName
+		
+		on getValue(keyNameOrList)
+			if class of keyNameOrList is text then
+				set keyNameList to {keyNameOrList}
+			else
+				set keyNameList to keyNameOrList
+			end if
 			
-			set command to format {"{} -c \"Print :'{}'\"  {}", {CLI, escapedKey, quotedPlistPosixPath}}
+			set keynameBuilder to "" -- May be a bad idea to use the string-builder library.
+			repeat with nextKeyName in keyNameList
+				if keynameBuilder is not "" then set keynameBuilder to keynameBuilder & ":"
+				set keynameBuilder to keynameBuilder & _escapeKey(nextKeyName)
+			end repeat
+			
+			-- set escapedKey to _escapeKey(keyName)
+			-- logger's debugf("keynameBuilder: {}", keynameBuilder)
+			
+			set command to format {"{} -c \"Print ':{}'\"  {}", {CLI, keynameBuilder, quotedPlistPosixPath}}
 			-- logger's debugf("command: {}", command)
 			
-			do shell script command
+			try
+				return do shell script command
+			end try
+			
+			missing value
 		end getValue
 		
 		(*
 			WARNING: tilde character is used as separator, this will break if it is used in any of the keys.
 		*)
 		on getKeys()
-			set command to format {"{} -c \"Print\" {} | grep -E '^\\s*[^[:space:]]+\\s*=' | awk '{print $1}' | paste -s -d~ -", {CLI, quotedPlistPosixPath}}
+			-- set keysPattern to "^\\s*[^[:space:]]+\\s*="
+			set keysPattern to "^.*?="
+			
+			set command to format {"{} -c \"Print\" {} | grep -E '{}' | awk -F= '{print $1}' | awk '{$1=$1};1' | paste -s -d~ -", {CLI, quotedPlistPosixPath, keysPattern}}
 			-- logger's debugf("command: {}", command)
 			
 			try
 				set csv to do shell script command
+				if csv is "" then return {}
+				
 				return textUtil's split(csv, "~")
 			on error the errorMessage number the errorNumber
 				logger's warn(errorMessage)
@@ -129,6 +155,26 @@ on new(pPlistName)
 			{}
 		end getKeys
 		
+		(*
+			@keyName - use the PListBuddy key format.
+		*)
+		on getDictionaryKeys(keyName)
+			-- set keysPattern to "^\\s*[^[:space:]]+\\s*="
+			set keysPattern to "^.*?="
+			set command to format {"{} -c \"Print :'{}'\" {} | grep -E '{}' | awk -F= '{print $1}' | awk '{$1=$1};1' | paste -s -d~ -", {CLI, keyName, quotedPlistPosixPath, keysPattern}}
+			-- logger's debugf("getDictionaryKeys command: {}", command)
+			
+			try
+				set csv to do shell script command
+				if csv is "" then return {}
+				
+				return textUtil's split(csv, "~")
+			on error the errorMessage number the errorNumber
+				logger's warn(errorMessage)
+			end try
+			
+			{}
+		end getDictionaryKeys
 		
 		(*
 			@returns true if delete is successful, false if any errors encountered like when the element was not found.
@@ -148,6 +194,10 @@ on new(pPlistName)
 			false
 		end addDictionaryKeyValue
 		
+		
+		on keyExists(keyNameOrList)
+			getValue(keyNameOrList) is not missing value
+		end keyExists
 		
 		(*
 			@returns true if delete is successful, false if any errors encountered like when the element was not found.
@@ -185,7 +235,9 @@ on new(pPlistName)
 		*)
 		on _escapeKey(keyName)
 			set escapedKey to keyName
-			textUtil's replace(escapedKey, "\\", "\\\\\\\\")
+			textUtil's replace(result, "\\", "\\\\\\\\") -- 4 slashes per slash.
+			textUtil's replace(result, " ", "\\\\ ")
+			textUtil's replace(result, ":", "\\\\:")
 		end _escapeKey
 		
 		
@@ -205,15 +257,39 @@ on new(pPlistName)
 	end script
 end new
 
-
 on integrationTest()
 	set sut to new("plist-spot")
+	set configSystem to configLib's new("system")
+	set asProjectPath to configSystem's getValue("AppleScript Core Project Path")
+	set plistFilename of sut to asProjectPath & "/test/fixtures/plist-buddy-test.plist"
+	set quotedPlistPosixPath of sut to quoted form of plistFilename of sut
 	
-	set ut to test's new()
-	tell ut
+	set test to testLib's new()
+	set suite to test's new()
+	
+	tell suite
 		newMethod("getValue")
+		assertHasValue(sut's getValue("categories"), "Happy Case")
 		assertEqual("A.P. ", sut's getValue("/aP\\b/"), "Regular Expression key")
 		assertEqual(" and one third", sut's getValue("/\\.6{3,}7?/"), "Regular Expression key 2")
+		assertMissingValue(sut's getValue("categoriesx"), "Not Found")
+		assertEqual("DEBUG", sut's getValue({"categories", "log4as.test"}), "Nested Key")
+		assertMissingValue(sut's getValue("categories:log4as.unicorn"), "Nested key not found")
+		assertEqual("https://github.com/cflint/CFLint/blob/master/RULES.md", sut's getValue({"mobile-bss", "Code: CFML Lint"}), "Key with colon") -- tracing.
+		
+		newMethod("keyExists")
+		assertTrue(sut's keyExists("categories"), "Found")
+		assertFalse(sut's keyExists("categoriesx"), "Not found")
+		assertTrue(sut's keyExists({"categories", "log4as.test"}), "Nested")
+		assertFalse(sut's keyExists({"categories", "log4as.unicorn"}), "Nested")
+		
+		newMethod("getKeys")
+		assertEqual({"/aP\\b/", "categories", "log4as.test", "_README", "/\\.6{3,}7?/", "mobile-bss", "Code: CFML Lint"}, sut's getKeys(), "All Keys")
+		
+		newMethod("getDictionaryKeys")
+		assertEqual({"log4as.test"}, sut's getDictionaryKeys("categories"), "Happy Case")
+		assertEqual({}, sut's getDictionaryKeys("uncategorized"), "Not Found")
+		
+		done()
 	end tell
-	
 end integrationTest

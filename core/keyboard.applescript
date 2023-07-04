@@ -3,7 +3,7 @@
 		use kbLib : script "keyboard"
 	Or type (Text Expander): uuse kb
 	
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/keyboard
 *)
 
@@ -22,21 +22,24 @@ property NSCommandKeyMask : a reference to 1048576
 property NSEvent : a reference to current application's NSEvent
 
 use std : script "std"
-use loggerLib : script "logger"
+
+use loggerFactory : script "logger-factory"
 use plutilLib : script "plutil"
 use listUtil : script "list"
 use emoji : script "emoji"
 use spotScript : script "spot-test"
 use overriderLib : script "overrider"
 
-property logger : loggerLib's new("keyboard")
-property plutil : plutilLib's new()
-property session : plutil's new("session")
+property logger : missing value
+property session : missing value
+
 property overrider : overriderLib's new()
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "keyboard")
+	
 	set caseId to "keyboard-spotCheck"
 	logger's start()
 	
@@ -120,6 +123,10 @@ end spotCheck
 
 
 on new()
+	loggerFactory's inject(me, "keyboard")
+	set plutil to plutilLib's new()
+	set session to plutil's new("session")
+	
 	script KeyboardInstance
 		on checkModifier(keyName)
 			if keyName = "option" then

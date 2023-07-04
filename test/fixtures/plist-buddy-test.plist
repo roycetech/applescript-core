@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>_README</key>
+	<string>
+	</string>
+
+	<key>/aP\b/</key>
+	<string>A.P. </string>
+
+	<key>/\.6{3,}7?/</key>
+	<string> and one third</string>
+
+	<key>categories</key>
+	<dict>
+		<key>log4as.test</key>
+		<string>DEBUG</string>
+	</dict>
+
+	<key>mobile-bss</key>
+	<dict>
+		<key>Code: CFML Lint</key>
+		<string>https://github.com/cflint/CFLint/blob/master/RULES.md</string>
+	</dict>
+</dict>
+</plist>

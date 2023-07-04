@@ -1,5 +1,5 @@
 (*
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/emoji
 		
 	@Known Issues:
@@ -16,6 +16,7 @@ property BOT : "🤖"
 property CLOCK : "⏰"
 property CHECK : "✔︎"
 property RED_Q : "❓"
+property CHECKBOX : "☑️"
 property NOTE_BLACK : "📓"
 property NOTE_YELLOW : "📔"
 property ANT : "🐜"

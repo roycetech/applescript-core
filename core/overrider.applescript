@@ -3,6 +3,9 @@
  	
  	@Plist:
  		config-lib-factory.plist
+ 		
+ 	@Build:
+ 		make compile-lib SOURCE=core/overrider
 *)
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -15,7 +18,14 @@ end spotCheck
 (*  *)
 on new()
 	script OverriderInstance
+		(*
+			Set this to true to skip the override during testing.
+		*)
+		property skip : false
+		
 		on applyMappedOverride(scriptObj)
+			if skip then return scriptObj
+			
 			set scriptName to the name of the scriptObj
 			set factory to missing value
 			try

@@ -1,24 +1,27 @@
 (*
-	@Deployment:
-		make install-terminal
+	@Build:
+		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-path
 *)
 
 use scripting additions
 
+use std : script "std"
+
 use textUtil : script "string"
 use listUtil : script "list"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
+
 use terminalLib : script "terminal"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("dec-terminal-path")
-property terminal : terminalLib's new()
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "dec-terminal-path")
 	set thisCaseId to "dec-terminal-path-spotCheck"
 	logger's start()
 	
@@ -38,7 +41,7 @@ on spotCheck()
 		return
 	end if
 	
-	
+	set terminal to terminalLib's new()
 	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)
 	

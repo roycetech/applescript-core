@@ -1,23 +1,30 @@
+
+(*
+	@Usage:
+		use fileUtil : script "file"
+		
+	@Build:
+		make compile-lib SOURCE=core/file
+*)
+
 use script "Core Text Utilities"
 use scripting additions
 
-(*
-	Usage:
-		use fileUtil : script "file"
-*)
+use std : script "std"
 
-use loggerLib : script "logger"
 use listUtil : script "list"
 use textUtil : script "string"
+use loggerFactory : script "logger-factory"
+
 use spotScript : script "spot-test"
 use testLib : script "test"
 
-property test : testLib's new()
-property logger : loggerLib's new("file")
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "file")
 	set thisCaseId to "file-spotCheck"
 	logger's start()
 	
@@ -28,7 +35,7 @@ on spotCheck()
 		Read Text File
 		Manual: POSIX Folder Exist
 	")
-	log 1
+	
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -36,8 +43,6 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
-	log 2
 	
 	set userPath to format {"/Users/{}", std's getUsername()}
 	
@@ -165,6 +170,7 @@ end convertPathToPOSIXString
 
 
 on unitTest()
+	set test to testLib's new()
 	set ut to test's new()
 	tell ut
 		newMethod("getBaseFileName")

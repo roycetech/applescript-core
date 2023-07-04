@@ -3,23 +3,33 @@
 		config-user.plist
 			Terminal Tab Decorators - This decorator must be appended to this 
 				array to be active.
+				
+	@Build:
+		make compile-lib SOURCE=libs/sftp/dec-terminal-prompt-sftp
 *)
 
 use textUtil : script "string"
 use listUtil : script "list"
 use regex : script "regex"
 
+use loggerFactory : script "logger-factory"
+
 use loggerLib : script "logger"
 use terminalLib : script "terminal"
 
-property logger : loggerLib's new("dec-terminal-prompt-sftp")
-property terminal : terminalLib's new()
+use spotScript : script "spot-test"
+
+property logger : missing value
+property terminal : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "dec-terminal-prompt-sftp")
 	set thisCaseId to "dec-terminal-prompt-sftp-spotCheck"
 	logger's start()
+	
+	set terminal to terminalLib's new()
 	
 	set cases to listUtil's splitByLine("
 		Manual: Regular Shell Prompt - Yes

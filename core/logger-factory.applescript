@@ -1,7 +1,7 @@
 (*
 	This script provides a convenient way to inject an appropriate logging instance to a library.
 	
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/logger-factory
 *)
 
@@ -30,6 +30,11 @@ on inject(target, objectName)
 	end try
 	set logger of target to loggerLib's new(objectName)
 end inject
+
+
+on newBasic(objectName)
+	loggerLib's newBase(objectName)
+end newBasic
 
 
 (*

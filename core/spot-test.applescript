@@ -3,7 +3,7 @@
 
 	WARNING: The log needs to choose between console and logger object each time we need to log to avoid the circular dependency.
 
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/spot-test
 *)
 
@@ -13,7 +13,6 @@ use scripting additions
 use loggerFactory : script "logger-factory"
 use plutilLib : script "plutil"
 use switchLib : script "switch"
-use speechLib : script "speech"
 
 use overriderLib : script "overrider"
 
@@ -25,17 +24,10 @@ use overriderLib : script "overrider"
 		Testing another class
 		Testing the logger class
 *)
-property session : plutilLib's new()'s new("session")
+property session : missing value
 
 property logger : missing value
-property speech : missing value
-
 property overrider : overriderLib's new()
-
-(*
-	Set this property to true if you want to avoid circular dependency, for example when tisting log4as.applescript.
-*)
-property useBasicLogging : false
 
 tell application "System Events"
 	set scriptName to get name of (path to me)
@@ -46,11 +38,9 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 end if
 
 on spotCheck()
-	set my useBasicLogging to true
-	loggerFactory's inject(me, "spot-test")
-	
+	loggerFactory's injectBasic(me, "spot-test")
 	logger's start()
-
+	
 	set spotClass to new()
 	set sut to spotClass's new("spot-spotCheck", {"one", "two", "three", "four", "five"})
 	set autoIncrement of sut to true
@@ -75,11 +65,8 @@ end spotCheck
 
 
 on new()
-	loggerFactory's inject(me, "spot-test")
-	
-	if not my useBasicLogging then
-		set my speech to speechLib's new(missing value)
-	end if
+	loggerFactory's injectBasic(me, "spot-test")
+	set session to plutilLib's new()'s new("session")
 	
 	script SpotTestInstance
 		on setSessionCaseIndex(newCaseIndex)
@@ -87,9 +74,9 @@ on new()
 		end setSessionCaseIndex
 		
 		(* 
-		@pCaseId test case identifier.
-		@pCases the list of test cases usually retrieved from the session.
-	*)
+			@pCaseId test case identifier.
+			@pCases the list of test cases usually retrieved from the session.
+		*)
 		on new(pCaseId, pCases)
 			script SpotTestCaseInstance
 				property caseId : pCaseId
@@ -120,11 +107,7 @@ on new()
 							set my _valid to false
 							
 							set noticeText to "Subject Changed, select desired case from menu and re-run"
-							if speech is not missing value then
-								tell speech to speak(noticeText)
-							else
-								logger's info(noticeText)
-							end if
+							logger's info(noticeText)
 							return {0, "Re-run recommended"}
 							
 						else
@@ -192,7 +175,7 @@ on new()
 			SpotTestCaseInstance
 		end new
 	end script
+
 	overrider's applyMappedOverride(result)
 end new
-
 

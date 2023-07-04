@@ -2,21 +2,26 @@
 	Decorator for view-related functionality. The main goal of this decorator 
 	is to group together the view-related functions to keep the main component
 	small.
+
+	@Notes:
+		June 30, 2023 12:09 PM - Crashes when being debugged using Script Debugger.
 *)
 use listUtil : script "list"
 
+use loggerFactory : script "logger-factory"
 use loggerLib : script "logger"
 use usrLib : script "user"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("dec-calendar-view")
-property usr : usrLib's new()
+property logger : missing value
+property usr : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	set thisCaseId to "cal-ext-view-spotCheck"
+	loggerFactory's injectBasic(me, "dec-calendar-view-spotCheck")
+	set thisCaseId to ""
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -80,6 +85,8 @@ end newSpotBase
 
 (*  *)
 on decorate(mainScript)
+	set usr to usrLib's new()
+	
 	script CalendarWithViewInstance
 		property parent : mainScript
 		
@@ -88,7 +95,9 @@ on decorate(mainScript)
 			
 			tell application "System Events" to tell process "Calendar"
 				set selectedRadio to get value of radio group 1 of group 2 of toolbar 1 of window "Calendar"
-				if usr's getOsMajorVersion() is less than 13 then return title of selectedRadio
+				if usr's getOsMajorVersion() is less than 13 then
+					return title of selectedRadio
+				end if
 				
 				return description of selectedRadio -- Ventura (13)
 			end tell
@@ -134,4 +143,3 @@ on decorate(mainScript)
 		end switchToYearView
 	end script
 end decorate
-

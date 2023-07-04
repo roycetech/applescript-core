@@ -3,27 +3,33 @@
 	For additional functions related to the inspection of a process or a window, see inspector.applescript.
 	For additional functions related to a process/app, see process.applescript.
 	
-	Usage:
-		use syseveLib : script "system-events")		
+	@Usage:
+		use syseveLib : script "system-events")
 		
 		property syseve : syseveLib's new()
 		
 	Or type: sset syseve
+	
+	@Build:
+		make compile-lib SOURCE=core/system-events
 *)
 
 use std : script "std"
-use loggerLib : script "logger"
 use listUtil : script "list"
+
+use loggerFactory : script "logger-factory"
+use overriderLib : script "overrider"
+
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("system-events")
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "system-events")
 	set caseId to "system-events-spotCheck"
 	logger's start()
-	
 	
 	set cases to listUtil's splitByLine("
 		Manual: Get Front Window
@@ -49,6 +55,9 @@ end spotCheck
 
 
 on new()
+	loggerFactory's injectBasic(me, "system-events")
+	set overrider to overriderLib's new()
+	
 	script SysEveInstance
 		on getFrontWindow()
 			tell application "System Events"
@@ -78,10 +87,8 @@ on new()
 		end getFrontAppName
 	end script
 	
-	-- overrider's applyMappedOverride(result)
+	overrider's applyMappedOverride(result)
 end new
 
-
--- Private Codes below =======================================================
 
 -- EOS

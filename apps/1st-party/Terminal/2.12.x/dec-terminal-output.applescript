@@ -1,25 +1,27 @@
 (*
-		
+	@Build:
+		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-prompt-sftp
+			
 *)
 
 use listUtil : script "list"
 use textUtil : script "string"
+use loggerFactory : script "logger-factory"
 
-use loggerLib : script "logger"
 use kbLib : script "keyboard"
 use retryLib : script "retry"
 use terminalLib : script "terminal"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("dec-terminal-output")
-property retry : retryLib's new()
-property kb : kbLib's new()
-property terminal : terminalLib's new()
+property logger : missing value
+property retry : missing value
+property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "dec-terminal-output")
 	set thisCaseId to "dec-terminal-output-spotCheck"
 	logger's start()
 	
@@ -40,8 +42,8 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
-	
+		
+	set terminal to terminalLib's new()
 	set frontTab to terminal's getFrontTab()
 	
 	-- override the existing so we can test the current implementation.	
@@ -74,9 +76,12 @@ on spotCheck()
 end spotCheck
 
 
-on decorate(termTabScript)
+on decorate(terminalTabScript)
+	set retry to retryLib's new()
+	set kb to kbLib's new()
+	
 	script TerminalTabInstance
-		property parent : termTabScript
+		property parent : terminalTabScript
 		
 		(* Used to determine the amount of characters to include in the getRecentOutput handler. *)
 		property recentOutputChars : 1024

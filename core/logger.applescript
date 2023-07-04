@@ -3,11 +3,10 @@
 	WARNING: Do not use the Core Text Utilities. It results to a not so
 	visible crash for some scripts that are triggered via Voice Command.
 	
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/logger
 *)
 
-global CR
 
 use scripting additions
 
@@ -15,18 +14,19 @@ use textUtil : script "string"
 use overriderLib : script "overrider"
 
 property overrider : overriderLib's new()
+
 property filename : "applescript-core.log"
-property name : missing value
+-- property name : missing value
 property logOverride : false
 property startSeconds : 0
 property logLite : missing value
 
-set CR to ASCII character 13
+property CR : ASCII character 13
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	set sut to new("logger")
+	set sut to newBase("logger")
 	
 	tell sut
 		start()
@@ -49,11 +49,9 @@ end spotCheck
 
 (* Instantiates a logger without overrides *)
 on newBase(pObjectName)
-	set logSubDir to "applescript-core:logs:"
-	
 	script LoggerInstance
 		property objectName : pObjectName
-		property logFilePath : (path to home folder as text) & logSubDir & filename
+		property logFilePath : (path to home folder as text) & "applescript-core:logs:" & filename
 		property level : 1
 		
 		on start()
@@ -226,5 +224,6 @@ on new(pObjectName)
 	script LoggerOverridableInstance
 		property parent : basicInstance
 	end script
+	
 	overrider's applyMappedOverride(result)
 end new

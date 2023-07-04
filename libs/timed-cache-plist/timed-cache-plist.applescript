@@ -1,44 +1,37 @@
 (*
 	use tcache : script "timed-cache-plist"
 
-	@Install:
+	@Build:
 		make install-timed-cache
 
-	@References:
-		* config.plist - Timed Cache List
-		* timed-cache.plist
+	@Plists:
+		config.plist
+		 	Timed Cache List - Can't find the reference for this - June 30, 2023 11:17 AM
+		timed-cache.plist - Contains the cached values.
 *)
 
 use scripting additions
 
 use listUtil : script "list"
 use dt : script "date-time"
+use loggerFactory : script "logger-factory"
 
-use loggerLib : script "logger"
 use plutilLib : script "plutil"
 
 use spotScript : script "spot-test"
 use testLib : script "test"
 
-property logger : loggerLib's new("timed-cache-plist")
-property plutil : plutilLib's new()
-property test : testLib's new()
-
+property logger : missing value
 property cache : missing value
-
-set cacheName to "timed-cache"
-if not plutil's plistExists(cacheName) then
-	plutil's createNewPList(cacheName)
-end if
-
-set cache to plutil's new(cacheName)
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	set thisCaseId to "timed-cache-spotCheck"
+	loggerFactory's injectBasic(me, "timed-cache-plist")
+	set thisCaseId to "timed-cache-plist-spotCheck"
 	logger's start()
 	
+	set test to testLib's new()
 	set integTest to test's new()
 	set cases to listUtil's splitByLine("
 		Integration Testing
@@ -67,15 +60,13 @@ on spotCheck()
 			done()
 		end tell
 		
-		
 	else if caseIndex is 2 then
-		
-		done()
-		
 		set sut to new(2)
 		sut's setValue(spotKey, "Will expire")
 		log sut's getValue(spotKey)
 		log cache's getValue(spotKey)
+		
+		done()
 	end if
 	
 	spot's finish()
@@ -85,6 +76,13 @@ end spotCheck
 
 (*  *)
 on new(pExpirySeconds)
+	set plutil to plutilLib's new()
+	set cacheName to "timed-cache"
+	if not plutil's plistExists(cacheName) then
+		plutil's createNewPList(cacheName)
+	end if
+	set cache to plutil's new(cacheName)
+	
 	script TimedCacheInstance
 		property expirySeconds : pExpirySeconds
 		

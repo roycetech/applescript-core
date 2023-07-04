@@ -1,19 +1,20 @@
 (* 
 	@Prerequisites
 		Requires JSON Helper app from the AppStore.  https://apps.apple.com/us/app/json-helper-for-applescript/id453114608?mt=12. 
-		For testing, "AppleScript Core Project Path" needs to be set in config-system.plist.
+		Accessibility permission for JSON Helper. You simply need to confirm access on the first time you run this script to spot check.
 		
 	@Plists
 		config-system.plist
-			AppleScript Core Project Path
+			AppleScript Core Project Path - This is required for testing only.
 			
-	@Installation
-		make install-json
+	@Build:
+		make compile-json
 *)
 
 use scripting additions
 
 use listUtil : script "list"
+
 
 use loggerLib : script "logger"
 use configLib : script "config"
@@ -21,7 +22,6 @@ use configLib : script "config"
 use spotScript : script "spot-test"
 
 property logger : loggerLib's new("json")
-property configSystem : configLib's new("system")
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -29,6 +29,7 @@ on spotCheck()
 	set thisCaseId to "json-spotCheck"
 	logger's start()
 	
+	set configSystem to configLib's new("system")
 	set asProjectPath to configSystem's getValue("AppleScript Core Project Path")
 	set cases to listUtil's splitByLine("
 		Read JSON File - Dictionary

@@ -15,12 +15,17 @@ use listUtil : script "list"
 use textUtil : script "string"
 use unic : script "unicodes"
 
-use loggerLib : script "logger"
+
+
+
+
+
+use loggerFactory : script "logger-factory"
 use testLib : script "test"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("keyboard-maestro")
+property logger : loggerFactory's newBasic("keyboard-maestro")
 property test : testLib's new()
 
 property GENERIC_RESULT_VAR : "km_result"

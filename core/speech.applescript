@@ -12,9 +12,10 @@
 	@Plists:
 		text-to-speech_default
 	
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/speech
 *)
+
 
 use script "Core Text Utilities"
 use scripting additions
@@ -38,10 +39,9 @@ use testLib : script "test"
 
 -- PROPERTIES =================================================================
 property logger : missing value
-property usr : userLib's new()
-property plutil : plutilLib's new()
+property usr : missing value
+property plutil : missing value
 
-property useBasicLogging : false
 property isSpot : false
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then
@@ -50,11 +50,10 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 end if
 
 on spotCheck()
-	set useBasicLogging of me to true
-	loggerFactory's inject(me, "speech")
-	
+	loggerFactory's injectBasic(me, "speech")
 	set thisCaseId to "speech-spotCheck"
 	logger's start()
+	
 	
 	set cases to listUtil's splitByLine("
 		Integration Test
@@ -63,7 +62,6 @@ on spotCheck()
 		Manual: Private: Localize Message
 	")
 	
-	set useBasicLogging of spotScript to true
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -98,16 +96,19 @@ end spotCheck
 -- HANDLERS =================================================================
 
 (*
+	NOTE: Removed logger references inside the script.
+
 	@Final - maybe getting too complex if we want to make this extensible.
 *)
 on new(pLocalizationConfigName)
-	loggerFactory's inject(me, "speech")
-	
+	-- loggerFactory's inject(me, "speech")
+	set usr to userLib's new()
+	set plutil to plutilLib's new()
+
 	script SpeechInstance
 		property quiet : false
 		property synchronous : false
 		property waitNextWords : false -- Same purpose as speakSynchronously()
-		property logging : true
 		
 		(* Flag to indicate if the plist has been loaded into memory. *)
 		property _translationsLoaded : false
@@ -119,11 +120,13 @@ on new(pLocalizationConfigName)
 		on _loadTranslations()
 			set _translationsLoaded to true
 			if not plutil's plistExists(_localizationConfigName) then
-				logger's warnf("Localization was not found: {}", _localizationConfigName)
+				-- logger's warnf("Localization was not found: {}", _localizationConfigName)
+				log "WARN: Localization was not found: " & _localizationConfigName
 				return
 			end if
 			
-			logger's infof("Configuring localization using: {}", _localizationConfigName)
+			-- logger's infof("Configuring localization using: {}", _localizationConfigName)
+			log "Configuring localization using: " & _localizationConfigName
 			try
 				set localSpeecMapping to plutil's new(_localizationConfigName)
 			on error the errorMessage number the errorNumber
@@ -152,7 +155,7 @@ on new(pLocalizationConfigName)
 					set pattern to text 2 thru ((count of nextTranslatable) - 1) of nextTranslatable
 					
 					if regex's matchesInString(pattern, localizedMessage) then
-						logger's debugf("Translating pattern: '{}' to '{}'", {nextTranslatable, nextTranslation})
+						-- logger's debugf("Translating pattern: '{}' to '{}'", {nextTranslatable, nextTranslation})
 						set localizedMessage to regex's replace(localizedMessage, pattern, nextTranslation)
 					end if
 					
@@ -183,11 +186,13 @@ on new(pLocalizationConfigName)
 			if not isSpot then
 				try
 					if usr's isInMeeting() then
-						logger's info("SILENCED: " & rawText)
+						-- logger's info("SILENCED: " & rawText) -- Dangerous to have access logger instance here.
+						log "SILENCED: " & rawText
 						return rawText
 					end if
 				on error the errorMessage number the errorNumber -- ignore if user script is not installed.
-					logger's warn(errorMessage)
+					-- logger's warn(errorMessage)
+					log "WARN: " & errorMessage
 					return rawText
 				end try
 			end if
@@ -210,34 +215,13 @@ on new(pLocalizationConfigName)
 		end speak
 		
 		
-		on speakAndLog(rawText)
-			speak(rawText)
-			if synchronous then
-				set prefix to "S+ "
-			else
-				set prefix to "S* "
-			end if
-			
-			logger's info(prefix & rawText)
-		end speakAndLog
-		
-		
 		on speakSynchronously(rawText)
-			if logging then
-				logger's info("S+ " & rawText)
-			end if
-			
 			set origState to synchronous
 			set synchronous to true
 			speak(rawText)
 			set synchronous to origState
 		end speakSynchronously
 		
-		
-		on speakSynchronouslyWithLogging(rawTex)
-			logger's info(rawText)
-			speakSynchronously(rawText)
-		end speakSynchronouslyWithLogging
 	end script
 	
 	
@@ -258,7 +242,6 @@ on integrationTest()
 	set sut to new(missing value)
 	set quiet of sut to true
 	
-	set useBasicLogging of testLib to true
 	set test to testLib's new()
 	set ut to test's new()
 	tell ut

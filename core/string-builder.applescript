@@ -1,12 +1,19 @@
-use loggerLib : script "logger"
+(*
+	@Build:
+		make compile-lib SOURCE=core/string-builder
+*)
+
 use listUtil : script "list"
+use loggerFactory : script "logger-factory"
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("string-builder")
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "string-builder")
+	loggerLib's new("string-builder")
 	set thisCaseId to "string-builder-spotCheck"
 	logger's start()
 	

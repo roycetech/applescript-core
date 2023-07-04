@@ -1,22 +1,30 @@
+(*
+	@Last Modified: 2023-07-02 14:58:20
+
+	@Build:
+		make compile-lib SOURCE=core/dialog
+*)
 use script "Core Text Utilities"
 use scripting additions
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use listUtil : script "list"
 use speechLib : script "speech"
 use spotScript : script "spot-test"
 use testLib : script "test"
 
-property logger : loggerLib's new("dialog")
-property speech : speechLib's new(missing value)
-property test : testLib's new()
+property logger : missing value
+
+property speech : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "dialog")
 	set thisCaseId to "dialog-spotCheck"
 	logger's start()
 	
+	set test to testLib's new()
 	set cases to listUtil's splitByLine("
 		Show 2 Choices
 		Manual: Show 2 Choices with Timeout (Timeout/Non-Timeout)
@@ -57,12 +65,12 @@ on spotCheck()
 		logger's infof("Result: {}", sut's showChoicesWithDefault("Choices with default", "Choose", {"Yes", "No"}, "No"))
 		
 	else if caseIndex is 8 then
-		set ut to test's new()
+		set spotTest to test's new()
 		
 		set optionsList to {"Option 1", "Option 2", "Option 3"}
 		try
 			logger's infof("Result: {}", sut's showChoicesFromList("Options from list", "Choose", missing value, missing value))
-			ut's fail("Expected error was not encountered")
+			spotTest's fail("Expected error was not encountered")
 		on error the errorMessage number the errorNumber
 			if errorMessage starts with "Assertion" then
 				error errorMessage
@@ -71,7 +79,7 @@ on spotCheck()
 		
 		try
 			logger's infof("Result: {}", sut's showChoicesFromList("Options from list", "Choose", {}, missing value))
-			ut's fail("Expected error was not encountered")
+			spotTest's fail("Expected error was not encountered")
 		on error the errorMessage number the errorNumber
 			if errorMessage starts with "Assertion" then
 				error errorMessage
@@ -87,6 +95,9 @@ end spotCheck
 
 
 on new()
+	loggerFactory's injectBasic(me, "dialog")
+	set speech to speechLib's new(missing value)
+	
 	script DialogInstance
 		property speechOn : false
 		
@@ -106,9 +117,10 @@ on new()
 		
 		
 		on showOkDialog(theTitle, message)
-			if speech is true then
+			if speechOn then
 				set synchronous of speech to false
-				tell speech to speakAndLog(message)
+				tell speech to speak(message)
+				logger's info(message)
 			end if
 			
 			display dialog message with title theTitle with icon 1 buttons {"OK"}
@@ -117,7 +129,7 @@ on new()
 		
 		
 		on showWarningWithTimeout(theTitle, message, timeoutSec)
-			if speech is true then
+			if speechOn then
 				set synchronous of speech to false
 				tell speech to speakAndLog(message)
 			end if
@@ -131,7 +143,7 @@ on new()
 		on showChoices(theTitle, message, choices as list)
 			if (count of choices) is greater than 3 then tell me to error "You can only have up to 3 choices"
 			
-			if speech is true then
+			if speechOn then
 				set synchronous of speech to false
 				tell speech to speakAndLog(message)
 			end if
@@ -145,9 +157,10 @@ on new()
 		on showChoicesWithDefault(theTitle, message, choices as list, defaultButton)
 			if (count of choices) is greater than 3 then tell me to error "You can only have up to 3 choices"
 			
-			if speech is true then
+			if speechOn then
 				set synchronous of speech to false
-				tell speech to speakAndLog(message)
+				tell speech to speak(message)
+				logger's info(message)
 			end if
 			
 			display dialog message with title theTitle with icon 1 buttons choices default button defaultButton
@@ -159,7 +172,7 @@ on new()
 		on showChoicesWithTimeout(theTitle, message, choices as list, defaultChoice, timeoutSec)
 			if (count of choices) is greater than 3 then tell me to error "You can only have up to 3 choices"
 			
-			if speech is true then
+			if speechOn then
 				set synchronous of speech to false
 				tell speech to speakAndLog(message)
 			end if
@@ -194,7 +207,7 @@ on new()
 		
 		
 		on showWarningDialog(theTitle, message)
-			if speech is true then
+			if speechOn then
 				set synchronous of speech to false
 				tell speech to speakAndLog(message)
 			end if

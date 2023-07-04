@@ -11,30 +11,37 @@
 	@Facts:
 		Cannot get the id of the app window.
 
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE='apps/3rd-party/Script Debugger/v8.0.x/script-debugger'
 		
 	@Create ON: June 24, 2023 2:21 PM
+	
+	@Known Issues:
+		errOSAInternalTableOverflow as of June 28, 2023 1:25 PM. 
+		
 *)
+
+use scripting additions
 
 use listUtil : script "list"
 use textUtil : script "string"
+use loggerFactory : script "logger-factory"
 
-use loggerLib : script "logger"
 use retryLib : script "retry"
 use configLib : script "config"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("script-debugger")
-property retry : retryLib's new()
-property configSystem : configLib's new("system")
+property logger : missing value
+property retry : missing value
+property configSystem : missing value
 
-property DOC_EDITED_SUFFIX : " â€“ Edited"
+property DOC_EDITED_SUFFIX : " Ð Edited"
 
-if {"Script Debugger", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Debugger", "Script Editor"} contains (the name of current application as text) then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "script-debugger")
 	set thisCaseId to "script-debugger-spotCheck"
 	logger's start()
 	
@@ -66,6 +73,7 @@ on spotCheck()
 		logger's infof("getScriptName: {}", frontTab's getScriptName())
 		logger's infof("getBaseScriptName: {}", frontTab's getBaseScriptName())
 		logger's infof("getPosixPath: {}", frontTab's getPosixPath())
+		logger's infof("Insertion Line: {}", frontTab's getInsertionLine())
 		
 	else if caseIndex is 2 then
 		openFile(projectPath & "/examples/hello.applescript")
@@ -101,7 +109,10 @@ end spotCheck
 
 (*  *)
 on new()
-	script ScriptEditorInstance
+	set retry to retryLib's new()
+	set configSystem to configLib's new("system")
+	
+	script ScriptDebuggerInstance
 		on getFrontTab()
 			if running of application "Script Debugger" is false then return missing value
 			
@@ -116,6 +127,16 @@ on new()
 			_new()
 		end getFrontTab
 		
+		(*
+			@posixFilePath the Unix file  path e.g. /Users/...
+
+			@returns script instance TODO
+		*)
+		on openFile(posixFilePath)
+			do shell script "open -a 'Script Debugger' " & quoted form of posixFilePath
+			delay 0.1
+			getFrontTab()
+		end openFile
 		
 		-- Private Codes below =======================================================
 		on _new()
@@ -128,6 +149,56 @@ on new()
 				property windowDocument : missing value
 				property suffixedName : missing value
 				
+				on getPosixPath()
+					if running of application "Script Debugger" is false then return missing value
+					
+					tell application "Script Debugger"
+						path of windowDocument
+					end tell
+				end getPosixPath
+				
+				(* @returns the mac os notation folder of this script *)
+				on getScriptLocation()
+					if running of application "Script Debugger" is false then return
+					
+					tell application "Script Debugger" -- Wrapped due to error, was fine before.
+						set scriptPath to path of my windowDocument
+						set scriptName to name of my windowDocument
+					end tell
+					set scriptNameLength to count of scriptName
+					set reducedLength to (scriptPath's length) - scriptNameLength
+					set location to text 1 thru reducedLength of scriptPath
+					(POSIX file location) as text
+				end getScriptLocation
+				
+				(* @returns the filename without the path. *)
+				on getScriptName()
+					name of appWindow
+				end getScriptName
+				
+				(* @returns the extension-less filename. *)
+				on getBaseScriptName()
+					set winName to getScriptName()
+					
+					set endIdx to (textUtil's lastIndexOf(winName, ".")) - 1
+					text 1 thru endIdx of winName
+				end getBaseScriptName
+				
+				(*
+					@returns the current line number -1.
+				*)
+				on getInsertionLine()
+					tell application "System Events" to tell process "Script Debugger"
+						get value of attribute "AXInsertionPointLineNumber" of text area 1 of scroll area 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					end tell
+				end getInsertionLine
+				
+				
+				on isEventLogVisible()
+					
+				end isEventLogVisible
+				
+				-- BELOW FOR REVIEW.
 				on focus()
 					if running of application "Script Debugger" is false then return
 					
@@ -205,19 +276,6 @@ on new()
 					set contents of document of my appWindow to newText
 				end setContents
 				
-				(* @returns the filename without the path. *)
-				on getScriptName()
-					name of appWindow
-				end getScriptName
-				
-				(* @returns the extension-less filename. *)
-				on getBaseScriptName()
-					set winName to getScriptName()
-					
-					set endIdx to (textUtil's lastIndexOf(winName, ".")) - 1
-					text 1 thru endIdx of winName
-				end getBaseScriptName
-				
 				(*
 					Assumes that Script Debugger is running.
 					Does not work on path when the document reference is returned, convert to record.
@@ -236,8 +294,8 @@ on new()
 				end getDetail
 				
 				(*
-		    @targetFolder Mac OS colon separated format for the script destination.
-		*)
+		    			@targetFolder Mac OS colon separated format for the script destination.
+				*)
 				on saveAsText(targetFolder)
 					if running of application "Script Debugger" is false then return
 					
@@ -253,8 +311,8 @@ on new()
 				end saveAsText
 				
 				(*
-		    @targetFolder Mac OS colon separated format for the script destination.
-		*)
+					@targetFolder Mac OS colon separated format for the script destination.
+				*)
 				on saveAsScript(targetFolder)
 					if running of application "Script Debugger" is false then return
 					
@@ -323,38 +381,6 @@ on new()
 						compile document of my appWindow
 					end tell
 				end compileDocument
-				
-				on getPosixPath()
-					if running of application "Script Debugger" is false then return missing value
-					
-					tell application "Script Debugger"
-						path of windowDocument
-					end tell
-				end getPosixPath
-				
-				(* @returns the mac os notation folder of this script *)
-				on getScriptLocation()
-					if running of application "Script Debugger" is false then return
-					
-					tell application "Script Debugger" -- Wrapped due to error, was fine before.
-						set scriptPath to path of my windowDocument
-						set scriptName to name of my windowDocument
-					end tell
-					set scriptNameLength to count of scriptName
-					set reducedLength to (scriptPath's length) - scriptNameLength
-					set location to text 1 thru reducedLength of scriptPath
-					(POSIX file location) as text
-				end getScriptLocation
-				
-				on mergeAllWindows()
-					if running of application "Script Debugger" is false then return
-					
-					focus()
-					
-					tell application "System Events" to tell process "Script Debugger"
-						click menu item "Merge All Windows" of menu 1 of menu bar item "Window" of menu bar 1
-					end tell
-				end mergeAllWindows
 			end script
 			
 			tell application "System Events" to tell process "Script Debugger"
@@ -362,7 +388,7 @@ on new()
 			end tell
 			
 			tell application "Script Debugger"
-				set windowDocument of ScriptDebuggerTabInstance to the first document of script window 1 whose path ends with frontWindowName
+				set windowDocument of ScriptDebuggerTabInstance to the current document of script window 1
 			end tell
 			
 			ScriptDebuggerTabInstance

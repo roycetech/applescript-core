@@ -1,12 +1,18 @@
-use loggerLib : script "logger"
+(*
+	@Build:
+		make compile-lib SOURCE=core/stack
+*)
+
+use loggerFactory : script "logger-factory"
+
 use testLib : script "test"
 
-property logger : loggerLib's new("stack")
-property test : testLib's new()
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "stack")
 	set thisCaseId to "stack-spotCheck"
 	logger's start()
 	
@@ -60,6 +66,7 @@ end new
 	Put the case you are debugging at the top, and move to correct place once verified.
 *)
 on unitTest()
+	set test to testLib's new()
 	set ut to test's new()	
 	set stack to new()
 	
@@ -79,6 +86,6 @@ on unitTest()
 		stack's pop()
 		assertEqual(missing value, stack's peek(), "After popping the only value")
 		
-		ut's done()
+		done()
 	end tell
 end unitTest

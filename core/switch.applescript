@@ -7,26 +7,23 @@
 		set yourFlag to switchLib's new("Flag Name")
 		yourFlag's turnOn()
 		
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/switch
 *)
 
 use loggerFactory : script "logger-factory"
 use utLib : script "unit-test"
 use testLib : script "test"
-use plutilScript : script "plutil"
+use plutilLib : script "plutil"
 
 property logger : missing value
-property plutilLib : plutilScript's new()
-property switchPlist : plutilLib's new("switches")
-property test : missing value
+property switchPlist : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me, "switch")
 	set useBasicLogging of testLib to true
-	set test to testLib's new()
 	
 	logger's start()
 	
@@ -36,9 +33,15 @@ on spotCheck()
 end spotCheck
 
 
+(* 
+	@Legacy code. Wanted to remove this but let's just put the initialization in 
+	here. Duplicated initialization as a result. *)
 on active(featureName)
+	set plutil to plutilLib's new()
+	set switchPlist to plutil's new("switches")
+
 	try
-		set theValue to SWITCHES's getValue(featureName)
+		set theValue to switchPlist's getValue(featureName)
 	on error
 		return false
 	end try
@@ -52,6 +55,8 @@ on inactive(featureName)
 end inactive
 
 on new(pFeatureName)
+	set plutil to plutilLib's new()
+	set switchPlist to plutil's new("switches")
 	
 	script SwitchInstance
 		property featureName : pFeatureName
@@ -112,6 +117,7 @@ on unitTest()
 	end script
 	set Hook to result
 	
+	set test to testLib's new()
 	set ut to test's new()
 	
 	tell ut

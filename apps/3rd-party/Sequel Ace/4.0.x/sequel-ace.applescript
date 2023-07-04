@@ -1,4 +1,6 @@
 (*
+	@Last Modified: July 3, 2023 10:58 AM
+
 	@Testing:
 		Have a valid connection created with name: Docker MySQL 5
 		A database called "crm" must exist
@@ -10,7 +12,7 @@ use scripting additions
 use listUtil : script "list"
 use textUtil : script "string"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use retryLib : script "retry"
 use syseveLib : script "system-events"
 use kbLib : script "keyboard"
@@ -19,17 +21,19 @@ use overriderLib : script "overrider"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("sequel-ace")
-property retry : retryLib's new()
-property syseve : syseveLib's new()
-property kb : kbLib's new()
-property overrider : overriderLib's new()
+property logger : missing value
+property retry : missing value
+property syseve : missing value
+property kb : missing value
+
+property overrider : missing value
 
 property TEST_CONNECTION_NAME : "Docker MySQL 5"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "sequel-ace")
 	set thisCaseId to "sequel-ace-spotCheck"
 	logger's start()
 	
@@ -120,6 +124,13 @@ on spotCheck()
 end spotCheck
 
 on new()
+	loggerFactory's injectBasic(me, "sequel-ace")
+	
+	set retry to retryLib's new()
+	set syseve to syseveLib's new()
+	set kb to kbLib's new()
+	set overrider to overriderLib's new()
+	
 	script SequelAceInstance
 		(*  *)
 		on findTab(connectionName, databaseAndOrTable)

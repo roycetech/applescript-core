@@ -2,7 +2,7 @@
 	@Usage:
 		use listUtil : script "list"
 		
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/list
 *)
 
@@ -13,8 +13,7 @@ use spotScript : script "spot-test"
 use testLib : script "test"
 use textUtil : script "string"
 
-property logger : loggerFactory's newBasic("list")
-property test : testLib's new()
+property logger : missing value
 
 -- #%+= are probably worth considering.
 property linesDelimiter : "@"
@@ -23,6 +22,7 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 if name of current application is "osascript" then unitTest()
 
 on spotCheck()
+	loggerFactory's inject(me, "list")
 	set thisCaseId to "list-spotCheck"
 	logger's start()
 	
@@ -41,8 +41,6 @@ on spotCheck()
 		
 		Split By Line - With Dollar Sign
 	")
-	
-	log 3
 	
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(thisCaseId, cases)
@@ -360,6 +358,7 @@ end _replaceAll
 
 
 on unitTest()
+	set test to testLib's new()
 	set ut to test's new()
 	tell ut
 		newMethod("clone")

@@ -1,14 +1,17 @@
+use std : script "std"
+
 use listUtil : script "list"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("ui-util")
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "ui-util")
 	set thisCaseId to "ui-util-spotCheck"
 	logger's start()
 	

@@ -6,7 +6,7 @@
 	@Version:
 		macOS Ventura 13.x.
 
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE="apps/1st-party/System Settings/15.0/system-settings"
 		
 	@References:

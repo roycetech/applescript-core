@@ -29,8 +29,9 @@
 	@Known Issues
 		Cannot have a colon in the key name for arrays.
 		Keys are case-sensitive.
+		Script Debugger - Unit test fails when debugger is ON.
 
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=core/plutil
  *)
 
@@ -39,9 +40,9 @@ use script "Core Text Utilities"
 use scripting additions
 
 use std : script "std"
+
 use listUtil : script "list"
 use regex : script "regex"
-use mapLib : script "map"
 use loggerFactory : script "logger-factory"
 
 use overriderLib : script "overrider"
@@ -53,11 +54,10 @@ use test : script "test"
 -- PROPERTIES =================================================================
 property logger : missing value
 
-property overrider : overriderLib's new()
+-- property overrider : overriderLib's new()
 
 property homeFolderPath : missing value
 property linesDelimiter : "~"
-property useBasicLogging : false
 property isSpot : false
 
 property TZ_OFFSET : (do shell script "date +'%z' | cut -c 2,3") as integer
@@ -65,10 +65,7 @@ property TZ_OFFSET : (do shell script "date +'%z' | cut -c 2,3") as integer
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	set isSpot to true
-	set useBasicLogging to true
-	loggerFactory's inject(me, "plutil")
-	
+	set logger to loggerFactory's newBasic("plutil")
 	set thisCaseId to "plutil-spotCheck"
 	logger's start()
 	
@@ -91,7 +88,6 @@ on spotCheck()
 		Manual: Plist Exists (Basic, SubPath, Non-existing)
 	")
 	
-	set useBasicLogging of spotScript to true
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -193,8 +189,7 @@ end spotCheck
 
 
 on new()
-	loggerFactory's inject(me, "plutil")
-	
+	loggerFactory's injectBasic(me, "plutil")
 	script PlutilInstance
 		(* 
 			@plistKey - plistName or subpath with name relative to the home/applescript-core folder. 
@@ -266,7 +261,7 @@ on new()
 			set AS_CORE_PATH to "/Users/" & std's getUsername() & "/applescript-core/"
 			set localPlistPosixPath to AS_CORE_PATH & pPlistName & ".plist"
 			
-			script PlutilInstance
+			script PlutilPlistInstance
 				property plistFilename : calcPlistFilename
 				property plistName : pPlistName
 				property quotedPlistPosixPath : quoted form of localPlistPosixPath
@@ -444,21 +439,10 @@ on new()
 					
 					set getRecordShellCommand to _getTypedGetterShellTemplate("record", plistKey, quotedPlistPosixPath)
 					try
-						set calcResult to missing value
-						set calcResult to (do shell script getRecordShellCommand) as record
-					end try -- missing key
-					
-					logger's warn("calcResult: {}", calcResult)
-					if calcResult is missing value and mapLib's hasJsonSupport() then -- let's try json string
-						set getStringShellCommand to _getTypedGetterShellTemplate("string", plistKey, quotedPlistPosixPath)
-						
-						try
-							set stringValue to (do shell script getStringShellCommand) as text
-							set calcResult to mapLib's newInstanceFromJson(stringValue)
-						end try -- missing key
-					end if
-					
-					calcResult
+						return (do shell script getRecordShellCommand) as record
+					end try
+
+					missing value					
 				end getRecord
 				
 				on getValueWithDefault(plistKey, defaultValue)
@@ -481,19 +465,16 @@ on new()
 							set dataType to do shell script getTypeShellCommand
 						end if
 					on error the errorMessage number the errorNumber
-						log errorMessage
-						log its name
 						return missing value
 					end try
 					
 					if dataType is "array" then
 						return _getList(quotedPlistKey)
 						
-					else if dataType is "dictionary" then
-						-- set getDictShellCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\"  {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | sed 's/[[:space:]]=[[:space:]]/: /g'", {quotedPlistKey, quotedPlistPosixPath}}
-						set getDictShellCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\"  {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | sed 's/:/__COLON__/g' | sed 's/[[:space:]]=[[:space:]]/: /g'", {quotedPlistKey, quotedPlistPosixPath}}
-						set dictShellResult to do shell script getDictShellCommand
-						return mapLib's newFromString(dictShellResult)
+					-- else if dataType is "dictionary" then
+					-- 	set getDictShellCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\"  {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | sed 's/:/__COLON__/g' | sed 's/[[:space:]]=[[:space:]]/: /g'", {quotedPlistKey, quotedPlistPosixPath}}
+					-- 	set dictShellResult to do shell script getDictShellCommand
+					-- 	return mapLib's newFromString(dictShellResult)
 						
 					else
 						set getValueShellCommand to _getTypedGetterShellTemplate(missing value, plistKey, quotedPlistPosixPath)
@@ -594,25 +575,25 @@ on new()
 				*)
 				on _getTypedGetterShellTemplate(typeText, plistKey, quotedPlistPosixPath)
 					if plistKey is missing value then return missing value
-					
+
 					set typeClause to ""
 					if typeText is not missing value then set typeClause to "-expect " & typeText
-					
+
 					set shellTemplate to "if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -extract \"$TMP\" raw " & typeClause & " {}; else plutil -extract {} raw " & typeClause & " {}; fi"
 					format {shellTemplate, {plistKey, plistKey, quotedPlistPosixPath, quoted form of plistKey, quotedPlistPosixPath}}
 				end _getTypedGetterShellTemplate
-				
-				
+
+
 				on _escapeAndQuoteKey(plistKey)
 					if plistKey is missing value then return missing value
-					
+
 					if regex's matches("^\\d", plistKey) then set plistKey to "_" & plistKey
 					set escapedPlistKey to plistKey
 					if plistKey contains "." then set escapedPlistKey to do shell script (format {"echo \"{}\" | sed 's/\\./\\\\./g'", plistKey})
-					
+
 					quoted form of escapedPlistKey
 				end _escapeAndQuoteKey
-				
+
 				(*
 					@listToSet must have similarly element type.
 
@@ -627,81 +608,78 @@ on new()
 							if (offset of "$" in nextElement) is 0 then
 								set nextElementValue to _escapeSpecialCharacters(nextElement)
 							end if
-							
+
 							set param to param & "<" & elementType & ">" & nextElementValue & "</" & elementType & ">"
 						end repeat
 					end if
 					set param to param & "</array>"
 					set setArrayCommand to format {"plutil -replace {} -xml {} {}", {quotedPlistKey, quoted form of param, quotedPlistPosixPath}}
-					
+
 					do shell script setArrayCommand
 				end _insertList
-				
+
 				on _escapeSpecialCharacters(xmlValue)
 					do shell script "echo \"" & xmlValue & "\" | sed \"s/\\&/\\&amp;/;s/>/\\&gt;/;s/</\\&lt;/;s/'/\\&apos;/\""
 				end _escapeSpecialCharacters
-				
-				
+
+
 				(* Keep this handler here despite being date-specific because this library is considered essential and we don't want to make the date library an essential library by putting a depnedency from an essential library. *)
 				on _formatPlistDate(theDate)
 					set dateString to short date string of theDate
-					
+
 					set myMonth to (first word of dateString) as integer
 					if myMonth is less than 10 then set myMonth to "0" & myMonth
 					set myDom to (second word of dateString) as integer
-					
+
 					set timeString to time string of theDate
-					
+
 					set myHour to ((first word of timeString) as integer)
 					if timeString contains "PM" and myHour is not equal to 12 then set myHour to myHour + 12
 					set myHour to myHour - TZ_OFFSET -- Local PH Timezone adjustment
-					
+
 					if myHour is less than 0 then
 						set myHour to (myHour + 24) mod 24
 						set myDom to myDom - 1 -- problem on new year.
 					end if
-					
+
 					if myDom is less than 10 then set myDom to "0" & myDom
 					if myHour is less than 10 then set myHour to "0" & myHour
 					set myMin to (second word of timeString) as integer
 					if myMin is less than 10 then set myMin to "0" & myMin
-					
+
 					set mySec to (third word of timeString) as integer
 					if mySec is less than 10 then set mySec to "0" & mySec
-					
+
 					format {"20{}-{}-{}T{}:{}:{}Z", {last word of dateString, myMonth, myDom, myHour, myMin, mySec}}
 				end _formatPlistDate
-				
+
 				on _zuluToLocalDate(zuluDateText)
 					if zuluDateText is missing value then return missing value
-					
+
 					set dateTimeTokens to _split(zuluDateText, "T", "string")
 					set datePart to first item of dateTimeTokens
 					set timePart to last item of dateTimeTokens
 					set {yearPart, monthPart, dom} to words of datePart
-					
+
 					set dom to last word of datePart
 					set nextDayFlag to false
 					set timezoneOffset to TZ_OFFSET
 					set hourPart to (first word of timePart as integer) + timezoneOffset -- PH local timezone
 					set amPm to "AM"
-					
+
 					set hourInt to (hourPart as integer) mod 24
 					if hourInt is greater than 11 and hourInt is less than 23 then
 						set amPm to "PM"
 					end if
-					
+
 					if hourInt is less than TZ_OFFSET and hourInt is not 0 then set dom to dom + 1 -- Problem on new year
 					set hourPart to hourPart mod 12
 					set parsableFormat to monthPart & "/" & dom & "/" & yearPart & " " & hourPart & text 3 thru -2 of timePart & " " & amPm
-					
+
 					date parsableFormat
 				end _zuluToLocalDate
-				
+
 				on _getPlUtilType(dataToSave)
-					log dataToSave
-					log class of dataToSave
-					
 					if class of dataToSave is text then return "string"
 					if class of dataToSave is integer then return "integer"
 					if class of dataToSave is boolean then return "bool"
@@ -709,35 +687,35 @@ on new()
 					if class of dataToSave is list then return "array"
 					if class of dataToSave is real then return "float"
 					if class of dataToSave is record then return "dict"
-					
+
 					missing value
 				end _getPlUtilType
-				
+
 				to _convertType(textValue, plistType)
 					if plistType is "date" then return _zuluToLocalDate(textValue)
 					if plistType is "integer" then return textValue as integer
 					if plistType is "float" then return textValue as real
 					if plistType is "bool" then return textValue is "true"
-					
+
 					textValue
 				end _convertType
-				
+
 				to _newValue(mapKey, newValue)
 					tell application "System Events" to tell property list file plistFilename
 						make new property list item at end with properties {kind:class of newValue, name:mapKey, value:newValue}
 					end tell
 				end _newValue
-				
+
 				-- TO Migrate, from session.
 				on debugOn()
 					getBool("DEBUG_ON")
 				end debugOn
 			end script
 		end new
-		
-		
+
+
 		-- Private Codes below =======================================================
-		
+
 		on _posixSubPathToFolder(subpath, sourceFolder)
 			set calcEndFolder to sourceFolder
 			set pathTokens to _split(subpath, "/", "string")
@@ -750,18 +728,18 @@ on new()
 					end try
 				end repeat
 			end tell
-			
+
 			calcEndFolder
 		end _posixSubPathToFolder
-		
-		
+
+
 		(* Intended to cache the value to reduce events triggered. *)
 		on _getHomeFolderPath()
 			if my homeFolderPath is missing value then set my homeFolderPath to (path to home folder)
 			my homeFolderPath
 		end _getHomeFolderPath
-		
-		
+
+
 		(*
 			WET: Keep it wet because this library will be considered essential and shouldn't have many transitive dependencies to simplify deployment.
 			@elementType - can be integer, float, bool, or string
@@ -771,7 +749,7 @@ on new()
 			set AppleScript's text item delimiters to theDelimiter
 			set theArray to every text item of theString
 			set AppleScript's text item delimiters to oldDelimiters
-			
+
 			set typedArray to {}
 			repeat with nextElement in theArray
 				if elementType is "integer" then
@@ -787,173 +765,23 @@ on new()
 				end if
 				set end of typedArray to typedValue
 			end repeat
-			
+
 			typedArray
 		end _split
-		
-		
+
+
 		on _indexOf(aList, targetElement)
 			repeat with i from 1 to count of aList
 				set nextElement to item i of aList
 				if nextElement as text is equal to targetElement as text then return i
 			end repeat
-			
+
 			return 0
 		end _indexOf
 	end script
-	
+
 	-- if not isSpot then overrider's applyMappedOverride(result) -- Causing weird error.
-	
+
 	-- PlutilInstance
 end new
 
-
-
-on unitTest()
-	set ut to test's new()
-	set sut to new()'s new("spot-plist")
-	tell ut
-		
-		newMethod("setup")
-		sut's deleteKey(missing value)
-		sut's deleteKey("spot-array")
-		sut's deleteKey("spot-array2")
-		sut's deleteKey("spot-array-string")
-		sut's deleteKey("spot-string")
-		sut's deleteKey("spot-string-dotted")
-		sut's deleteKey("spot-integer")
-		sut's deleteKey("spot-float")
-		sut's deleteKey("spot-date")
-		sut's deleteKey("spot-bool")
-		sut's deleteKey("spot-record")
-		sut's deleteKey("spot-map")
-		sut's deleteKey("spot-special")
-		
-		set actual to sut's getValue("spot-array")
-		-- assertEqual(missing value, sut's getValue("spot-array"), "Clean array key") -- strange error, "msng's getKeys() huh?!"
-		assertMissingValue(actual, "Clean array key")
-		
-		
-		newMethod("setValue")
-		-- sut's setValue("101 Dalmatian", "Key Starts with Number Breaks")
-		sut's setValue(missing value, "haha")
-		sut's setValue("spot-array", {1, 2})
-		sut's setValue("spot-array-string", {"one", "two"})
-		sut's setValue("spot-array-empty", {})
-		sut's setValue("spot array empty", {})
-		sut's setValue("spot-string", "text")
-		sut's setValue("spot-special", "special&<>")
-		sut's setValue("spot-list-special", {"&", "<", ">"}) -- Doesn't look like we need to escape apostrophe and double quotes.
-		sut's setValue("spot-$dollar", "$5")
-		sut's setValue("spot-$dollar-list", {"$yes-5"})
-		
-		sut's setValue("spot-string.dotted-key", "string-dotted-value.txt")
-		sut's setValue("spot-integer", 1)
-		sut's setValue("spot-float", 1.5)
-		sut's setValue("spot-record", {one:1, two:2, three:"a&c", |four: colonized|:"apat"})
-		set testMap to mapLib's new()
-		testMap's putValue("one", 1)
-		testMap's putValue("two", 2)
-		sut's setValue("spot-map", testMap)
-		set zuluAdjust to 0 -- manually add/subtract hours if need to test before/after, arvo/midnight. PROBLEMATIC!
-		logger's debugf("zulu adjustment hour: {}", zuluAdjust)
-		set currentDate to (current date) + zuluAdjust * hours
-		sut's setValue("spot-date", currentDate)
-		sut's setValue("spot-bool", false)
-		
-		newMethod("getValue")
-		set arrayValue to sut's getValue(missing value)
-		set arrayValue to sut's getValue("spot-array")
-		assertEqual(2, count of arrayValue, "Get array count")
-		assertEqual(1, first item of arrayValue, "Get array element first")
-		assertEqual(2, last item of arrayValue, "Get array element last")
-		assertEqual("text", sut's getValue("spot-string"), "Get string value")
-		assertEqual("string-dotted-value.txt", sut's getValue("spot-string.dotted-key"), "Get string value of dotted key")
-		assertEqual(1.5, sut's getValue("spot-float"), "Get float value")
-		assertEqual(currentDate, sut's getValue("spot-date"), "Get date value")
-		assertEqual(false, sut's getValue("spot-bool"), "Get bool value")
-		set actualRecord to sut's getValue("spot-record")
-		assertEqual({"four: colonized", "one", "three", "two"}, listUtil's simpleSort(actualRecord's getKeys()), "Get record keys")
-		-- assertEqual("{one: 1, two: 2, three: a&c, four: colonized: apat}", actualRecord's toString(), "Get record value") -- TODO: map's equals()
-		assertEqual("$5", sut's getValue("spot-$dollar"), "Dollar Key and Value")
-		assertEqual({"$yes-5"}, sut's getValue("spot-$dollar-list"), "Dollar Character in List")
-		
-		newMethod("getValueWithDefault")
-		assertEqual("use me", sut's getValueWithDefault("spot-string-absent", "use me"), "Value is absent")
-		assertEqual("text", sut's getValueWithDefault("spot-string", 1), "Value is present")
-		
-		newMethod("getList")
-		assertMissingValue(sut's getList(missing value), "Missing value")
-		assertEqual({"one", "two"}, sut's getList("spot-array-string"), "Get List")
-		assertMissingValue(sut's getList("unicorn-list"), "Missing key returns missing value")
-		assertEqual({}, sut's getList("spot-array-empty"), "Empty List")
-		assertEqual({}, sut's getList("spot array empty"), "Empty List, Spaced-Key")
-		
-		newMethod("getForcedList")
-		assertEqual({"one", "two"}, sut's getForcedList("spot-array-string"), "List exists")
-		assertEqual({}, sut's getForcedList("unicorn-list"), "Missing List")
-		
-		newMethod("appendValue")
-		sut's appendValue("spot-array2", 3)
-		assertEqual({3}, sut's getList("spot-array2"), "First element")
-		sut's appendValue(missing value, 3)
-		sut's appendValue("spot-array", missing value)
-		sut's appendValue("spot-array", 3)
-		assertEqual({1, 2, 3}, sut's getList("spot-array"), "Append Int")
-		sut's appendValue("spot-array-string", "four")
-		assertEqual({"one", "two", "four"}, sut's getList("spot-array-string"), "Append String")
-		sut's appendValue("spot-array-string", "five.five")
-		assertEqual({"one", "two", "four", "five.five"}, sut's getList("spot-array-string"), "Append dotted string")
-		
-		newMethod("removeElement")
-		assertFalse(sut's removeElement(missing value, "two"), "Missing value list")
-		assertFalse(sut's removeElement("spot-array-string", missing value), "Missing value element")
-		assertTrue(sut's removeElement("spot-array-string", "two"), "Successful removal")
-		assertEqual({"one", "four", "five.five"}, sut's getList("spot-array-string"), "Get after removing an element")
-		assertTrue(sut's removeElement("spot-array-string", "one"), "Successful removal")
-		sut's removeElement("spot-array-string", "four")
-		sut's removeElement("spot-array-string", "five.five")
-		assertEqual({}, sut's getList("spot-array-string"), "Get after removing all element")
-		assertFalse(sut's removeElement("spot-array-string", "Good Putin"), "Remove inexistent element")
-		
-		newMethod("getInt")
-		assertMissingValue(sut's getInt(missing value), "Missing value")
-		assertEqual(1, sut's getInt("spot-integer"), "Get integer value")
-		
-		newMethod("getReal")
-		assertMissingValue(sut's getReal(missing value), "Missing value")
-		assertEqual(1.5, sut's getReal("spot-float"), "Get real value")
-		
-		newMethod("getDateText")
-		assertMissingValue(sut's getDateText(missing value), "Missing value")
-		assertNotMissingValue(sut's getDateText("spot-date"), "Can get date text")
-		
-		newMethod("update") -- huh?!
-		sut's setValue("spot-bool", 1)
-		assertEqual(1, sut's getValue("spot-bool"), "Update bool to integer")
-		
-		newMethod("hasValue")
-		assertEqual(false, sut's hasValue(missing value), "Missing value")
-		assertEqual(false, sut's hasValue("spot-unicorn"), "Value not found")
-		assertEqual(true, sut's hasValue("spot-bool"), "Value found")
-		
-		newMethod("hasValue")
-		assertFalse(sut's hasValue("spot-unicorn"), "Value not found")
-		assertFalse(sut's hasValue(missing value), missing value)
-		
-		if mapLib's hasJsonSupport() then
-			newMethod("getRecord")
-			assertEqual("{one: 1, two: 2}", sut's getRecord("spot-map")'s toString(), "Read Record Stored as JSON String")
-		end if
-		
-		(*
-		set fetchedMapValue to sut's getValue("spot-map")
-		log fetchedMapValue
-		log class of fetchedMapValue
-
-		assertEqual("{one: 1, two: 2}", sut's getValue("spot-map")'s toString(), "Get record from Map")
-		*)
-		
-		done()
-	end tell
-end unitTest

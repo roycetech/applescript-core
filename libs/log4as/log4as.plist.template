@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+
+	<key>categories</key>
+	<dict>
+		<key>log4as.log4asx</key>
+		<string>DEBUG</string>
+		<key>log4as.core-test-i</key>
+		<string>INFO</string>
+		<key>log4as.core-test-d</key>
+		<string>DEBUG</string>
+		<key>log4as.core-test-w</key>
+		<string>WARN</string>
+		<key>log4as.core-test-e</key>
+		<string>ERR</string>
+		<key>log4as.core-test-o</key>
+		<string>OFF</string>
+	</dict>
+
+	<key>defaultLevel</key>
+	<string>INFO</string>
+
+	<key>printToConsole</key>
+	<true/>
+
+	<key>writeToFile</key>
+	<true/>
+</dict>
+</plist>

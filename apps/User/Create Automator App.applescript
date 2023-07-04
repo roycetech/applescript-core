@@ -7,7 +7,7 @@
 		automator.applescript
 		script-editor.applescript
 		
-	@Deployment:
+	@Build:
 		1. Run this code, if the app is not yet installed, it will be created.
 		2. Grant accessibility permission to the resulting app.
 		Re-install this app by deleting the Create Automator App.app and redo deployment steps.
@@ -20,6 +20,9 @@
 		
 	@Configurations
 		Reads config-user.plist - AppleScript Projects Path
+		
+	@Known Issues:
+		As of June 28, 2023 11:26 AM, while it is working on Script Editor, there is a scary "errOSAInternalTableOverflow" dialog when I try to run this on Script Debugger.
 *)
 
 use scripting additions
@@ -50,6 +53,7 @@ property isSpot : false
 property session : plutil's new("session")
 
 tell application "System Events" to set scriptName to get name of (path to me)
+
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then set my isSpot to true
 

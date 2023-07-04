@@ -1,14 +1,22 @@
+(*
+	@Last Modified: 2023-07-02 14:58:20
+	
+	@Build:
+		make compile-lib SOURCE=core/window
+*)
+
 use listUtil : script "list"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("window")
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "window")
 	set thisCaseId to "window-spotCheck"
 	logger's start()
 	

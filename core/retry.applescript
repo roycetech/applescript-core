@@ -3,23 +3,23 @@
 		use retryLib : script "retry"
 		property retry : retryLib's new()
 			
-	@Installation:
-		make compile
+	@Build:
+		make compile-lib SOURCE=core/retry
 *)
 
 use scripting additions
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use listUtil : script "list"
 use spotScript : script "spot-test"
 use idlerLib : script "idler"
 
-property logger : loggerLib's new("retry")
-property spotLib : spotScript's new()
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "retry")
 	set thisCaseId to "retry-spotCheck"
 	logger's start()
 	
@@ -29,7 +29,8 @@ on spotCheck()
 		Manual: Success on retry
 	")
 	
-	set spot to spotLib's new(thisCaseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -73,6 +74,7 @@ end spotCheck
 
 
 on new()
+	loggerFactory's injectBasic(me, "retry")
 	script RetryInstance
 		on execOnIdle on scriptObj by idleBy : 2 for ntimes : 1000
 			set idler to idlerLib's new(idleBy)

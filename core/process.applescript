@@ -7,21 +7,28 @@
 	Testing Notes:
 		Debug in logging must be on to see spot check object introspection.
 		Have 3 Script Editor windows, this window plus 2 Untitled windows.
+
+	@Build:
+		make compile-lib SOURCE=core/process
 		
 *)
 
 use script "Core Text Utilities"
 use scripting additions
 
-use loggerLib : script "logger"
+use std : script "std"
 use listUtil : script "list"
-use spotClass : script "spot-test"
 
-property logger : loggerLib's new("process")
+use loggerFactory : script "logger-factory"
+
+use spotScript : script "spot-test"
+
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "process")
 	logger's start()
 	set caseId to "process-spotCheck"
 	
@@ -43,8 +50,8 @@ on spotCheck()
 		Manual: Minimize
 	")
 	
-	set spotLib to spotClass's new()
-	set spot to spotLib's new(caseId, cases)
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -128,6 +135,8 @@ end spotCheck
 
 
 on new(pProcessName)
+	loggerFactory's injectBasic(me, "process")
+	
 	if std's appExists(pProcessName) is false then tell me to error "App: " & pProcessName & " could not be found."
 	
 	script ProcessInstance

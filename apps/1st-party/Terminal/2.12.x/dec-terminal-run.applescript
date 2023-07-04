@@ -2,8 +2,8 @@
 	@Session:
 		runShell-<tab-name>
 		
-	@Deployment:
-		make install-terminal
+	@Build:
+		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-run
 *)
 
 use script "Core Text Utilities"
@@ -12,6 +12,8 @@ use scripting additions
 use listUtil : script "list"
 use textUtil : script "string"
 
+use loggerFactory : script "logger-factory"
+
 use loggerLib : script "logger"
 use plutilLib : script "plutil"
 use retryLib : script "retry"
@@ -19,17 +21,15 @@ use terminalLib : script "terminal"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("dec-terminal-run")
-property plutil : plutilLib's new()
+property logger : missing value
 property retry : retryLib's new()
-property terminal : terminalLib's new()
 
-property session : plutil's new("session")
-property SESSION_PLIST : missing value
+property session : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "dec-terminal-run")
 	set thisCaseId to "term-ext-run-spotCheck"
 	logger's start()
 	
@@ -47,7 +47,7 @@ on spotCheck()
 		return
 	end if
 	
-	
+	set terminal to terminalLib's new()
 	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)
 	
@@ -68,14 +68,15 @@ end spotCheck
 
 
 on decorate(termTabScript)
-	if my SESSION_PLIST is missing value then
-		tell application "Finder"
-			set my SESSION_PLIST to text 8 thru -1 of (URL of folder "applescript-core" of (path to home folder) as text) & "session.plist"
-		end tell
-	end if
+	loggerFactory's injectBasic(me, "dec-terminal-run")
+	set plutil to plutilLib's new()
+	set session to plutil's new("session")
 	
 	script TerminalTabInstance
 		property parent : termTabScript
+		
+		(* This conflicted when declared on the outer script, so let's move it here instead. *)
+		property sessionPlist : missing value
 		
 		(*
 			Runs a bash command waiting for its result.
@@ -93,7 +94,8 @@ on decorate(termTabScript)
 			session's deleteKey(propertyName)
 			-- logger's debugf("Running Command: \"{}\"", bashCommand)
 			
-			set calcCommmand to format {"plutil -replace {} -string \"`{}`\" {}", {quoted form of propertyName, shellCommand, SESSION_PLIST}}
+			set localSessionPlist to my sessionPlist -- following code has issue referencing my properties directly.			
+			set calcCommmand to format {"plutil -replace {} -string \"`{}`\" {}", {quoted form of propertyName, shellCommand, localSessionPlist}}
 			-- logger's debugf("Calculated Command: {}", calcCommmand)
 			set NO_RESULT to "_noresult_"
 			tell application "Terminal"
@@ -158,4 +160,10 @@ on decorate(termTabScript)
 			_refreshTabName()
 		end doCd
 	end script
+	
+	tell application "Finder"
+		set TerminalTabInstance's sessionPlist to text 8 thru -1 of (URL of folder "applescript-core" of (path to home folder) as text) & "session.plist"
+	end tell
+	
+	TerminalTabInstance
 end decorate

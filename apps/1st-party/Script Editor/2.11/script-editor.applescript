@@ -5,10 +5,10 @@
 		This script expects that finder preferences has to always
 	display the file extension.
 
-	@Compile:
-		make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/scripteditor"
+	@Build:
+		make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
 				
-	Usage:
+	@Usage:
 		use seLib : script "script-editor"
 		property se : seLib's new()
 		set frontTab to se's getFrontTab()
@@ -19,18 +19,19 @@
 use script "Core Text Utilities"
 use scripting additions
 
+use loggerFactory : script "logger-factory"
+
 use fileUtil : script "file"
 use listUtil : script "list"
 use textUtil : script "string"
 
 use configLib : script "config"
-use loggerLib : script "logger"
 use retryLib : script "retry"
 use overriderLib : script "overrider"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("script-editor")
+property logger : loggerFactory's newBasic("script-editor")
 property configSystem : configLib's new("system")
 property retry : retryLib's new()
 property overrider : overriderLib's new()
@@ -38,6 +39,7 @@ property overrider : overriderLib's new()
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	
 	set thisCaseId to "script-editor-spotCheck"
 	logger's start()
 	
@@ -49,6 +51,7 @@ on spotCheck()
 		Manual: Get Front Tab
 		
 		Manual: Focus
+		Manual: Save as app
 	")
 	
 	set spotClass to spotScript's new()
@@ -83,19 +86,27 @@ on spotCheck()
 	else if caseIndex is 4 then
 		logger's infof("Not Found: {}", findTabWithName("Bad Name"))
 		set spotTabName to "std.applescript"
-		set sutTab to findTabWithName(spotTabName)
+		set sutTab to sut's findTabWithName(spotTabName)
 		logger's logObj("Found Tab", sutTab)
 		sutTab's runScript()
 		
 	else if caseIndex is 5 then
-		set sutTab to getFrontTab()
+		set sutTab to sut's getFrontTab()
 		logger's logObj("Front Tab", sutTab)
 		logger's infof("Script Name: {}", sutTab's getScriptName())
 		
 	else if caseIndex is 6 then
 		set spotTabName to "std.applescript"
-		set sutTab to findTabWithName(spotTabName)
+		set sutTab to sut's findTabWithName(spotTabName)
 		sutTab's focus()
+		
+	else if caseIndex is 7 then
+		set sutTab to sut's findTabWithName("Menu Case.applescript")
+		sutTab's focus()
+		tell application "Finder"
+			set targetFolderMon to folder "Stay Open" of folder "AppleScript" of (path to applications folder) as text
+		end tell
+		logger's infof("Handler result: {}", sutTab's saveAsStayOpenApp(targetFolderMon))
 		
 	end if
 	
@@ -150,7 +161,8 @@ on new()
 				end if
 			end tell
 			
-			do shell script "open " & quoted form of posixFilePath
+			-- do shell script "open " & quoted form of posixFilePath -- Uses the default app.
+			do shell script "open -a 'Script Editor' " & quoted form of posixFilePath
 			delay 0.1
 			return getFrontTab()
 			
@@ -339,10 +351,11 @@ on new()
 					if running of application "Script Editor" is false then return
 					
 					set newScriptName to textUtil's replace(getScriptName(), ".applescript", ".app")
+					log targetFolder & newScriptName
 					tell application "Script Editor"
 						tell document of my appWindow
 							compile
-							save as "application" in targetFolder & newScriptName with stay open
+							save as "application" in (targetFolder & newScriptName) with stay open
 						end tell
 					end tell
 					newScriptName
@@ -404,7 +417,7 @@ on new()
 				(* @returns the mac os notation folder of this script *)
 				on getScriptLocation()
 					if running of application "Script Editor" is false then return
-					
+
 					tell application "Script Editor" -- Wrapped due to error, was fine before.
 						set sut to path of document of appWindow
 						set scriptName to name of document of appWindow
@@ -414,20 +427,20 @@ on new()
 					set location to text 1 thru reducedLength of sut
 					(POSIX file location) as text
 				end getScriptLocation
-				
+
 				on mergeAllWindows()
 					if running of application "Script Editor" is false then return
-					
+
 					focus()
-					
+
 					tell application "System Events" to tell process "Script Editor"
 						click menu item "Merge All Windows" of menu 1 of menu bar item "Window" of menu bar 1
 					end tell
 				end mergeAllWindows
 			end script
-			
+
 			tell application "Script Editor" to set appWindow of ScriptEditorInstance to window id windowId
-			
+
 			ScriptEditorInstance
 		end _new
 	end script

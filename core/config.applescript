@@ -1,29 +1,29 @@
 (*
-	@Deployment:
-		make compile-lib SOURCE=core/config		
-*)
-
-use plutilScript : script "plutil"
-use loggerLib : script "logger"
-
-property logger : loggerLib's new("config")
-property plutilLib : plutilScript's new()
-property filename : "~/applescript-core/config-default.plist"
-
-(*
-    Usage:
-        use configLib :  script "config"
+@Usage:
+    use configLib :  script "config"
         
-    property configUser : configLib's new("user")
+property configUser : configLib's new("user")
     
-    set DEPLOY_DIR to configUser's getValue("User Key")
+set DEPLOY_DIR to configUser's getValue("User Key")
 
-    TODO: Optimize by creating new handlers with type like getValueString.
+TODO: Optimize by creating new handlers with type like getValueString.
+
+	@Build:
+		make compile-lib SOURCE=core/config
 *)
+
+use plutilLib : script "plutil"
+
+use loggerFactory : script "logger-factory"
+
+property logger : missing value
+property filename : "~/applescript-core/config-default.plist"
+property plutil : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "config")
 	logger's start()
 	set sut to new("system")
 	
@@ -60,7 +60,10 @@ end spotCheck
 
 (* @configName the plist name be default. *)
 on new(pConfigName)
-	
+	loggerFactory's injectBasic(me, "config")
+
+	set plutil to plutilLib's new()
+
 	if pConfigName is "" or pConfigName is missing value then
 		set localConfigName to "default"
 	else
@@ -90,10 +93,10 @@ on new(pConfigName)
 			if categoryPlist is missing value or category is not equal to the configName then
 				set computedPlistName to "config-" & category
 				if knownPlists contains computedPlistName then
-					set categoryPlist to plutilLib's new(computedPlistName)
+					set categoryPlist to plutil's new(computedPlistName)
 					
-				else if plutilLib's plistExists(computedPlistName) then
-					set categoryPlist to plutilLib's new(computedPlistName)
+				else if plutil's plistExists(computedPlistName) then
+					set categoryPlist to plutil's new(computedPlistName)
 					set end of knownPlists to computedPlistName
 					
 				else

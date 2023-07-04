@@ -6,15 +6,16 @@
 	@Version:
 		macOS Monterey 12.x.
 
-	@Deployment:
-		make compile-lib SOURCE="apps/1st-party/System Preferences/15.0/system-preferences"		
+	@Build:
+		make compile-lib SOURCE="apps/1st-party/System Preferences/15.0/system-preferences"
 *)
 
 use scripting additions
 
+use loggerFactory : script "logger-factory"
+
 use listUtil : script "list"
 
-use loggerLib : script "logger"
 use retryLib : script "retry"
 use usrLib : script "user"
 
@@ -22,10 +23,10 @@ use overriderLib : script "overrider"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("")
-property retry : retryLib's new()
-property usr : usrLib's new()
-property overrider : overriderLib's new()
+property logger : missing value
+property retry : missing value
+property usr : missing value
+property overrider : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -107,6 +108,11 @@ end spotCheck
 
 
 on new()
+	loggerFactory's inject(me, "system-preferences")
+	set retry to retryLib's new()
+	set usr to usrLib's new()
+	set overrider to overriderLib's new()
+	
 	script SystemPreferences
 		on revealAccessibilityDictation()
 			tell application "System Preferences" to activate
@@ -351,5 +357,6 @@ on new()
 			end repeat
 		end quitApp
 	end script
+	
 	overrider's applyMappedOverride(result)
 end new

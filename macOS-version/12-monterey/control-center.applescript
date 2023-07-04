@@ -3,27 +3,29 @@
 	
 	Depends on the position of the focus checkbox to be the 2nd one. 
 	
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=macOS-version/12-monterey/control-center
 *)
 
-use loggerLib : script "logger"
-
+use textUtil : script "string"
+use listUtil : script "list"
 use unic : script "user-unicodes"
+
+use loggerFactory : script "logger-factory"
+
 use retryLib : script "retry"
 use kbLib : script "keyboard"
-use textUtil : script "string"
 
 use spotScript : script "spot-test"
-use listUtil : script "list"
 
-property logger : loggerLib's new("control-center")
-property retry : retryLib's new()
-property kb : kbLib's new()
+property logger : missing value
+property retry : missing value
+property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "control-center")
 	set thisCaseId to "control-center-spotCheck"
 	logger's start()
 	
@@ -48,6 +50,7 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
+	
 	
 	set sut to new()
 	if caseIndex is 1 then
@@ -95,6 +98,10 @@ end spotCheck
 
 
 on new()
+	loggerFactory's injectBasic(me, "control-center")
+	set retry to retryLib's new()
+	set kb to kbLib's new()
+	
 	script ControlCenterInstance
 		(* 
 			Joins the first hotspot matching the given key.
@@ -102,7 +109,7 @@ on new()
 			@hotspotKey - the hotspot identifier to join, e.g. "Joe's iPhone". (Use the correct unicode apostrophe)
 		*)
 		on joinHotspot(hotspotKey)
-			logger's infof("Hotspot: {}", hotspotKey)
+			-- logger's debugf("Hotspot: {}", hotspotKey)
 			script MenuClicker
 				tell application "System Events" to tell process "ControlCenter"
 					click (first menu bar item of menu bar 1 whose name contains "Control Center")
@@ -120,7 +127,7 @@ on new()
 						if the number of items in matchedConnections is 0 then return "not found"
 						
 						set currentState to value of first item in matchedConnections
-						logger's debugf("Current State: {}", currentState)
+						-- logger's debugf("Current State: {}", currentState)
 						if currentState is 1 then
 							return "already connected"
 						end if

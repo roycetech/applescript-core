@@ -8,7 +8,7 @@
 		
 		property usr : userLib's new()
 		
-	@Deployment:
+	@Build:
 		make compile-lib SOURCE=libs/user/user
 		
 	@Troubleshooting:
@@ -22,20 +22,21 @@ use scripting additions
 use std : script "std"
 use listUtil : script "list"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use ccLib : script "control-center"
 use overriderLib : script "overrider"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("user")
-property cc : ccLib's new()
+property logger : missing value
+property cc : missing value
 
 property overrider : overriderLib's new()
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "user")
 	set thisCaseId to "user-spotCheck"
 	logger's start()
 	
@@ -60,6 +61,7 @@ on spotCheck()
 		logger's infof("In Meeting: {}", sut's isInMeeting())
 		logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
 		logger's infof("Is Online?: {}", sut's isOnline())
+		logger's infof("Major OS Version?: {}", sut's getOsMajorVersion())
 		
 	else if caseIndex is 2 then
 		
@@ -69,7 +71,7 @@ on spotCheck()
 		sut's cueForTouchId()
 		
 	else if caseIndex is 4 then
-		sut's done()
+		sdone()
 		
 	end if
 	
@@ -79,6 +81,9 @@ end spotCheck
 
 
 on new()
+	loggerFactory's injectBasic(me, "user")
+	set cc to ccLib's new()
+	
 	script UserInstance
 		on cueForTouchId()
 			do shell script "afplay /System/Library/Sounds/Glass.aiff"
@@ -119,7 +124,8 @@ on new()
 			set sysinfo to system info
 			return (do shell script "echo '" & system version of sysinfo & "' | cut -d '.' -f 1") as integer
 		end getOsMajorVersion
-		
 	end script
 	overrider's applyMappedOverride(result)
 end new
+
+

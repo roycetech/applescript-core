@@ -28,8 +28,8 @@
 		Under Tab:
 			Uncheck all except "Show activity indicator"
 			
-	@Deployment:
-		make install-terminal
+	@Build:
+		make compile-terminal
 
 	@Known Issues:
 		Breaks on macOS Ventura, when there is no existing Terminal window to launch from.
@@ -60,14 +60,13 @@ use spotScript : script "spot-test"
 use overriderLib : script "overrider"
 
 property logger : missing value
-property retry : retryLib's new()
-property winUtil : windowLib's new()
-property syseve : syseveLib's new()
+property retry : missing value
+property winUtil : missing value
+property syseve : missing value
 
 property overrider : overriderLib's new()
 
-property SEPARATOR : unic's SEPARATOR
-property useBasicLogging : false
+-- property SEPARATOR : unic's SEPARATOR
 
 -- set main to me
 
@@ -75,7 +74,6 @@ property useBasicLogging : false
 property main : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then
-	set useBasicLogging to true
 	spotCheck()
 end if
 
@@ -85,12 +83,10 @@ end if
 *)
 on spotCheck()
 	loggerFactory's inject(me, "terminal")
-	
 	set thisCaseId to "terminal-spotCheck"
-	log logger is missing value
-	log name of my logger
-	logger's start()
 	
+	logger's start()
+	set skip of overrider to true
 	set cases to listUtil's splitByLine("
 		Manual: Front Tab and Info
 		Manual: New Tab, Find
@@ -108,9 +104,7 @@ on spotCheck()
 		Manual: Set Tab Name
 	")
 	
-	log logger of spotScript
 	loggerFactory's share(me, spotScript)
-	log name of logger of spotScript
 	
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(thisCaseId, cases)
@@ -210,6 +204,10 @@ end spotCheck
 
 
 on new()
+	set retry to retryLib's new()
+	set winUtil to windowLib's new()
+	set syseve to syseveLib's new()
+	
 	script TerminalInstance
 		on getFrontTab()
 			getFrontMostInstance()
@@ -249,7 +247,7 @@ on new()
 			-- 	end try
 			-- end tell
 			
-			set targetName to textUtil's join({folderName, SEPARATOR, theName}, "")
+			set targetName to textUtil's join({folderName, unic's SEPARATOR, theName}, "")
 			logger's debugf("targetName: {}", targetName)
 			tell application "Terminal"
 				try
@@ -549,7 +547,7 @@ on new()
 				on getTabName()
 					if isBash() then return name of appWindow
 					
-					set nameTokens to textUtil's split(name of appWindow, SEPARATOR)
+					set nameTokens to textUtil's split(name of appWindow, unic's SEPARATOR)
 					last item of nameTokens
 				end getTabName
 				

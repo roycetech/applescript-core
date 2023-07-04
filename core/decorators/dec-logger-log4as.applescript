@@ -1,39 +1,47 @@
 (*
 	@Plists:
 		config-lib-factory - Add an override "LoggerSpeechAndTrackingInstance => dec-logger-speech-and-tracking" to use this as override.
+		
+	@Build:
+		make compile-lib SOURCE=core/decorators/dec-logger-log4as
 *)
 
 use log4asLib : script "log4as"
-
 use overriderLib : script "overrider"
 
-property log4as : log4asLib's new()
+property log4as : missing value
 
-property overrider : overriderLib's new()
-
-on decorate(baseScript)	
+on decorate(baseScript)
+	set log4as to log4asLib's new()
+	
 	script LoggerLog4ASInstance
 		property parent : baseScript
-		property level : {OFF:0, info:1, debug:2, warn:3, ERR:4} -- WET 2/2 copy in log4as.applescript
 		
 		on debug(logMessage)
-			if log4as's isPrintable(parent's objectName, debug of level) is false then return
+			if log4as's isPrintable(parent's objectName, debug of log4asLib's level) is false then return
 			
 			continue debug(logMessage)
 		end debug
 		
 		on info(logMessage)
-			if log4as's isPrintable(parent's objectName, info of level) is false then return
+			if log4as's isPrintable(parent's objectName, info of log4asLib's level) is false then return
 			
 			continue info(logMessage)
 		end info
 		
 		on warn(logMessage)
-			if log4as's isPrintable(parent's objectName, warn of level) is false then return
+			if log4as's isPrintable(parent's objectName, warn of log4asLib's level) is false then return
 			
-			continue info(logMessage)
+			continue warn(logMessage)
+		end warn
+
+		on fatal(logMessage)
+			if log4as's isPrintable(parent's objectName, ERR of log4asLib's level) is false then return
+			
+			continue fatal(logMessage)
 		end warn
 	end script
 	
-	overrider's applyMappedOverride(result)
+	set overrider to overriderLib's new()
+	overrider's applyMappedOverride(LoggerLog4ASInstance)
 end decorate

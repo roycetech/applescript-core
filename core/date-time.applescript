@@ -1,21 +1,28 @@
+(*
+	@Build:
+		make compile-lib SOURCE=core/date-time
+*)
 use framework "Foundation"
-use script "Core Text Utilities"
+
 use scripting additions
 
-use loggerLib : script "logger"
+use script "Core Text Utilities"
+
+use loggerFactory : script "logger-factory"
 use textUtil : script "string"
 use regex : script "regex"
 use listUtil : script "list"
 use spotScript : script "spot-test"
 use testLib : script "test"
 
-property logger : loggerLib's new("date-time")
-property test : testLib's new()
+property logger : missing value
 property timeBufferMin : 2
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me, "date-time")
+	
 	set thisCaseId to "date-time-spotCheck"
 	logger's start()
 	
@@ -74,7 +81,7 @@ end extractTimeFromDateTimeText
 *)
 on next30MinuteSlot(pDateTime as date)
 	set timeString to time string of pDateTime
-	logger's debugf("timeString: {}", timeString)
+	-- logger's debugf("timeString: {}", timeString)
 	
 	set dayAdjust to 0
 	
@@ -340,6 +347,7 @@ end _isWorkTime
 
 
 on unitTest()
+	set test to testLib's new()
 	set ut to test's new()
 	
 	

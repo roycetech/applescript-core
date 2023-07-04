@@ -20,7 +20,6 @@ use overriderLib : script "overrider"
 
 property logger : missing value
 property overrider : overriderLib's new()
-property useBasicLogging : false
 property isSpot : false
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then
@@ -29,8 +28,7 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 end if
 
 on spotCheck()
-	set useBasicLogging to true
-	loggerFactory's inject(me, "stream-deck")
+	loggerFactory's injectBasic(me, "stream-deck")
 	set thisCaseId to "stream-deck-spotCheck"
 	logger's start()
 	
@@ -40,7 +38,6 @@ on spotCheck()
 		Manual: Switch Profile: Percipio
 	")
 	
-	set useBasicLogging of spotScript to true
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(thisCaseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -76,7 +73,8 @@ end spotCheck
 on new()
 	if std's appExists("Elgato Stream Deck") is false then error "Elgato Stream Deck app needs to be installed"
 	
-	loggerFactory's inject(me, "stream-deck")
+	loggerFactory's injectBasic(me, "stream-deck")
+	
 	script StreamDeckInstance
 		
 		(* 

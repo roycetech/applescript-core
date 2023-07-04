@@ -1,26 +1,27 @@
+(*
+	@Build:
+		make install-dvorak
+*)
+
 use script "Core Text Utilities"
 use scripting additions
 
-(*
-	Compile:
-		make install-dvorak
-	
-*)
-
-
+use loggerFactory : script "logger-factory"
 use listUtil : script "list"
 
-use loggerLib : script "logger"
 use kbLib : script "keyboard"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("dec-keyboard-dvorak-cmd")
-property kb : kbLib's new()
+property logger : missing value
+
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	delay 5
+	loggerFactory's injectBasic(me, "de-keyboard-dvorak-cmd")
+	
 	set caseId to "dec-keyboard-dvorak-cmd-spotCheck"
 	logger's start()
 	
@@ -34,10 +35,12 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotLib's new(caseId, cases)
+	set spot to spotClass's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
+	set kb to kbLib's new()
 	set sut to decorate(kb)
+	log name of sut
 	
 	if caseIndex is 1 then
 		tell sut

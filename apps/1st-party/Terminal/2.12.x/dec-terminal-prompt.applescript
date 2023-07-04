@@ -2,8 +2,8 @@ use script "Core Text Utilities"
 use scripting additions
 
 (*
-	@Known Issues:
-		
+		@Build:
+			make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
 *)
 
 use listUtil : script "list"
@@ -13,15 +13,15 @@ use regex : script "regex"
 use unic : script "unicodes"
 use decTerminalOutput : script "dec-terminal-output"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
+
 use retryLib : script "retry"
 use terminalLib : script "terminal"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("dec-terminal-prompt")
-property retry : retryLib's new()
-property terminal : terminalLib's new()
+property logger : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -47,6 +47,7 @@ on spotCheck()
 		return
 	end if
 	
+	set terminal to terminalLib's new()
 	terminal's getFrontTab()
 	set frontTab to decorate(result)
 	set sut to decTerminalOutput's decorate(result)
@@ -82,6 +83,9 @@ end spotCheck
 
 
 on decorate(termTabScript)
+	loggerFactory's injectBasic(me, "dec-terminal-prompt")
+	set retry to retryLib's new()
+	
 	script TerminalTabInstance
 		property parent : termTabScript
 		

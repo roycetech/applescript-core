@@ -3,11 +3,11 @@
 	Each individual project tabs are not treated as separate windows as compared to first party apps.
 
 	@Usage:
-       	use stLib : script "sublime-text"
-       property st : stLib's new()  -- Text Expander: "uuse st"
+		use stLib : script "sublime-text"
+		property sublime : stLib's new()  -- Text Expander: "uuse sublime"
 		
-	@Installation:
-		From this sub-directory, run: `make install`
+	@Build:
+		make compile-sublime-text
 
 	@Known Issues:
 		The handler isCurrentFileNewUnsaved is broken when the front window does 
@@ -20,28 +20,34 @@
 use script "Core Text Utilities"
 use scripting additions
 
+use std : script "std"
+
 use textUtil : script "string"
 use listUtil : script "list"
 use unic : script "unicodes"
+use loggerFactory : script "logger-factory"
 
 use loggerLib : script "logger"
 use finderLib : script "finder"
 use configLib : script "config"
 use kbLib : script "keyboard"
 
-property logger : loggerLib's new("")
-property finder : finderLib's new()
-property kb : kbLib's new()
-property configSystem : configLib's new("system")
+use spotScript : script "spot-test"
 
-property ST_CLI : missing value
+use overriderLib : script "overrider"
 
-set ST_CLI to quoted form of (do shell script "plutil -extract \"Sublime Text CLI\" raw ~/applescript-core/config-system.plist")
+property logger : missing value
+property finder : missing value
+property kb : missing value
+property configSystem : missing value
+property overrider : missing value
 
+property ST_CLI : quoted form of (do shell script "plutil -extract \"Sublime Text CLI\" raw ~/applescript-core/config-system.plist")
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me, "sublime-text")
 	set thisCaseId to "sublime-text-spotCheck"
 	logger's start()
 	
@@ -53,7 +59,6 @@ on spotCheck()
 		Manual: Switch to Group 1
 
 		Manual: Switch to Group 2
-				
 		Run Remote File - e2e
 	")
 	
@@ -111,8 +116,12 @@ end spotCheck
 
 
 on new()
+	set finder to finderLib's new()
+	set kb to kbLib's new()
+	set configSystem to configLib's new("system")
+	set overrider to overriderLib's new()
+	
 	script SublimeTextInstance
-		
 		on openFile(filePath)
 			set openShellCommand to format {"{} {}", {ST_CLI, quoted form of filePath}}
 			do shell script openShellCommand

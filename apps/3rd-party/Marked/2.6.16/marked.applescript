@@ -1,23 +1,28 @@
 (*
-	@Installation:
+	@Last Modified: 2023-07-02 20:27:36
+
+	@Build:
 		make install-marked
 *)
+
+use std : script "std"
 
 use listUtil : script "list"
 use fileUtil : script "file"
 use regex : script "regex"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
+
 use configLib : script "config"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("marked")
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
-
 on spotCheck()
+	loggerFactory's inject(me, "marked")
 	set thisCaseId to "marked-spotCheck"
 	logger's start()
 	
@@ -28,9 +33,9 @@ on spotCheck()
 		Open File - Running
 		Open File - Running - No document
 		Focus Doc - Manual
-		Get Front Tab - Manual (Test Zoomed and non Zoomed)
+		Manual: Get Front Tab - Manual (Zoomed, non zoomed, No window)
 		
-		Manual: Find Tab With Name
+		Manual: Find Tab With Name (Found, not found)
 		Close Tab
 		Open File - Free Style 1-2s
 		Open File Asynchronous
@@ -95,16 +100,26 @@ on spotCheck()
 		logger's infof("Open file: {}", markedTab1's getDocumentName())
 		
 	else if caseIndex is 5 then
-		set frontTab to getFrontTab()
-		logger's infof("Open file: {}", frontTab's getDocumentName())
+		(*
+			Test when the last window is closed with Command + W, this bugged out July 2, 2023 7:48 PM.
+		*)
+		set frontTab to sut's getFrontTab()
+		if frontTab is missing value then
+			logger's info("No window found")
+			
+		else
+			logger's infof("Open document name: {}", frontTab's getDocumentName())
+		end if
 		
 	else if caseIndex is 6 then
-		-- set mdTab to findTabWithName("Safari-general.md")
-		set mdTab to sut's findTabWithName("Installer-general.md")
-		if mdTab is not missing value then log mdTab's getDocumentName()
+		-- tell me to error "abort" -- IS THIS PROMINENT ENOUGH?!!!
+		set mdTab to sut's findTabWithName("Safari-general.md")
+		-- set mdTab to sut's findTabWithName("Installer-general.md") -- This document don't seem to exist.
+		-- assertThat of std given condition:mdTab is not missing value, messageOnFail:"Expected found but missing"
 		
 		set mdTabMissing to sut's findTabWithName("Safari-general.mdx")
-		log mdTabMissing
+		assertThat of std given condition:(mdTabMissing is missing value), messageOnFail:"Expected missing but present"
+		logger's info("Passed.")
 		-- log isDocOpen("Safari-general.mdx")
 		
 	else if caseIndex is 7 then
@@ -132,7 +147,10 @@ on spotCheck()
 	logger's finish()
 end spotCheck
 
+
 on new()
+	loggerFactory's inject(me, "marked")
+	
 	script MarkedInstance
 		on turnOnDarkMode()
 			tell application "System Events" to tell process "Marked"
@@ -223,10 +241,19 @@ on new()
 		end openFile
 		
 		
+		(*
+			@Known Issues:
+				July 2, 2023 8:23 PM - app window can be queried even after it is closed, so we need to use system events to get a more accurate result.
+		*)
 		on getFrontTab()
 			if running of application "Marked" is false then return missing value
+			tell application "System Events" to tell process "Marked"
+				if (count of windows) is 0 then return missing value
+			end tell
 			
 			tell application "Marked"
+				if id of front window is -1 then return missing value
+				
 				try
 					return my _new(front window)
 				on error
@@ -240,12 +267,12 @@ on new()
 			try
 				tell application "Marked"
 					-- set appWindow to first window whose name is documentName
-					set appWindow to first window whose name starts with documentName
+					set appWindow to first window whose name contains documentName
 				end tell
-			on error
-				return missing value
+				return _new(appWindow)
 			end try
-			_new(appWindow)
+			
+			missing value
 		end findTabWithName
 		
 		
@@ -266,7 +293,12 @@ on new()
 				property appWindow : pAppWindow
 				
 				on getDocumentName()
-					set windowName to name of appWindow
+					try
+						set windowName to name of appWindow
+					on error -- When last window is closed, it results in an error "window id -1"
+						return missing value
+					end try
+					
 					set zoomLessName to regex's firstMatchInString(".*(?=\\s\\(\\d{2}%\\))", windowName)
 					if zoomLessName is not missing value then return zoomLessName
 					

@@ -7,6 +7,9 @@
 
 	@Installation:
 		Run `make install` from this file's sub directory.
+
+	@Build:
+		osacompile -o ~/Library/Script\ Libraries/dec-spot-stream-deck.scpt 'apps/3rd-party/Stream Deck/6.x/dec-spot-stream-deck..applescript'
 *)
 
 use std : script "std"
@@ -17,15 +20,13 @@ use kmLib : script "keyboard-maestro"
 use textUtil : script "string"
 
 property logger : missing value
-property km : kmLib's new()
-property useBasicLogging : false
+property km : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	set useBasicLogging to true
-	loggerFactory's inject(me, "dec-spot-stream-deck")
-	
+	loggerFactory's injectBasic(me, "dec-spot-stream-deck")
+
 	script BaseScript
 		on setSessionCaseId(newCaseId)
 			logger's debugf("New Case ID: {}", newCaseId)
@@ -39,11 +40,14 @@ end spotCheck
 (* *)
 
 on decorate(BaseScript)
+	set km to kmLib's new()
+
 	script SpotTestStreamDeckInstance
 		property parent : BaseScript
 		
 		on setSessionCaseId(newCaseId)
 			continue setSessionCaseId(newCaseId)
+			
 			if std's appExists("Stream Deck") is false then return
 			
 			km's setVariable("km_spotName", textUtil's replace(newCaseId, "-spotCheck", "-$"))
