@@ -6,6 +6,11 @@
 		
 	@Installation Example:
 		$ ./scripts/plist-array-append.sh "spot-lov" "option 1" ~/applescript-core/lov.plist
+		
+	@Build:
+		make compile-lib SOURCE=core/lov
+		
+	@Last Modified: 2023-07-04 18:17:49
 *)
 
 use listUtil : script "list"
@@ -15,18 +20,20 @@ use plutilLib : script "plutil"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("")
-property plutil : plutilLib's new()
-property LOV_PLIST : plutil's new("lov")
+use loggerFactory : script "logger-factory"
+
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	set thisCaseId to "#extensionLessName#-spotCheck"
+	loggerFactory's injectBasic(me, "lov")
+	set thisCaseId to "lov-spotCheck"
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
-		Manual: Basic
+		Manual: Binary
+		Manual: Tertiary
 	")
 	
 	set spotClass to spotScript's new()
@@ -37,8 +44,8 @@ on spotCheck()
 		return
 	end if
 	
-	set sut to new("spot-lov")
 	if caseIndex is 1 then
+		set sut to new("spot")
 		set lov to sut's getLov()
 		repeat with nextValue in lov
 			logger's infof("nextValue: {}", nextValue)
@@ -48,8 +55,22 @@ on spotCheck()
 		logger's infof("next of Option 1: {}", sut's getNextValue("Option 1"))
 		logger's infof("next of Option 2: {}", sut's getNextValue("Option 2"))
 		logger's infof("Is Binary: {}", sut's isBinary())
+		logger's infof("Has Value: {}", sut's hasValue("Option 2"))
+		logger's infof("Has Value: {}", sut's hasValue("Option X"))
 		
 	else if caseIndex is 2 then
+		set sut to new("spot3")
+		set lov to sut's getLov()
+		repeat with nextValue in lov
+			logger's infof("nextValue: {}", nextValue)
+		end repeat
+		
+		logger's infof("next of XXX: {}", sut's getNextValue("xxx"))
+		logger's infof("next of Option 1: {}", sut's getNextValue("Option 1"))
+		logger's infof("next of Option 2: {}", sut's getNextValue("Option 2"))
+		logger's infof("Has Value: {}", sut's hasValue("Option 2"))
+		logger's infof("Has Value: {}", sut's hasValue("Option X"))
+		logger's infof("Is Binary: {}", sut's isBinary())
 	end if
 	
 	spot's finish()
@@ -59,9 +80,17 @@ end spotCheck
 
 (*  *)
 on new(lovName)
+	loggerFactory's injectBasic(me, "lov")
+	set plutil to plutilLib's new()
+	set localLovPlist to plutil's new("lov")
+	
 	script LovInstance
 		property _lovName : lovName
-		property _lov : LOV_PLIST's getValue(lovName)
+		property _lov : localLovPlist's getValue(lovName)
+		
+		on hasValue(targetElement)
+			listUtil's listContains(_lov, targetElement)
+		end hasValue
 		
 		on getLov()
 			_lov
@@ -80,7 +109,7 @@ on new(lovName)
 		end getNextValue
 		
 		on isBinary()
-			(count of _lov) is 2
+			(count of my _lov) is 2
 		end isBinary
 	end script
 end new
