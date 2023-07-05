@@ -3,6 +3,8 @@
 	
 	@Build:
 		make compile-lib SOURCE=core/logger-factory
+
+	@Last Modified: 2023-07-05 11:37:57
 *)
 
 use loggerLib : script "logger"
@@ -12,11 +14,12 @@ use loggerLib : script "logger"
 	If a logger instance is already defined, then it does nothing.
 
 	@target - this is a script object that can have a property called useBasicLogging. If this is found and set to true, it will inject a logging instance without any overrides.
-	@objectName - passed as the logging object name to the logger
 	
 	@returns boolean result of the operation.
 *)
-on inject(target, objectName)
+on inject(target)
+	set objectName to the name of the target
+	
 	try
 		if logger of target is not missing value then return
 	end try
@@ -42,11 +45,10 @@ end newBasic
 	
 	@returns true if the injection is successful.
 *)
-on injectBasic(target, objectName)
+on injectBasic(target)
+	set objectName to the name of the target
 	try
 		set logger of target to loggerLib's newBase(objectName)
-	on error
-		
 	end try
 end injectBasic
 
