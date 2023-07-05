@@ -9,7 +9,7 @@
 
 use textUtil : script "string"
 use listUtil : script "list"
-use unic : script "user-unicodes"
+use unic : script "unicodes"
 
 use loggerFactory : script "logger-factory"
 

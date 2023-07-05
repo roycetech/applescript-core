@@ -20,23 +20,24 @@ use scripting additions
 
 use listUtil : script "list"
 
-use loggerLib : script "logger"
 use configLib : script "config"
 use retryLib : script "retry"
 use safariLib : script "safari"
 
+use loggerFactory : script "logger-factory"
+
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("safari-javascript")
+property logger : missing value
 
-
-property configSystem : configLib's new("system")
-property retry : retryLib's new()
-property safari : safariLib's new()
+property configSystem : missing value
+property retry : missing value
+property safari : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me)
 	set thisCaseId to "safari-javascript-next-spotCheck"
 	logger's start()
 	
@@ -105,6 +106,11 @@ end spotCheck
 -- Start of actual handlers ================
 
 on decorate(safariTab)
+	loggerFactory's injectBasic(me)
+	set safari to safariLib's new()
+	set configSystem to configLib's new("system")	
+	set retry to retryLib's new()
+	
 	script SafariJavaScriptInstance
 		property parent : safariTab
 		property findRunMax : 0

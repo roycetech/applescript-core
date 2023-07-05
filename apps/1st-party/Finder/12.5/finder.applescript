@@ -6,10 +6,12 @@
 	WARNING: Finder is slow in general (not just this script). Avoid using the app Finder as much as possible.
 	
 	@Prerequisites:
-		keyboard.applescript - some handlers require keypresses.
+		keyboard.applescript - some handlers require key presses.
 
 	@Install:
 		make install-finder
+		
+	@Last Modified: 2023-07-05 16:43:36
 *)
 
 use script "Core Text Utilities"
@@ -19,19 +21,20 @@ use std : script "std"
 use textUtil : script "string"
 use listUtil : script "list"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
+
 use kbLib : script "keyboard"
 use overriderLib : script "overrider"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("")
-property kb : kbLib's new()
-property overrider : overriderLib's new()
+property logger : missing value
+property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's injectBasic(me)
 	set thisCaseId to "finder-spotCheck"
 	logger's start()
 	
@@ -150,6 +153,9 @@ on spotCheck()
 end spotCheck
 
 on new()
+	loggerFactory's inject(me)
+	set kb to kbLib's new()
+	
 	script FinderInstance
 		on findTab(tabName)
 			tell application "Finder"
@@ -454,6 +460,12 @@ on new()
 			end tell
 		end getApplicationsFolder
 		
+		on getUserApplicationsFolder()
+			tell application "Finder"
+				path to applications folder from user domain
+			end tell
+		end getUserApplicationsFolder
+		
 		on getTrashFolder()
 			tell application "Finder"
 				(path to trash folder)
@@ -504,5 +516,7 @@ on new()
 			calcEndFolder
 		end _posixSubPathToFolder
 	end script
-	overrider's applyMappedOverride(result)
+	
+	set overrider to overriderLib's new()
+	overrider's applyMappedOverride(FinderInstance)
 end new

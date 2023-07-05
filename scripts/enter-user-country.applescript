@@ -41,7 +41,7 @@ set inputText to text returned of userInput
 logger's debugf("inputText: {}", inputText)
 
 configUser's setValue(infoKey, inputText)
-logger's infof("The detail: {} is now saved for {}", {inputText, infoKey})
+logger's infof("The value: {} is now saved for {}", {inputText, infoKey})
 
 
 

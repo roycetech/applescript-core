@@ -1,3 +1,0 @@
-on new()
-
-end new

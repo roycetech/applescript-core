@@ -6,6 +6,23 @@ A design for writing AppleScripts that utilizes re-usability of components.
 
 This is the name of the project. It describes the whole project in one sentence, and helps people understand what the main goal and aim of the project is.
 
+This README is a work in progress.
+
+## IMPORTANT UPDATE July 5, 2023
+
+### Disclaimer
+
+This project is hosted on GitHub under the extension organization amaysim-ph, but it is no longer affiliated with or endorsed by amaysim. I, Royce Remulla, am the creator and maintainer of this project. Please note the following:
+
+1. I am no longer employed by amaysim. This project is a personal endeavor and does not represent the views, opinions, or policies of amaysim.
+
+2. This project is provided "as is" without any warranty. I do not guarantee its correctness, suitability, or performance. You should use this project at your own risk.
+
+3. I do not assume any responsibility or liability for any damage, loss of data, or other issues that may arise from the use of this project, whether accidental or otherwise.
+
+4. Any contributions or issues related to this project should be directed to the GitHub repository and not to amaysim. amaysim has no obligation to provide support or address any concerns regarding this project.
+
+By using this project, you acknowledge and agree to the above disclaimer. If you do not agree with any part of this disclaimer, you should refrain from using this project.
 
 ## Project Description
 
@@ -13,7 +30,6 @@ AppleScript Core is a collection of valuable and simple custom AppleScripts that
 
 It provides core functionality like:
 
-* Import/deployment of another AppleScript library
 * File logging
 * String interpolation
 * Exception handling
@@ -45,7 +61,7 @@ The quality of a README description often differentiates a good project from a b
 Include Links
 * Script Editor
 * plutil
-* PlistBuddy
+* PlistBuddy - For accessing dictionary contents in plist.
 * JSON Helper - Freely available JSON-AppleScript library.  https://apps.apple.com/us/app/json-helper-for-applescript/id453114608?mt=12.
 
 
@@ -62,10 +78,9 @@ If your README is very long, you might want to add a table of contents to make i
 
 ## How to Install and Run the Project
 
-1. Run `make install`. It will install the essential libraries under `~/Library/Script Libraries`. It will also install basic sounds and property files under `~/applescript-core/`.  See the ./Makefile for more information.
+1. Run `make install`. It will install the essential libraries under `~/Library/Script Libraries`. It will also install basic sounds and property files under `~/applescript-core/`.  See the [Makefile](./Makefile) for more information.
 2. To test that it works, open the files inside examples using Script Editor and run them.
 3. You will see the output.
-
 
 If you are working on a project that a user needs to install or run locally in a machine like a "POS", you should include the steps required to install your project and also the required dependencies if any.
 
@@ -135,7 +150,6 @@ Some of the most common guidelines include the Contributor Covenant and the Cont
 Go the extra mile and write tests for your application. Then provide code examples and how to run them.
 
 This will help show that you are certain and confident that your project will work without any challenges, which will give other people confidence in it, too
-
 
 ## Extra points
 

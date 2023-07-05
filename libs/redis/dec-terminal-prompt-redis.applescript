@@ -9,6 +9,8 @@
 	decorate()
 		instance name
 		handler name
+		
+	@Last Modified: 2023-07-05 19:18:29
 *)
 
 use listUtil : script "list"
@@ -23,8 +25,7 @@ use spotScript : script "spot-test"
 use testLib : script "test"
 
 property logger : missing value
-property terminal : terminalLib's new()
-property useBasicLogging : false
+property terminal : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then
 	set useBasicLogging to true
@@ -32,7 +33,7 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 end if
 
 on spotCheck()
-	loggerFactory's inject(me, "dec-terminal-prompt-redis")
+	loggerFactory's inject(me)
 	set thisCaseId to "dec-terminal-prompt-redis-spotCheck"
 	logger's start()
 	
@@ -73,6 +74,9 @@ end spotCheck
 
 (*  *)
 on decorate(mainScript)
+	loggerFactory's injectBasic(me)
+	set terminal to terminalLib's new()
+
 	script TerminalTabInstance -- shadow the original
 		property parent : mainScript
 		
@@ -113,14 +117,11 @@ on decorate(mainScript)
 end decorate
 
 
--- Private Codes below =======================================================
-
 (*
 	Handler grouped by hundredths.
 	Put the case you are debugging at the top, and move to correct place once verified.
 *)
 on unitTest()
-	set useBasicLogging of testLib to true
 	set test to testLib's new()
 	set ut to test's new()
 	tell ut

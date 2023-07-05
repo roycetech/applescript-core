@@ -1,26 +1,28 @@
 (*
 	@Testing:
 		Uses Step Two app for testing. Other apps may be used as well like 1Password.
+
+	@Last Modified
 *)
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
+
 use retryLib : script "retry"
 use processLib : script "process"
 use configLib : script "config"
 use stepTwoLib : script "step-two"
 
-property config : configLib's new()
-
-property logger : loggerLib's new("")
-property retry : retryLib's new()
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	set thisCaseId to "viscosity-spotCheck"
 	logger's start()
 	
-	set stepTwo to configLib's new()
+	set retry to retryLib's new()
+	set stepTwo to stepTwoLib's new()
 	set configBusiness to configLib's new("business")
 	set viscosityProcess to processLib's new("Viscosity")
 	viscosityProcess's terminate()
@@ -39,7 +41,6 @@ on spotCheck()
 		end getOTP
 	end script
 	
-	set retry to retryLib's new()
 	set sut to new(OtpRetrieverInstance)
 	exec of retry on sut by 1 for 100
 	-- Takes about 9s to re-connect (otp-less).
@@ -52,6 +53,8 @@ end spotCheck
  	@pOtpRetriever - a script object that will perform the OTP retrieval.
 *)
 on new(pOtpRetriever)
+	loggerFactory's inject(me)
+
 	if pOtpRetriever is missing value then
 		error "You need to pass a valid OTP retriever"
 	end if

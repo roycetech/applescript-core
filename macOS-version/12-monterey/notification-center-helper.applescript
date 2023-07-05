@@ -4,21 +4,20 @@
 
 use scripting additions
 
-
 use listUtil : script "list"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use notificationCenterLib : script "notification-center"
 
 use spotScript : script "spot-test"
 
-property speech : false
-property logger : loggerLib's new("notification-center-helper")
-property notificationCenter : notificationCenterLib's new()
+property logger : missing value
+property notificationCenter : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	set thisCaseId to "notification-center-helper-spotCheck"
 	logger's start()
 	
@@ -56,6 +55,9 @@ end spotCheck
 
 
 on new()
+	loggerFactory's inject(me)
+	set notificationCenter to notificationCenterLib's new()
+
 	script NotificationCenterHelperInstance
 		on getActiveMeetingsFromNotices() -- For Migration.
 			set meetingNotices to {}

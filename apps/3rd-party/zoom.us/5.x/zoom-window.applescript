@@ -1,18 +1,20 @@
 (*
 	Provides handlers about the meeting window.
+
+	@Last Modified: 2023-07-05 19:28:31
 *)
 
 use listUtil : script "list"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use usrLib : script "user"
 use zoomLib : script "zoom"
 
 use spotScript : script "spot-test"
 
-property usr : usrLib's new()
-property logger : loggerLib's new("zoom-window")
-property zoomUtil : zoomLib's new()
+property usr : missing value
+property logger : missing value
+property zoomUtil : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -72,6 +74,12 @@ end newSpotBase
 
 (*  *)
 on decorate(mainScript)
+	loggerFactory's inject(me)
+
+	set usr to usrLib's new()
+	set logger to loggerLib's new("zoom-window")
+	set zoomUtil to zoomLib's new()
+
 	script ZoomInstance
 		property parent : mainScript
 		

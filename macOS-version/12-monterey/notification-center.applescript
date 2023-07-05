@@ -17,9 +17,9 @@ use notificationCenterHelperLib : script "notification-center-helper"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("")
-property plutil : plutilLib's new()
-property notificationCenterHelper : notificationCenterHelperLib's new()
+property logger : missing value
+property plutil : missing value
+property notificationCenterHelper : missing value
 
 (*
 	Problem with expanding notification of a Slack status report.
@@ -30,6 +30,7 @@ property notificationCenterHelper : notificationCenterHelperLib's new()
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	set thisCaseId to "notification-spotCheck"
 	logger's start()
 	
@@ -141,6 +142,10 @@ end spotCheck
 
 
 on new()
+	loggerFactory's inject(me)
+	set plutil to plutilLib's new()
+	set notificationCenterHelper to notificationCenterHelperLib's new()
+
 	script NotificationCenterInstance
 		
 		(* 

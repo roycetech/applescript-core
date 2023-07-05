@@ -6,11 +6,13 @@
 
 	@Build:
 		make compile-lib SOURCE=apps/3rd-party/zoom.us/5.x/zoom-actions
+
+	@Last Modified: 2023-07-05 19:43:47
 *)
 
 use listUtil : script "list"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use usrLib : script "user"
 use kbLib : script "keyboard"
 use processLib : script "process"
@@ -18,9 +20,10 @@ use zoomLib : script "zoom"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("zoom-actions")
-property usr : usrLib's new()
-property kb : kbLib's new()
+property logger : missing value
+
+property usr : missing value
+property kb : missing value
 
 property SHARING_WIN_NAME : "zoom share toolbar window"
 property SELECT_SHARE_WIN_NAME : "Select a window or an application that you want to share"
@@ -29,6 +32,7 @@ property SHARING_STATUSBAR_WIN_NAME : "zoom share statusbar window"
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	set thisCaseId to "zoom-actions-spotCheck"
 	logger's start()
 	
@@ -109,6 +113,11 @@ end newSpotBase
 
 (*  *)
 on decorate(mainScript)
+	loggerFactory's inject(me)
+
+	set usr to usrLib's new()
+	set kb to kbLib's new()
+
 	(* Use the same name as the parent because this decorator is only meant to organize the handlers. *)
 	script ZoomInstance
 		property parent : mainScript

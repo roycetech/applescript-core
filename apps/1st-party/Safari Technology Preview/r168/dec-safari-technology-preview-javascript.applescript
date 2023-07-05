@@ -12,17 +12,19 @@
 *)
 use listUtil : script "list"
 
-use loggerLib : script "logger"
 use safariTechPreviewLib : script "safari-technology-preview"
+
+use loggerFactory : script "logger-factory"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("dec-safari-technology-preview-javascript")
-property safariTechPreview : safariTechPreviewLib's new()
+property logger : missing value
+property safariTechPreview : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	set thisCaseId to "dec-safari-technology-preview-javascript"
 	logger's start()
 	
@@ -67,6 +69,8 @@ end newSpotBase
 
 (*  *)
 on decorate(mainScript)
+	loggerFactory's inject(me)
+	set safariTechPreview to safariTechPreviewLib's new()
 	logger's debug("decorating...")
 	
 	script ScriptSafariTechnologyPreviewJavaScript

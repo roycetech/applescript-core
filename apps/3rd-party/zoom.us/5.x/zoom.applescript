@@ -36,6 +36,8 @@
 		@Plists:
 			config-business
 				Zoom User Meeting ID
+
+	@Last Modified
 *)
 
 use listUtil : script "list"
@@ -54,21 +56,21 @@ use overriderLib : script "overrider"
 
 use spotScript : script "spot-test"
 
-property configBusiness : configLib's new("business")
-property plutil : plutilLib's new()
-property configZoom : plutil's new("zoom.us/config")
-property retry : retryLib's new()
-property kb : kbLib's new()
-property overrider : overriderLib's new()
+property configBusiness : missing value
+property plutil : missing value
+property configZoom : missing value
+property retry : missing value
+property kb : missing value
 
 use script "Core Text Utilities"
 use scripting additions
 
-property logger : loggerLib's new("zoom")
+property logger : missing value
 
 if the name of current application is "Script Editor" then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	set thisCaseId to "zoom-spotCheck"
 	logger's start()
 	
@@ -147,6 +149,14 @@ end spotCheck
 
 
 on new()
+	loggerFactory's inject(me)
+
+	set configBusiness to configLib's new("business")
+	set plutil to plutilLib's new()
+	set configZoom to plutil's new("zoom.us/config")
+	set retry to retryLib's new()
+	set kb to kbLib's new()
+
 	script ZoomInstance
 		property useSSO : false
 		
@@ -320,7 +330,8 @@ on new()
 	
 	zoomActions's decorate(result)
 	zoomParticipants's decorate(result)
-	zoomWindow's decorate(result)
+	set lastResult to zoomWindow's decorate(result)
 	
-	overrider's applyMappedOverride(result)
+	set overrider to overriderLib's new()
+	overrider's applyMappedOverride(lastResult)
 end new

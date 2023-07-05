@@ -11,17 +11,18 @@ use textUtil : script "string"
 use listUtil : script "list"
 use cliclick : script "cliclick"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use retryLib : script "retry"
 use clipLib : script "clipboard"
 use kbLib : script "keyboard"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("1password")
-property clip : clipLib's new()
-property retry : retryLib's new()
-property kb : kbLib's new()
+property logger : missing value
+
+property clip : missing value
+property retry : missing value
+property kb : missing value
 
 property initCategory : false
 property waitOtpThreshold : 3 -- 2 is too short, failed January 6, 2021
@@ -29,6 +30,7 @@ property waitOtpThreshold : 3 -- 2 is too short, failed January 6, 2021
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	set thisCaseId to "1password-spotCheck"
 	logger's start()
 	
@@ -87,8 +89,11 @@ end spotCheck
 
 
 on new()
-	
-	script _1PasswordInstance
+	set clip to clipLib's new()
+	set retry to retryLib's new()
+	set kb to kbLib's new()
+
+	script OnePasswordInstance
 		(* Sample Usage assumes client code. This handler is not meant to be run on this script.*)
 		on sampleUsage()
 			set unlocked to pwd's waitToUnlockNext()

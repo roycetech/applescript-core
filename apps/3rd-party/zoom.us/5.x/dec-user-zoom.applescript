@@ -10,21 +10,23 @@
 	Uninstall:
 		make remove-lib SOURCE=libs/user/dec-user-zoom
 		plutil -remove 'UserInstance' ~/applescript-core/config-lib-factory.plist
+
+	@Last Modified: 2023-07-05 19:57:29
 *)
 use std : script "std"
 use listUtil : script "list"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use usrLib : script "user"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("dec-user-zoom")
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
-
 on spotCheck()
+	loggerFactory's inject(me)
 	set caseId to "dec-user-zoom-spotCheck"
 	logger's start()
 	
@@ -56,6 +58,8 @@ end spotCheck
 
 (* *)
 on decorate(baseScript)
+	loggerFactory's inject(me)
+
 	script UserZoomInstance
 		property parent : baseScript
 		

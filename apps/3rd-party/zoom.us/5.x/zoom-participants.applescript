@@ -15,21 +15,22 @@
 use regex : script "regex"
 use listUtil : script "list"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use retryLib : script "retry"
 use usrLib : script "user"
 use zoomUtilLib : script "zoom"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("zoom-participants")
-property retry : retryLib's new()
-property usr : usrLib's new()
-property zoomUtil : zoomUtilLib's new()
+property logger : missing value
+property retry : missing value
+property usr : missing value
+property zoomUtil : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	set thisCaseId to "#zoom-participants-spotCheck"
 	logger's start()
 	
@@ -93,7 +94,11 @@ end newSpotBase
 
 (*  *)
 on decorate(mainScript)
-	
+	loggerFactory's inject(me)
+	set retry to retryLib's new()
+	set usr to usrLib's new()
+	set zoomUtil to zoomUtilLib's new()
+
 	(* Use the same name as the parent because this decorator is only meant to organize the handlers. *)
 	script ZoomInstance
 		property parent : mainScript

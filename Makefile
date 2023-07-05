@@ -17,9 +17,14 @@ help:
 STUB_LIBS :=  \
 	stubs/config \
 	stubs/list \
+	stubs/logger \
+	stubs/logger-factory \
+	stubs/plist-buddy \
 	stubs/string \
+	stubs/string-builder \
 	stubs/notification-center-helper \
 	stubs/spot-test \
+	stubs/terminal \
 	stubs/user
 
 # 	config
@@ -47,6 +52,7 @@ CORE_LIBS :=  \
 	file \
 	idler \
 	keyboard \
+	lov \
 	plist-buddy \
 	process \
 	retry \
@@ -65,7 +71,7 @@ _init:
 	mkdir -p ~/Library/Script\ Libraries
 	mkdir -p ~/applescript-core/sounds/
 	mkdir -p ~/applescript-core/logs/
-	mkdir -p "~/Applications/AppleScript/Stay Open/"
+	mkdir -p ~/Applications/AppleScript/Stay\ Open/
 	cp -n config-default.template ~/applescript-core/config-default.plist || true
 	cp -n config-emoji.template ~/applescript-core/config-emoji.plist || true
 	cp -n plist.template ~/applescript-core/config-lib-factory.plist || true
@@ -87,7 +93,7 @@ install: _init compile
 	@echo "Installation done"
 
 $(STUB_LIBS): Makefile
-	./scripts/compile-lib.sh $@
+	osacompile -o "$(HOME)/Library/Script Libraries/$(patsubst stubs/%,%,$@).scpt" "scripts/stub.applescript"
 
 $(CORE_LIBS): Makefile
 	./scripts/compile-lib.sh core/$@
@@ -168,7 +174,7 @@ test-all:
 # require a separate make install.
 
 # 1st Party Apps Library
-compile-calendar:
+compile-calendar: compile-counter
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/dec-calendar-view"
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar-event"
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar"
@@ -183,28 +189,31 @@ install-system-settings:
 	./scripts/compile-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 
 
-compile-safari: compile-dock
-	./scripts/compile-lib.sh stubs/safari
-	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-javascript
-	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari
-
 compile-chrome:
 	./scripts/compile-lib.sh  apps/1st-party/Chrome/110.0/chrome.applescript
 
 install-chrome:
 	osascript scripts/allow-apple-events-in-chrome.applescript
 
+
+compile-safari: compile-dock
+	osacompile -o "$(HOME)/Library/Script Libraries/safari.scpt" "scripts/stub.applescript"
+	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-javascript
+	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari
+
 install-safari: compile-safari
 	osascript ./scripts/allow-apple-events-in-safari.applescript
 	plutil -replace 'FIND_RETRY_MAX' -integer 90 ~/applescript-core/config-system.plist
 	plutil -replace 'FIND_RETRY_SLEEP' -integer 1 ~/applescript-core/config-system.plist
 
+compile-safari-technology-preview:
+	osacompile -o "$(HOME)/Library/Script Libraries/safari-technology-preview.scpt" "scripts/stub.applescript"
+	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/dec-safari-technology-preview-javascript
+	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/safari-technology-preview
+
 install-safari-technology-preview: compile-safari-technology-preview
 	osascript ./scripts/allow-apple-events-in-safari-technology-preview.applescript
 
-compile-safari-technology-preview:
-	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/dec-safari-technology-preview-javascript
-	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/safari-technology-preview
 
 install-script-editor:
 	make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
@@ -226,8 +235,8 @@ uninstall-automator:
 
 
 compile-terminal:
+	osacompile -o "$(HOME)/Library/Script Libraries/terminal.scpt" "scripts/stub.applescript"
 ifeq ($(OS), ventura)
-	./scripts/compile-lib.sh stubs/terminal
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-output
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-path
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-prompt
@@ -235,7 +244,6 @@ ifeq ($(OS), ventura)
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/terminal
 
 else ifeq ($(OS), monterey)
-	./scripts/compile-lib.sh stubs/terminal
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-output
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-path
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
@@ -274,12 +282,17 @@ else
 	@echo "Unsupported macOS version for control-center"
 endif
 
+install-control-center: compile-control-center
+
+
 compile-dock:
 	./scripts/compile-lib.sh "macOS-version/12-monterey/dock"
 
 install-dock: compile-dock
 
 install-notification-center:
+	osacompile -o "$(HOME)/Library/Script Libraries/notification-center.scpt" "scripts/stub.applescript"
+
 ifeq ($(OS), ventura)
 	./scripts/compile-lib.sh "macOS-version/13-ventura/notification-center-helper"
 	./scripts/compile-lib.sh "macOS-version/13-ventura/notification-center"
@@ -293,7 +306,7 @@ else
 endif
 
 # 3rd Party Apps Library
-compile-one-password:
+compile-one-password: compile-cliclick
 	./scripts/compile-lib.sh apps/3rd-party/1Password/v6/one-password
 
 install-1password: compile-one-password install-cliclick
@@ -315,8 +328,12 @@ install-keyboard-maestro:
 install-last-pass:
 	./scripts/compile-lib.sh apps/3rd-party/LastPass/4.4.x/last-pass
 
+
 compile-marked:
 	./scripts/compile-lib.sh apps/3rd-party/Marked/2.6.18/marked
+
+install-marked: compile-marked
+
 
 install-step-two:
 	./scripts/compile-lib.sh apps/3rd-party/Step Two/3.1/step-two
@@ -355,7 +372,7 @@ install-viscosity:
 	./scripts/compile-lib.sh apps/3rd-party/Viscosity/1.10.x/viscosity
 
 compile-zoom:
-	./scripts/compile-lib.sh stubs/zoom
+	osacompile -o "$(HOME)/Library/Script Libraries/zoom.scpt" "scripts/stub.applescript"
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/dec-user-zoom
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-window
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
@@ -371,8 +388,10 @@ install-zoom: compile-zoom
 	plutil -replace 'CalendarEventLibrary' -string 'dec-calendar-event-zoom' ~/applescript-core/config-lib-factory.plist
 
 # Other libraries
-install-counter:
+compile-counter:
 	./scripts/compile-lib.sh libs/counter-plist/counter
+
+install-counter: compile-counter
 
 compile-user:
 	./scripts/compile-lib.sh libs/user/user

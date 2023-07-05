@@ -31,18 +31,17 @@ use overriderLib : script "overrider"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("dec-calendar-event-zoom")
-property plutil : plutilLib's new()
-property config : plutil's new("zoom.us/config")
-property uiutil : uiutilLib's new()
-property calendar : calendarLib's new()
-property calendarEvent : calendarEventLib's new()
+property logger : missing value
 
-property overrider : overriderLib's new()
+property config : missing value
+property uiutil : missing value
+property calendar : missing value
+property calendarEvent : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	set thisCaseId to "dec-calendar-event-zoom-spotCheck"
 	logger's start()
 	
@@ -106,6 +105,14 @@ end _spotGetSelectedEvent
 
 (*  *)
 on decorate(mainScript)
+	loggerFactory's inject(me)
+
+	set plutil to plutilLib's new()
+	set config to plutil's new("zoom.us/config")
+	set uiutil to uiutilLib's new()
+	set calendar to calendarLib's new()
+	set calendarEvent to calendarEventLib's new()
+
 	script CalendarEventZoomLibrary
 		property parent : mainScript
 		
@@ -170,5 +177,6 @@ on decorate(mainScript)
 		end extractMeetingPassword
 	end script
 	
-	overrider's applyMappedOverride(result)
+	set overrider to overriderLib's new()
+	overrider's applyMappedOverride(CalendarEventZoomLibrary)
 end decorate

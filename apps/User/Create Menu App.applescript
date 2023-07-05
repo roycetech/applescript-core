@@ -28,28 +28,35 @@ use finderLib : script "finder"
 
 property logger : missing value
 
-property se : seLib's new()
-property retry : retryLib's new()
-property plutil : plutilLib's new()
-property finder : finderLib's new()
+property se : missing value
+property retry : missing value
+property plutil : missing value
+property finder : missing value
 
-property session : plutil's new("session")
-
-property speech : speechLib's new(missing value)
+property session : missing value
+property speech : missing value
 
 property scriptName : missing value
-property isSpot : {"Script Editor", "Script Debugger"} contains the name of current application
+property isSpot : false
 
 tell application "System Events" to set scriptName to get name of (path to me)
+if {"Script Editor", "Script Debugger"} contains the name of current application then set isSpot to true
 
-loggerFactory's injectBasic(me, "Create Menu App")
-
+loggerFactory's inject(me)
 logger's start()
+
+set plutil to plutilLib's new()
+set session to plutil's new("session")
+set speech to speechLib's new(missing value)
+set se to seLib's new()
+set retry to retryLib's new()
+set plutil to plutilLib's new()
+set finder to finderLib's new()
 
 try
 	main()
 on error the errorMessage number the errorNumber
-	std's catch(scriptName, errorNumber, errorMessage)
+	std's catch(me, errorNumber, errorMessage)
 end try
 
 logger's finish()
@@ -86,7 +93,7 @@ on main()
 	end try
 	
 	tell application "Finder"
-		set targetFolderMon to folder "Stay Open" of folder "AppleScript" of finder's getApplicationsFolder() as text
+		set targetFolderMon to folder "Stay Open" of folder "AppleScript" of finder's getUserApplicationsFolder() as text
 	end tell
 	
 	logger's debugf("targetFolderMon: {}", targetFolderMon)
