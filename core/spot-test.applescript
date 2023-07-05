@@ -126,6 +126,7 @@ on new()
 								end if
 								session's setValue("Current Case Index", _currentCaseCount + 1)
 							end if
+							set _currentCaseCount to newCaseCount
 						end if
 					end if
 					
