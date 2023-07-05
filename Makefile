@@ -65,7 +65,7 @@ _init:
 	mkdir -p ~/Library/Script\ Libraries
 	mkdir -p ~/applescript-core/sounds/
 	mkdir -p ~/applescript-core/logs/
-	mkdir -p "/Applications/AppleScript/Stay Open/"
+	mkdir -p "~/Applications/AppleScript/Stay Open/"
 	cp -n config-default.template ~/applescript-core/config-default.plist || true
 	cp -n config-emoji.template ~/applescript-core/config-emoji.plist || true
 	cp -n plist.template ~/applescript-core/config-lib-factory.plist || true
