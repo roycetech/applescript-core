@@ -111,7 +111,7 @@ on new()
 		
 		
 		on printAttributeValues(uiElement)
-			tell application "System Events" to tell process ""
+			tell application "System Events"
 				
 				set attrList to attributes of uiElement
 				repeat with nextAttribute in attrList

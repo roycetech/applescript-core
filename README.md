@@ -8,22 +8,6 @@ This is the name of the project. It describes the whole project in one sentence,
 
 This README is a work in progress.
 
-## IMPORTANT UPDATE July 5, 2023
-
-### Disclaimer
-
-This project is hosted on GitHub under the extension organization amaysim-ph, but it is no longer affiliated with or endorsed by amaysim. I, Royce Remulla, am the creator and maintainer of this project. Please note the following:
-
-1. I am no longer employed by amaysim. This project is a personal endeavor and does not represent the views, opinions, or policies of amaysim.
-
-2. This project is provided "as is" without any warranty. I do not guarantee its correctness, suitability, or performance. You should use this project at your own risk.
-
-3. I do not assume any responsibility or liability for any damage, loss of data, or other issues that may arise from the use of this project, whether accidental or otherwise.
-
-4. Any contributions or issues related to this project should be directed to the GitHub repository and not to amaysim. amaysim has no obligation to provide support or address any concerns regarding this project.
-
-By using this project, you acknowledge and agree to the above disclaimer. If you do not agree with any part of this disclaimer, you should refrain from using this project.
-
 ## Project Description
 
 AppleScript Core is a collection of valuable and simple custom AppleScripts that allows you to write automation AppleScripts faster and more efficiently than ever. It provides a variety of ready-to-use script libraries, libraries that provide essential functionalities that you can use in your scripts. It provides application wrapper scripts that can be used to interact with the supported applications. 
@@ -49,19 +33,18 @@ The quality of a README description often differentiates a good project from a b
 * Quick spot checking
 * Essential 
 
-
 ### Configuration Files
 
-1.  config-system.plist - 
-2.  config-user.plist - contains 
+1.  config-system.plist - contains path to CLIs used by some scripts.
+2.  config-user.plist - contains user-specific configurations.
 
 ### Technologies/Libraries
 
 [ ] Why you used the technologies you used
 Include Links
-* Script Editor
-* plutil
-* PlistBuddy - For accessing dictionary contents in plist.
+* Script Editor - The default AppleScript editor that comes with macOS.
+* plutil - A command-line utility that comes with macOS for accessing property list files that is a more performant than the Finder application.
+* PlistBuddy - For accessing dictionary contents in a plist.
 * JSON Helper - Freely available JSON-AppleScript library.  https://apps.apple.com/us/app/json-helper-for-applescript/id453114608?mt=12.
 
 
@@ -96,18 +79,10 @@ Also if your project will require authentication like passwords or usernames, th
 You'll need to populate the config-system.plist with some default values:
 *   Project Path - Used to locate the test files for testing.
 
-
-
 ## Credits
 
-* []() - For help with design and testing.
-* []() - For help with design and testing.
-
-If you worked on the project as a team or an organization, list your collaborators/team members. You should also include links to their GitHub profiles and social media too.
-
-Also, if you followed tutorials or referenced a certain material that might help the user to build that particular project, include links to those here as well.
-
-This is just a way to show your appreciation and also to help others get a first hand copy of the project.
+* [eugene-manalo](https://github.com/eugene-manalo) - For the Google Chrome library implementation.
+* [josephinesayco](https://github.com/josephinesayco) - For help with design and testing.
 
 
 ## License
@@ -135,25 +110,56 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 
 
-## Additional README Sections
-
 ### How to Contribute to the Project
 
-This mostly will be useful if you are developing an open-source project that you will need other developers to contribute to. You will want to add guidelines to let them know how they can contribute to your project.
+We welcome contributions, feedback, and suggestions from the community! If you find a bug, have a feature request, or want to contribute to AppleScript Core, here are a few ways you can get involved:
 
-Also it is important to make sure that the license you choose for an open-source projects is correct to avoid future conflicts. And adding contribution guidelines will play a big role.
+### Create a Pull Request (PR)
 
-Some of the most common guidelines include the Contributor Covenant and the Contributing guide. These docs will give you the help you need when setting rules for your project.
+If you have a code improvement, bug fix, or new feature you'd like to contribute, please submit a Pull Request. We appreciate the effort and value your contributions to make AppleScript Core better for everyone. Please ensure that your Pull Request follows our guidelines and coding standards.
+
+### Provide Feedback or Suggestions
+
+Your feedback is crucial for the growth and improvement of AppleScript Core. If you have any suggestions, ideas, or general feedback, please don't hesitate to share them. You can leave comments on specific files or sections in the repository or open an Issue to start a discussion.
+
+### Report Bugs or Issues
+
+If you encounter any bugs or issues while using AppleScript Core, please let us know by creating a GitHub Issue. Be sure to provide detailed steps to reproduce the problem, along with any relevant information. This helps us investigate and address the issue effectively.
+
+### Spread the Word
+
+If you find AppleScript Core useful, consider sharing it with others who might benefit from it. Spread the word on social media, write a blog post, or mention it in relevant communities. Your support helps us reach a wider audience and encourages others to contribute as well.
+
+We value and appreciate all contributions, whether big or small. Together, let's make AppleScript Core even better!
 
 ### Include Tests
+
+
 
 Go the extra mile and write tests for your application. Then provide code examples and how to run them.
 
 This will help show that you are certain and confident that your project will work without any challenges, which will give other people confidence in it, too
 
-## Extra points
+## License
 
-Here are a few extra points to note when you're writing your README:
+MIT License
 
-*   Keep it up-to-date - It is a good practice to make sure your file is always up-to-date. In case there are changes make sure to update the file where necessary.
-*   Resources
+Copyright (c) 2023 Royce Remulla
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.

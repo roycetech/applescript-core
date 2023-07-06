@@ -110,6 +110,7 @@ else ifeq ($(OS), monterey)
 	./scripts/compile-lib.sh macOS-version/12-monterey/std
 
 else
+	./scripts/compile-lib.sh macOS-version/12-monterey/std
 	@echo "compile-core unimplemented macOS version error"
 endif
 
@@ -279,6 +280,7 @@ else ifeq ($(OS), monterey)
 	./scripts/compile-lib.sh "macOS-version/12-monterey/control-center"
 
 else
+	./scripts/compile-lib.sh "macOS-version/12-monterey/control-center"
 	@echo "Unsupported macOS version for control-center"
 endif
 
@@ -302,6 +304,8 @@ else ifeq ($(OS), monterey)
 	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center"
 
 else
+	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center-helper"
+	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center"
 	@echo "Unsupported macOS version for notification-center"
 endif
 

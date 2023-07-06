@@ -19,7 +19,6 @@ use spotScript : script "spot-test"
 use overriderLib : script "overrider"
 
 property logger : missing value
-property overrider : overriderLib's new()
 property isSpot : false
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then
@@ -105,6 +104,10 @@ on new()
 		end switchProfile
 	end script
 	
-	if not isSpot then overrider's applyMappedOverride(result)
+	if not isSpot then 
+		set overrider to overriderLib's new()
+		return overrider's applyMappedOverride(StreamDeckInstance)
+	end if
+
 	StreamDeckInstance
 end new
