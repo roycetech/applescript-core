@@ -5,19 +5,20 @@
 
 use listUtil : script "list"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use retryLib : script "retry"
 use kbLib : script "keyboard"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("dock")
-property retry : retryLib's new()
-property kb : kbLib's new()
+property logger : missing value
+property retry : missing value
+property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	set thisCaseId to "dock-spotCheck"
 	logger's start()
 	
@@ -118,6 +119,11 @@ end spotCheck
 
 (*  *)
 on new()
+	loggerFactory's inject(me)
+	
+	set retry to retryLib's new()
+	set kb to kbLib's new()
+	
 	script DockInstance
 		on clickApp(appName)
 			tell application "System Events" to tell process "Dock"
@@ -186,11 +192,7 @@ on new()
 			set retry to retryLib's new()
 			script MenuWaiter
 				tell application "System Events" to tell process "Dock"
-					
-
-
-
-					
+					click menu item "New Window" of menu 1 of UI element "Safari" of list 1
 					true
 				end tell
 			end script
