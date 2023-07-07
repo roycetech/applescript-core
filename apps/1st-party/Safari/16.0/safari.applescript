@@ -15,8 +15,8 @@
 		use loggerLib : script "logger"
 		use safariLib : script "safari"
 		
-		property logger : loggerLib's new("ad hoc")
-		property safari : safariLib's new()
+		set logger to loggerLib's new("ad hoc")
+		set safari to safariLib's new()
 		
 		set theTab to safari's getFrontTab()
 		tell theTab
@@ -31,12 +31,14 @@
 use script "Core Text Utilities"
 use scripting additions
 
+use std : script "std"
 use textUtil : script "string"
 use listUtil : script "list"
 use unic : script "unicodes"
 use regex : script "regex"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
+
 use kbLib : script "keyboard"
 use uiutilLib : script "ui-util"
 use winUtilLib : script "window"
@@ -47,19 +49,17 @@ use safariJavaScript : script "safari-javascript"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("safari")
-property kb : kbLib's new()
-property uiutil : uiutilLib's new()
-property winUtil : winUtilLib's new()
-property dock : dockLib's new()
-property retry : retryLib's new()
-
-property javaScriptSupport : false
-property jQuerySupport : false
+property logger : missing value
+property kb : missing value
+property uiutil : missing value
+property winUtil : missing value
+property dock : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	set thisCaseId to "safari-spotCheck"
 	logger's start()
 	
@@ -221,6 +221,14 @@ end spotCheck
 
 
 on new()
+	loggerFactory's inject(me)
+	
+	set kb to kbLib's new()
+	set uiutil to uiutilLib's new()
+	set winUtil to winUtilLib's new()
+	set dock to dockLib's new()
+	set retry to retryLib's new()
+	
 	script SafariInstance
 		on isLoading()
 			if running of application "Safari" is false then return false
@@ -338,7 +346,7 @@ on new()
 				set groupOneButtons to buttons of group 1 of toolbar 1 of front window
 			end tell
 			
-			set sideBarButton to uiUtil's new(groupOneButtons)'s findById("SidebarButton")
+			set sideBarButton to uiutil's new(groupOneButtons)'s findById("SidebarButton")
 			tell application "System Events" to click sideBarButton
 		end showSideBar
 		
@@ -356,7 +364,7 @@ on new()
 				set groupOneButtons to buttons of group 1 of toolbar 1 of front window
 			end tell
 			
-			set sideBarButton to uiUtil's new(groupOneButtons)'s findById("SidebarButton")
+			set sideBarButton to uiutil's new(groupOneButtons)'s findById("SidebarButton")
 			script CloseWaiter
 				tell application "System Events" to click sideBarButton
 				if isSideBarVisible() is false then return true
@@ -662,14 +670,14 @@ on new()
 			set toolbarredWindow to missing value
 			tell application "System Events" to tell process "Safari"
 				if (count of windows) is 0 then return
-
+				
 				repeat with nextWindow in windows
 					if exists (toolbar 1 of nextWindow) then
 						set toolbarredWindow to nextWindow
 						exit repeat
 					end if
 				end repeat
-
+				
 				if toolbarredWindow is not missing value then
 					set focusWindowName to the name of toolbarredWindow as text
 					try
@@ -678,8 +686,8 @@ on new()
 				end if
 			end tell
 		end focusWindowWithToolbar
-
-
+		
+		
 		-- Private Codes below =======================================================
 		(*
 			@windowId app window ID
@@ -687,21 +695,21 @@ on new()
 		*)
 		on _new(windowId, pTabIndex)
 			-- logger's debugf("Window ID: {}, TabIndex: {}", {windowId, pTabIndex}) -- wished the name or the url can be included in the log, not easy to do.
-
+			
 			script SafariTabInstance
 				property appWindow : missing value -- app window, not syseve window.
 				property maxTryTimes : 60
 				property sleepSec : 1
 				property closeOtherTabsOnFocus : false
 				property tabIndex : pTabIndex
-
+				
 				property _tab : missing value
 				property _url : missing value
-
+				
 				on getTitle()
 					name of appWindow
 				end getTitle
-
+				
 				on hasToolBar()
 					tell application "System Events" to tell process "Safari"
 						try
@@ -710,7 +718,7 @@ on new()
 					end tell
 					false
 				end hasToolBar
-
+				
 				on hasAlert()
 					tell application "System Events" to tell process "Safari" to tell getSysEveWindow()
 						try
@@ -720,7 +728,7 @@ on new()
 						end try
 					end tell
 				end hasAlert
-
+				
 				on dismissAlert()
 					tell application "System Events" to tell process "Safari" to tell getSysEveWindow()
 						try
@@ -728,7 +736,7 @@ on new()
 						end try
 					end tell
 				end dismissAlert
-
+				
 				(* Creates a new tab at the end of the window (not next to the tab) *)
 				on newTab(targetUrl)
 					tell application "Safari"
@@ -736,25 +744,25 @@ on new()
 						set miniaturized of appWindow to false
 						set tabTotal to count of tabs of appWindow
 					end tell
-
+					
 					set newInstance to _new(windowId, tabTotal)
 					set _url of newInstance to targetUrl
 					the newInstance
 				end newTab
-
+				
 				(* It checks the starting characters to match because Safari trims it in the menu when then name is more than 30 characters. *)
 				on focus()
 					tell application "Safari" to set current tab of my appWindow to _tab
 				end focus
-
+				
 				on closeTab()
 					tell application "Safari" to close _tab
 				end closeTab
-
+				
 				to closeWindow()
 					tell application "Safari" to close my appWindow()
 				end closeWindow
-
+				
 				on reload()
 					focus()
 					tell application "Safari"
@@ -763,11 +771,11 @@ on new()
 					end tell
 					delay 0.01
 				end reload
-
+				
 				on waitForPageToLoad()
 					waitForPageLoad()
 				end waitForPageToLoad
-
+				
 				on waitForPageLoad()
 					script SourceWaiter
 						tell application "Safari"
@@ -777,37 +785,37 @@ on new()
 					end script
 					exec of retry on result for maxTryTimes by sleepSec
 				end waitForPageLoad
-
+				
 				on waitInSource(substring)
 					script SubstringWaiter
 						if getSource() contains substring then return true
 					end script
 					exec of retry on result for maxTryTimes by sleepSec
 				end waitInSource
-
+				
 				on getSource()
 					tell application "Safari"
 						try
 							return (source of my getDocument()) as text
 						end try
 					end tell
-
+					
 					missing value
 				end getSource
-
+				
 				on getURL()
 					tell application "Safari"
 						try
 							return URL of my getDocument()
 						end try
 					end tell
-
+					
 					missing value
 				end getURL
-
+				
 				on getAddressBarValue()
 					if hasToolBar() is false then return missing value
-
+					
 					tell application "System Events" to tell process "Safari"
 						try
 							set addressBarValue to value of text field 1 of last group of toolbar 1 of my getSysEveWindow()
@@ -817,10 +825,10 @@ on new()
 					end tell
 					missing value
 				end getAddressBarValue
-
+				
 				on goto(targetUrl)
 					script PageWaiter
-
+						
 						-- tell application "Safari" to set URL of document (name of my appWindow) to targetUrl
 						tell application "Safari" to set URL of my getDocument() to targetUrl
 						true
@@ -828,8 +836,8 @@ on new()
 					exec of retry on result for 2
 					delay 0.1 -- to give waitForPageLoad ample time to enter a loading state.
 				end goto
-
-
+				
+				
 				(* Note: Will dismiss the prompt of the*)
 				on dismissPasswordSavePrompt()
 					focus()
@@ -842,49 +850,49 @@ on new()
 					end script
 					exec of retry on result for 5 -- let's try click it 5 times, ignoring outcomes.
 				end dismissPasswordSavePrompt
-
+				
 				on extractUrlParam(paramName)
 					tell application "Safari" to set _url to URL of my getDocument()
 					set pattern to format {"(?<={}=)\\w+", paramName}
 					set matchedString to regex's findFirst(_url, pattern)
 					if matchedString is "nil" then return missing value
-
+					
 					matchedString
 				end extractUrlParam
-
-
+				
+				
 				on getWindowId()
 					id of appWindow
 				end getWindowId
-
+				
 				on getWindowName()
 					name of appWindow
 				end getWindowName
-
+				
 				on getDocument()
 					tell application "Safari"
 						document (my getWindowName())
 					end tell
 				end getDocument
-
-
+				
+				
 				on getSysEveWindow()
 					tell application "System Events" to tell process "Safari"
 						return window (name of appWindow)
 					end tell
 				end getSysEveWindow
 			end script
-
+			
 			tell application "Safari"
 				set appWindow of SafariTabInstance to window id windowId
 				set _url of SafariTabInstance to URL of document of window id windowId
 				set _tab of SafariTabInstance to item pTabIndex of tabs of appWindow of SafariTabInstance
 			end tell
 			set theInstance to safariJavaScript's decorate(SafariTabInstance)
-
+			
 			theInstance
 		end _new
-
+		
 		(*
 			Finds the address bar group by iterating from last to first, returning the first group with a text field.
 
@@ -892,13 +900,13 @@ on new()
 		*)
 		on _getAddressBarGroup()
 			if running of application "Safari" is false then return missing value
-
+			
 			set addressBarGroupIndex to 0
 			tell application "System Events" to tell process "Safari"
 				set toolbarGroups to groups of toolbar 1 of front window
 				repeat with i from (count of toolbarGroups) to 1 by -1
 					set nextGroup to item i of toolbarGroups
-
+					
 					if exists text field 1 of nextGroup then
 						set addressBarGroupIndex to i
 						exit repeat
@@ -907,6 +915,6 @@ on new()
 				group addressBarGroupIndex of toolbar 1 of front window
 			end tell
 		end _getAddressBarGroup
-
+		
 	end script
 end new

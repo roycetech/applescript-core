@@ -13,7 +13,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's injectBasic(me, "string-builder")
-	loggerLib's new("string-builder")
 	set thisCaseId to "string-builder-spotCheck"
 	logger's start()
 	

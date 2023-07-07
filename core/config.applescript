@@ -104,7 +104,7 @@ on new(pConfigName)
 				end if
 			end if
 			
-			return categoryPlist's getValue(configKey)
+			categoryPlist's getValue(configKey)
 		end getCategoryValue
 		
 		

@@ -128,6 +128,9 @@ on new()
 	set session to plutil's new("session")
 	
 	script KeyboardInstance
+		property delayAfterKeySeconds : 0.01
+		property delayAfterTypingSeconds : 0.1
+
 		on checkModifier(keyName)
 			if keyName = "option" then
 				set theMask to NSAlternateKeyMask
@@ -181,7 +184,7 @@ on new()
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress)
 			end tell
-			delay 0.01
+			delay delayAfterKeySeconds
 		end pressKey
 		
 		
@@ -189,7 +192,7 @@ on new()
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down}
 			end tell
-			delay 0.01
+			delay delayAfterKeySeconds
 		end pressCommandKey
 		
 		
@@ -197,7 +200,7 @@ on new()
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down, control down}
 			end tell
-			delay 0.01
+			delay delayAfterKeySeconds
 			
 		end pressCommandControlKey
 		
@@ -205,40 +208,40 @@ on new()
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down, shift down}
 			end tell
-			delay 0.01
+			delay delayAfterKeySeconds
 		end pressCommandShiftKey
 		
 		on pressCommandOptionKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down, option down}
 			end tell
-			delay 0.01
+			delay delayAfterKeySeconds
 		end pressCommandOptionKey
 		
 		on pressControlKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {control down}
 			end tell
-			delay 0.01
+			delay delayAfterKeySeconds
 		end pressControlKey
 		
 		on pressControlShiftKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {control down, shift down}
 			end tell
-			delay 0.01
+			delay delayAfterKeySeconds
 		end pressControlShiftKey
 		
 		on pressOptionKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {option down}
 			end tell
-			delay 0.01
+			delay delayAfterKeySeconds
 		end pressOptionKey
 		
 		on typeText(theText)
 			tell application "System Events" to keystroke theText
-			delay 0.01
+			delay delayAfterTypingSeconds
 		end typeText
 		
 		(* To test. *)
@@ -338,7 +341,7 @@ on _charToKeycode(key)
 	if key is "down" then return 125
 	if key is "left" then return 123
 	if key is "right" then return 124
-	
+
 	if key is "F1" or key is "f1" then return 122
 	if key is "F2" or key is "f2" then return 120
 	if key is "F3" or key is "f3" then return 99
@@ -351,7 +354,7 @@ on _charToKeycode(key)
 	if key is "F10" or key is "f10" then return 109
 	if key is "F11" or key is "f11" then return 103
 	if key is "F12" or key is "f12" then return 111
-	
+
 	-1
 end _charToKeycode
 -- EOS

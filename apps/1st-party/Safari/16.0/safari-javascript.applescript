@@ -108,7 +108,7 @@ end spotCheck
 on decorate(safariTab)
 	loggerFactory's injectBasic(me)
 	set safari to safariLib's new()
-	set configSystem to configLib's new("system")	
+	set configSystem to configLib's new("system")
 	set retry to retryLib's new()
 	
 	script SafariJavaScriptInstance
@@ -266,6 +266,10 @@ on decorate(safariTab)
 		on focusOnId(elementId)
 			runScriptPlain(format {"document.getElementById('{}').focus();", elementId})
 		end focusOnId
+
+		on focusSelector(selector)
+			runScriptPlain(format {"document.querySelector('{}').focus();", selector})
+		end focusSelector
 		
 		(*
 			@selectors selector or list of selectors
@@ -424,7 +428,8 @@ on decorate(safariTab)
 		end _runScript
 		
 		on runScriptPlain(scriptText)
-			tell application "Safari" to do JavaScript scriptText in _tab of safariTab
+			-- tell application "Safari" to do JavaScript scriptText in _tab of safariTab
+			tell application "Safari" to return do JavaScript ("try {" & scriptText & "'true';} catch(e) { e.message; }") in _tab of safariTab
 		end runScriptPlain
 	end script
 	
