@@ -1,12 +1,10 @@
 # applescript-core
 
-Add a title image if available.
+AppleScript Core Framework
 
-A design for writing AppleScripts that utilizes re-usability of components.
+An framework and collection of libraries for for writing AppleScripts that utilizes re-usability of components.
 
-This is the name of the project. It describes the whole project in one sentence, and helps people understand what the main goal and aim of the project is.
-
-This README is a work in progress.
+This README is a work in progress and I'm planning on creating a simpler shorter version in the near future.
 
 ## Project Description
 
@@ -40,8 +38,6 @@ The quality of a README description often differentiates a good project from a b
 
 ### Technologies/Libraries
 
-[ ] Why you used the technologies you used
-Include Links
 * Script Editor - The default AppleScript editor that comes with macOS.
 * plutil - A command-line utility that comes with macOS for accessing property list files that is a more performant than the Finder application.
 * PlistBuddy - For accessing dictionary contents in a plist.
@@ -50,9 +46,11 @@ Include Links
 
 ## Special Gotchas of your projects (Problems you faced, unique elements of your project)
 
-[ ] The built-in property list file handling may cause blocking so an alternative approach to use the plutil command line is used.
-[ ] Permission Error. Apps created in some ways are being blocked by Apple regardless if you try to re-create the app. The only solution I found is to rename the script, and recreate in the recommended way found in the script header.
+* The built-in property list file handling may cause blocking so an alternative approach to use the plutil command line is used.
 
+### Limitations
+
+* I have not worked out automating apps across desktop spaces. While some may work coincidentally, deliberate testing is required to improve their reliability.
 
 ## Table of Contents (Optional)
 
@@ -65,16 +63,11 @@ If your README is very long, you might want to add a table of contents to make i
 2. To test that it works, open the files inside examples using Script Editor and run them.
 3. You will see the output.
 
-If you are working on a project that a user needs to install or run locally in a machine like a "POS", you should include the steps required to install your project and also the required dependencies if any.
-
-Provide a step-by-step description of how to get the development environment set and running.
-
 
 ## How to Use the Project (Developing)
 
 Provide instructions and examples so users/contributors can use the project. This will make it easy for them in case they encounter a problem – they will always have a place to reference what is expected.
 You can also make use of visual aids by including materials like screenshots to show examples of the running project and also the structure and design principles used in your project.
-Also if your project will require authentication like passwords or usernames, this is a good section to include the credentials.
 
 You'll need to populate the config-system.plist with some default values:
 *   Project Path - Used to locate the test files for testing.
@@ -134,11 +127,10 @@ We value and appreciate all contributions, whether big or small. Together, let's
 
 ### Include Tests
 
+The libraries where tested mainly on macOS Monterey. I have tried some scripts on Big Sur and I was able to get a successful result. I have also worked on using macOS Ventura as well. Most back-end libraries should work without issues on any recent version of macOS. On the other hand, scripts that interact with the UI like the app wrapper libraries are almost guaranteed to fail each time a vendor releases updates to their apps.
 
-
-Go the extra mile and write tests for your application. Then provide code examples and how to run them.
-
-This will help show that you are certain and confident that your project will work without any challenges, which will give other people confidence in it, too
+This project includes a system for doing spot checking by utilizing a stay open app menu to manage the case number to be tested.
+This project also includes its own unit testing functionality to ensure code quality. I plan to migrate the unit tests into ASUnit which I believe is a great library, having tried it out very recently.
 
 ## License
 
