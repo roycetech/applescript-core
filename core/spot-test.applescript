@@ -74,12 +74,17 @@ on new()
 		end setSessionCaseIndex
 		
 		(* 
-			@pCaseId test case identifier.
+			@pCaseId test case identifier. It can be a string or the object itself.
 			@pCases the list of test cases usually retrieved from the session.
 		*)
 		on new(pCaseId, pCases)
+			set localCaseId to pCaseId
+			if class of pCaseId is script then
+				set localCaseId to (the name of pCaseId) & "-spot"
+			end if
+
 			script SpotTestCaseInstance
-				property caseId : pCaseId
+				property caseId : localCaseId
 				property cases : pCases
 				property autoIncrement : false
 				

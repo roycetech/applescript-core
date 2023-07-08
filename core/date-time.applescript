@@ -1,6 +1,8 @@
 (*
 	@Build:
 		make compile-lib SOURCE=core/date-time
+
+	@Last Modified: 2023-07-08 09:51:46
 *)
 use framework "Foundation"
 
@@ -21,7 +23,7 @@ property timeBufferMin : 2
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's injectBasic(me, "date-time")
+	loggerFactory's injectBasic(me)
 	
 	set thisCaseId to "date-time-spotCheck"
 	logger's start()

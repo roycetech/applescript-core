@@ -283,7 +283,7 @@ on split(theString, theDelimiter)
 end split
 
 
-to splitWithTrim(theString as text, theDelimiter)
+on splitWithTrim(theString as text, theDelimiter)
 	set theList to split(theString, theDelimiter)
 	set sanitized to {}
 	repeat with next in theList
