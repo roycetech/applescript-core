@@ -9,7 +9,7 @@
 		Project Find Results
 		Welcome Guide
 		
-	@Last Modified: 2023-07-02 14:58:20
+	@Last Modified: 2023-07-08 12:05:19
 	@Tab: AC 🚧	
 	@Build:
 		make compile-pulsar
@@ -239,7 +239,7 @@ on new()
 				activate application "Pulsar"
 				kb's pressControlShiftKey("c")
 			end script
-			set docPath to cp's extract(GetFromClipboard)
+			set docPath to clip's extract(GetFromClipboard)
 			docPath
 		end _extractDocPathByHotkey
 	end script
