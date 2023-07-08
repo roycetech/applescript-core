@@ -26,6 +26,8 @@
 			
 		13")
 		end tell
+		
+	@Last Modified: 2023-07-08 13:06:59
 *)
 
 use script "Core Text Utilities"
@@ -149,8 +151,11 @@ on spotCheck()
 		logger's infof("Current Group Name: {}", sut's getGroupName())
 		
 	else if caseIndex is 6 then
-		-- sut's switchGroup("Unicorn") -- not found
-		sut's switchGroup("Music")
+		set newSutGroup to "Unicorn" -- not found
+		-- set newSutGroup to "Music"
+		logger's infof("newSutGroup: {}", newSutGroup)
+		
+		sut's switchGroup(newSutGroup)
 		
 	else if caseIndex is 7 then
 		sut's newWindow("https://www.example.com")
@@ -346,7 +351,7 @@ on new()
 				set groupOneButtons to buttons of group 1 of toolbar 1 of front window
 			end tell
 			
-			set sideBarButton to uiutil's new(groupOneButtons)'s findById("SidebarButton")
+			set sideBarButton to uiutil's new()'s findUiContainingIdAttribute(groupOneButtons, "SidebarButton")
 			tell application "System Events" to click sideBarButton
 		end showSideBar
 		
@@ -364,7 +369,7 @@ on new()
 				set groupOneButtons to buttons of group 1 of toolbar 1 of front window
 			end tell
 			
-			set sideBarButton to uiutil's new(groupOneButtons)'s findById("SidebarButton")
+			set sideBarButton to uiutil's new()'s findUiContainingIdAttribute(groupOneButtons, "SidebarButton")
 			script CloseWaiter
 				tell application "System Events" to click sideBarButton
 				if isSideBarVisible() is false then return true
@@ -403,7 +408,7 @@ on new()
 				true
 			end script
 			set waitResult to exec of retry on result for 3
-			logger's debugf("WaitResult: {}", waitResult)
+			-- logger's debugf("WaitResult: {}", waitResult)
 			
 			tell application "System Events" to tell process "Safari"
 				try
