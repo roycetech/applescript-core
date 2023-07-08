@@ -5,7 +5,8 @@
 		make compile-lib SOURCE="apps/3rd-party/Keyboard Maestro/keyboard-maestro"
 		or (from the project root)
 		make install-keyboard-maestro
-	
+
+	@Last Modified: 	
 *)
 
 use script "Core Text Utilities"
@@ -15,17 +16,12 @@ use listUtil : script "list"
 use textUtil : script "string"
 use unic : script "unicodes"
 
-
-
-
-
-
 use loggerFactory : script "logger-factory"
 use testLib : script "test"
 
 use spotScript : script "spot-test"
 
-property logger : loggerFactory's newBasic("keyboard-maestro")
+property logger : missing value
 property test : testLib's new()
 
 property GENERIC_RESULT_VAR : "km_result"
@@ -34,7 +30,7 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 if name of current application is "osascript" then unitTest()
 
 on spotCheck()
-	set thisCaseId to "spotCheck-keyboard-maestro"
+	loggerFactory's injectBasic(me)
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -47,10 +43,11 @@ on spotCheck()
 		Manual: Editor: Show Actions
 		Manual: Editor: Hide Actions
 		Manual: Get Current Item Name
+		Manual: Click New Action Category
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -82,6 +79,9 @@ on spotCheck()
 		
 	else if caseIndex is 8 then
 		logger's infof("Handler result: {}", sut's getCurrentItemName())
+
+	else if caseIndex is 9 then
+		sut's focusActionCategory("Favorites")
 		
 	end if
 	
@@ -92,6 +92,8 @@ end spotCheck
 
 
 on new()
+	loggerFactory's injectBasic(me)
+	
 	script KeyboardMaestroInstance
 		
 		(*
@@ -113,6 +115,18 @@ on new()
 			last item of tokens
 		end getCurrentItemName
 		
+		(*  *)
+		on focusActionCategory(categoryName)
+			if running of application "Keyboard Maestro" is false then return
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					tell application "System Events" to tell process "Keyboard Maestro"
+						click group categoryName of scroll area 1 of splitter group 1 of window "New Action"
+					end tell
+				end try
+			end tell
+		end focusActionCategory
 		
 		(* @Warning - Grabs app focus *)
 		on showActions()
@@ -271,6 +285,7 @@ on new()
 		end setVariable
 	end script
 end new
+
 
 -- Private Codes below =======================================================
 
