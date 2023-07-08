@@ -339,6 +339,12 @@ compile-marked:
 install-marked: compile-marked
 
 
+compile-script-debugger:
+	./scripts/compile-lib.sh 'apps/3rd-party/Script Debugger/v8.0.x/script-debugger'
+
+install-script-debugger: compile-script-debugger
+
+
 install-step-two:
 	./scripts/compile-lib.sh apps/3rd-party/Step Two/3.1/step-two
 
