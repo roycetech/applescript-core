@@ -6,22 +6,26 @@
 
 use std : script "std"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
 use retryLib : script "retry"
 use sysprefLib : script "system-preferences"
 
-property logger : loggerLib's new("App Accessibility Settings")
-property retry : retryLib's new()
-property syspref : sysprefLib's new()
+property logger : missing value
+property retry : missing value
+property syspref : missing value
 
+loggerFactory's inject(me)
 logger's start()
 
 -- = Start of Code below =====================================================
 
+set retry to retryLib's new()
+set syspref to sysprefLib's new()
+
 try
 	main()
 on error the errorMessage number the errorNumber
-	std's catch(scriptName, errorNumber, errorMessage)
+	std's catch(me, errorNumber, errorMessage)
 end try
 
 logger's finish()
