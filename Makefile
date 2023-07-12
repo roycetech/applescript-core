@@ -339,6 +339,10 @@ compile-marked:
 install-marked: compile-marked
 
 
+compile-mosaic:
+	./scripts/compile-lib.sh apps/3rd-party/Mosaic/v1.3.x/mosaic
+
+
 compile-script-debugger:
 	./scripts/compile-lib.sh 'apps/3rd-party/Script Debugger/v8.0.x/script-debugger'
 
@@ -355,9 +359,11 @@ compile-sequel-ace:
 install-sequel-ace: compile-sequel-ace
 
 
-install-stream-deck:
+compile-stream-deck:
 	./scripts/compile-lib.sh apps/3rd-party/Stream Deck/6.x/stream-deck
 	./scripts/compile-lib.sh apps/3rd-party/Stream Deck/6.x/dec-spot-stream-deck
+
+install-stream-deck: compile-stream-deck
 	plutil \
 		-replace 'SpotTestInstance' \
 		-string 'dec-spot-stream-deck' \
