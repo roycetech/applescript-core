@@ -54,8 +54,6 @@ use test : script "test"
 -- PROPERTIES =================================================================
 property logger : missing value
 
--- property overrider : overriderLib's new()
-
 property homeFolderPath : missing value
 property linesDelimiter : "~"
 property isSpot : false
@@ -273,8 +271,7 @@ on new()
 				end deletePlist
 				
 				on setValue(plistKey, newValue)
-					
-					if plistKey is missing value then return
+					if plistKey is missing value then return false
 					
 					if regex's matches("^\\d", plistKey) then set plistKey to "_" & plistKey
 					set quotedPlistKey to quoted form of plistKey
@@ -779,9 +776,8 @@ on new()
 			return 0
 		end _indexOf
 	end script
+	if isSpot then return PlutilInstance
 
-	-- if not isSpot then overrider's applyMappedOverride(result) -- Causing weird error.
-
-	-- PlutilInstance
+	set overrider to overriderLib's new()
+	overrider's applyMappedOverride(PlutilInstance)
 end new
-
