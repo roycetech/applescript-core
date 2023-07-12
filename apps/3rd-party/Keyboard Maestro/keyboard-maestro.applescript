@@ -79,7 +79,7 @@ on spotCheck()
 		
 	else if caseIndex is 8 then
 		logger's infof("Handler result: {}", sut's getCurrentItemName())
-
+		
 	else if caseIndex is 9 then
 		sut's focusActionCategory("Favorites")
 		
@@ -185,6 +185,13 @@ on new()
 				do script macroName
 			end tell
 		end runMacro
+
+		(* Runs a keyboard maestro macro plainly, no extras. *)
+		on runMacroWithParameter(macroName, macroParameter)
+			tell application "Keyboard Maestro Engine"
+				do script macroName with parameter macroParameter
+			end tell
+		end runMacroWithParameter
 		
 		
 		(* 
@@ -280,6 +287,7 @@ on new()
 		end getVariable
 		
 		
+		(* This works only for KM global variables. *)
 		on setVariable(varName, newValue)
 			tell application "Keyboard Maestro Engine" to setvariable varName to newValue
 		end setVariable
