@@ -11,7 +11,7 @@
 	@Install:
 		make install-finder
 		
-	@Last Modified: 2023-07-05 16:43:36
+	@Last Modified: 2023-07-10 11:49:39
 *)
 
 use script "Core Text Utilities"
@@ -35,7 +35,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's injectBasic(me)
-	set thisCaseId to "finder-spotCheck"
 	logger's start()
 	
 	(* Have a Finder window open and manually verify result. *)
@@ -43,20 +42,21 @@ on spotCheck()
 		Misc Folders
 		Manual: Selection (None, One, Multi)
 		Manual: Current Folder
-		Manual: Create From Template		
+		Manual: Create From Template		  
 		Get File Path
 		
 		Get File List		
 		Move File - (Manually Revert)
 		New Tab for Path
-		Find Tab: Projects
-		
+		Find Tab: Projects		
 		Manual: Add to SideBar (Manual: Needs/Does not need adding) 
+		
 		Manual: Posix to Folder (View in Replies: User Path, Non-User Path)
+		Manual: Copy File
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -87,7 +87,7 @@ on spotCheck()
 		
 	else if caseIndex is 3 then -- WIP From here to cases below.
 		tell application "Finder"
-			set targetFolder to folder "Delete Daily" of my getDesktopFolder()
+			set targetFolder to folder "Delete Daily" of my getUserFolder()
 			set sourceFile to file "wordlist.txt" of my getUserFolder()
 		end tell
 		sut's createFile(sourceFile, targetFolder, "finder-spot.txt")
@@ -108,7 +108,7 @@ on spotCheck()
 	else if caseIndex is 6 then
 		tell application "Finder"
 			set sourceFile to file "wordlist.txt" of (path to home folder)
-			set destFolder to folder "Delete Daily" of (path to desktop folder)
+			set destFolder to folder "Delete Daily" of (path to home folder)
 			my moveFile(sourceFile, destFolder) -- does not work when file and folder is passed directly to the handler.
 			
 			reveal file "wordlist.txt" of destFolder -- May Hit Cmd + Z to undo the move on the Finder window.
@@ -135,9 +135,16 @@ on spotCheck()
 		set addResult to foundTab's addToSideBar()
 		logger's debugf("addResult: {}", addResult)
 		
+	else if caseIndex is 11 then
+		logger's infof("Handler result: {}", sut's posixToFolder("/Users/" & std's getUsername() & "/applescript-core/logs"))
+		logger's infof("Handler result: {}", sut's posixToFolder("/Applications"))
+		
 	else if caseIndex is 12 then
-		log sut's posixToFolder("/Users/" & std's getUsername() & "/applescript-core/logs")
-		log sut's posixToFolder("/Applications")
+		tell application "Finder"
+			set sourceFile to file "wordlist.txt" of (path to home folder)
+			set destFolder to folder "Delete Daily" of (path to home folder)
+		end tell
+		sut's copyFile(sourceFile, destFolder)
 	end if
 	
 	spot's finish()
@@ -151,6 +158,7 @@ on spotCheck()
 	openPosixPath("/Users/" & theUserName)
 	
 end spotCheck
+
 
 on new()
 	loggerFactory's inject(me)
@@ -232,9 +240,9 @@ on new()
 		end getFilePath
 		
 		
-		on createFile(sourceFile, targetFolder, newFileName)
+		on createFile(sourceFile, targetFolder, newFilename)
 			tell application "Finder"
-				if exists file newFileName of targetFolder then error "File already exists"
+				if exists file newFilename of targetFolder then error "File already exists"
 				
 				duplicate sourceFile to targetFolder
 				
@@ -246,10 +254,17 @@ on new()
 					set newFile to file (name of sourceFile) of targetFolder
 				end if
 				
-				set name of newFile to newFileName
+				set name of newFile to newFilename
 			end tell
 			newFile
 		end createFile
+		
+		
+		on copyFile(sourceFile, destinationFolder)
+			tell application "Finder"
+				duplicate sourceFile to destinationFolder
+			end tell
+		end copyFile
 		
 		
 		on moveFile(sourceFile, destFolder)
