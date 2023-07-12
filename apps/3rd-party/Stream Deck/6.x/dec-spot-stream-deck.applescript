@@ -1,15 +1,22 @@
 (*
 	Allows spot library to be triggered using Elgato Stream Deck app.
+
+	@TODO:
+		Migrate this out because this is too user-centric.
 	
 	@Requires:
 		Elgato Stream Deck App
 		Keyboard Maestro with Custom Macros
+			Script Editor: Stream Deck: Refresh Case Desc
+			Script Editor: Stream Deck: Update Case Index
 
 	@Installation:
 		Run `make install` from this file's sub directory.
 
 	@Build:
 		osacompile -o ~/Library/Script\ Libraries/dec-spot-stream-deck.scpt 'apps/3rd-party/Stream Deck/6.x/dec-spot-stream-deck..applescript'
+
+	@Last Modified: 
 *)
 
 use std : script "std"
@@ -25,7 +32,7 @@ property km : missing value
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's injectBasic(me, "dec-spot-stream-deck")
+	loggerFactory's injectBasic(me)
 
 	script BaseScript
 		on setSessionCaseId(newCaseId)
@@ -50,8 +57,7 @@ on decorate(BaseScript)
 			
 			if std's appExists("Stream Deck") is false then return
 			
-			km's setVariable("km_spotName", textUtil's replace(newCaseId, "-spotCheck", "-$"))
-			km's runScript("Script Editor: Update Stream Deck Case Desc")
+			km's runMacro("Script Editor: Stream Deck: Refresh Case Desc")
 		end setSessionCaseId
 		
 		on setSessionCaseIndex(newCaseIndex)
@@ -59,8 +65,7 @@ on decorate(BaseScript)
 			
 			if std's appExists("Stream Deck") is false then return
 			
-			km's setVariable("km_caseIndex", newCaseIndex)
-			km's runScript("Script Editor: Update Stream Deck Case Index")
+			km's runMacro("Script Editor: Stream Deck: Refresh Case Index")
 		end setSessionCaseIndex
 	end script
 end decorate
