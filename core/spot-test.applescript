@@ -27,7 +27,6 @@ use overriderLib : script "overrider"
 property session : missing value
 
 property logger : missing value
-property overrider : overriderLib's new()
 
 tell application "System Events"
 	set scriptName to get name of (path to me)
@@ -38,7 +37,7 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 end if
 
 on spotCheck()
-	loggerFactory's injectBasic(me, "spot-test")
+	loggerFactory's injectBasic(me)
 	logger's start()
 	
 	set spotClass to new()
@@ -65,8 +64,9 @@ end spotCheck
 
 
 on new()
-	loggerFactory's injectBasic(me, "spot-test")
+	loggerFactory's injectBasic(me)
 	set session to plutilLib's new()'s new("session")
+	set overrider to overriderLib's new()
 	
 	script SpotTestInstance
 		on setSessionCaseIndex(newCaseIndex)
@@ -107,12 +107,11 @@ on new()
 						if caseIdChanged then
 							session's setValue("Case ID", caseId)
 							session's setValue("Current Case Index", 1)
-							
-							
 							set my _valid to false
 							
 							set noticeText to "Subject Changed, select desired case from menu and re-run"
 							logger's info(noticeText)
+							notifyChange({event_type: "spot:event:new-case", case_index: _currentCase as integer})
 							return {0, "Re-run recommended"}
 							
 						else
@@ -148,10 +147,15 @@ on new()
 					else
 						logger's infof("Running case: {}/{} ({}): {}", {_currentCase, _currentCaseCount, autoText, item _currentCase of cases})
 					end if
+					notifyChange({event_type: "spot:event:run-case", case_index: _currentCase as integer})
 					{_currentCase as integer, item _currentCase of cases}
 				end start
 				
-				
+				(* event a record containing type and or case_index. *)
+				on notifyChange(event)
+
+				end notifyChange
+
 				on setAutoIncrement(newValue)
 					set incrementSwitch to switch's new("Auto Increment Case Index")
 					incrementSwitch's setValue(newValue)
@@ -178,7 +182,8 @@ on new()
 			
 			set incrementSwitch to switchLib's new("Auto Increment Case Index")
 			set autoIncrement of SpotTestCaseInstance to incrementSwitch's active()
-			SpotTestCaseInstance
+
+			overrider's applyMappedOverride(SpotTestCaseInstance)
 		end new
 	end script
 
