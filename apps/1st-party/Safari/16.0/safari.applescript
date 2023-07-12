@@ -27,7 +27,7 @@
 		13")
 		end tell
 		
-	@Last Modified: 2023-07-08 13:06:59
+	@Last Modified: 2023-07-09 18:37:27
 *)
 
 use script "Core Text Utilities"
@@ -62,7 +62,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's inject(me)
-	set thisCaseId to "safari-spotCheck"
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -72,7 +71,7 @@ on spotCheck()
 		Manual: Close Side Bar (Visible,Hidden)		
 		Manual: Get Group Name(default, group selected)
 		
-		Manual: Switch Group(not found, found)
+		Manual: Switch Group(not found, found, no app, no window)
 		Manual: New Window
 		Manual: Find Tab With Name ()
 		New Tab - Manually Check when no window is present in current space.
@@ -84,7 +83,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -152,7 +151,7 @@ on spotCheck()
 		
 	else if caseIndex is 6 then
 		set newSutGroup to "Unicorn" -- not found
-		-- set newSutGroup to "Music"
+		set newSutGroup to "Music"
 		logger's infof("newSutGroup: {}", newSutGroup)
 		
 		sut's switchGroup(newSutGroup)
@@ -395,8 +394,15 @@ on new()
 		*)
 		on switchGroup(groupName)
 			if running of application "Safari" is false then
+				logger's debug("Launching Safari...")
 				activate application "Safari"
+				delay 0.1
 			end if
+			tell application "System Events" to tell process "Safari"
+				if (count of windows) is 0 then
+					my newWindow(missing value)
+				end if
+			end tell
 			
 			set sideBarWasVisible to isSideBarVisible()
 			closeSideBar()
@@ -601,7 +607,9 @@ on new()
 			-- exec of retry on result for 3
 			
 			-- retry causing double visit to the URL
-			tell application "Safari" to set URL of front document to targetUrl -- can't avoid focusing the address bar for fresh pages.
+			if targetUrl is not missing value then
+				tell application "Safari" to set URL of front document to targetUrl -- can't avoid focusing the address bar for fresh pages.
+			end if
 			
 			newSafariTabInstance
 		end newWindow
