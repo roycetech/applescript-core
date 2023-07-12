@@ -64,7 +64,7 @@ logger's start()
 try
 	main()
 on error the errorMessage number the errorNumber
-	std's catch(scriptName, errorNumber, errorMessage)
+	std's catch(me, errorNumber, errorMessage)
 end try
 
 logger's finish()
