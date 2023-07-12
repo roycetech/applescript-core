@@ -11,24 +11,21 @@
 
 use scripting additions
 
-use loggerLib : script "logger"
-use seLib : script "script-editor"
+use loggerFactory : script "logger-factory"
 
-property logger : loggerLib's new("Run Script Editor 2")
-property se : seLib's new()
+property logger : missing value
 
 on run argv
-	tell application "System Events" to set scriptName to get name of (path to me)
-	
 	set IS_MAIN_SCRIPT to (count of argv) is 0
 	if IS_MAIN_SCRIPT then
+		loggerFactory's inject(me)
 		logger's start()
 	end if
 	
 	try
 		main()
 	on error the errorMessage number the errorNumber
-		std's catch(scriptName, errorNumber, errorMessage)
+		std's catch(me, errorNumber, errorMessage)
 	end try
 	
 	if IS_MAIN_SCRIPT then
