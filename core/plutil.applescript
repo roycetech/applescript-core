@@ -64,7 +64,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	set logger to loggerFactory's newBasic("plutil")
-	set thisCaseId to "plutil-spotCheck"
 	logger's start()
 	
 	(* Plist creation already tested. *)
@@ -87,7 +86,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
 	if caseIndex is 0 then

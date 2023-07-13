@@ -42,7 +42,6 @@ if {"Script Debugger", "Script Editor"} contains (the name of current applicatio
 
 on spotCheck()
 	loggerFactory's injectBasic(me, "script-debugger")
-	set thisCaseId to "script-debugger-spotCheck"
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -56,7 +55,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()

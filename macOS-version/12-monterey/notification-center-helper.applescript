@@ -18,7 +18,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's inject(me)
-	set thisCaseId to "notification-center-helper-spotCheck"
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -28,7 +27,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()

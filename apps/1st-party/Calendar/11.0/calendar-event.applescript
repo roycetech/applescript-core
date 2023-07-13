@@ -9,7 +9,7 @@
 	@Build:
 		make compile-lib SOURCE=apps/1st-party/Calendar/11.0/calendar-event
 
-	@Last Modified: 2023-07-04 14:05:31
+	@Last Modified: 2023-07-13 21:07:06
 *)
 
 use scripting additions
@@ -45,7 +45,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	set skip of overrider to true
-	set thisCaseId to "calendar-event-spotCheck"
 	logger's start()
 	
 	set my isSpot to true
@@ -55,7 +54,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()

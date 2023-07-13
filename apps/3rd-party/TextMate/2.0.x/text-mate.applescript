@@ -31,7 +31,6 @@ property logger : loggerLib's new("text-mate")
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	set thisCaseId to "text-mate-spotCheck"
 	logger's start()
 	set configSystem to configLib's new("system")
 	
@@ -44,7 +43,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
 	set sut to new()

@@ -48,7 +48,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's inject(me, "sublime-text")
-	set thisCaseId to "sublime-text-spotCheck"
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -63,7 +62,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
 	set sut to new()

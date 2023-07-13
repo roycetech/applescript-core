@@ -1,5 +1,5 @@
 (*
-	@Last Modified: 2023-07-02 14:58:20
+	@Last Modified: 2023-07-13 21:07:09
 
 	@Build:
 		make compile-lib SOURCE=core/dialog
@@ -21,7 +21,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's injectBasic(me, "dialog")
-	set thisCaseId to "dialog-spotCheck"
 	logger's start()
 	
 	set test to testLib's new()

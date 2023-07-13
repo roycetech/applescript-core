@@ -9,7 +9,7 @@
 		Project Find Results
 		Welcome Guide
 		
-	@Last Modified: 2023-07-12 22:06:32
+	@Last Modified: 2023-07-13 21:07:07
 	@Tab: AC 🚧	
 	@Build:
 		make compile-pulsar
@@ -46,7 +46,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's inject(me, "pulsar")
-	set thisCaseId to "pulsar-spotCheck"
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -56,7 +55,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()

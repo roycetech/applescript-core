@@ -49,7 +49,6 @@ on spotCheck()
 	loggerFactory's injectBasic(me, "cliclick")
 	
 	logger's start()
-	set thisCaseId to "cliclick-spotCheck"
 	
 	set cases to listUtil's splitByLine("
 		Unit Test
@@ -59,7 +58,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()

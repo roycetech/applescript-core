@@ -16,7 +16,7 @@
 		Assumes automator is not used or opened for purposes other than the exclusive use of this script.
 		Wipes out clipboard contents.
 
-	@Last Modified: 2023-07-04 14:05:31
+	@Last Modified: 2023-07-13 21:07:06
 *)
 
 use scripting additions
@@ -50,7 +50,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's inject(me, "automator")
-	set thisCaseId to "automator-spotCheck"
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -60,7 +59,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()

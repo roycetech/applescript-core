@@ -28,7 +28,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's injectBasic(me, "timed-cache-plist")
-	set thisCaseId to "timed-cache-plist-spotCheck"
 	logger's start()
 	
 	set test to testLib's new()
@@ -37,7 +36,7 @@ on spotCheck()
 		Integration Testing
 	")
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()

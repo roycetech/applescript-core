@@ -13,7 +13,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's injectBasic(me, "stack")
-	set thisCaseId to "stack-spotCheck"
 	logger's start()
 	
 	unitTest()

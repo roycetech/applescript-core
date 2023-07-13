@@ -11,7 +11,6 @@
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	set thisCaseId to "overrider-spotCheck"
 end spotCheck
 
 

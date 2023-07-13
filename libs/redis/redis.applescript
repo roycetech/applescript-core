@@ -24,7 +24,7 @@
 		Run "brew services restart redis" to fix the issue with "MISCONF Redis 
 		is configured to save RDB snapshots, but it's currently unable to persist to disk"
 
-	@Last Modified: 2023-06-26 11:15:33
+	@Last Modified: 2023-07-13 21:07:08
  *)
 
 use script "Core Text Utilities"
@@ -53,7 +53,6 @@ end if
 
 on spotCheck()
 	loggerFactory's inject(me, "redis")
-	set thisCaseId to "redis-spotCheck"
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -62,7 +61,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()

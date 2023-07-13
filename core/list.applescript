@@ -23,7 +23,6 @@ if name of current application is "osascript" then unitTest()
 
 on spotCheck()
 	loggerFactory's inject(me, "list")
-	set thisCaseId to "list-spotCheck"
 	logger's start()
 	
 	set cases to splitByLine("
@@ -43,7 +42,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()

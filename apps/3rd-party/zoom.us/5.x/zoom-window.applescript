@@ -1,7 +1,7 @@
 (*
 	Provides handlers about the meeting window.
 
-	@Last Modified: 2023-07-05 19:28:31
+	@Last Modified: 2023-07-13 21:07:07
 *)
 
 use listUtil : script "list"
@@ -19,7 +19,6 @@ property zoomUtil : missing value
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	set thisCaseId to "zoom-window-spotCheck"
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -30,7 +29,7 @@ on spotCheck()
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()

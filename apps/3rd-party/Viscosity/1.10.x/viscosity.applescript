@@ -18,7 +18,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's inject(me)
-	set thisCaseId to "viscosity-spotCheck"
 	logger's start()
 	
 	set retry to retryLib's new()

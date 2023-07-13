@@ -74,7 +74,6 @@ on spotCheck()
 	loggerFactory's injectBasic(me, "calendar")
 	set skip of overrider to true
 	
-	set thisCaseId to "calendar-spotCheck"
 	logger's start()
 	
 	(* Manual Visual Verification. *)
@@ -100,7 +99,7 @@ on spotCheck()
 	set spotData to {online_only:date "Wednesday, January 26, 2022 at 7:30:00 AM", online_and_offline:date "Wednesday, November 23, 2022 at 7:00:00 AM"}
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(thisCaseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
