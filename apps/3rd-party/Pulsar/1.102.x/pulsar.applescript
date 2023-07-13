@@ -1,7 +1,7 @@
 (*
 	Library wrapper for Pulsar app. Converted from atom.applescript.
 	
-	Unable to properly retrive the document path when an object is focused on the side bar.
+	Unable to properly retrieve the document path when an object is focused on the side bar.
 	
 	Some document names are reserved for Pulsar and would pose problem if you have actual files with these names:
 		Settings
@@ -9,7 +9,7 @@
 		Project Find Results
 		Welcome Guide
 		
-	@Last Modified: 2023-07-08 12:05:19
+	@Last Modified: 2023-07-12 22:06:32
 	@Tab: AC 🚧	
 	@Build:
 		make compile-pulsar
