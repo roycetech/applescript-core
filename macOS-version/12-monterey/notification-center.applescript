@@ -3,6 +3,8 @@
 	
 	@Plists:
 		notification-appname - contains mapping for app id to app name.
+		
+	@Last Modified: 2023-07-14 20:46:14
 *)
 
 use script "Core Text Utilities"
@@ -35,8 +37,8 @@ on spotCheck()
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
-		Manual: Stacked Notice Details - toString()
-		Manual: App Names
+		Manual: Info
+		Manual: Expand First Notice
 		Manual: For Each - Notification Util
 		Manual: Notifications By App (Try diff apps) 
 		Dismiss
@@ -44,6 +46,7 @@ on spotCheck()
 		Delete Mail
 		Notifications Count
 		Dismiss All - For further testing.
+		Manual: Perform Action (Approve for an hour)
 	")
 	
 	set spotClass to spotScript's new()
@@ -58,19 +61,20 @@ on spotCheck()
 	
 	set sut to new()
 	if caseIndex is 1 then
-		set hasNotice to false
-		tell application "System Events" to tell process "Notification Center"
-			set hasNotice to exists window "Notification Center"
-			
-			if hasNotice then set notice to sut's new(group 1 of UI element 1 of scroll area 1 of window "Notification Center")
-		end tell
+		logger's infof("Has Notification: {}", sut's hasNotification())
 		
-		if hasNotice then
-			logger's infof("Notice: {}", notice's toString())
+		set firstNotice to sut's firstNotice()
+		if firstNotice is not missing value then
+			logger's info(sut's firstNotice()'s toString())
 		end if
 		
-	else if caseIndex is 2 then
+		set lastNotice to sut's lastNotice()
+		if lastNotice is not missing value then
+			logger's info(sut's lastNotice()'s toString())
+		end if
+		
 		set appNames to sut's getAppNames()
+				
 		if appNames is missing value or the (count of appNames) is 0 then
 			logger's info("No notifications detected.")
 			
@@ -80,6 +84,11 @@ on spotCheck()
 			end repeat
 		end if
 		
+	else if caseIndex is 2 then
+		set firstNotice to sut's firstNotice()
+		firstNotice's expandNotification()
+		
+		
 	else if caseIndex is 3 then
 		script PrintTitle
 			on next(notice)
@@ -87,7 +96,7 @@ on spotCheck()
 				-- 				log notice's toString()
 			end next
 		end script
-		notifCenterHelper's _forEach(result)
+		notificationCenterHelper's _forEach(result)
 		
 	else if caseIndex is 4 then
 		set sutAppName to "Mail"
@@ -103,6 +112,12 @@ on spotCheck()
 		end if
 		
 	else if caseIndex is 5 then
+		set firstNotice to sut's firstNotice()
+		if firstNotice is not missing value then
+			firstNotice's dismiss()
+		end if
+		
+		(*
 		tell application "System Events" to tell process "Notification Center"
 			set hasANotice to exists window "Notification Center"
 			if hasANotice then
@@ -115,6 +130,7 @@ on spotCheck()
 			logger's debugf("Body: {}", currentNotice's body)
 			currentNotice's dismiss()
 		end if
+*)
 		
 	else if caseIndex is 6 then
 		set mailNotices to sut's getNotificationsByAppName("Mail")
@@ -134,6 +150,14 @@ on spotCheck()
 	else if caseIndex is 8 then
 		sut's dismissAll()
 		
+	else if caseIndex is 9 then
+		set lastNotice to sut's lastNotice()
+		if lastNotice is not missing value then
+			logger's info(sut's lastNotice()'s toString())
+		end if
+		
+		lastNotice's performAction("Approve for an hour")
+		
 	end if
 	
 	spot's finish()
@@ -144,9 +168,52 @@ end spotCheck
 on new()
 	loggerFactory's inject(me)
 	set plutil to plutilLib's new()
-	set notificationCenterHelper to notificationCenterHelperLib's new()
-
+	notificationCenterHelperLib's inject(me)
+	
 	script NotificationCenterInstance
+		
+		on hasNotification()
+			tell application "System Events" to tell process "Notification Center"
+				exists window "Notification Center"
+			end tell
+		end hasNotification
+		
+		
+		(* Top most on screen. *)
+		on firstNotice()
+			set noticeGroups to missing value
+			tell application "System Events" to tell process "Notification Center"
+				if not (window "Notification Center" exists) then return missing value
+				
+				try
+					set noticeGroups to groups of UI element 1 of scroll area 1 of window "Notification Center"
+				end try
+			end tell
+			if noticeGroups is missing value then return missing value
+			
+			set sortedGroup to notificationCenterHelper's _simpleSort(noticeGroups)
+			new(first item of sortedGroup)
+		end firstNotice
+		
+		
+		
+		(* Bottom on the screen. *)
+		on lastNotice()
+			set noticeGroups to missing value
+			tell application "System Events" to tell process "Notification Center"
+				if not (window "Notification Center" exists) then return missing value
+				
+				try
+					set noticeGroups to groups of UI element 1 of scroll area 1 of window "Notification Center"
+				end try
+			end tell
+			if noticeGroups is missing value then return missing value
+			
+			set sortedGroup to notificationCenterHelper's _simpleSort(noticeGroups)
+			new(last item of sortedGroup)
+		end lastNotice
+		
+		
 		
 		(* 
 			Works on regular notifications, not the time-sensitive ones.
@@ -177,7 +244,7 @@ on new()
 		end activateNotifications
 		
 		
-		to notify(theTitle, theSubtitle)
+		on notify(theTitle, theSubtitle)
 			tell application "System Events" to display notification with title theTitle subtitle theSubtitle sound name "Glass"
 		end notify
 		
@@ -235,7 +302,7 @@ on new()
 					notice's dismiss()
 				end next
 			end script
-			notifCenterHelper's _reverseLoop(result)
+			notificationCenterHelper's _reverseLoop(result)
 		end dismissByTitle
 		
 		
@@ -252,7 +319,7 @@ on new()
 					notice's deleteNotice()
 				end next
 			end script
-			notifCenterHelper's _reverseLoop(result)
+			notificationCenterHelper's _reverseLoop(result)
 		end deleteEmailNotifications
 		
 		
@@ -275,7 +342,7 @@ on new()
 					if notice's appName is equal to the appName then set end of appNotifications to notice
 				end next
 			end script
-			notifCenterHelper's _forEach(result)
+			notificationCenterHelper's _forEach(result)
 			
 			appNotifications
 		end getNotificationsByAppName
@@ -291,7 +358,7 @@ on new()
 					set retval to retval & notice's appName
 				end next
 			end script
-			notifCenterHelper's _forEach(result)
+			notificationCenterHelper's _forEach(result)
 			
 			retval
 		end getAppNames
@@ -341,6 +408,11 @@ on new()
 				end hasStarted
 				
 				-- Actions
+				on expandNotification()
+					-- performAction("Show")
+					clickNotice()
+				end expandNotification
+				
 				on clickNotice()
 					tell application "System Events"
 						click _actualNotification
@@ -408,28 +480,30 @@ Is Stacked: {}
 			
 			tell application "System Events"
 				repeat with nextStaticText in static texts of theNotification
-					set uiId to get value of attribute "AXIdentifier" of nextStaticText
-					set uiValue to get value of nextStaticText
-					if uiId is equal to "header" then
-						set the header of NotificationInstance to uiValue
-						
-					else if uiId is "title" then
-						set the |title| of NotificationInstance to uiValue
-						
-					else if uiId is "subtitle" then
-						set the subtitle of NotificationInstance to uiValue
-						set parsedStartTime to regex's firstMatchInString("(?<=Today at )\\d{1,2}:\\d{1,2} [AP]M", uiValue)
-						if parsedStartTime is not missing value then set the startTime of NotificationInstance to parsedStartTime
-						
-					else if uiId is equal to "body" then
-						-- logger's debugf("uiValue: {}", uiValue)
-						
-						set the body of NotificationInstance to uiValue
-						
-					else if uiId is "date" then
-						set the when of NotificationInstance to uiValue
-						
-					end if
+					try
+						set uiId to get value of attribute "AXIdentifier" of nextStaticText
+						set uiValue to get value of nextStaticText
+						if uiId is equal to "header" then
+							set the header of NotificationInstance to uiValue
+							
+						else if uiId is "title" then
+							set the |title| of NotificationInstance to uiValue
+							
+						else if uiId is "subtitle" then
+							set the subtitle of NotificationInstance to uiValue
+							set parsedStartTime to regex's firstMatchInString("(?<=Today at )\\d{1,2}:\\d{1,2} [AP]M", uiValue)
+							if parsedStartTime is not missing value then set the startTime of NotificationInstance to parsedStartTime
+							
+						else if uiId is equal to "body" then
+							-- logger's debugf("uiValue: {}", uiValue)
+							
+							set the body of NotificationInstance to uiValue
+							
+						else if uiId is "date" then
+							set the when of NotificationInstance to uiValue
+							
+						end if
+					end try -- Some static texts doesn't have AXIdentifier attribute like the Screen Time Request: Leave on Time Sonsitive Notification...
 				end repeat
 				
 				if help of theNotification is "Activate to expand" then set the stacked of NotificationInstance to true
@@ -461,7 +535,7 @@ Is Stacked: {}
 					if noticeAppName is equal to appName then notice's clickNotice()
 				end next
 			end script
-			notifCenterHelper's _reverseLoop(result)
+			notificationCenterHelper's _reverseLoop(result)
 		end _expandNotifications
 	end script
 end new
