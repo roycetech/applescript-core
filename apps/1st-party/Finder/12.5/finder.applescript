@@ -11,7 +11,7 @@
 	@Install:
 		make install-finder
 		
-	@Last Modified: 2023-07-10 11:49:39
+	@Last Modified: 2023-07-14 11:44:21
 *)
 
 use script "Core Text Utilities"
@@ -144,7 +144,15 @@ on spotCheck()
 			set sourceFile to file "wordlist.txt" of (path to home folder)
 			set destFolder to folder "Delete Daily" of (path to home folder)
 		end tell
-		sut's copyFile(sourceFile, destFolder)
+		
+		set copyResult to sut's copyFile(sourceFile, destFolder, false) -- Test false and true
+		if copyResult is missing value then
+			logger's fatal("Copy failed!")
+		else
+			tell application "Finder"
+				reveal copyResult
+			end tell
+		end if
 	end if
 	
 	spot's finish()
@@ -260,10 +268,21 @@ on new()
 		end createFile
 		
 		
-		on copyFile(sourceFile, destinationFolder)
+		(*
+			@returns the handle to the copied file if successful, otherwise return missing value.
+		*)
+		on copyFile(sourceFile, destinationFolder, overwriteFlag)
 			tell application "Finder"
-				duplicate sourceFile to destinationFolder
+				if overwriteFlag then
+					return duplicate sourceFile to destinationFolder with replacing
+				end if
+				
+				-- else
+				try
+					return duplicate sourceFile to destinationFolder
+				end try
 			end tell
+			missing value
 		end copyFile
 		
 		
