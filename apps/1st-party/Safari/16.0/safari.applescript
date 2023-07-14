@@ -27,7 +27,7 @@
 		13")
 		end tell
 		
-	@Last Modified: 2023-07-09 18:37:27
+	@Last Modified: 2023-07-14 10:52:28
 *)
 
 use script "Core Text Utilities"
@@ -71,7 +71,7 @@ on spotCheck()
 		Manual: Close Side Bar (Visible,Hidden)		
 		Manual: Get Group Name(default, group selected)
 		
-		Manual: Switch Group(not found, found, no app, no window)
+		Manual: Switch Group(not found, found, no app, no window, missing value for default)
 		Manual: New Window
 		Manual: Find Tab With Name ()
 		New Tab - Manually Check when no window is present in current space.
@@ -120,6 +120,7 @@ on spotCheck()
 			logger's infof("Window ID: {}", frontTab's getWindowId())
 			logger's infof("Sidebar Visible: {}", sut's isSideBarVisible())
 			logger's infof("Is Loading: {}", sut's isLoading())
+			logger's infof("Is Default Group: {}", sut's isDefaultGroup())
 			
 			delay 3 -- Manually check below when in/visible.
 			logger's infof("Address Bar is focused: {}", frontTab's isAddressBarFocused())
@@ -152,6 +153,7 @@ on spotCheck()
 	else if caseIndex is 6 then
 		set newSutGroup to "Unicorn" -- not found
 		set newSutGroup to "Music"
+		set newSutGroup to missing value
 		logger's infof("newSutGroup: {}", newSutGroup)
 		
 		sut's switchGroup(newSutGroup)
@@ -234,6 +236,35 @@ on new()
 	set retry to retryLib's new()
 	
 	script SafariInstance
+		(*
+			Determine if on default group when:
+				SideBar Visible: first row is selected.
+				SideBar Hidden: the tab picker is small, without any labels
+				
+		*)
+		on isDefaultGroup()
+			if isSideBarVisible() then
+				tell application "System Events" to tell process "Safari"
+					return value of attribute "AXSelected" of row 1 of outline 1 of scroll area 1 of group 1 of splitter group 1 of front window
+				end tell
+			end if
+			
+			-- else: SideBar not visible.			
+			set groupPicker to missing value
+			tell application "System Events" to tell process "Safari"
+				try
+					set groupPicker to first menu button of group 1 of toolbar 1 of front window whose help is "Tab Group Picker"
+				end try
+			end tell
+			if groupPicker is missing value then error "Unable to find the group picker UI"
+			
+			tell application "System Events" to tell process "Safari"
+				set wh to the size of groupPicker
+				(first item of wh) is less than 40
+			end tell
+		end isDefaultGroup
+		
+		
 		on isLoading()
 			if running of application "Safari" is false then return false
 			
@@ -390,6 +421,12 @@ on new()
 		
 		
 		(*
+			Will switch group by:
+				1.  Closing the SideBar
+				2.  Triggering the group switcher menu UI
+				3.  Clicking the first (missing value) or the matching menu item.
+				4.  Restore if SideBar wasn't initially closed.
+			
 			@requires app focus.
 		*)
 		on switchGroup(groupName)
@@ -398,6 +435,7 @@ on new()
 				activate application "Safari"
 				delay 0.1
 			end if
+			
 			tell application "System Events" to tell process "Safari"
 				if (count of windows) is 0 then
 					my newWindow(missing value)
@@ -407,6 +445,7 @@ on new()
 			set sideBarWasVisible to isSideBarVisible()
 			closeSideBar()
 			
+			activate app "Safari"
 			script ToolBarWaiter
 				tell application "System Events" to tell process "Safari"
 					click menu button 1 of group 1 of toolbar 1 of window 1
@@ -417,12 +456,16 @@ on new()
 			-- logger's debugf("WaitResult: {}", waitResult)
 			
 			tell application "System Events" to tell process "Safari"
-				try
-					click menu item groupName of menu 1 of group 1 of toolbar 1 of window 1
-				on error
-					logger's warnf("Group: {} was not found", groupName)
-					kb's pressKey("esc")
-				end try
+				if groupName is missing value then
+					click menu item 1 of menu 1 of group 1 of toolbar 1 of front window
+				else
+					try
+						click menu item groupName of menu 1 of group 1 of toolbar 1 of window 1
+					on error
+						logger's warnf("Group: {} was not found", groupName)
+						kb's pressKey("esc")
+					end try
+				end if
 			end tell
 			
 			if sideBarWasVisible then showSideBar()
