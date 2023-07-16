@@ -2,7 +2,7 @@
 	Library wrapper for Preview app.
 
 		@Created: July 14, 2023 6:57 PM
-		@Last Modified: 2023-07-14 20:23:57
+		@Last Modified: 2023-07-15 13:43:03
 *)
 use scripting additions
 
@@ -32,7 +32,10 @@ on spotCheck()
 		Manual: Set export filename
 		Manual: Select format
 		Manual: Set Destination
+		
 		Manual: Trigger Save Button
+		Manual: Find Tab
+		Manual: Front Tab (TODO)
 	")
 	
 	set spotClass to spotScript's new()
@@ -69,7 +72,12 @@ on spotCheck()
 
 	else if caseIndex is 6 then
 		sut's triggerSave()
+
+	else if caseIndex is 7 then
+		sut's findTabWithName("x")
 		
+	else if caseIndex is 7 then
+		sut's getFrontTab()
 		
 	end if
 	
@@ -198,5 +206,49 @@ on new()
 			kb's pressKey("return")
 		end _acceptFoundSavePath
 		
+
+		on findTabWithName(documentName)
+			try
+				tell application "Preview"
+					set appWindow to first window whose name is documentName
+				end tell
+				return 	_new(appWindow)
+			end try
+
+			missing value
+		end findTabWithName
+
+
+		on _new(pAppWindow)
+			script PreviewTabInstance
+				property appWindow : pAppWindow
+				
+				on focus()
+					try
+						tell application "System Events" to tell process "Preview"
+							click (first menu item of first menu of menu bar item "Window" of first menu bar whose title is equal to name of my appWindow)
+						end tell
+						true
+					on error
+						false
+					end try
+				end focus
+				
+				on closeTab()
+					tell appWindow to close
+				end closeTab
+				
+				on fullScreen()
+					focus()
+					activate application "Preview"
+					tell application "System Events" to tell process "Preview"
+						try
+							click menu item "Enter Full Screen" of menu 1 of menu bar item "View" of menu bar 1
+						end try
+					end tell
+				end fullScreen
+			end script
+		end _new
+
 	end script
 end new
