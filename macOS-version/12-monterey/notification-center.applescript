@@ -4,7 +4,7 @@
 	@Plists:
 		notification-appname - contains mapping for app id to app name.
 		
-	@Last Modified: 2023-07-14 20:46:14
+	@Last Modified: 2023-07-16 15:18:12
 *)
 
 use script "Core Text Utilities"
@@ -406,6 +406,10 @@ on new()
 					
 					date (my startTime) is less than or equal to (current date)
 				end hasStarted
+
+				on expand()
+					expandNotification()
+				end expandNotification
 				
 				-- Actions
 				on expandNotification()
@@ -433,7 +437,13 @@ on new()
 				on deleteMail()
 					if appName is not "Mail" then tell me to error "Invalid action for app " & appName
 					
-					tell application "System Events" to perform action 3 of item 1 of theNotification -- Trigger the delete button. Improve, don't use the number.		
+					-- tell application "System Events" to perform action 3 of item 1 of theNotification -- Trigger the delete button. Improve, don't use the number.		
+					tell application "System Events" 
+						-- to perform action 3 of item 1 of theNotification 
+						perform first action of theNotification whose description is "Delete"
+					end tell
+
+						-- Trigger the delete button. Improve, don't use the number.		
 				end deleteMail
 				
 				(* 
@@ -525,12 +535,12 @@ Is Stacked: {}
 			script ExpandNoticeScript
 				on next(notice)
 					if not notice's isStacked() then return
-					
+
 					if appName is missing value then
 						notice's clickNotice()
 						return
 					end if
-					
+
 					set noticeAppName to appName of notice
 					if noticeAppName is equal to appName then notice's clickNotice()
 				end next
