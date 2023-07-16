@@ -115,10 +115,10 @@ on new()
 		end switchProfile
 	end script
 	
-	if not isSpot then 
+	if not isSpot then
 		set overrider to overriderLib's new()
 		return overrider's applyMappedOverride(StreamDeckInstance)
 	end if
-
+	
 	StreamDeckInstance
 end new
