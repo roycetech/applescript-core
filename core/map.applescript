@@ -35,7 +35,7 @@ property jsonLib : missing value
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's injectBasic(me, "map")
+	loggerFactory's injectBasic(me)
 	logger's start()
 	
 	set config to configLib's new("system")
@@ -232,6 +232,7 @@ end newFromJson
 
 (* @deprecated use the alias newInstanceFromRecord. *)
 on fromRecord(theRecord as record)
+	if theRecord is missing value then return missing value
 	set objCDictionary to current application's NSDictionary's dictionaryWithDictionary:theRecord
 	set allKeys to objCDictionary's allKeys()
 	set theMap to new()
