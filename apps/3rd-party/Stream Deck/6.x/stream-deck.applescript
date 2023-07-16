@@ -50,6 +50,7 @@ on spotCheck()
 	end if
 	
 	set sut to new()
+	logger's infof("USB Connected: {}", sut's isUsbConnected())
 	if caseDesc starts with "Manual: Switch Profile:" then
 		set caseProfile to textUtil's stringAfter(caseDesc, "Switch Profile: ")
 		logger's debugf("caseProfile: {}", caseProfile)
@@ -75,10 +76,16 @@ end spotCheck
 (*  *)
 on new()
 	if std's appExists("Elgato Stream Deck") is false then error "Elgato Stream Deck app needs to be installed"
-	
 	loggerFactory's injectBasic(me, "stream-deck")
 	
 	script StreamDeckInstance
+		on isUsbConnected()
+			try
+				return (do shell script "lsusb | grep 'Stream Deck'") is not ""
+			end try
+			
+			false
+		end isUsbConnected
 		
 		(* 
 			Very slow without the ignoring block.
