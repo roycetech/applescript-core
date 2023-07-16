@@ -6,10 +6,15 @@
 	@Requires:
 		Elgato Stream Deck App
 		Keyboard Maestro with Custom Macros
+		lsusb installed via brew to check if stream deck via USB is plugged in.
 
 	@Installation:
-		Run `make install` from this file's sub directory.		
+		Run `make install` from this file's sub directory.
+		
+	@Last Modified: 
 *)
+
+use scripting additions
 
 use std : script "std"
 use loggerFactory : script "logger-factory"
