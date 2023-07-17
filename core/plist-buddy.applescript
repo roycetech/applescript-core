@@ -26,12 +26,8 @@ property CLI : "/usr/libexec/PlistBuddy"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
--- /usr/libexec/PlistBuddy -c "Print ':Code:\ CFML\ Lint'"  '/Users/rye/Projects/@amaysim-ph/applescript-core/test/fixtures/plist-buddy-test.plist'
-
--- /usr/libexec/PlistBuddy -c "Print ':mobile-bss\\:Code\\:\\ CFML\\ Lint'"  '/Users/rye/Projects/@amaysim-ph/applescript-core/test/fixtures/plist-buddy-test.plist'
-
 on spotCheck()
-	loggerFactory's injectBasic(me, "plist-buddy")
+	loggerFactory's injectBasic(me)
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
