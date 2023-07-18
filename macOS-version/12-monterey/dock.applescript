@@ -124,6 +124,9 @@ on new()
 	set kb to kbLib's new()
 	
 	script DockInstance
+		property waitSeconds : 1
+		property waitMax : 3
+
 		on clickApp(appName)
 			tell application "System Events" to tell process "Dock"
 				try
@@ -181,21 +184,28 @@ on new()
 		end isAutoHide
 		
 		
-		on newSafariWindow()
+		on triggerAppMenu(appName, menuItemName)
 			tell application "System Events" to tell process "Dock"
-				if not (exists UI element "Safari" of list 1) then return false
+				if not (exists UI element appName of list 1) then return false
 				
-				perform action "AXShowMenu" of UI element "Safari" of list 1
+				perform action "AXShowMenu" of UI element appName of list 1
 			end tell
-			
+
 			set retry to retryLib's new()
 			script MenuWaiter
 				tell application "System Events" to tell process "Dock"
-					click menu item "New Window" of menu 1 of UI element "Safari" of list 1
+					click menu item menuItemName of menu 1 of UI element appName of list 1
 					true
 				end tell
 			end script
-			exec of retry on result for 3
+			set clickResult to exec of retry on result for waitMax by waitSeconds
+			if clickResult is missing value then kb's pressKey("escape")
+		end triggerAppMenu
+
+
+		(* This handler probably doesn't belong here. *)
+		on newSafariWindow()
+			triggerAppMenu("Safari", "New Window")
 			
 			script BlankDocumentWaiter
 				tell application "Safari"
