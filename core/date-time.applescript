@@ -2,7 +2,7 @@
 	@Build:
 		make compile-lib SOURCE=core/date-time
 
-	@Last Modified: 2023-07-13 21:07:07
+	@Last Modified: 2023-07-17 16:38:54
 *)
 use framework "Foundation"
 
@@ -10,11 +10,14 @@ use scripting additions
 
 use script "Core Text Utilities"
 
-use loggerFactory : script "logger-factory"
 use textUtil : script "string"
-use regex : script "regex"
 use listUtil : script "list"
+use regex : script "regex"
+
+use loggerFactory : script "logger-factory"
+
 use spotScript : script "spot-test"
+
 use testLib : script "test"
 
 property logger : missing value
