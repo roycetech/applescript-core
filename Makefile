@@ -163,10 +163,12 @@ reveal-apps:
 reveal-stay-open:
 	open $(APPS_PATH)/Stay\ Open
 
-
 test-unit:
 test-integration:
-test-all:
+
+test:
+	osascript test/core/plutilTest.applescript
+
 #
 #
 

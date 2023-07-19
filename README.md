@@ -72,6 +72,12 @@ You can also make use of visual aids by including materials like screenshots to 
 You'll need to populate the config-system.plist with some default values:
 *   Project Path - Used to locate the test files for testing.
 
+### Testing (WIP)
+
+Run `make test` to run the tests.
+
+When developing, install fswatch and run `fswatch -o -e ".*" -i "\\.applescript$" . | xargs -n1 -I{} make test` to automatically run the tests after each file change.
+
 ## Credits
 
 * [eugene-manalo](https://github.com/eugene-manalo) - For the Google Chrome library implementation.

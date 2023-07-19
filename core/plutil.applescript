@@ -39,7 +39,7 @@
 	@Tests:
 		tests/core/plutilTest.applescript
 
-	@Last Modified: 2023-07-19 21:31:23
+	@Last Modified: 2023-07-19 22:08:55
  *)
 use script "Core Text Utilities"
 use scripting additions
@@ -487,8 +487,12 @@ on new()
 				end getValueWithDefault
 				
 				
+				(*
+					@plistKeyOrKeyList - plist key for retrieval.
+				*)
 				on getValue(plistKeyOrKeyList)
 					if plistKeyOrKeyList is missing value then return missing value
+					if { text, list } does not contain the class of plistKeyOrKeyList then return missing value
 					
 					set isTextParam to class of plistKeyOrKeyList is text
 					set quotedPlistKey to _quoteKey(plistKeyOrKeyList)
@@ -578,6 +582,7 @@ on new()
 				(* @returns true on success. *)
 				on deleteKey(plistKeyOrKeyList)
 					if plistKeyOrKeyList is missing value then return false
+					if {text, list} does not contain the class of plistKeyOrKeyList then return false
 					
 					set isTextParam to class of plistKeyOrKeyList is text
 					set quotedPlistKey to _quoteKey(plistKeyOrKeyList)
@@ -874,13 +879,6 @@ on unitTest()
 	set sut to plutil's new("spot-plist")
 
 	tell ut
-		newMethod("setup")
-		sut's deleteKey("spot-string-dotted")
-		sut's deleteKey("spot-date")
-		sut's deleteKey("spot-record")
-		sut's deleteKey("spot-map")
-		sut's deleteKey("spot-special")
-
 		set actual to sut's getValue("spot-array")
 		assertEqual(missing value, sut's getValue("spot-array"), "Clean array key")
 		assertMissingValue(actual, "Clean array key")
@@ -888,15 +886,6 @@ on unitTest()
 		newMethod("setValue")
 		-- sut's setValue("101 Dalmatian", "Key Starts with Number Breaks")
 		sut's setValue(missing value, "haha")
-		sut's setValue("spot-array", {1, 2})
-		sut's setValue("spot-array-string", {"one", "two"})
-		sut's setValue("spot-array-empty", {})
-		sut's setValue("spot array empty", {})
-		sut's setValue("spot-string", "text")
-		sut's setValue("spot-special", "special&<>")
-		sut's setValue("spot-list-special", {"&", "<", ">"}) -- Doesn't look like we need to escape apostrophe and double quotes.
-		sut's setValue("spot-$dollar", "$5")
-		sut's setValue("spot-$dollar-list", {"$yes-5"})
 
 		sut's setValue("spot-string.dotted-key", "string-dotted-value.txt")
 		sut's setValue("spot-integer", 1)
