@@ -1,15 +1,17 @@
 (*
 	This library is implemented prioritizing minimal dependency to other libraries.
+
+	TODO: Migrate to accept text or list of keys.
 	
 	Requirements
 
-	Usage:
-		Create new plist in the defalt location with:
-			use plutilLib : script "plutil"
-			property plutil : plutilLib's new()
+	@Usage:
+		-- Create new plist in the defalt location with:
+		use plutilLib : script "plutil"
+		property plutil : plutilLib's new()
 			
-			plutil's createNewPList("your-new-plist")  -- don't put the extension.
-			set yourList to plutil's new("plistname")
+		plutil's createNewPList("your-new-plist")  -- don't put the extension.
+		set yourList to plutil's new("plistname")
 
 	Example 2: 
 		set cacheName to format {"dbcache-{}-{}", {env, dbName}}
@@ -33,9 +35,12 @@
 
 	@Build:
 		make compile-lib SOURCE=core/plutil
+		
+	@Tests:
+		tests/core/plutilTest.applescript
+
+	@Last Modified: 2023-07-19 21:31:23
  *)
-
-
 use script "Core Text Utilities"
 use scripting additions
 
@@ -60,7 +65,23 @@ property isSpot : false
 
 property TZ_OFFSET : (do shell script "date +'%z' | cut -c 2,3") as integer
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+(*
+	if {"Script Editor", "Script Debugger"} contains the name of current application then
+		spotCheck()
+	end if
+*)
+
+(* Used by ASUnit to access this script. *)
+on run
+	tell application "System Events"
+		if name of (path to me) is "plutil.applescript" then
+			my spotCheck()
+			return
+		end if
+	end tell
+	
+	me
+end run
 
 on spotCheck()
 	set logger to loggerFactory's newBasic("plutil")
@@ -186,7 +207,7 @@ end spotCheck
 
 
 on new()
-	loggerFactory's injectBasic(me, "plutil")
+	loggerFactory's injectBasic(me)
 	script PlutilInstance
 		(* 
 			@plistKey - plistName or subpath with name relative to the home/applescript-core folder. 
@@ -244,11 +265,9 @@ on new()
 			it exists at this point. 
 		*)
 		on new(pPlistName)
-			try
-				if regex's matches("^(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_-]+$", pPlistName) is false then
-					error "Invalid PList Name: " & pPlistName
-				end if
-			end try -- undefined when used with system library.
+			if regex's matches("^(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_-]+$", pPlistName) is false then
+				error "Invalid PList Name: " & pPlistName number 1
+			end if
 			
 			set calcPlistFilename to format {"~/applescript-core/{}.plist", {pPlistName}}
 			
@@ -268,13 +287,24 @@ on new()
 				on deletePlist()
 					do shell script "rm " & plistFilename
 				end deletePlist
-				
-				on setValue(plistKey, newValue)
-					if plistKey is missing value then return false
+
+				(*
+					@returns TODO. Void, the value set, or if successful?
+				*)
+				on setValue(plistKeyOrKeyList, newValue)
+					if plistKeyOrKeyList is missing value then return missing value
 					
-					if regex's matches("^\\d", plistKey) then set plistKey to "_" & plistKey
-					set quotedPlistKey to quoted form of plistKey
+					set isTextParam to class of plistKeyOrKeyList is text
+					if isTextParam then
+						if regex's matches("^\\d", plistKeyOrKeyList) then
+							set plistKeyOrKeyList to "_" & plistKeyOrKeyList
+						end if
+						set quotedPlistKey to quoted form of plistKeyOrKeyList
+					else
+						set quotedPlistKey to quoted form of _buildKeyNameFromList(plistKeyOrKeyList)
+					end if
 					
+					-- display dialog quotedPlistKey
 					set dataType to class of newValue
 					
 					if {text, boolean, integer, real, date} contains dataType then
@@ -288,10 +318,18 @@ on new()
 							set shellValue to quoted form of _formatPlistDate(newValue)
 						end if
 						
-						set setValueShellCommand to format {"if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -replace \"$TMP\" -{} {} {}; else plutil -replace {} -{} {} {}; fi", {plistKey, plistKey, plUtilType, shellValue, quotedPlistPosixPath, quotedPlistKey, plUtilType, shellValue, quotedPlistPosixPath}}
+						if isTextParam then
+							set setValueShellCommand to format {"if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -replace \"$TMP\" -{} {} {}; else plutil -replace {} -{} {} {}; fi", {plistKeyOrKeyList, plistKeyOrKeyList, plUtilType, shellValue, quotedPlistPosixPath, quotedPlistKey, plUtilType, shellValue, quotedPlistPosixPath}}
+						else
+							set setValueShellCommand to format {"plutil -replace {} -{} {} {}", {quotedPlistKey, plUtilType, shellValue, quotedPlistPosixPath}}
+							
+						end if
+						
+						-- logger's debugf("setValueShellCommand: {}", setValueShellCommand)
 						do shell script setValueShellCommand
 						
 						return
+						
 					else if dataType is list then
 						_insertList(quotedPlistKey, newValue)
 						return
@@ -303,19 +341,19 @@ on new()
 *)
 						
 					else if dataType is script and name of newValue is "ASDictionary" then
-						setValue(plistKey, newValue's toJsonString())
+						setValue(plistKeyOrKeyList, newValue's toJsonString())
 						return
 						
 					end if
 					
 					tell application "System Events"
-						if newValue is equal to missing value and my getValue(plistKey) is not missing value then
-							tell property list file plistFilename to set value of property list item plistKey to ""
+						if newValue is equal to missing value and my getValue(plistKeyOrKeyList) is not missing value then
+							tell property list file plistFilename to set value of property list item plistKeyOrKeyList to ""
 							return
 						end if
 						
-						if my getValue(plistKey) is equal to missing value then
-							my _newValue(plistKey, newValue)
+						if my getValue(plistKeyOrKeyList) is equal to missing value then
+							my _newValue(plistKeyOrKeyList, newValue)
 						else
 							tell property list file plistFilename to set value of property list item plistKey to newValue
 						end if
@@ -437,8 +475,8 @@ on new()
 					try
 						return (do shell script getRecordShellCommand) as record
 					end try
-
-					missing value					
+					
+					missing value
 				end getRecord
 				
 				on getValueWithDefault(plistKey, defaultValue)
@@ -448,18 +486,21 @@ on new()
 					fetchedValue
 				end getValueWithDefault
 				
-				on getValue(plistKey)
-					if plistKey is missing value then return missing value
+				
+				on getValue(plistKeyOrKeyList)
+					if plistKeyOrKeyList is missing value then return missing value
 					
-					set quotedPlistKey to quoted form of plistKey
-					
+					set isTextParam to class of plistKeyOrKeyList is text
+					set quotedPlistKey to _quoteKey(plistKeyOrKeyList)
 					try
-						if plistKey starts with "EMOJI" then -- follow convention, reduce execution of shell commands.
-							set dataType to "string"
+						if isTextParam then
+							set getTypeShellCommand to format {"if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -type \"$TMP\" {}; else plutil -type {} {}; fi", {plistKeyOrKeyList, plistKeyOrKeyList, quotedPlistPosixPath, quotedPlistKey, quotedPlistPosixPath}}
 						else
-							set getTypeShellCommand to format {"if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -type \"$TMP\" {}; else plutil -type {} {}; fi", {plistKey, plistKey, quotedPlistPosixPath, quotedPlistKey, quotedPlistPosixPath}}
-							set dataType to do shell script getTypeShellCommand
+							set getTypeShellCommand to format {"plutil -type {} {}", {quotedPlistKey, quotedPlistPosixPath}}
+							
 						end if
+						
+						set dataType to do shell script getTypeShellCommand
 					on error the errorMessage number the errorNumber
 						return missing value
 					end try
@@ -467,13 +508,22 @@ on new()
 					if dataType is "array" then
 						return _getList(quotedPlistKey)
 						
-					-- else if dataType is "dictionary" then
-					-- 	set getDictShellCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\"  {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | sed 's/:/__COLON__/g' | sed 's/[[:space:]]=[[:space:]]/: /g'", {quotedPlistKey, quotedPlistPosixPath}}
-					-- 	set dictShellResult to do shell script getDictShellCommand
-					-- 	return mapLib's newFromString(dictShellResult)
+					else if dataType is "dictionary" then
+						(* Use the traditional way via property list. *)
+						tell application "System Events" to tell property list file plistFilename
+							try
+								return value of property list item plistKeyOrKeyList
+							on error errorText
+								-- Goes here when the key don't exist, that's fine.
+								return missing value
+							end try
+						end tell
+						-- 	set getDictShellCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\"  {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | sed 's/:/__COLON__/g' | sed 's/[[:space:]]=[[:space:]]/: /g'", {quotedPlistKey, quotedPlistPosixPath}}
+						-- 	set dictShellResult to do shell script getDictShellCommand
+						-- 	return mapLib's newFromString(dictShellResult)
 						
 					else
-						set getValueShellCommand to _getTypedGetterShellTemplate(missing value, plistKey, quotedPlistPosixPath)
+						set getValueShellCommand to _getTypedGetterShellTemplate(missing value, plistKeyOrKeyList, quotedPlistPosixPath)
 						
 						set plistValue to do shell script getValueShellCommand
 						return _convertType(plistValue, dataType)
@@ -481,7 +531,7 @@ on new()
 					
 					tell application "System Events" to tell property list file plistFilename
 						try
-							return value of property list item plistKey
+							return value of property list item plistKeyOrKeyList
 						on error errorText
 							-- Goes here when the key don't exist, that's fine.
 							return missing value
@@ -507,12 +557,6 @@ on new()
 					if newValue is not missing value then set quotedValue to _quoteValue(newValue)
 					set appendShellCommand to format {"plutil -insert {} -{} {} -append {}", {escapedAndQuotedPlistKey, plUtilType, quotedValue, quotedPlistPosixPath}}
 					do shell script appendShellCommand
-					return
-					
-					set theList to getValue(plistKey)
-					if theList is missing value or theList is "" then set theList to {}
-					set end of theList to newValue
-					setValue(plistKey, theList)
 				end appendValue
 				
 				(* @returns true if the targetElement is present and removed. *)
@@ -532,11 +576,18 @@ on new()
 				
 				
 				(* @returns true on success. *)
-				on deleteKey(plistKey)
-					if plistKey is missing value then return
+				on deleteKey(plistKeyOrKeyList)
+					if plistKeyOrKeyList is missing value then return false
 					
-					set quotedPlistKey to quoted form of plistKey
-					set removeShellCommand to format {"plutil -remove {} {}", {quotedPlistKey, my quotedPlistPosixPath}}
+					set isTextParam to class of plistKeyOrKeyList is text
+					set quotedPlistKey to _quoteKey(plistKeyOrKeyList)
+
+					if isTextParam then
+						set removeShellCommand to format {"if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -remove \"$TMP\" {}; else plutil -remove {} {}; fi", {plistKeyOrKeyList, plistKeyOrKeyList, my quotedPlistPosixPath, quotedPlistKey, my quotedPlistPosixPath}}
+					else
+						set removeShellCommand to format {"plutil -remove {} {}", {quotedPlistKey, my quotedPlistPosixPath}}
+					end if
+
 					try
 						do shell script removeShellCommand
 						return true
@@ -555,6 +606,7 @@ on new()
 					setValue(plistKey, jsonString)
 				end _setRecordAsJson
 				
+				
 				on _quoteValue(theValue)
 					if theValue is missing value then return missing value
 					
@@ -564,20 +616,51 @@ on new()
 				end _quoteValue
 				
 				
+				on _quoteKey(plistKeyOrKeyList)
+					if class of plistKeyOrKeyList is text then
+						if regex's matches("^\\d", plistKeyOrKeyList) then
+							set plistKeyOrKeyList to "_" & plistKeyOrKeyList
+						end if
+						return quoted form of plistKeyOrKeyList
+					end if
+
+					quoted form of _buildKeyNameFromList(plistKeyOrKeyList)
+				end _quoteKey
+				
+				
 				(*
-					@typeText 
+					@typeText
 					@plistKey
 					@quotedPlistPosixPath
 				*)
-				on _getTypedGetterShellTemplate(typeText, plistKey, quotedPlistPosixPath)
-					if plistKey is missing value then return missing value
+				on _getTypedGetterShellTemplate(typeText, plistKeyOrKeyList, quotedPlistPosixPath)
+					if plistKeyOrKeyList is missing value then return missing value
+
 
 					set typeClause to ""
 					if typeText is not missing value then set typeClause to "-expect " & typeText
 
-					set shellTemplate to "if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -extract \"$TMP\" raw " & typeClause & " {}; else plutil -extract {} raw " & typeClause & " {}; fi"
-					format {shellTemplate, {plistKey, plistKey, quotedPlistPosixPath, quoted form of plistKey, quotedPlistPosixPath}}
+					if class of plistKeyOrKeyList is text then
+						set shellTemplate to "if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -extract \"$TMP\" raw " & typeClause & " {}; else plutil -extract {} raw " & typeClause & " {}; fi"
+						format {shellTemplate, {plistKeyOrKeyList, plistKeyOrKeyList, quotedPlistPosixPath, quoted form of plistKeyOrKeyList, quotedPlistPosixPath}}
+					else
+						set keyName to _buildKeyNameFromList(plistKeyOrKeyList)
+						set shellTemplate to "plutil -extract {} raw " & typeClause & " {}"
+						format {shellTemplate, {quoted form of keyName, quotedPlistPosixPath}}
+					end if
 				end _getTypedGetterShellTemplate
+
+
+				on _buildKeyNameFromList(keyNameList)
+					set keynameBuilder to "" -- May be a bad idea to use the string-builder library.
+					repeat with nextKeyName in keyNameList
+						if keynameBuilder is not "" then set keynameBuilder to keynameBuilder & "."
+						if regex's matches("^\\d", nextKeyName) then set nextKeyName to "_" & nextKeyName
+
+						set keynameBuilder to keynameBuilder & nextKeyName
+					end repeat
+					keynameBuilder
+				end _buildKeyNameFromList
 
 
 				on _escapeAndQuoteKey(plistKey)
@@ -687,7 +770,7 @@ on new()
 					missing value
 				end _getPlUtilType
 
-				to _convertType(textValue, plistType)
+				on _convertType(textValue, plistType)
 					if plistType is "date" then return _zuluToLocalDate(textValue)
 					if plistType is "integer" then return textValue as integer
 					if plistType is "float" then return textValue as real
@@ -696,7 +779,7 @@ on new()
 					textValue
 				end _convertType
 
-				to _newValue(mapKey, newValue)
+				on _newValue(mapKey, newValue)
 					tell application "System Events" to tell property list file plistFilename
 						make new property list item at end with properties {kind:class of newValue, name:mapKey, value:newValue}
 					end tell
@@ -780,3 +863,130 @@ on new()
 	set overrider to overriderLib's new()
 	overrider's applyMappedOverride(PlutilInstance)
 end new
+
+
+
+on unitTest()
+	set mapLib to script "map"
+
+	set ut to test's new()
+	set plutil to new()
+	set sut to plutil's new("spot-plist")
+
+	tell ut
+		newMethod("setup")
+		sut's deleteKey("spot-string-dotted")
+		sut's deleteKey("spot-date")
+		sut's deleteKey("spot-record")
+		sut's deleteKey("spot-map")
+		sut's deleteKey("spot-special")
+
+		set actual to sut's getValue("spot-array")
+		assertEqual(missing value, sut's getValue("spot-array"), "Clean array key")
+		assertMissingValue(actual, "Clean array key")
+
+		newMethod("setValue")
+		-- sut's setValue("101 Dalmatian", "Key Starts with Number Breaks")
+		sut's setValue(missing value, "haha")
+		sut's setValue("spot-array", {1, 2})
+		sut's setValue("spot-array-string", {"one", "two"})
+		sut's setValue("spot-array-empty", {})
+		sut's setValue("spot array empty", {})
+		sut's setValue("spot-string", "text")
+		sut's setValue("spot-special", "special&<>")
+		sut's setValue("spot-list-special", {"&", "<", ">"}) -- Doesn't look like we need to escape apostrophe and double quotes.
+		sut's setValue("spot-$dollar", "$5")
+		sut's setValue("spot-$dollar-list", {"$yes-5"})
+
+		sut's setValue("spot-string.dotted-key", "string-dotted-value.txt")
+		sut's setValue("spot-integer", 1)
+		sut's setValue("spot-float", 1.5)
+		sut's setValue("spot-record", {one:1, two:2, three:"a&c", |four: colonized|:"apat"})
+		set testMap to mapLib's new()
+		testMap's putValue("one", 1)
+		testMap's putValue("two", 2)
+		sut's setValue("spot-map", testMap)
+		set zuluAdjust to 0 -- manually add/subtract hours if need to test before/after, arvo/midnight. PROBLEMATIC!
+		-- logger's debugf("zulu adjustment hour: {}", zuluAdjust)
+		set currentDate to (current date) + zuluAdjust * hours
+		sut's setValue("spot-date", currentDate)
+		sut's setValue({"spot-date-dict", "sub-key"}, currentDate)
+		sut's setValue("spot-bool", false)
+
+		newMethod("getValueWithDefault")
+		assertEqual("use me", sut's getValueWithDefault("spot-string-absent", "use me"), "Value is absent")
+		assertEqual("text", sut's getValueWithDefault("spot-string", 1), "Value is present")
+
+		newMethod("getList")
+		assertMissingValue(sut's getList(missing value), "Missing value")
+		assertEqual({"one", "two"}, sut's getList("spot-array-string"), "Get List")
+		assertMissingValue(sut's getList("unicorn-list"), "Missing key returns missing value")
+		assertEqual({}, sut's getList("spot-array-empty"), "Empty List")
+		assertEqual({}, sut's getList("spot array empty"), "Empty List, Spaced-Key")
+
+		newMethod("getForcedList")
+		assertEqual({"one", "two"}, sut's getForcedList("spot-array-string"), "List exists")
+		assertEqual({}, sut's getForcedList("unicorn-list"), "Missing List")
+
+		newMethod("appendValue")
+		sut's appendValue("spot-array2", 3)
+		assertEqual({3}, sut's getList("spot-array2"), "First element")
+		sut's appendValue(missing value, 3)
+		sut's appendValue("spot-array", missing value)
+		sut's appendValue("spot-array", 3)
+		assertEqual({1, 2, 3}, sut's getList("spot-array"), "Append Int")
+		sut's appendValue("spot-array-string", "four")
+		assertEqual({"one", "two", "four"}, sut's getList("spot-array-string"), "Append String")
+		sut's appendValue("spot-array-string", "five.five")
+		assertEqual({"one", "two", "four", "five.five"}, sut's getList("spot-array-string"), "Append dotted string")
+
+		newMethod("removeElement")
+		assertFalse(sut's removeElement(missing value, "two"), "Missing value list")
+		assertFalse(sut's removeElement("spot-array-string", missing value), "Missing value element")
+		assertTrue(sut's removeElement("spot-array-string", "two"), "Successful removal")
+		assertEqual({"one", "four", "five.five"}, sut's getList("spot-array-string"), "Get after removing an element")
+		assertTrue(sut's removeElement("spot-array-string", "one"), "Successful removal")
+		sut's removeElement("spot-array-string", "four")
+		sut's removeElement("spot-array-string", "five.five")
+		assertEqual({}, sut's getList("spot-array-string"), "Get after removing all element")
+		assertFalse(sut's removeElement("spot-array-string", "Good Putin"), "Remove inexistent element")
+
+		newMethod("getInt")
+		assertMissingValue(sut's getInt(missing value), "Missing value")
+		assertEqual(1, sut's getInt("spot-integer"), "Get integer value")
+
+		newMethod("getReal")
+		assertMissingValue(sut's getReal(missing value), "Missing value")
+		assertEqual(1.5, sut's getReal("spot-float"), "Get real value")
+
+		newMethod("getDateText")
+		assertMissingValue(sut's getDateText(missing value), "Missing value")
+		assertNotMissingValue(sut's getDateText("spot-date"), "Can get date text")
+		log sut's getDateText({"spot-date-dict", "sub-key"})
+		log sut's getDate({"spot-date-dict", "sub-key"})
+
+		newMethod("update") -- huh?!
+		sut's setValue("spot-bool", 1)
+		assertEqual(1, sut's getValue("spot-bool"), "Update bool to integer")
+
+		newMethod("hasValue")
+		assertEqual(false, sut's hasValue(missing value), "Missing value")
+		assertEqual(false, sut's hasValue("spot-unicorn"), "Value not found")
+		assertEqual(true, sut's hasValue("spot-bool"), "Value found")
+
+		if mapLib's hasJsonSupport() then
+			newMethod("getRecord")
+			assertEqual("{one: 1, two: 2}", sut's getRecord("spot-map")'s toString(), "Read Record Stored as JSON String")
+		end if
+
+		(*
+		set fetchedMapValue to sut's getValue("spot-map")
+		log fetchedMapValue
+		log class of fetchedMapValue
+
+		assertEqual("{one: 1, two: 2}", sut's getValue("spot-map")'s toString(), "Get record from Map")
+		*)
+
+		done()
+	end tell
+end unitTest
