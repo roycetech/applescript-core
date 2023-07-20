@@ -9,6 +9,8 @@
 		
 	@Build:
 		make compile-lib SOURCE=core/string
+
+	@Last Modified: 2023-07-20 17:40:43
 *)
 use scripting additions
 
@@ -417,7 +419,7 @@ end ltrim
 (* NOTE: For Review! *)
 on trim(theText)
 	-- do shell script "ruby -e \"p '" & theText & "'.strip\" | sed 's/\"//g'"
-	do shell script "echo \"" & theText & "\" |  sed 's/ *$//g'  |  sed 's/^ *//g'"
+	do shell script "echo '" & theText & "' |  sed 's/ *$//g'  |  sed 's/^ *//g'"
 end trim
 
 
