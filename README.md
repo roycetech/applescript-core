@@ -76,7 +76,7 @@ You'll need to populate the config-system.plist with some default values:
 
 Run `make test` to run the tests.
 
-When developing, install fswatch and run `fswatch -o -e ".*" -i "\\.applescript$" . | xargs -n1 -I{} make test` to automatically run the tests after each file change.
+When developing, install fswatch and run `fswatch -o -e ".*" -i "Test\\.applescript$" . | xargs -n1 -I{} make test` to automatically run the tests after each file change.
 
 ## Credits
 
