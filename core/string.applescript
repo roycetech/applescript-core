@@ -10,7 +10,7 @@
 	@Build:
 		make compile-lib SOURCE=core/string
 
-	@Last Modified: 2023-07-20 17:40:43
+	@Last Modified: 2023-07-21 19:07:22
 *)
 use scripting additions
 
@@ -74,6 +74,17 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
+
+
+(* 
+	Converts AppleScript multi-line string into to ASCII character 13 separated lines. 
+	Useful when comparing muli-line results from a shell command to a multi-line
+	strings in AppleScript code.
+*)
+on multiline(sourceText)
+	replace(sourceText, "
+", ASCII character 13)
+end multiline
 
 
 on substringAfter(sourceText, substring)
