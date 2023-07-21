@@ -24,7 +24,7 @@
 		Run "brew services restart redis" to fix the issue with "MISCONF Redis 
 		is configured to save RDB snapshots, but it's currently unable to persist to disk"
 
-	@Last Modified: 2023-07-13 21:07:08
+	@Last Modified: 2023-07-20 14:57:08
  *)
 
 use script "Core Text Utilities"
@@ -136,11 +136,6 @@ on spotCheck()
 		set storedList to session's getValue("Case Labels")
 		log class of storedList
 		log storedList
-		
-	else if caseIndex is 11 then
-		set session to new("session")
-		log session's debugOn()
-		logger's debug("debug on prints this")
 		
 	else if caseIndex is 12 then
 		set session to new("session")
@@ -506,11 +501,6 @@ on new(pTimeoutSeconds)
 
 			format {"20{}-{}-{}T{}:{}:{}Z", {last word of dateString, myMonth, myDom, myHour, myMin, mySec}}
 		end _formatPlistDate
-
-		-- TO Migrate, from session.
-		on debugOn()
-			getBool("DEBUG_ON")
-		end debugOn
 	end script
 end new
 
