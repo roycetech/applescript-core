@@ -6,16 +6,18 @@
 		A template for unit testing.
 	@discussion
 		Copy this template in the folder containing the script to be tested and customize it as follows:
-	
+
 		1) Provide a description for this test suite and the name of the script to be tested.
 		2) Write tests :)
 
 	@charset macintosh
 
 	@Adding New Test Cases:
-		You need to manually update the number of max cases each time you change 
+		You need to manually update the number of max cases each time you change
 		the number of test cases.
+
 	@Created: July 18, 2023 2:03 PM
+	@Last Modified: 2023-07-24 17:43:34
 *)
 use AppleScript
 use scripting additions
@@ -24,9 +26,6 @@ use textUtil : script "string"
 
 property parent : script "com.lifepillar/ASUnit"
 
-(* For OS X 10.8 and earlier, use this instead:
-property parent : load script (((path to library folder from user domain) as text) & "Script Libraries:com.lifepillar:ASUnit.scptd") as alias
-*)
 ---------------------------------------------------------------------------------------
 property suitename : "The test suite description goes here"
 property scriptName : "plutil" -- The name of the script to be tested
@@ -55,15 +54,15 @@ autorun(suite)
 -- to be tested even if we do not recompile this test script.
 script |Load script|
 	property parent : TestSet(me)
-	
+
 	script |Loading the script|
 		property parent : unitTest(me)
-		
+
 		try
 			tell application "Finder"
 				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:"
 			end tell
-			
+
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
 		end try
 		assertInstanceOf(script, sutScript)
@@ -74,11 +73,11 @@ end script
 script |plutil instantiation tests|
 	property parent : TestSet(me)
 	property sut : missing value
-	
+
 	on setUp()
 		set sut to sutScript's new()
 	end setUp
-	
+
 	script |Invalid PList Name|
 		property parent : unitTest(me)
 		script InvalidPlistWrapper
@@ -86,13 +85,13 @@ script |plutil instantiation tests|
 		end script
 		shouldRaise(sutScript's ERROR_PLIST_PATH_INVALID, InvalidPlistWrapper, "Invalid plist name")
 	end script
-	
+
 	script |Valid PList Name|
 		property parent : unitTest(me)
 		assertEqual(name of sut's new("abc"), "PlutilPlistInstance")
 	end script
-	
-	
+
+
 	script |PList Name with Nesting|
 		property parent : unitTest(me)
 		assertEqual(name of sut's new("abc/xyz/omg"), "PlutilPlistInstance")
@@ -103,31 +102,31 @@ end script
 script |plutil hasValue tests|
 	property parent : TestSet(me)
 	property sut : missing value
-	
+
 	property executedTestCases : 0
 	(* Manually Set *)
 	property totalTestCases : 2
-	
+
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
-		
+
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("test-plutil")
 	end setUp
-	
+
 	on tearDown()
-		
+
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
-	
+
 	on beforeClass()
 		TopLevel's __createTestPlist()
 	end beforeClass
 	on afterClass()
 		TopLevel's __deleteTestPlist()
-	end afterClass 
-	
+	end afterClass
+
 	script |Not Found|
 		property parent : UnitTest(me)
 		TopLevel's __deleteValue("unicorn")
@@ -147,29 +146,29 @@ script |plutil getValue tests|
 	property parent : TestSet(me)
 	property sutLib : missing value
 	property sut : missing value
-	
+
 	property executedTestCases : 0
 	(* Manually Set *)
 	property totalTestCases : 17
-	
+
 	on beforeClass()
 		TopLevel's __createTestPlist()
 	end beforeClass
-	
+
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
-		
+
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("test-plutil")
 	end setUp
-	
+
 	on tearDown()
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
-	
+
 	on afterClass()
-		TopLevel's __deleteTestPlist() 
+		TopLevel's __deleteTestPlist()
 	end afterClass
 
 	script |Non existing PList|
@@ -180,7 +179,7 @@ script |plutil getValue tests|
 	script |Get non existing element|
 		property parent : unitTest(me)
 		set caseSut to sutLib's new("unicorn-plist")
-		assertMissing(caseSut's getValue("unicorn"))  
+		assertMissing(caseSut's getValue("unicorn"))
 	end script
 
 	script |Dollar sign in Key Name|
@@ -188,41 +187,41 @@ script |plutil getValue tests|
 		TopLevel's __writeString("$system", "system-value")
 		assertEqual("system-value", sut's getValue("$system"))
 	end script
-	 
+
 	script |Special Characters|
 		property parent : unitTest(me)
 		TopLevel's __writeString("string", "special&<>")
 		assertEqual("special&<>", sut's getValue("string"))
 	end script
-	
+
 	script |Dollar sign in value|
 		property parent : unitTest(me)
 		TopLevel's __writeString("string", "$dollars")
 		assertEqual("$dollars", sut's getValue("string"))
 		TopLevel's __deleteValue("string")
 	end script
-	
+
 	script |Dot in keyname|
 		property parent : unitTest(me)
 		TopLevel's __writeQuotedValue("string\\.dotted", "string", "string-dotted-value")
 		assertEqual("string-dotted-value", sut's getValue("string.dotted"))
 		TopLevel's __deleteValue("string.dotted")
 	end script
-	
+
 	script |Get string|
 		property parent : unitTest(me)
 		TopLevel's __writeString("string", "string-value")
 		assertEqual("string-value", sut's getValue("string"))
 		TopLevel's __deleteValue("string")
 	end script
-	
+
 	script |Get Int|
 		property parent : unitTest(me)
 		TopLevel's __writeValue("integer", "integer", 1)
 		assertEqual(1, sut's getValue("integer"))
 		TopLevel's __deleteValue("integer")
 	end script
-	
+
 	script |Get Boolean|
 		property parent : unitTest(me)
 		TopLevel's __writeValue("boolean", "bool", true)
@@ -236,49 +235,49 @@ script |plutil getValue tests|
 		assertEqual(1.5, sut's getValue("float"))
 		TopLevel's __deleteValue("float")
 	end script
-	
+
 	script |Get Date|
 		property parent : unitTest(me)
 		TopLevel's __writeValue("date", "date", "2023-07-19T00:01:02Z")
 		assertEqual("Wednesday, July 19, 2023 at 8:01:02 AM", sut's getValue("date") as text)
 		TopLevel's __deleteValue("date")
 	end script
-	         
+
 	script |Get integer array|
 		property parent : unitTest(me)
 		TopLevel's __insertXml("array", "<array><integer>1</integer><integer>2</integer></array>")
 		assertEqual({1, 2}, sut's getValue("array"))
 		TopLevel's __deleteValue("array")
 	end script
-	
+
 	script |Get string array|
 		property parent : unitTest(me)
 		TopLevel's __insertXml("array", "<array><string>a</string><string>b</string></array>")
 		assertEqual({"a", "b"}, sut's getValue("array"))
 		TopLevel's __deleteValue("array")
 	end script
-	
+
 	script |Get string array with special characters|
 		property parent : unitTest(me)
 		TopLevel's __insertXml("array", "<array><string>&amp;</string><string>&lt;</string><string>&gt;</string></array>")
 		assertEqual({"&", "<", ">"}, sut's getValue("array"))
 		TopLevel's __deleteValue("array")
 	end script
-	
+
 	script |Get string array with dollar sign|
 		property parent : unitTest(me)
 		TopLevel's __insertXml("array", "<array><string>$five</string></array>")
 		assertEqual({"$five"}, sut's getValue("array"))
 		TopLevel's __deleteValue("array")
 	end script
-	
+
 	script |Get empty array|
 		property parent : unitTest(me)
 		TopLevel's __insertXml("array", "<array></array>")
 		assertEqual({}, sut's getValue("array"))
 		TopLevel's __deleteValue("array")
 	end script
-	
+
 	script |Get Dictionary|
 		property parent : unitTest(me)
 		TopLevel's __insertXml("dictionary", "<dict><key>key1</key><string>first value</string></dict>")
@@ -291,11 +290,11 @@ end script
 script |plutil getScalarValue tests|
 	property parent : TestSet(me)
 	property sut : missing value
-	
+
 	property executedTestCases : 0
 	(* Manually Set *)
 	property totalTestCases : 7
-	
+
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
@@ -310,7 +309,7 @@ script |plutil getScalarValue tests|
 	end beforeClass
 	on afterClass()
 		TopLevel's __deleteTestPlist()
-	end afterClass 
+	end afterClass
 
 	script |Get Int|
 		property parent : UnitTest(me)
@@ -333,9 +332,9 @@ script |plutil getScalarValue tests|
 
 	script |Get Int - Nested key|
 		property parent : UnitTest(me)
-		TopLevel's __insertXml("integer-root", "<dict><key>integer-sub</key><integer>3</integer></dict>") 
+		TopLevel's __insertXml("integer-root", "<dict><key>integer-sub</key><integer>3</integer></dict>")
 		assertEqual(3, sut's getInt({"integer-root", "integer-sub"}))
-		TopLevel's __deleteValue("integer-root\\.integer-sub") 
+		TopLevel's __deleteValue("integer-root\\.integer-sub")
 	end script
 
 	script |Get Real|
@@ -343,14 +342,14 @@ script |plutil getScalarValue tests|
 		TopLevel's __writeValue("real", "float", 1.5)
 		assertEqual(1.5, sut's getReal("real"))
 		TopLevel's __deleteValue("real")
-	end script	
+	end script
 
 	script |Get Boolean|
 		property parent : UnitTest(me)
 		TopLevel's __writeValue("boolean", "bool", false)
 		assertEqual(false, sut's getBool("boolean"))
 		TopLevel's __deleteValue("boolean")
-	end script	
+	end script
 
 	script |Get Date|
 		property parent : UnitTest(me)
@@ -358,40 +357,40 @@ script |plutil getScalarValue tests|
 		-- Will likely fail due to localization.
 		assertEqual(date "July 19, 2023 at 08:01:02 AM", sut's getDate("date"))
 		TopLevel's __deleteValue("date")
-	end script	
+	end script
 end script
 
 
 script |getList set|
 	property parent : TestSet(me)
 	property sut : missing value
-	
+
 	property executedTestCases : 0
 	(* Manually Set *)
 	property totalTestCases : 7
-	
+
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
-		
+
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("test-plutil")
 	end setUp
-	
+
 	on tearDown()
-		
+
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 
 	on beforeClass()
 		TopLevel's __createTestPlist()
 	end beforeClass
-	
+
 	on afterClass()
 		TopLevel's __deleteTestPlist()
 	end afterClass
-	
-	
+
+
 	script |getList - Not Found|
 		property parent : UnitTest(me)
 		TopLevel's __deleteValue("unicorn-list")
@@ -426,14 +425,14 @@ script |getList set|
 		TopLevel's __deleteValue("spaced list")
 	end script
 
-	script |getList - Dotted Key| 
+	script |getList - Dotted Key|
 		property parent : UnitTest(me)
 		TopLevel's __insertXml("dotted\\.getList", "<array><integer>1</integer></array>")
 		assertEqual({1}, sut's getList("dotted.getList"))
 		TopLevel's __deleteValue("dotted\\.getList")
 	end script
 
-	script |getList - Nested Key| 
+	script |getList - Nested Key|
 		property parent : UnitTest(me)
 		TopLevel's __insertXml("array", "
 		<dict>
@@ -451,30 +450,30 @@ end script
 script |plutil getValueWithDefault tests|
 	property parent : TestSet(me)
 	property sut : missing value
-	
+
 	property executedTestCases : 0
 	(* Manually Set *)
 	property totalTestCases : 2
-	
+
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
-		
+
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("test-plutil")
 	end setUp
-	
+
 	on tearDown()
-		
+
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
-	
+
 	on beforeClass()
 		TopLevel's __createTestPlist()
 	end beforeClass
 	on afterClass()
 		TopLevel's __deleteTestPlist()
-	end afterClass 
+	end afterClass
 
 	script |With Value|
 		property parent : UnitTest(me)
@@ -494,31 +493,31 @@ end script
 script |plutil appendValue tests|
 	property parent : TestSet(me)
 	property sut : missing value
-	
+
 	property executedTestCases : 0
 	(* Manually Set *)
 	property totalTestCases : 8
-	
+
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
-		
+
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("test-plutil")
 	end setUp
-	
+
 	on tearDown()
-		
+
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
-	
+
 	on beforeClass()
 		TopLevel's __createTestPlist()
 	end beforeClass
 	on afterClass()
 		-- TopLevel's __deleteTestPlist()
-	end afterClass 
-	
+	end afterClass
+
 	script |Non Existing|
 		property parent : UnitTest(me)
 		sut's appendValue("unicorn-list", 1)
@@ -570,14 +569,14 @@ script |plutil appendValue tests|
 
 	script |Dotted Key|
 		property parent : UnitTest(me)
-		TopLevel's __insertXml("list\\.test", "<array/>") 
+		TopLevel's __insertXml("list\\.test", "<array/>")
 		sut's appendValue("list.test", 3)
 		assertEqual(textUtil's multiline("	<array>
 		<integer>3</integer>
 	</array>"), TopLevel's __grepMultiLineValueXml("list.test", "array"))
 		TopLevel's __deleteValue("list\\.test")
 	end script
- 
+
 	script |Spaced Key|
 		property parent : UnitTest(me)
 		TopLevel's __insertXml("space list", "<array/>")
@@ -588,13 +587,13 @@ script |plutil appendValue tests|
 		TopLevel's __deleteValue("space list")
 	end script
 
-	script |Nested Key| 
+	script |Nested Key|
 		property parent : UnitTest(me)
 		TopLevel's __insertXml("list", "<dict><key>list-sub</key><array/></dict>")
 		sut's appendValue({"list", "list-sub"}, 3)
 		assertEqual(textUtil's multiline("		<array>
 			<integer>3</integer>
-		</array>"), TopLevel's __grepMultiLineValueXml("list-sub", "array")) 
+		</array>"), TopLevel's __grepMultiLineValueXml("list-sub", "array"))
 		TopLevel's __deleteValue("list")
 	end script
 end script
@@ -603,33 +602,33 @@ end script
 script |plutil removeElement tests|
 	property parent : TestSet(me)
 	property sut : missing value
-	
+
 	property executedTestCases : 0
 	(* Manually Set *)
 	property totalTestCases : 7
-	
+
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
-		
+
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("test-plutil")
 	end setUp
-	
+
 	on tearDown()
-		
+
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
-	
-	
+
+
 	on beforeClass()
 		TopLevel's __createTestPlist()
 	end beforeClass
 	on afterClass()
 		-- TopLevel's __deleteTestPlist()
-	end afterClass 
-	
-	
+	end afterClass
+
+
 	script |Missing Value as element|
 		property parent : UnitTest(me)
 		TopLevel's __insertXml("array", "<array/>")
@@ -650,7 +649,7 @@ script |plutil removeElement tests|
 		TopLevel's __insertXml("array", "<array><string>1</string></array>")
 		notOk(sut's removeElement("array", 1))
 		TopLevel's __deleteValue("array")
-	end script 
+	end script
 
 	script |Inexistent Array|
 		property parent : UnitTest(me)
@@ -668,7 +667,7 @@ script |plutil removeElement tests|
 
 	script |Dotted Name|
 		property parent : UnitTest(me)
-		TopLevel's __insertXml("array\\.test", "<array><string>element</string></array>") 
+		TopLevel's __insertXml("array\\.test", "<array><string>element</string></array>")
 		ok(sut's removeElement("array.test", "element"))
 		TopLevel's __deleteValue("array\\.test")
 	end script
@@ -690,29 +689,29 @@ end script
 
 script |plutil _getDateText tests|
 	property parent : TestSet(me)
-	property sut : missing value 
-	
+	property sut : missing value
+
 	property executedTestCases : 0
 	(* Manually Set *)
 	property totalTestCases : 2
-	
+
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
-		
+
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("test-plutil")
 	end setUp
-	
+
 	on tearDown()
-		
+
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
- 
+
 	on beforeClass()
 		TopLevel's __createTestPlist()
 	end beforeClass
-	
+
 	on afterClass()
 		TopLevel's __deleteTestPlist()
 	end afterClass
@@ -736,28 +735,28 @@ end script
 script |plutil setValue tests|
 	property parent : TestSet(me)
 	property sut : missing value
-	
+
 	property executedTestCases : 0
 	(* Manually Set *)
 	property totalTestCases : 13
-	
+
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
-		
+
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("test-plutil")
 	end setUp
-	
+
 	on tearDown()
-		
+
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
-	
+
 	on beforeClass()
 		TopLevel's __createTestPlist()
 	end beforeClass
-	
+
 	on afterClass()
 		TopLevel's __deleteTestPlist()
 	end afterClass
@@ -767,32 +766,32 @@ script |plutil setValue tests|
 		sut's setValue("string", "string-value")
 		assertEqual("string-value", TopLevel's __readValue("string"))
 	end script
-	
+
 	script |Integer Value|
 		property parent : unitTest(me)
 		sut's setValue("integer", 1)
 		assertEqual("<integer>1</integer>", TopLevel's __grepValueXml("integer"))
 	end script
-	
+
 	script |Float Value|
 		property parent : unitTest(me)
 		sut's setValue("float", 1.5)
 		assertEqual("<real>1.5</real>", TopLevel's __grepValueXml("float"))
 	end script
-	
+
 	script |Boolean Value|
 		property parent : unitTest(me)
 		sut's setValue("Boolean", true)
 		assertEqual("<true/>", TopLevel's __grepValueXml("Boolean"))
 	end script
-	
+
 	script |Date Value|
 		property parent : unitTest(me)
 		set testDate to "7-31-2023" -- Will likely fail for different region due to localization.
 		sut's setValue("Date", date testDate)
 		assertEqual("<date>2023-07-31T04:00:00Z</date>", TopLevel's __grepValueXml("Date"))
 	end script
-	
+
 	script |Integer Array Values|
 		property parent : unitTest(me)
 		sut's setValue("Array", {1, 2, 3})
@@ -802,7 +801,7 @@ script |plutil setValue tests|
 		<integer>3</integer>
 	</array>"), TopLevel's __grepMultiLineValueXml("Array", "array"))
 	end script
-	
+
 	script |String Array Values|
 		property parent : unitTest(me)
 		sut's setValue("Array", {"a", "b", "c"})
@@ -812,7 +811,7 @@ script |plutil setValue tests|
 		<string>c</string>
 	</array>"), TopLevel's __grepMultiLineValueXml("Array", "array"))
 	end script
-	
+
 	script |Record Value|
 		property parent : unitTest(me)
 		sut's setValue("Record", {one:"half"})
@@ -859,69 +858,69 @@ end script
 script |plutil delete tests set|
 	property parent : TestSet(me)
 	property sut : missing value
-	
+
 	property beforeClassExecuted : false
 	property executedTestCases : 0
 	(* Manually Set *)
 	property totalTestCases : 6
-	
+
 	(* Each Test. *)
 	on setUp()
 		if not beforeClassExecuted then beforeClass()
 		set executedTestCases to executedTestCases + 1
-		
+
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("test-plutil")
 	end setUp
-	
+
 	on beforeClass()
 		TopLevel's __createTestPlist()
 	end beforeClass
-	
+
 	on tearDown()
 		TopLevel's __deleteValue("key-root")
-		
+
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
-	
-	
+
+
 	on afterClass()
 		TopLevel's __deleteTestPlist()
 	end afterClass
-	
-	
+
+
 	script |Delete Inexistent Key|
 		property parent : unitTest(me)
 		TopLevel's __deleteValue("Unicorn")
 		notOk(sut's deleteKey("Unicorn"))
 	end script
-	
+
 	script |Delete Missing Value Parameter|
 		property parent : unitTest(me)
 		notOk(sut's deleteKey(missing value))
 	end script
-	
+
 	script |Invalid Parameter Type|
 		property parent : unitTest(me)
 		notOk(sut's deleteKey(1234))
 	end script
-	
+
 	script |Delete with Dotted Key Name|
 		property parent : unitTest(me)
 		TopLevel's __writeString("key\\.com", "some value")
 		ok(sut's deleteKey("key.com"))
 		assertMissing(TopLevel's __readValue("key.com"))
 	end script
-	
-	
+
+
 	script |Delete Value|
 		property parent : unitTest(me)
 		TopLevel's __writeString("string", "some value")
 		ok(sut's deleteKey("string"))
 		assertMissing(TopLevel's __readValue("string"))
 	end script
-	
-	
+
+
 	script |Delete Nested Parameter|
 		property parent : unitTest(me)
 		TopLevel's __writeQuotedValue("key-root", "xml", "<dict></dict>")
@@ -940,19 +939,19 @@ end script
 script |_getTypedGetterShellTemplate|
 	property parent : TestSet(me)
 	property sut : missing value
-	
+
 	property executedTestCases : 0
 	(* Manually Set *)
 	property totalTestCases : 1
-	
+
 	on setUp()
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("test-plutil")
 	end setUp
-	
-	on tearDown() 
+
+	on tearDown()
 	end tearDown
-	
+
 	script |Key Name - Text|
 		property parent : unitTest(me)
 		set actual to sut's _getTypedGetterShellTemplate("string", "unit")
@@ -973,18 +972,18 @@ end script
 script |plutil _validatePlistKey tests|
 	property parent : TestSet(me)
 	property sut : missing value
-	
+
 	property executedTestCases : 0
 	(* Manually Set *)
 	property totalTestCases : 1
-	
+
 	on setUp()
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("test-plutil")
 	end setUp
-		
+
 	script |Missing Key|
-		property parent : UnitTest(me) 
+		property parent : UnitTest(me)
 		script Lambda
 			sut's _validatePlistKey(missing value)
 		end script
@@ -1038,11 +1037,11 @@ on __readValue(keyName)
 	end try
 	missing value
 end __readValue
- 
+
 
 on __writeString(keyName, newValue)
 	__writeQuotedValue(keyName, "string", newValue)
-end __writeString 
+end __writeString
 
 (*
 	@keyName - plist key name
@@ -1053,7 +1052,7 @@ on __insertXml(keyName, xmlText)
 end __insertXml
 
 (*
-	NOTE: When writing nested values, do it one at a time. Root first then the 
+	NOTE: When writing nested values, do it one at a time. Root first then the
 	nested key, otherwise it will fail.
 *)
 on __writeValue(keyName, keyType, newValue)
@@ -1083,4 +1082,3 @@ on __deleteTestPlist()
 		do shell script "rm " & plist & " || true"
 	end try
 end __deleteTestPlist
-
