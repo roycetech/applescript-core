@@ -36,7 +36,7 @@ property logger : missing value
 property retry : missing value
 property configSystem : missing value
 
-property DOC_EDITED_SUFFIX : " ï¿½ Edited"
+property DOC_EDITED_SUFFIX : " Ð Edited"
 
 if {"Script Debugger", "Script Editor"} contains (the name of current application as text) then spotCheck()
 
