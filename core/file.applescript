@@ -2,7 +2,7 @@
 (*
 	@Usage:
 		use fileUtil : script "file"
-		
+
 	@Build:
 		make compile-lib SOURCE=core/file
 *)
@@ -24,9 +24,9 @@ property logger : missing value
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's injectBasic(me, "file")
+	loggerFactory's injectBasic(me)
 	logger's start()
-	
+
 	set cases to listUtil's splitByLine("
 		Unit Test
 		POSIX File Exist
@@ -34,7 +34,7 @@ on spotCheck()
 		Read Text File
 		Manual: POSIX Folder Exist
 	")
-	
+
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -42,33 +42,33 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	set userPath to format {"/Users/{}", std's getUsername()}
-	
+
 	if caseIndex is 1 then
 		unitTest()
-		
+
 	else if caseIndex is 2 then
 		set existingFilePath to format {"{}/.zprofile", userPath}
 		log posixFilePathExists(existingFilePath)
-		
+
 	else if caseIndex is 3 then
 		set existingFilePath to format {"{}/virus.txt", userPath}
 		log posixFilePathExists(existingFilePath)
-		
+
 	else if caseIndex is 4 then
 		set posixPath to "/etc/hosts"
 		logger's debugf("posixPath: {}", posixPath)
 		log readFile(POSIX file posixPath)
-		
+
 	else if caseIndex is 5 then
 		set posixPath to "/Users/" & std's getUsername() & "/Desktop"
 		logger's debugf("posix Folder Path exists: {}", posixFolderPathExists(posixPath))
 		set posixPath to "/Users/" & std's getUsername() & "/Unicorn"
 		logger's debugf("posix Folder Path exists: {}", posixFolderPathExists(posixPath))
-		
+
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -99,9 +99,9 @@ end posixFolderPathExists
 
 on readTempFile()
 	tell application "Finder" to set theFile to file "applescript.tmp" of folder "AppleScript" of (path to home folder)
-	
+
 	set theFile to theFile as string
-	
+
 	read file theFile
 end readTempFile
 
@@ -111,17 +111,17 @@ on writeTextToTempFile(theText as text)
 		if not (exists of file "applescript.tmp" of targetFolder) then
 			make new file at targetFolder with properties {name:"applescript.tmp", file type:"text"}
 		end if
-		
+
 		set theFile to file "applescript.tmp" of folder "AppleScript" of (path to home folder)
 	end tell
-	
+
 	try
 		set theFile to theFile as string
 		set theOpenedFile to open for access file theFile with write permission
 		set eof of theOpenedFile to 0
 		write theText to theOpenedFile starting at eof
 		close access theOpenedFile
-		
+
 		return true
 	on error
 		try
@@ -140,7 +140,7 @@ on getBaseFileName(filePath)
 	else -- assume POSIX format
 		set theDelimiter to "/"
 	end if
-	
+
 	set theList to textUtil's split(filePath, theDelimiter)
 	last item of theList
 end getBaseFileName
@@ -174,7 +174,7 @@ on unitTest()
 	tell ut
 		newMethod("getBaseFileName")
 		assertEqual("sublimetext3.applescript", my getBaseFileName("/Users/cloud.strife/projects/@rt-learn-lang/applescript/DEPLOYED/Common/sublimetext3.applescript"), "Happy Case")
-		
+
 		done()
 	end tell
 end unitTest

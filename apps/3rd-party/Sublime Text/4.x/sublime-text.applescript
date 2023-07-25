@@ -47,7 +47,7 @@ property ST_CLI : quoted form of (do shell script "plutil -extract \"Sublime Tex
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's inject(me, "sublime-text")
+	loggerFactory's inject(me)
 	logger's start()
 	
 	set cases to listUtil's splitByLine("

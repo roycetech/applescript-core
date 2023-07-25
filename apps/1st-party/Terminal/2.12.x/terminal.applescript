@@ -36,8 +36,10 @@
 
 *)
 
-use script "Core Text Utilities"
 use scripting additions
+
+use script "Core Text Utilities"
+use std : script "std"
 
 use textUtil : script "string"
 use listUtil : script "list"
@@ -598,4 +600,3 @@ on new()
 		end new
 	end script
 end new
-

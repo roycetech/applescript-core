@@ -2,7 +2,7 @@
 	@Usage:
 		use kbLib : script "keyboard"
 	Or type (Text Expander): uuse kb
-	
+
 	@Build:
 		make compile-lib SOURCE=core/keyboard
 *)
@@ -38,23 +38,23 @@ property overrider : overriderLib's new()
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's injectBasic(me, "keyboard")
-	
+	loggerFactory's injectBasic(me)
+
 	set caseId to "keyboard-spotCheck"
 	logger's start()
-	
+
 	-- All spot check cases are manual.
 	set cases to listUtil's splitByLine("
 		Manual Checks
 		Paste Text with Emoji
 		Manual: Modifier Pressed
 	")
-	
-	
+
+
 	set spotLib to spotScript's new()
 	set spot to spotLib's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
-	
+
 	set sut to new()
 	tell sut
 		if caseIndex is 1 then
@@ -69,7 +69,7 @@ on spotCheck()
 			pressKey(8)
 			pressKey(9)
 			(*
-		
+
 		pressKey("a")
 		pressKey("b")
 		pressKey("c")
@@ -100,33 +100,33 @@ on spotCheck()
 			activate application "Terminal"
 			delay 0.1
 			pressControlKey("c")
-			
+
 		else if caseIndex is 2 then
 			insertTextByPasting("Hello " & emoji's HORN)
-			
+
 		else if caseIndex is 3 then
 			delay 1
 			logger's infof("Option Pressed: {}", checkModifier("option"))
 			logger's infof("Shift Pressed: {}", checkModifier("shift"))
 			logger's infof("Command Pressed: {}", checkModifier("command"))
-			
+
 		end if
-		
+
 	end tell
-	
+
 	(* Output will vary depending on current system keyboard layout. *)
 	-- Cursor inside bracket: [] -- Manually erase the contents each time
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
 
 
 on new()
-	loggerFactory's inject(me, "keyboard")
+	loggerFactory's inject(me)
 	set plutil to plutilLib's new()
 	set session to plutil's new("session")
-	
+
 	script KeyboardInstance
 		property delayAfterKeySeconds : 0.01
 		property delayAfterTypingSeconds : 0.1
@@ -150,7 +150,7 @@ on new()
 				return true
 			end if
 		end checkModifier
-		
+
 		on modifiersDown()
 			set theKeys to {}
 			set theFlag to NSEvent's modifierFlags() as integer
@@ -168,82 +168,82 @@ on new()
 			end if
 			return theKeys
 		end modifiersDown
-		
+
 		on isDvorak()
 			getLayout() contains "DVORAK"
 		end isDvorak
-		
+
 		on getLayout()
 			do shell script "defaults read ~/Library/Preferences/com.apple.HIToolbox.plist \\
  AppleSelectedInputSources | \\
  egrep -w 'KeyboardLayout Name' | sed -E 's/^.+ = \"?([^\"]+)\"?;$/\\1/'"
 		end getLayout
-		
-		
+
+
 		on pressKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress)
 			end tell
 			delay delayAfterKeySeconds
 		end pressKey
-		
-		
+
+
 		on pressCommandKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down}
 			end tell
 			delay delayAfterKeySeconds
 		end pressCommandKey
-		
-		
+
+
 		on pressCommandControlKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down, control down}
 			end tell
 			delay delayAfterKeySeconds
-			
+
 		end pressCommandControlKey
-		
+
 		on pressCommandShiftKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down, shift down}
 			end tell
 			delay delayAfterKeySeconds
 		end pressCommandShiftKey
-		
+
 		on pressCommandOptionKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down, option down}
 			end tell
 			delay delayAfterKeySeconds
 		end pressCommandOptionKey
-		
+
 		on pressControlKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {control down}
 			end tell
 			delay delayAfterKeySeconds
 		end pressControlKey
-		
+
 		on pressControlShiftKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {control down, shift down}
 			end tell
 			delay delayAfterKeySeconds
 		end pressControlShiftKey
-		
+
 		on pressOptionKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {option down}
 			end tell
 			delay delayAfterKeySeconds
 		end pressOptionKey
-		
+
 		on typeText(theText)
 			tell application "System Events" to keystroke theText
 			delay delayAfterTypingSeconds
 		end typeText
-		
+
 		(* To test. *)
 		on insertTextByPasting(theText)
 			try
@@ -251,7 +251,7 @@ on new()
 			on error
 				set origClipboard to ""
 			end try
-			
+
 			try
 				repeat
 					set the clipboard to theText
@@ -261,8 +261,8 @@ on new()
 						exit repeat
 					end if
 				end repeat
-				
-				pressCommandKey("v") -- There's issue where incorrect value is 
+
+				pressCommandKey("v") -- There's issue where incorrect value is
 				-- getting pasted. We could be restoring the orig value too soon.
 				delay 0.1 -- Increase the value if failure is still encountered.
 				set the clipboard to origClipboard
@@ -305,7 +305,7 @@ on _charToKeycode(key)
 	if key is "X" or key is "x" then return 7
 	if key is "Y" or key is "y" then return 16
 	if key is "Z" or key is "z" then return 6
-	
+
 	if key as text is "0" then return 29
 	if key as text is "1" then return 18
 	if key as text is "2" then return 19
@@ -316,7 +316,7 @@ on _charToKeycode(key)
 	if key as text is "7" then return 26
 	if key as text is "8" then return 28
 	if key as text is "9" then return 25
-	
+
 	if key is space then return 49
 	if key is "[" then return 33
 	if key is "]" then return 30
@@ -326,11 +326,11 @@ on _charToKeycode(key)
 	if key is "=" then return 24
 	if key is "`" then return 50
 	if key is "\"" then return 39
-	
+
 	if key is tab or key is "tab" then return 48
 	if (ASCII number key) is 10 or key is "enter" then return 76
 	if (ASCII number key) is 13 or key is "return" then return 36
-	
+
 	if key is "esc" then return 53
 	if key is "escape" then return 53
 	if key is "delete" then return 51

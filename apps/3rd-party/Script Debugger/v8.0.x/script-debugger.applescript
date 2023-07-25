@@ -36,12 +36,12 @@ property logger : missing value
 property retry : missing value
 property configSystem : missing value
 
-property DOC_EDITED_SUFFIX : " Ð Edited"
+property DOC_EDITED_SUFFIX : " ï¿½ Edited"
 
 if {"Script Debugger", "Script Editor"} contains (the name of current application as text) then spotCheck()
 
 on spotCheck()
-	loggerFactory's injectBasic(me, "script-debugger")
+	loggerFactory's injectBasic(me)
 	logger's start()
 	
 	set cases to listUtil's splitByLine("

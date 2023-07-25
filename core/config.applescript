@@ -1,9 +1,9 @@
 (*
 @Usage:
     use configLib :  script "config"
-        
+
 property configUser : configLib's new("user")
-    
+
 set DEPLOY_DIR to configUser's getValue("User Key")
 
 TODO: Optimize by creating new handlers with type like getValueString.
@@ -23,20 +23,20 @@ property plutil : missing value
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's injectBasic(me, "config")
+	loggerFactory's injectBasic(me)
 	logger's start()
 	set sut to new("system")
-	
+
 	log "^Existing Data start  =================="
 	-- log sut's getValue("AppleScript Core Project Path")
 	logger's infof("Raw value mapping: {}", sut's getValue("AppleScript Core Project Path"))
 	logger's infof("Category value mapping: {}", sut's getCategoryValue("lib-factory", "UserInstance"))
 	logger's infof("Defaults value mapping: {}", sut's getDefaultsValue("$Spot Check"))
-	
+
 	logger's finish()
-	
+
 	return
-	
+
 	(* Manual verifications. *)
 	log "^Missing Data/Plist start =================="
 	log sut's getValue("Non Existent!")
@@ -46,8 +46,8 @@ on spotCheck()
 	end try
 	log sut's getCategoryValue("lib-factory", "xlogger")
 	log sut's getDefaultsValue("x$Spot Check")
-	
-	
+
+
 	(*
 	log getCategoryValue("work", "VPN Websites")
 	log getCategoryValue("web", "FIND_RETRY_MAX")
@@ -60,7 +60,7 @@ end spotCheck
 
 (* @configName the plist name be default. *)
 on new(pConfigName)
-	loggerFactory's injectBasic(me, "config")
+	loggerFactory's injectBasic(me)
 
 	set plutil to plutilLib's new()
 
@@ -69,45 +69,45 @@ on new(pConfigName)
 	else
 		set localConfigName to pConfigName
 	end if
-	
+
 	script ConfigInstance
 		property configName : localConfigName
 		property categoryPlist : missing value
 		property knownPlists : {"config-default", "session", "switches"} -- WET: 1/2
-		
+
 		on getBool(configKey)
 			getBool(configKey)
 		end getBool
-		
-		
+
+
 		on getDefaultsValue(configKey)
 			getCategoryValue("default", configKey)
 		end getDefaultsValue
-		
-		
+
+
 		on getCategoryValue(category, configKey)
 			-- log "getCategoryValue category1: " & category & ", key: " & configKey
 			set IS_SPOT to {"Script Editor", "Script Debugger"} contains the name of current application
-			
+
 			-- log "configName: " & configName
 			if categoryPlist is missing value or category is not equal to the configName then
 				set computedPlistName to "config-" & category
 				if knownPlists contains computedPlistName then
 					set categoryPlist to plutil's new(computedPlistName)
-					
+
 				else if plutil's plistExists(computedPlistName) then
 					set categoryPlist to plutil's new(computedPlistName)
 					set end of knownPlists to computedPlistName
-					
+
 				else
 					return missing value
 				end if
 			end if
-			
+
 			categoryPlist's getValue(configKey)
 		end getCategoryValue
-		
-		
+
+
 		on getValue(configKey)
 			getCategoryValue(my configName, configKey)
 		end getValue

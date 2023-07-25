@@ -62,7 +62,7 @@ property caseId : missing value
 property caseIndex : 1
 property autoIncrement : false
 
-loggerFactory's injectBasic(me, "Menu Case")
+loggerFactory's injectBasic(me)
 
 logger's start()
 

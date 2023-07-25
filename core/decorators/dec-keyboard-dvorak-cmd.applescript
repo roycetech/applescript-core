@@ -20,11 +20,11 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	delay 5
-	loggerFactory's injectBasic(me, "de-keyboard-dvorak-cmd")
-	
+	loggerFactory's injectBasic(me)
+
 	set caseId to "dec-keyboard-dvorak-cmd-spotCheck"
 	logger's start()
-	
+
 	-- All spot check cases are manual.
 	set cases to listUtil's splitByLine("
 		Manual: pressKey (dvorak/us input);
@@ -33,15 +33,15 @@ on spotCheck()
 		Manual: Type Text (dvorak/us input);
 		Manual: pressControlShiftKey (dvorak/us input);
 	")
-	
+
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
-	
+
 	set kb to kbLib's new()
 	set sut to decorate(kb)
 	log name of sut
-	
+
 	if caseIndex is 1 then
 		tell sut
 			pressKey(0)
@@ -54,7 +54,7 @@ on spotCheck()
 			pressKey(7)
 			pressKey(8)
 			pressKey(9)
-			
+
 			pressKey("a")
 			pressKey("b")
 			pressKey("c")
@@ -83,22 +83,22 @@ on spotCheck()
 			pressKey("z")
 			-- Put cursor inside bracket: []
 		end tell
-		
+
 	else if caseIndex is 2 then
 		activate application "Terminal"
 		delay 0.1
 		tell sut to pressControlKey("c")
-		
+
 	else if caseIndex is 3 then
 		tell sut to pressCommandKey("s")
-		
+
 	else if caseIndex is 4 then
 		tell sut to typeText("hello")
-		
+
 	else if caseIndex is 5 then
 		tell sut to pressControlShiftKey("c") -- should key code 34 for i.
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -107,54 +107,54 @@ end spotCheck
 on decorate(baseScript)
 	script KeyboardDvorakCmdInstance
 		property parent : baseScript
-		
+
 		on pressKey(keyToPress)
 			if not isDvorak() then
 				continue pressKey(keyToPress)
 				return
 			end if
-			
+
 			set dvorakKey to _toDvorak(keyToPress)
 			continue pressKey(dvorakKey)
 		end pressKey
-		
+
 		on pressControlKey(keyToPress)
 			if not isDvorak() then
 				continue pressControlKey(keyToPress)
 				return
 			end if
-			
+
 			set dvorakKey to _toDvorak(keyToPress)
 			continue pressControlKey(dvorakKey)
 		end pressControlKey
-		
+
 		on pressControlShiftKey(keyToPress)
 			if not isDvorak() then
 				continue pressControlShiftKey(keyToPress)
 				return
 			end if
-			
+
 			set dvorakKey to _toDvorak(keyToPress)
 			continue pressControlShiftKey(dvorakKey)
 		end pressControlShiftKey
-		
+
 		on pressOptionKey(keyToPress)
 			if not isDvorak() then
 				continue pressOptionKey(keyToPress)
 				return
 			end if
-			
+
 			set dvorakKey to _toDvorak(keyToPress)
 			continue pressOptionKey(dvorakKey)
 		end pressOptionKey
-		
-		
+
+
 		on typeText(theText)
 			tell application "System Events" to keystroke theText
 			delay 0.01
 		end typeText
-		
-		
+
+
 		on _toDvorak(char)
 			if char is "b" then return "n"
 			if char is "c" then return "i"
@@ -189,7 +189,7 @@ on decorate(baseScript)
 			if char is "," then return "w"
 			if char is "." then return "e"
 			if char is "/" then return "["
-			
+
 			char
 		end _toDvorak
 	end script

@@ -20,7 +20,7 @@ property logger : missing value
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's injectBasic(me, "dec-syseve-with-sublime-text")
+	loggerFactory's injectBasic(me)
 	set caseId to "dec-keyboard-dvorak-cmd-spotCheck"
 	logger's start()
 	
@@ -55,7 +55,7 @@ end spotCheck
 (* *)
 
 on decorate(baseScript)
-	loggerFactory's injectBasic(me, "dec-syseve-with-sublime-text")
+	loggerFactory's injectBasic(me)
 	
 	script SyseveSublimeTextInstance
 		property parent : baseScript

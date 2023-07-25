@@ -107,7 +107,7 @@ end spotCheck
 
 
 on new()
-	loggerFactory's inject(me, "system-preferences")
+	loggerFactory's inject(me)
 	set retry to retryLib's new()
 	set usr to usrLib's new()
 	set overrider to overriderLib's new()

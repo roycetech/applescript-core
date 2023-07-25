@@ -12,11 +12,11 @@ property logger : missing value
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's injectBasic(me, "stack")
+	loggerFactory's injectBasic(me)
 	logger's start()
-	
+
 	unitTest()
-	
+
 	logger's finish()
 end spotCheck
 
@@ -24,28 +24,28 @@ end spotCheck
 on new()
 	script StackInstance
 		property _stack : {}
-		
+
 		on clear()
 			set my _stack to {}
 		end clear
-		
+
 		on getSize()
 			number of items of _stack
 		end getSize
-		
+
 		on push(element)
 			set end of _stack to element
 		end push
-		
+
 		on peek()
 			if _stack is {} then return missing value
-			
+
 			last item of _stack
 		end peek
-		
+
 		on pop()
 			if _stack is {} then return missing value
-			
+
 			set lastItem to last item of _stack
 			if number of _stack is less than 2 then
 				set _stack to {}
@@ -66,9 +66,9 @@ end new
 *)
 on unitTest()
 	set test to testLib's new()
-	set ut to test's new()	
+	set ut to test's new()
 	set stack to new()
-	
+
 	tell ut
 		newMethod("getSize")
 		assertEqual(0, stack's getSize(), "Initial")
@@ -76,7 +76,7 @@ on unitTest()
 		assertEqual(1, stack's getSize(), "After adding an element")
 		stack's pop()
 		assertEqual(0, stack's getSize(), "After removing the single element")
-		
+
 		newMethod("peek")
 		set sutPeek to new()
 		assertEqual(missing value, stack's peek(), "Initial")
@@ -84,7 +84,7 @@ on unitTest()
 		assertEqual("test 2", stack's peek(), "After pushing a value")
 		stack's pop()
 		assertEqual(missing value, stack's peek(), "After popping the only value")
-		
+
 		done()
 	end tell
 end unitTest

@@ -33,7 +33,7 @@ property TEST_CONNECTION_NAME : "Docker MySQL 5"
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's injectBasic(me, "sequel-ace")
+	loggerFactory's injectBasic(me)
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -123,7 +123,7 @@ on spotCheck()
 end spotCheck
 
 on new()
-	loggerFactory's injectBasic(me, "sequel-ace")
+	loggerFactory's injectBasic(me)
 	
 	set retry to retryLib's new()
 	set syseve to syseveLib's new()
