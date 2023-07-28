@@ -9,8 +9,8 @@
 	decorate()
 		instance name
 		handler name
-		
-	@Last Modified: 2023-07-13 21:07:08
+
+	@Last Modified: 2023-07-26 15:26:41
 *)
 
 use listUtil : script "list"
@@ -28,24 +28,23 @@ property logger : missing value
 property terminal : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then
-	set useBasicLogging to true
 	spotCheck()
 end if
 
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-	
+
 	set cases to listUtil's splitByLine("
 		Manual: Regular Shell Prompt - Yes
 		Manual: Regular Shell Prompt - No
 		Manual: Redis Shell Prompt - Yes
 		Manual: Redis Shell Prompt - Yes With Lingering Command
 		Manual: Prompt Text - Non Redis
+
 		Manual: Prompt Text - Redis
 	")
-	
-	set useBasicLogging of spotScript to true
+
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -53,19 +52,19 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
-	
+
+
 	-- activate application ""
 	log name of terminal
 	log name of logger of terminalLib
 	set frontTab to terminal's getFrontTab()
 	log frontTab
 	set frontTab to decorate(frontTab)
-	
+
 	logger's infof("Is Shell Prompt: {}", frontTab's isShellPrompt())
 	logger's infof("Prompt with text: {}", frontTab's getPromptText())
 	logger's infof("Prompt: {}", frontTab's getPrompt())
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -78,7 +77,7 @@ on decorate(mainScript)
 
 	script TerminalTabInstance -- shadow the original
 		property parent : mainScript
-		
+
 		(* *)
 		on getPromptText()
 			set {_history, lastProcess} to _getHistoryAndLastProcess()
@@ -90,10 +89,10 @@ on decorate(mainScript)
 				set prompts to textUtil's split(recentBuffer, promptOnly)
 				return promptOnly & last item of prompts
 			end if
-			
+
 			continue getPromptText()
 		end getPromptText
-		
+
 		(*
 			@Override
 		*)
@@ -102,16 +101,16 @@ on decorate(mainScript)
 			if lastProcess is "redis-cli" then
 				return regex's matchesInString(my redisPromptPattern() & "$", textUtil's rtrim(_history))
 			end if
-			
+
 			continue isShellPrompt()
 		end isShellPrompt
-		
-		
+
+
 		(* Redis prompt looks like this currently: "127.0.0.1:6379>" *)
 		on redisPromptPattern()
 			"\\d{1,3}\\.\\d{1,3}\\.\\d{1,3}.\\d{1,3}:\\d+>"
 		end redisPromptPattern
-		
+
 	end script
 end decorate
 
@@ -129,7 +128,7 @@ on unitTest()
 		assertEqual("three two  one", my replaceFirst("three one plus one", "one", "two"), "Happy Case")
 		assertEqual("one", my replaceFirst("one", "{}", "found"), "Not Found")
 		assertEqual("one", my replaceFirst("one", "three", "dummy"), "Substring is longer")
-		
+
 		done()
 	end tell
 end unitTest
