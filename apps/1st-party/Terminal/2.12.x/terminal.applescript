@@ -403,11 +403,11 @@ on new()
 
 				on setProfile(profileName)
 					tell application "Terminal"
-						script WaitBusy
-							if busy of selected tab of appWindow is false then return true
-						end script
-						exec of retry on WaitBusy by 0.1
-						activate
+						-- script WaitBusy
+						-- 	if busy of selected tab of appWindow is false then return true
+						-- end script
+						-- exec of retry on WaitBusy by 0.1
+						-- activate
 
 						set current settings of selected tab of appWindow to settings set profileName
 					end tell
