@@ -1,5 +1,5 @@
 (*
-	@Last Modified: 2023-07-24 18:18:24
+	@Last Modified: 2023-07-28 19:42:39
 
 	@Version: 2.16.18
 
@@ -49,6 +49,8 @@ on spotCheck()
 
 		Turn On Dark Mode
 		Turn On Light Mode
+		Manual: Set Raise Window on Update ON
+		Manual: Set Raise Window on Update OFF
 	")
 
 	set examplesPath to configSystem's getValue("AppleScript Core Project Path") & "/apps/3rd-party/Marked"
@@ -141,6 +143,12 @@ on spotCheck()
 	else if caseIndex is 12 then
 		sut's turnOnLightMode()
 
+	else if caseIndex is 13 then
+		sut's setRaiseWindowOnUpdate(true)
+
+	else if caseIndex is 14 then
+		sut's setRaiseWindowOnUpdate(false)
+
 	end if
 
 	spot's finish()
@@ -151,6 +159,26 @@ on new()
 	loggerFactory's injectBasic(me)
 
 	script MarkedInstance
+		on setRaiseWindowOnUpdate(newValue)
+			if running of application "Marked" is false then return
+
+			tell application "System Events" to tell process "Marked"
+				try
+					click (first menu item of menu 1 of menu bar item "Marked" of menu bar 1 whose title starts with "Preferences")
+				end try
+				delay 0.1
+				click button "General" of toolbar 1 of front window
+				set currentValue to value of checkbox "Raise window on update" of front window
+				logger's debugf("currentValue: {}", currentValue)
+				if currentValue is 0 and newValue or currentValue is 1 and newValue is false then
+					click checkbox "Raise window on update" of front window
+					delay 0.1
+				end if
+				click (first button of front window whose description is "close button")
+			end tell
+		end setRaiseWindowOnUpdate
+
+
 		on turnOnDarkMode()
 			tell application "System Events" to tell process "Marked"
 				-- try
@@ -162,6 +190,7 @@ on new()
 
 			toggleDarkMode()
 		end turnOnDarkMode
+
 
 		on turnOnLightMode()
 			activate application "Marked"
