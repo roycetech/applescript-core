@@ -1,10 +1,14 @@
-
 (*
 	@Usage:
 		use fileUtil : script "file"
 
 	@Build:
 		make compile-lib SOURCE=core/file
+
+	@Change Log:
+		July 26, 2023 4:11 PM - Add replaceText handler.
+
+	@Last Modified: 2023-07-26 17:12:59
 *)
 
 use script "Core Text Utilities"
@@ -74,6 +78,14 @@ on spotCheck()
 end spotCheck
 
 
+on replaceText(filePath, substring, replacement)
+	-- loggerFactory's injectBasic(me)
+	set command to "sed -i '' 's/" & substring & "/" & replacement & "/' " & filePath
+	-- logger's debug(command)
+	do shell script command
+end replaceText
+
+
 on readFile(posixFilePath as string)
 	read file posixFilePath
 end readFile
@@ -104,6 +116,7 @@ on readTempFile()
 
 	read file theFile
 end readTempFile
+
 
 on writeTextToTempFile(theText as text)
 	tell application "Finder"
