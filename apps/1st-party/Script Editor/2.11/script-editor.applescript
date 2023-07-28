@@ -25,6 +25,8 @@ use fileUtil : script "file"
 use listUtil : script "list"
 use textUtil : script "string"
 
+use contentDecorator : script "dec-script-editor-content"
+
 use configLib : script "config"
 use retryLib : script "retry"
 use overriderLib : script "overrider"
@@ -145,6 +147,8 @@ on new()
 				return my _new(id of window 1)
 			end tell
 		end getFrontTab
+
+
 		
 		(*
 			@posixFilePath the Unix file  path e.g. /Users/...
@@ -292,10 +296,10 @@ on new()
 				end getResourcePath
 				
 				(*
-			Assumes that script editor is running.
-			Does not work on path when the document reference is returned, convert to record.
-			@return struct with: posixPath, name, and resourcePath.
-		*)
+					Assumes that script editor is running.
+					Does not work on path when the document reference is returned, convert to record.
+					@return struct with: posixPath, name, and resourcePath.
+				*)
 				on getDetail()
 					if running of application "Script Editor" is false then return missing value
 					
@@ -309,8 +313,8 @@ on new()
 				end getDetail
 				
 				(*
-		    @targetFolder Mac OS colon separated format for the script destination.
-		*)
+				    @targetFolder Mac OS colon separated format for the script destination.
+				*)
 				on saveAsText(targetFolder)
 					if running of application "Script Editor" is false then return
 					
@@ -326,8 +330,8 @@ on new()
 				end saveAsText
 				
 				(*
-		    @targetFolder Mac OS colon separated format for the script destination.
-		*)
+				    @targetFolder Mac OS colon separated format for the script destination.
+				*)
 				on saveAsScript(targetFolder)
 					if running of application "Script Editor" is false then return
 					
@@ -400,19 +404,19 @@ on new()
 				
 				on getPosixPath()
 					if running of application "Script Editor" is false then return
-					
+
 					tell application "Script Editor"
 						set posixPath to path of document of appWindow
 					end tell
-					
+
 					if my suffixedName is not missing value then -- Means it has been exported as workaround to assistive access bug.
 						set posixPath to textUtil's replace(posixPath, getBaseScriptName(), my suffixedName)
 						set posixPath to text 1 thru -(length of "plescript") of posixPath -- considered the off by one bug.
 					end if
-					
+
 					posixPath
 				end getPosixPath
-				
+
 				(* @returns the mac os notation folder of this script *)
 				on getScriptLocation()
 					if running of application "Script Editor" is false then return
@@ -443,5 +447,6 @@ on new()
 			ScriptEditorInstance
 		end _new
 	end script
+	contentDecorator's decorate(result)
 	overrider's applyMappedOverride(result)
 end new
