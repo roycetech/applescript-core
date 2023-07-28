@@ -35,7 +35,6 @@ STUB_LIBS :=  \
 CORE_LIBS :=  \
 	logger-factory \
 	overrider \
-	test \
 	unit-test \
 	list \
 	string \
@@ -167,7 +166,15 @@ test-unit:
 test-integration:
 
 test:
-	osascript test/core/plutilTest.applescript
+	osascript test/apps/1st-party/dec-script-editor-contentTest.applescript
+# 	osascript test/core/fileTest.applescript
+# 	osascript test/core/plutilTest.applescript
+#	osascript test/core/plistBuddyTest.applescript
+# 	osascript test/apps/1st-party/script-editorTest.applescript
+.PHONY: test
+
+watch: test
+	scripts/run-tests_on-change.sh
 
 #
 #
