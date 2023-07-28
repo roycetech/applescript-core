@@ -10,7 +10,7 @@
 	@Build:
 		make compile-lib SOURCE=core/string
 
-	@Last Modified: 2023-07-24 18:18:24
+	@Last Modified: 2023-07-26 17:57:03
 *)
 use scripting additions
 
@@ -262,7 +262,7 @@ on upper(theText)
 	do shell script "echo '" & theText & "' | tr '[:lower:]' '[:upper:]'"
 end upper
 
-to ucase(theText)
+on ucase(theText)
 	upper(theText)
 end ucase
 
@@ -314,6 +314,15 @@ on join(aList, delimiter)
 	end repeat
 	return retval
 end join
+
+
+on indexOf(sourceText, substring)
+	if substring is missing value then return 0
+	if sourceText is missing value then return 0
+	if (offset of substring in sourceText) is 0 then return 0
+
+	offset of substring in sourceText
+end lastIndexOf
 
 
 on lastIndexOf(sourceText, substring)
