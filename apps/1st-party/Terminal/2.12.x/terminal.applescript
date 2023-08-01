@@ -422,6 +422,8 @@ on new()
 				end focusLast
 
 				on _focus(ascending)
+					activate application "Terminal"
+
 					logger's debugf("ascending: {}", ascending)
 					logger's debugf("window name: {}", name of my appWindow)
 					tell application "System Events" to tell process "Terminal"
@@ -589,14 +591,12 @@ on new()
 			end tell
 
 			set overrider to overriderLib's new()
-
 			set |instance name| of TerminalTabInstance to the name of appWindow of TerminalTabInstance
-			extOutput's decorate(TerminalTabInstance)
-			extRun's decorate(result)
-			extPath's decorate(result)
-			extPrompt's decorate(result)
-
-			overrider's applyMappedOverride(result)
+			set decorated to extOutput's decorate(TerminalTabInstance)
+			set decorated to extRun's decorate(decorated)
+			set decorated to extPath's decorate(decorated)
+			set decorated to extPrompt's decorate(decorated)
+			overrider's applyMappedOverride(decorated)
 		end new
 	end script
 end new
