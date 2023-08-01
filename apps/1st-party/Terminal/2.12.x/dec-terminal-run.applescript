@@ -14,17 +14,14 @@ use textUtil : script "string"
 
 use loggerFactory : script "logger-factory"
 
-use loggerLib : script "logger"
 use plutilLib : script "plutil"
 use retryLib : script "retry"
-use terminalLib : script "terminal"
 
 use spotScript : script "spot-test"
 
 property logger : missing value
-property retry : retryLib's new()
-
 property session : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -46,6 +43,7 @@ on spotCheck()
 		return
 	end if
 
+	set terminalLib to script "terminal"
 	set terminal to terminalLib's new()
 	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)
@@ -70,6 +68,7 @@ on decorate(termTabScript)
 	loggerFactory's injectBasic(me)
 	set plutil to plutilLib's new()
 	set session to plutil's new("session")
+	set retry to retryLib's new()
 
 	script TerminalTabInstance
 		property parent : termTabScript
