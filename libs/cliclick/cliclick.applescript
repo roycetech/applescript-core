@@ -313,7 +313,7 @@ on new()
 
 		on restorePosition()
 			set savedPosition to session's getValue("Pointer Position")
-			logger's debugf("Restoring pointer to: {}", savedPosition)
+			-- logger's debugf("Restoring pointer to: {}", savedPosition)
 			do shell script CLICLICK_CLI & " m:" & savedPosition
 		end restorePosition
 
