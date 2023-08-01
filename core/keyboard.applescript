@@ -24,16 +24,12 @@ property NSEvent : a reference to current application's NSEvent
 use std : script "std"
 
 use loggerFactory : script "logger-factory"
-use plutilLib : script "plutil"
 use listUtil : script "list"
 use emoji : script "emoji"
 use spotScript : script "spot-test"
 use overriderLib : script "overrider"
 
 property logger : missing value
-property session : missing value
-
-property overrider : overriderLib's new()
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -124,8 +120,7 @@ end spotCheck
 
 on new()
 	loggerFactory's inject(me)
-	set plutil to plutilLib's new()
-	set session to plutil's new("session")
+	set overrider to overriderLib's new()
 
 	script KeyboardInstance
 		property delayAfterKeySeconds : 0.01
