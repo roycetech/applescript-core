@@ -1,22 +1,22 @@
+(*
+	@Build:
+		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
+
+	@Last Modified: 2023-07-29 12:34:52
+*)
+
 use script "Core Text Utilities"
 use scripting additions
-
-(*
-		@Build:
-			make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
-*)
 
 use listUtil : script "list"
 use textUtil : script "string"
 use fileUtil : script "file"
 use regex : script "regex"
 use unic : script "unicodes"
-use decTerminalOutput : script "dec-terminal-output"
 
 use loggerFactory : script "logger-factory"
 
 use retryLib : script "retry"
-use terminalLib : script "terminal"
 
 use spotScript : script "spot-test"
 
@@ -45,6 +45,9 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
+
+	set terminalLib to script "terminal"
+	set decTerminalOutput to script "dec-terminal-output"
 
 	set terminal to terminalLib's new()
 	terminal's getFrontTab()

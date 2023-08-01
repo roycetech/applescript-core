@@ -1,6 +1,8 @@
 (*
 	@Build:
 		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-path
+
+	@Last Modified: 2023-07-29 12:32:32
 *)
 
 use scripting additions
@@ -11,8 +13,6 @@ use textUtil : script "string"
 use listUtil : script "list"
 
 use loggerFactory : script "logger-factory"
-
-use terminalLib : script "terminal"
 
 use spotScript : script "spot-test"
 
@@ -40,6 +40,7 @@ on spotCheck()
 		return
 	end if
 
+	set terminalLib to script "terminal"
 	set terminal to terminalLib's new()
 	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)
@@ -67,6 +68,8 @@ end spotCheck
 
 
 on decorate(termTabScript)
+	loggerFactory's inject(me)
+
 	script TerminalTabInstance
 		property parent : termTabScript
 		property _posixPath : missing value
