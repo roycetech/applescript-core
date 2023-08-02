@@ -10,7 +10,7 @@
 	@Build:
 		make compile-lib SOURCE=core/string
 
-	@Last Modified: 2023-07-26 17:57:03
+	@Last Modified: 2023-08-01 21:35:37
 *)
 use scripting additions
 
@@ -272,7 +272,7 @@ on lcase(theText)
 end lcase
 
 
-to repeatText(theText, ntimes)
+on repeatText(theText, ntimes)
 	set theResult to ""
 	repeat ntimes times
 		set theResult to theResult & theText
