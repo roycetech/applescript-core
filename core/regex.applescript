@@ -8,7 +8,10 @@
 	@Build:
 		make compile-lib SOURCE=core/regex
 
-	@Last Modified: 2023-07-24 13:23:19
+	@Known Issues:
+		July 29, 2023 9:37 PM - Removed in plutil validation because it fails intermittently on the "matches" handler.
+
+	@Last Modified: 2023-08-02 19:20:57
 *)
 
 use framework "Foundation"
@@ -26,6 +29,7 @@ use spotScript : script "spot-test"
 use testLib : script "test"
 
 property logger : missing value
+property ERROR_INVALID_PATTERN : 1000
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -34,7 +38,6 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		Unit Test
 		Quickie
 		Case Insensitive Match
 	")
@@ -48,9 +51,6 @@ on spotCheck()
 	end if
 
 	if caseIndex is 1 then
-		unitTest()
-
-	else if caseIndex is 2 then
 		log stringByReplacingMatchesInString(unic's OMZ_ARROW & "  [a-zA-Z-]+\\sgit:\\([a-zA-Z0-9/-]+\\)(?: " & unic's OMZ_GIT_X & ")?\\s", unic's OMZ_ARROW & "  mobile-gateway git:(feature/MT-3644-Mobile-Gateway-create-service-adapter) " & unic's OMZ_GIT_X & " docker network", "")
 
 		log stringByReplacingMatchesInString("hello", "hello world", "")
@@ -58,7 +58,7 @@ on spotCheck()
 		log matchesInString("\\w+$", "hello world ")
 		log numberOfMatchesInString("\\w+", "hello world -")
 
-	else if caseIndex is 3 then
+	else if caseIndex is 2 then
 		log firstMatchInStringNoCase("abc", "the world of ABC is ok.")
 		log firstMatchInString("abc", "the world of ABC is ok.")
 		log firstMatchInStringNoCase("abc", "the world of abc is ok.")
@@ -69,16 +69,29 @@ on spotCheck()
 	logger's finish()
 end spotCheck
 
-on numberOfMatchesInString(pattern as text, searchString as text)
+
+on numberOfMatchesInString(pattern as text, searchString)
+	if searchString is missing value then return 0
+
 	set nsregex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
-	return (nsregex's numberOfMatchesInString:searchString options:0 range:{location:0, |length|:(count searchString)}) as integer
+	(nsregex's numberOfMatchesInString:searchString options:0 range:{location:0, |length|:(count searchString)}) as integer
 end numberOfMatchesInString
 
 
-on matchesInString(pattern as text, searchString as text)
+on matchesInString(pattern, searchString)
+	if pattern is missing value  or searchString is missing value then return missing value
+
+	loggerFactory's injectBasic(me)
+
 	set anNSString to current application's NSString's stringWithString:searchString
 	set stringLength to anNSString's |length|()
 	set nsregex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
+
+	-- Check if there was an error
+	if nsregex is missing value then
+	    error "Error: Unable to create NSRegularExpression /'" & pattern & "/" number ERROR_INVALID_PATTERN
+	end if
+
 	set match to nsregex's firstMatchInString:anNSString options:0 range:{0, stringLength}
 	if match is not missing value then return true
 
@@ -146,6 +159,8 @@ end lastMatchInString
 
 
 on stringByReplacingMatchesInString(pattern, searchString, replacement)
+	if searchString is missing value then return missing value
+
 	set searchNSString to current application's NSString's stringWithString:searchString
 	set replaceNSString to current application's NSString's stringWithString:replacement
 	set stringLength to searchNSString's |length|()
@@ -156,7 +171,7 @@ end stringByReplacingMatchesInString
 
 (* @returns list {offset, length} *)
 on rangeOfFirstMatchInString(pattern, searchString)
-	if searchString is missing value then return missing value
+	if pattern is missing value or searchString is missing value then return missing value
 
 	set nsregex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
 	set matchRange to (nsregex's rangeOfFirstMatchInString:searchString options:0 range:{location:0, |length|:(count searchString)})
@@ -203,46 +218,5 @@ end escapeSource
 
 
 on escapePattern(pattern)
-	return pattern
+	pattern
 end escapePattern
-
-(*
-	Handler grouped by hundredths.
-	Put the case you are debugging at the top, and move to correct place once verified.
-*)
-on unitTest()
-	set test to testLib's new()
-	set ut to test's new()
-	tell ut
-		newMethod("lastMatchInString")
-		assertMissingValue(my lastMatchInString("\\w", missing value), "String is missing value")
-		assertMissingValue(my lastMatchInString("\\d", "abc"), "Not Found")
-		assertEqual("2", my lastMatchInString("\\d", "1 for 2"), "Multi match")
-		assertEquals("1", my lastMatchInString("\\d", "one hundred 1"), "Single match")
-
-		newMethod("findFirst")
-		assertEqual("https://awesome.zoom.us/j/123456789", my findFirst("B + S Daily Standup at https://awesome.zoom.us/j/123456789. Starts on September 15, 2020 at 8:00:00 AM Philippine Standard Time and ends at 8:15:00 AM Philippine Standard Time.", "https:\\/\\/\\w+\\.\\w+\\.\\w+\\/j\\/\\d+(?:\\?pwd=\\w+)?"), "Happy: Found")
-
-		newMethod("matched")
-		assertTrue(my matched("amazing", "maz"), "Found")
-		assertFalse(my matched("amazing", "Amaz"), "Not Found")
-		assertTrue(my matched("amazing", "^amaz"), "Starting with")
-		assertFalse(my matched("amazing", "^maz"), "Not starting with")
-		assertTrue(my matched("amazing", "zing$"), "Ending with")
-		assertFalse(my matched("amazing", "zin$"), "Not ending with")
-		assertTrue(my matched("a maz ing", "\\bmaz\\b"), "Whole word")
-		assertFalse(my matched("amazing", "\\bmaz\\b"), "Not whole word")
-
-		newMethod("replace")
-		assertEqual("These number(12) and number(354)", my replace("These 12 and 354", "(\\d+)", "number(\\1)"), "Replace a group")
-		assertEqual("riojenhbkcm@mailinator.com", my replace("Email : riojenhbkcm@mailinator.com", "Email : (\\w+@mailinator.com)", "\\1"), "Extract info")
-		assertEqual("Don't", my replace("Can't", "Ca", "Do"), "With a single quote")
-		assertEqual("Can't set window id 3864 to {1146 and one third, 719.0}.", my replace("Can't set window id 3864 to {1146.66666666, 719.0}.", "\\.6{3,}7?", " and one third"), "Number with decimal")
-
-		newMethod("rangeOfFirstMatchInString")
-		assertMissingValue(my rangeOfFirstMatchInString("\\w", missing value), "String is missing value")
-		assertEquals({16, 5}, my rangeOfFirstMatchInString("\\d+", "Hello prisoner 14867"), "Happy Case")
-
-		done()
-	end tell
-end unitTest

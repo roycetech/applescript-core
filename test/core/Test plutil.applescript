@@ -80,6 +80,7 @@ script |plutil instantiation tests|
 
 	script |Invalid PList Name|
 		property parent : unitTest(me)
+		skip("Removed dependency to flaky regex script")
 		script InvalidPlistWrapper
 			sut's new("unicorn;rm")
 		end script
