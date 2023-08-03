@@ -39,7 +39,7 @@
 	@Tests:
 		tests/core/plutilTest.applescript
 
-	@Last Modified: 2023-07-29 21:41:48
+	@Last Modified: 2023-08-03 11:13:30
  *)
 use script "Core Text Utilities"
 use scripting additions
@@ -312,23 +312,15 @@ on new()
 
 						end if
 
-						-- logger's debugf("setValueShellCommand: {}", setValueShellCommand)
 						return do shell script setValueShellCommand
 
 					else if dataType is list then
 						_insertList(quotedPlistKey, newValue)
 						return
 
-						(*
-						else if dataType is record then
-				_setRecordAsJson(plistKey, newValue)
-				return
-*)
-
 					else if dataType is script and name of newValue is "ASDictionary" then
 						setValue(plistKeyOrKeyList, newValue's toJsonString())
 						return
-
 					end if
 
 					tell application "System Events"
@@ -437,13 +429,13 @@ on new()
 						set plutilCommand to format {"if [[ \"{}\" == *\".\"* ]]; \\
 							then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');\\
 							XML=$(plutil -extract \"$TMP\" xml1 {} -o - ); else \\
-							XML=$(plutil -extract {} xml1 {} -o -); fi && echo \"$XML\"", {plistKeyOrKeyList, plistKeyOrKeyList, quotedPlistPosixPath, quotedPlistKey,quotedPlistPosixPath}}
+							XML=$(plutil -extract {} xml1 {} -o -); fi && echo \"$XML\"", {plistKeyOrKeyList, plistKeyOrKeyList, quotedPlistPosixPath, quotedPlistKey, quotedPlistPosixPath}}
 
 					else
 						set plutilCommand to format {"plutil -extract {} xml1 {} -o - ", {quotedPlistKey, quotedPlistPosixPath}}
 					end if
 
-					set getTsvCommand to plutilCommand & format {" \\
+					set getTsvCommand to plutilCommand & (format {" \\
 						| tail -n +5 \\
 						| tail -r \\
 						| tail -n +3 \\
@@ -455,11 +447,11 @@ on new()
 						| sed 's/&amp;/\\&/g' \\
 						| sed 's/&quot;/\"/g' \\
 						| sed \"s/&apos;/'/g\" \\
-						| paste -s -d{} -", {my linesDelimiter}}
+						| paste -s -d{} -", {my linesDelimiter}})
 
 					set csv to do shell script getTsvCommand
 					_split(csv, my linesDelimiter, arrayType)
-				end _getList
+				end getList
 
 
 				on getRecord(plistKeyOrKeyList)
@@ -708,7 +700,7 @@ on new()
 					else
 						format {"plutil -type {} {}", {zeroIndexedKey, quotedPlistPosixPath}}
 					end if
-				end _getTypeShellCommand
+				end _getArrayTypeShellCommand
 
 				(*
 					@typeText
