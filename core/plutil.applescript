@@ -1,8 +1,6 @@
 (*
 	 This library is implemented prioritizing minimal dependency to other libraries.
 
-	TODO: Migrate to accept text or list of keys.
-
 	Requirements
 
 	@Usage:
@@ -37,9 +35,11 @@
 		make compile-lib SOURCE=core/plutil
 
 	@Tests:
-		tests/core/plutilTest.applescript
+		tests/core/Test plutil.applescript
 
-	@Last Modified: 2023-08-03 11:13:30
+	@Last Modified: 2023-08-03 11:54:39
+	@Change Logs:
+		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
 use script "Core Text Utilities"
 use scripting additions
@@ -233,6 +233,7 @@ on new()
 			end tell
 		end plistExists
 
+
 		(*
 			Creates a new empty plist in the user hardcoded AppleScript folder.
 
@@ -306,7 +307,10 @@ on new()
 						end if
 
 						if isTextParam then
-							set setValueShellCommand to format {"if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -replace \"$TMP\" -{} {} {}; else plutil -replace {} -{} {} {}; fi", {plistKeyOrKeyList, plistKeyOrKeyList, plUtilType, shellValue, quotedPlistPosixPath, quotedPlistKey, plUtilType, shellValue, quotedPlistPosixPath}}
+							set setValueShellCommand to _shellEscape(plistKeyOrKeyList) &  format {"plutil -replace \"$TMP\" -{} {} {}; \\
+								else \\
+									plutil -replace {} -{} {} {}; \\
+								fi", {plUtilType, shellValue, quotedPlistPosixPath, quotedPlistKey, plUtilType, shellValue, quotedPlistPosixPath}}
 						else
 							set setValueShellCommand to format {"plutil -replace {} -{} {} {}", {quotedPlistKey, plUtilType, shellValue, quotedPlistPosixPath}}
 
@@ -426,10 +430,11 @@ on new()
 					set quotedPlistKey to _quotePlistKey(plistKeyOrKeyList)
 					set isTextParam to class of plistKeyOrKeyList is text
 					if isTextParam then
-						set plutilCommand to format {"if [[ \"{}\" == *\".\"* ]]; \\
-							then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');\\
-							XML=$(plutil -extract \"$TMP\" xml1 {} -o - ); else \\
-							XML=$(plutil -extract {} xml1 {} -o -); fi && echo \"$XML\"", {plistKeyOrKeyList, plistKeyOrKeyList, quotedPlistPosixPath, quotedPlistKey, quotedPlistPosixPath}}
+						set plutilCommand to _shellEscape(plistKeyOrKeyList) & format {"\\
+								XML=$(plutil -extract \"$TMP\" xml1 {} -o - ); \\
+							else \\
+								XML=$(plutil -extract {} xml1 {} -o -); \\
+							fi && echo \"$XML\"", {quotedPlistPosixPath, quotedPlistKey, quotedPlistPosixPath}}
 
 					else
 						set plutilCommand to format {"plutil -extract {} xml1 {} -o - ", {quotedPlistKey, quotedPlistPosixPath}}
@@ -479,10 +484,7 @@ on new()
 					try
 						set dataType to (do shell script getTypeShellCommand) as text
 					on error the errorMessage number the errorNumber
-						-- logger's warn(errorMessage)
 						return missing value
-						-- if errorNumber is less than 0 then return missing value
-						-- error errorMessage number errorNumber
 					end try
 
 					if dataType is "array" then
@@ -498,9 +500,6 @@ on new()
 								return missing value
 							end try
 						end tell
-						-- 	set getDictShellCommand to format {"/usr/libexec/PlistBuddy -c \"Print :{}\"  {} | awk '/^[[:space:]]/' | awk 'NF {$1=$1;print $0}' | sed 's/:/__COLON__/g' | sed 's/[[:space:]]=[[:space:]]/: /g'", {quotedPlistKey, quotedPlistPosixPath}}
-						-- 	set dictShellResult to do shell script getDictShellCommand
-						-- 	return mapLib's newFromString(dictShellResult)
 
 					else
 						set getValueShellCommand to _getTypedGetterShellTemplate(missing value, plistKeyOrKeyList)
@@ -551,8 +550,10 @@ on new()
 					if isTextParam then
 						set appendShellCommand to format {"
 							if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g'); \\
-							plutil -insert \"$TMP\" -{} {} -append {}; \\
-							else plutil -insert {} -{} {} -append {}; fi
+								plutil -insert \"$TMP\" -{} {} -append {}; \\
+							else \\
+								plutil -insert {} -{} {} -append {}; \\
+							fi
 							", {plistKeyOrKeyList, plistKeyOrKeyList, plUtilType, quotedValue, quotedPlistPosixPath, quotedPlistKey, plUtilType, quotedValue, quotedPlistPosixPath}}
 					else
 						set appendShellCommand to format {"
@@ -573,19 +574,19 @@ on new()
 				on removeElement(plistKeyOrKeyList, targetElement)
 					if targetElement is missing value then return false
 
-					logger's debugf("plistKeyOrKeyList: {}", plistKeyOrKeyList as text)
-					logger's debugf("targetElement: {}", targetElement)
+					-- logger's debugf("plistKeyOrKeyList: {}", plistKeyOrKeyList as text)
+					-- logger's debugf("targetElement: {}", targetElement)
 
 					-- set quotedPlistKey to quoted form of plistKey
 					set theList to getList(plistKeyOrKeyList)
-					logger's debugf("theList: {}", theList as text)
+					-- logger's debugf("theList: {}", theList as text)
 					if theList is missing value then return false
 
-					logger's debug(2)
+					-- logger's debug(2)
 					set targetIndex to _indexOf(theList, targetElement) - 1
 					if targetIndex is less than 0 then return false
 
-					logger's debug(3)
+					-- logger's debug(3)
 					set quotedPlistKey to _quotePlistKey(plistKeyOrKeyList)
 					set quoteChar to text 1 thru 1 of quotedPlistKey
 					set indexedKey to (text 1 thru -2 of quotedPlistKey) & "." & targetIndex & quoteChar
@@ -616,7 +617,10 @@ on new()
 					set quotedPlistKey to _quotePlistKey(plistKeyOrKeyList)
 
 					if isTextParam then
-						set removeShellCommand to format {"if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -remove \"$TMP\" {}; else plutil -remove {} {}; fi", {plistKeyOrKeyList, plistKeyOrKeyList, my quotedPlistPosixPath, quotedPlistKey, my quotedPlistPosixPath}}
+						set removeShellCommand to _shellEscape(plistKeyOrKeyList) & (format {"plutil -remove \"$TMP\" {}; \\
+							else \\
+								plutil -remove {} {}; \\
+							fi", {my quotedPlistPosixPath, quotedPlistKey, my quotedPlistPosixPath}})
 					else
 						set removeShellCommand to format {"plutil -remove {} {}", {quotedPlistKey, my quotedPlistPosixPath}}
 					end if
@@ -627,6 +631,15 @@ on new()
 					end try
 					false
 				end deleteKey
+
+
+				(*
+					Refactored the escaping part of the shell command. The result is not a valid shell command, but rather it needs to be
+					prepended as part of the if-else shell command.
+				*)
+				on _shellEscape(plistKeyOrKeyList)
+					format {"if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');", {plistKeyOrKeyList, plistKeyOrKeyList}}
+				end _shellEscape
 
 
 				(*
@@ -678,7 +691,10 @@ on new()
 				on _getTypeShellCommand(plistKeyOrKeyList)
 					set quotedPlistKey to _quotePlistKey(plistKeyOrKeyList)
 					if class of plistKeyOrKeyList is text then
-						format {"if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -type \"$TMP\" {}; else plutil -type {} {}; fi", {plistKeyOrKeyList, plistKeyOrKeyList, quotedPlistPosixPath, quotedPlistKey, quotedPlistPosixPath}}
+						_shellEscape(plistKeyOrKeyList) & (format {"plutil -type \"$TMP\" {}; \\
+							else \\
+								plutil -type {} {}; \\
+							fi", {quotedPlistPosixPath, quotedPlistKey, quotedPlistPosixPath}})
 					else
 						format {"plutil -type {} {}", {quotedPlistKey, quotedPlistPosixPath}}
 					end if
@@ -691,12 +707,11 @@ on new()
 					set zeroIndexedKey to (text 1 thru -2 of quotedPlistKey) & ".0" & quoteChar
 
 					if class of plistKeyOrKeyList is text then
-						format {"if [[ \"{}\" == *\".\"* ]]; \\
-							then TMP=$(echo \"{}\" | \\
-							sed 's/\\./\\\\./g');\\
-							plutil -type \"$TMP.0\" {}; \\
-							else plutil -type {} {}; fi
-						", {plistKeyOrKeyList, plistKeyOrKeyList, quotedPlistPosixPath, zeroIndexedKey, quotedPlistPosixPath}}
+						_shellEscape(plistKeyOrKeyList) & (format {"plutil -type \"$TMP.0\" {}; \\
+							else \\
+								plutil -type {} {}; \\
+							fi
+						", {quotedPlistPosixPath, zeroIndexedKey, quotedPlistPosixPath}})
 					else
 						format {"plutil -type {} {}", {zeroIndexedKey, quotedPlistPosixPath}}
 					end if
@@ -713,8 +728,11 @@ on new()
 					if typeText is not missing value then set typeClause to "-expect " & typeText
 
 					if (class of plistKeyOrKeyList) is text then
-						set shellTemplate to "if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -extract \"$TMP\" raw " & typeClause & " {}; else plutil -extract {} raw " & typeClause & " {}; fi"
-						format {shellTemplate, {plistKeyOrKeyList, plistKeyOrKeyList, quotedPlistPosixPath, quotedKey, quotedPlistPosixPath}}
+						set shellTemplate to _shellEscape(plistKeyOrKeyList) & "plutil -extract \"$TMP\" raw " & typeClause & " {}; \\
+							else \\
+								plutil -extract {} raw " & typeClause & " {}; \\
+							fi"
+						format {shellTemplate, {quotedPlistPosixPath, quotedKey, quotedPlistPosixPath}}
 					else
 						set shellTemplate to "plutil -extract {} raw " & typeClause & " {}"
 						format {shellTemplate, {quotedKey, quotedPlistPosixPath}}

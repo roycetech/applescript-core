@@ -649,7 +649,7 @@ script |plutil removeElement tests|
 		skip("Known Issue, all elements are treated as string.")
 		TopLevel's __insertXml("array", "<array><string>1</string></array>")
 		notOk(sut's removeElement("array", 1))
-		TopLevel's __deleteValue("array")
+		TopLevel's __deleteValue("array") 
 	end script
 
 	script |Inexistent Array|
@@ -940,24 +940,23 @@ end script
 script |_getTypedGetterShellTemplate|
 	property parent : TestSet(me)
 	property sut : missing value
-
 	property executedTestCases : 0
-	(* Manually Set *)
 	property totalTestCases : 1
 
 	on setUp()
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("test-plutil")
 	end setUp
-
 	on tearDown()
 	end tearDown
 
 	script |Key Name - Text|
 		property parent : unitTest(me)
 		set actual to sut's _getTypedGetterShellTemplate("string", "unit")
-		ok(actual contains "if [[ \"unit\" == *\".\"* ]]; then TMP=$(echo \"unit\" | sed 's/\\./\\\\./g');plutil -extract \"$TMP\" raw -expect string ")
-		ok(actual ends with ".plist'; fi")
+		ok(actual contains "if [[ \"unit\" == *\".\"* ]]; then TMP=$(echo \"unit\" | sed 's/\\./\\\\./g');")
+		ok(actual contains "plutil -extract \"$TMP\" raw -expect string ")
+		ok(actual contains ".plist';")
+		ok(actual ends with "fi")
 	end script
 
 	script |Key Name - List|
@@ -973,9 +972,7 @@ end script
 script |plutil _validatePlistKey tests|
 	property parent : TestSet(me)
 	property sut : missing value
-
 	property executedTestCases : 0
-	(* Manually Set *)
 	property totalTestCases : 1
 
 	on setUp()
