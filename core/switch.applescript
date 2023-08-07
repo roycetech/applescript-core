@@ -1,14 +1,19 @@
 (*
-	NOTE: The key do not need to exist in the flag.plist, it will be created
+	NOTE: The key do not need to exist in the switches.plist, it will be created
 	when its value is set.
 
 	@Usage:
 		use switchLib : script "switch"
-		set yourFlag to switchLib's new("Flag Name")
-		yourFlag's turnOn()
+		set yourSwitch to switchLib's new("Switch Name")
+		yourSwitch's turnOn()
 
 	@Build:
 		make compile-lib SOURCE=core/switch
+
+	@Last Modified: 2023-08-04 12:30:26
+	@TODO: Migrate to ASUnit.
+	@Change Log:
+		August 4, 2023 12:30 PM
 *)
 
 use loggerFactory : script "logger-factory"
