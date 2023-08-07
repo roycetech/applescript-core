@@ -80,7 +80,7 @@ on new()
 	script StreamDeckInstance
 		on isUsbConnected()
 			try
-				return (do shell script "lsusb | grep 'Stream Deck'") is not ""
+				return (do shell script "/opt/homebrew/bin/lsusb | grep 'Stream Deck'") is not ""
 			end try
 			
 			false
