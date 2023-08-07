@@ -1,11 +1,12 @@
 (*
-	@Last Modified: 2023-07-24 18:18:24
+	@Last Modified: 2023-08-06 21:53:45
 
 	@Build:
 		make compile-lib SOURCE=core/dialog
 *)
-use script "Core Text Utilities"
 use scripting additions
+use script "Core Text Utilities"
+use std : script "std"
 
 use loggerFactory : script "logger-factory"
 use listUtil : script "list"
