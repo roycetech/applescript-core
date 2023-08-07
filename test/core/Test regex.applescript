@@ -206,17 +206,18 @@ script |matchesInString tests|
 
 	script |String is missing value|
 		property parent : UnitTest(me)
-		assertMissing(sutScript's matchesInString("\\w", missing value))
+		notOk(sutScript's matchesInString("\\w", missing value))
 	end script
 
 	script |Pattern is missing value|
 		property parent : UnitTest(me)
-		assertMissing(sutScript's matchesInString(missing value, "abc"))
+		notOk(sutScript's matchesInString(missing value, "abc"))
 	end script
 
 	script |session - fails intermittently on Terminal Focus|
 		property parent : UnitTest(me)
-		ok(sutScript's matchesInString("^(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_-]+$", "sessian"))
+		ok(sutScript's matchesInString("^(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_-]+$", "session"))
 	end script
 
 end script
+

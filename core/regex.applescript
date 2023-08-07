@@ -11,7 +11,7 @@
 	@Known Issues:
 		July 29, 2023 9:37 PM - Removed in plutil validation because it fails intermittently on the "matches" handler.
 
-	@Last Modified: 2023-08-02 19:20:57
+	@Last Modified: 2023-08-07 09:14:11
 *)
 
 use framework "Foundation"
@@ -79,9 +79,7 @@ end numberOfMatchesInString
 
 
 on matchesInString(pattern, searchString)
-	if pattern is missing value  or searchString is missing value then return missing value
-
-	loggerFactory's injectBasic(me)
+	if pattern is missing value  or searchString is missing value then return false
 
 	set anNSString to current application's NSString's stringWithString:searchString
 	set stringLength to anNSString's |length|()
@@ -220,3 +218,4 @@ end escapeSource
 on escapePattern(pattern)
 	pattern
 end escapePattern
+
