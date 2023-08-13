@@ -2,7 +2,7 @@
 	Utility for testing scripts that manages a property list file.
 
 	@Created: July 22, 2023 10:58 PM
-	@Last Modified: 2023-07-25 20:47:32
+	@Last Modified: 2023-08-10 15:52:14
 *)
 use scripting additions
 
@@ -17,16 +17,31 @@ on new(plistPath)
 	script TestUtilInstance
 		property plist : plistPath
 
+		-- on __grepValueXml(keyName)
+		-- 	do shell script "grep -A 1 '>" & keyName & "<' " & plist & " \\
+		-- | tail -n 1 \\
+		-- | awk '{$1=$1};1'"
+		-- end __grepValueXml
+
+
 		on __grepValueXml(keyName)
-			do shell script "grep -A 1 '>" & keyName & "<' " & plist & " \\
-		| tail -n 1 \\
-		| awk '{$1=$1};1'"
+			set command to "key=\"" & keyName & "\";
+				result=$(grep -A 1 \">$key<\" " & plist & " \\
+					| tail -n 1 \\
+					| awk '{$1=$1};1') \\
+				&& if [[ \"$result\" != *\"/\"* ]]; then \\
+					blockTagName=$(echo $result | sed -E 's/<([[:alpha:]]+)>/\\1/g');
+					result=$(awk \"/>$key</,/<\\/$blockTagName>/\" " & plist & " \\
+						| tail -n +2);
+				fi;
+				echo $result"
+			do shell script command
 		end __grepValueXml
 
 
 		on __grepMultiLineValueXml(keyName, blockTagName)
 			do shell script "awk '/>" & keyName & "</,/<\\/" & blockTagName & ">/' " & plist & " \\
-	| tail -n +2"
+				| tail -n +2"
 		end __grepMultiLineValueXml
 
 
@@ -55,7 +70,6 @@ on new(plistPath)
 			@xmlText - the XML value for the given key name.
 		*)
 		on __insertXml(keyName, xmlText)
-			set command to
 			do shell script "plutil -insert '" & keyName & "' -xml '" & xmlText & "' " & plist
 		end __insertXml
 
