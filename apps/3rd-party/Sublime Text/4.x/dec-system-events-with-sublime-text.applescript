@@ -52,12 +52,12 @@ on spotCheck()
 	logger's finish()
 end spotCheck
 
-(* *)
 
+(* *)
 on decorate(baseScript)
 	loggerFactory's injectBasic(me)
 	
-	script SyseveSublimeTextInstance
+	script SystemEventsSublimeTextInstance
 		property parent : baseScript
 		
 		on getFrontAppName()
