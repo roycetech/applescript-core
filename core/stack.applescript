@@ -1,6 +1,8 @@
 (*
 	@Build:
 		make compile-lib SOURCE=core/stack
+
+	@Last Modified: 2023-07-29 21:13:37
 *)
 
 use loggerFactory : script "logger-factory"
@@ -22,8 +24,10 @@ end spotCheck
 
 
 on new()
+	set localEmptyStack to {}
+
 	script StackInstance
-		property _stack : {}
+		property _stack : localEmptyStack
 
 		on clear()
 			set my _stack to {}

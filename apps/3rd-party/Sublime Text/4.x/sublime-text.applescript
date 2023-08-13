@@ -34,13 +34,12 @@ use kbLib : script "keyboard"
 
 use spotScript : script "spot-test"
 
-use overriderLib : script "overrider"
+use decoratorLib : script "decorator"
 
 property logger : missing value
 property finder : missing value
 property kb : missing value
 property configSystem : missing value
-property overrider : missing value
 
 property ST_CLI : quoted form of (do shell script "plutil -extract \"Sublime Text CLI\" raw ~/applescript-core/config-system.plist")
 
@@ -67,15 +66,15 @@ on spotCheck()
 	
 	set sut to new()
 	if caseIndex is 1 then
-		logger's infof("Current Document Name: {}", sut's getCurrentDocumentName())
-		logger's infof("Current Project: {}", sut's getCurrentProjectName())
-		logger's infof("Current Project Path: {}", sut's getCurrentProjectPath())
-		
 		logger's infof("Current File Path: {}", sut's getCurrentFilePath())
-		logger's infof("Current Resource: {}", sut's getCurrentResource())
 		logger's infof("Current Filename: {}", sut's getCurrentFilename())
 		logger's infof("Current Base Filename: {}", sut's getCurrentBaseFilename())
 		logger's infof("Current File Ext: {}", sut's getCurrentFileExtension())
+		logger's infof("Current Document Name: {}", sut's getCurrentDocumentName())
+		
+		logger's infof("Current Project: {}", sut's getCurrentProjectName())
+		logger's infof("Current Project Path: {}", sut's getCurrentProjectPath())
+		logger's infof("Current Resource: {}", sut's getCurrentProjectResource())
 		
 	else if caseIndex is 2 then
 		sut's focusWindowEndingWith("applescript-core")
@@ -115,10 +114,10 @@ end spotCheck
 
 
 on new()
+	loggerFactory's inject(me)
 	set finder to finderLib's new()
 	set kb to kbLib's new()
 	set configSystem to configLib's new("system")
-	set overrider to overriderLib's new()
 	
 	script SublimeTextInstance
 		on openFile(filePath)
@@ -145,7 +144,11 @@ on new()
 		on getCurrentProjectPath()
 			set filePath to getCurrentFilePath()
 			if filePath is missing value then return missing value
-			textUtil's replace(filePath, "/" & getCurrentResource(), "")
+			
+			set currentProjectName to getCurrentProjectName()
+			if currentProjectName is missing value then return missing value
+			
+			text 1 thru ((offset of currentProjectName in filePath) + (length of currentProjectName) - 1) of filePath
 		end getCurrentProjectPath
 		
 		
@@ -236,16 +239,7 @@ on new()
 			if the number of items in filenameTokens is 1 then return missing value
 			last item of filenameTokens
 		end getCurrentFileExtension
-		
-		
-		on focusWindowByKM(windowName as text)
-			tell application "Keyboard Maestro Engine"
-				setvariable "windowTitle" to windowName
 				
-				do script "Window to Frontmost - Sublime Text"
-			end tell
-		end focusWindowByKM
-		
 		
 		on getVisibleWindows()
 			tell application "System Events" to tell process "Sublime Text"
@@ -254,9 +248,9 @@ on new()
 		end getVisibleWindows
 		
 		(*
-	@return false if exception encountered, likely the window was not found,
-	otherwise it returns true for success.
-*)
+			@return false if exception encountered, likely the window was not found,
+			otherwise it returns true for success.
+		*)
 		on focusWindowContaining(titleSubstring as text)
 			tell application "System Events" to tell process "Sublime Text"
 				try
@@ -300,34 +294,9 @@ on new()
 			-- Battleground shit, not working.
 			tell application "System Events" to tell process "Sublime Text" to set frontmost to true
 			
-			return true
+			true
 		end activateWindow
 		
-		
-		(* Get the resource path of the front most Sublime Text window. *)
-		on getCurrentResource()
-			set docName to getCurrentDocumentName()
-			if docName is "Find Results" or docName is missing value or isCurrentFileNewUnsaved() then return missing value
-			
-			set filename to ""
-			tell application "System Events" to tell process "Sublime Text"
-				tell front window
-					set windowName to its name
-					
-					set filename to value of attribute "AXDocument"
-					assertThat of std given condition:filename is not missing value, messageOnFail:"Filename is missing, you may need to restart Sublime Text"
-					
-				end tell
-			end tell
-			
-			set projectNameRaw to last item of textUtil's split(windowName, SEPARATOR of unic)
-			-- set projectName to _findProjectFolder(projectNameRaw, filename) -- BROKEN
-			set projectName to getCurrentProjectName()
-			set filename to textUtil's replace(filename, "%20", " ")
-			set startIndex to (offset of projectName in filename) + (length of projectName) + 1
-			
-			textUtil's substringFrom(filename, startIndex)
-		end getCurrentResource
 		
 		(*
 			Returns the names of focused projects for each Sublime Text windows.
@@ -406,40 +375,19 @@ on new()
 		(*
 			@return e.g. lib/resource.c
 		*)
-		on getCurrentProjectResource(project)
-			set filename to ""
-			tell application "System Events"
-				tell process "Sublime Text"
-					logger's debug("Looking for the project window...")
-					
-					try
-						set theWindow to first window whose value of attribute "AXTitle" ends with project
-						if not (theWindow exists) then
-							tell me to error "The project: " & project & " could not be found"
-						end if
-						logger's debug("Window found")
-					on error the error_message number the error_number
-						display dialog "Error: " & the error_number & ". " & the error_message buttons {"OK"} default button 1
-					end try
-					
-					tell theWindow
-						set filename to value of attribute "AXDocument"
-						assertThat of std given condition:filename is not missing value, messageOnFail:"Filename is missing, you may need to restart ST3"
-						logger's debug("Filename: " & filename)
-					end tell
-				end tell
-			end tell
+		on getCurrentProjectResource()
+			set currentFilePath to getCurrentFilePath()
+			if currentFilePath is missing value then return missing value
 			
-			set filename to textUtil's replace(filename, "%20", " ")
-			set startIndex to (offset of project in filename) + (length of project) + 1
-			
-			return textUtil's substringFrom(filename, startIndex)
+			set currentProjectPath to getCurrentProjectPath()
+			textUtil's replace(currentFilePath, currentProjectPath & "/", "")
 		end getCurrentProjectResource
 		
 		
 		on closeProject()
 			if running of application "Sublime Text" is false then return
 			
+			activate application "Sublime Text"
 			tell application "System Events" to tell process "Sublime Text"
 				try
 					click menu item "Close Project" of menu 1 of menu bar item "Project" of menu bar 1
@@ -480,6 +428,7 @@ on new()
 			tell me to error "I can't find your project folder from: " & projectNameRaw
 		end _findProjectFolder
 	end script
-	
-	overrider's applyMappedOverride(result)
+
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new

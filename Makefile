@@ -167,11 +167,14 @@ test-all:
 
 test-integration:
 
-test:
+test: test-all
+
+test-unit:
+	osascript "test/core/Test decorator.applescript"
 # 	osascript test/core/Test regex.applescript
 # 	osascript test/apps/1st-party/dec-script-editor-contentTest.applescript
 # 	osascript test/core/fileTest.applescript
-	osascript "test/core/Test plutil.applescript"
+# 	osascript "test/core/Test plutil.applescript"
 # 	osascript "test/core/Test plistBuddy.applescript"
 # 	osascript test/apps/1st-party/script-editorTest.applescript
 .PHONY: test

@@ -58,7 +58,7 @@ on new()
 	loggerFactory's injectBasic(me)
 	set overrider to overriderLib's new()
 
-	script SysEveInstance
+	script SystemEventsInstance
 		on getFrontWindow()
 			tell application "System Events"
 				try
