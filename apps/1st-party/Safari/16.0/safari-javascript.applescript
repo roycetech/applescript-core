@@ -151,7 +151,7 @@ on decorate(safariTab)
 		end hasValue
 
 		on setValueByName(elementName, theValue)
-			set scriptText to format {"document.getElementsByName('{}')[0].value = '{}'", {elementName, theValue}}
+			set scriptText to format {"document.getElementsByName('{}')[0].value = '{}';", {elementName, theValue}}
 			runScriptPlain(scriptText)
 		end setValueByName
 
@@ -173,7 +173,7 @@ on decorate(safariTab)
 		end setSelectedIndexByName
 
 		on setValueById(elementId, theValue)
-			set scriptText to format {"document.getElementById('{}').value = `{}`", {elementId, theValue}}
+			set scriptText to format {"document.getElementById('{}').value = `{}`;", {elementId, theValue}}
 			runScriptPlain(scriptText)
 		end setValueById
 
@@ -191,7 +191,8 @@ on decorate(safariTab)
 			set checkedScript to format {"document.getElementsByName('{}')[0].checked", elementName}
 			set scriptText to format {"{} = {}", {checkedScript, theValue}}
 			script EnsureCheck
-				runScriptPlain(scriptText)
+				-- runScriptPlain(scriptText)
+				runScript(scriptText)
 				if _runScript(checkedScript) as boolean is equal to theValue then return true
 			end script
 			exec of retry on result for 3
