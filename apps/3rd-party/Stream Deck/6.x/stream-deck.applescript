@@ -3,6 +3,10 @@
 	This script is slow when changing profile via menu so we just ignored the 
 	application response to prevent this script from blocking.
 	
+	@Usage:
+		use streamDeckLib : script "stream-deck"
+		set streamDeck to streamDeckLib's new()
+
 	@Requires:
 		Elgato Stream Deck App
 		lsusb installed via brew to check if stream deck via USB is plugged in.
