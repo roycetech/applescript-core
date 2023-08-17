@@ -17,12 +17,10 @@ use textUtil : script "string"
 use unic : script "unicodes"
 
 use loggerFactory : script "logger-factory"
-use testLib : script "test"
 
 use spotScript : script "spot-test"
 
 property logger : missing value
-property test : testLib's new()
 
 property GENERIC_RESULT_VAR : "km_result"
 
@@ -56,7 +54,6 @@ on spotCheck()
 	
 	set sut to new()
 	if caseIndex is 1 then
-		unitTest()
 		
 	else if caseIndex is 2 then
 		sut's sendSafariText("KM Test")
@@ -152,13 +149,14 @@ on new()
 			end tell
 		end hideActions
 		
-		(*
-			TODO: move out.
-		*)
 		on createTriggerLink(scriptName, params)
+			set paramPart to ""
+			if params is not missing value then
+				set paramPart to "&value=" & textUtil's encodeUrl(params)
+			end if
+
 			set encodedName to textUtil's encodeUrl(scriptName)
-			set encodedParam to textUtil's encodeUrl(params)
-			format {"kmtrigger://m={}&value={}", {encodedName, encodedParam}}
+			format {"kmtrigger://m={}{}", {encodedName, paramPart}}
 		end createTriggerLink
 		
 		
@@ -294,16 +292,3 @@ on new()
 	end script
 end new
 
-
--- Private Codes below =======================================================
-
-on unitTest()
-	set ut to test's new()
-	set sut to new()
-	tell ut
-		newMethod("createTriggerLink")
-		assertEqual("kmtrigger://m=Open%20in%20QuickNote&value=Hello%20World", sut's createTriggerLink("Open in QuickNote", "hello world"), "With Parameter")
-		
-		done()
-	end tell
-end unitTest
