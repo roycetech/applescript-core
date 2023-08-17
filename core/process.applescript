@@ -48,6 +48,7 @@ on spotCheck()
 		Manual: Windows Not Equal Name(Running, Not Running)
 		Manual: App Is Running
 		Manual: Minimize
+		Manual: Minimize All
 	")
 
 	set spotClass to spotScript's new()
@@ -126,6 +127,10 @@ on spotCheck()
 		set sut to new("Script Editor")
 		sut's minimize()
 
+	else if caseIndex is 14 then
+		set sut to new("Sublime Text")
+		sut's minimizeAll()
+
 	end if
 
 	spot's finish()
@@ -149,6 +154,16 @@ on new(pProcessName)
 				end try
 			end tell
 		end minimize
+
+
+		on minimizeAll()
+			tell application "System Events" to tell process processName
+				try
+					click (first button of every window whose description contains "minimize")
+				end try
+			end tell
+		end minimizeAll
+
 
 		on isRunning()
 			running of application processName
