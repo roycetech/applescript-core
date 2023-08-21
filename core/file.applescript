@@ -8,7 +8,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2023-07-26 17:12:59
+	@Last Modified: 2023-08-16 10:56:00
 *)
 
 use script "Core Text Utilities"
@@ -80,7 +80,7 @@ end spotCheck
 
 on replaceText(filePath, substring, replacement)
 	-- loggerFactory's injectBasic(me)
-	set command to "sed -i '' 's/" & substring & "/" & replacement & "/' " & filePath
+	set command to "sed -i '' 's/" & substring & "/" & replacement & "/' " & quoted form of filePath
 	-- logger's debug(command)
 	do shell script command
 end replaceText
