@@ -170,7 +170,9 @@ test-integration:
 test: test-all
 
 test-unit:
-	osascript "test/core/Test decorator.applescript"
+	osascript "test/core/Test date-time.applescript"
+# 	osascript "test/apps/3rd-party/Test keyboard-maestro.applescript"
+# 	osascript "test/core/Test decorator.applescript"
 # 	osascript test/core/Test regex.applescript
 # 	osascript test/apps/1st-party/dec-script-editor-contentTest.applescript
 # 	osascript test/core/fileTest.applescript
@@ -469,11 +471,11 @@ install-log4as: compile-log4as
 	plutil -insert categories -xml "<dict></dict>" ~/applescript-core/log4as.plist || true
 
 compile-redis:
+	osascript ./scripts/setup-redis-cli.applescript
 	./scripts/compile-lib.sh libs/redis/redis
 	./scripts/compile-lib.sh libs/redis/dec-terminal-prompt-redis
 
 install-redis: compile-redis
-	osascript ./scripts/setup-redis-cli.applescript
 
 install-timed-cache:
 	cp -n plist.template ~/applescript-core/timed-cache.plist || true
