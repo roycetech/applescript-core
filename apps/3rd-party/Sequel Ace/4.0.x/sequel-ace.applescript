@@ -1,10 +1,13 @@
 (*
-	@Last Modified: July 3, 2023 10:58 AM
-
 	@Testing:
 		Have a valid connection created with name: Docker MySQL 5
 		A database called "crm" must exist
 		A table called customers must exist.
+
+	@Last Modified: August 18, 2023 9:27 AM
+	@Change Logs:
+		August 18, 2023 9:28 AM - update switchView to use only menus as the last resort so that app focus is not always required.
+
 *)
 
 use scripting additions
@@ -417,7 +420,13 @@ on new()
 
 					tell application "System Events" to tell process "Sequel Ace"
 						try
-							click menu item viewName of menu 1 of menu bar item "View" of menu bar 1
+							click button viewName of toolbar 1 of front window
+						on error
+							if viewName is "Query" then set viewName to "Custom Query"
+							try
+								tell application "Sequel Ace" to activate
+								click menu item viewName of menu 1 of menu bar item "View" of menu bar 1
+							end try
 						end try
 					end tell
 				end switchView
