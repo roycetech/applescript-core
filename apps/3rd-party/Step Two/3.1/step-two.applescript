@@ -3,7 +3,6 @@
 		Running of the Step Two app must be managed by the client script.
 
 	@Usage:
-		-- import dock
 		if running of application "Step Two" is false then 
 			activate application "Step Two"
 		else
@@ -14,22 +13,24 @@
 		otpUser's executeExample()
 *)
 use scripting additions
+use std : script "std"
 
 use listUtil : script "list"
 use textUtil : script "string"
+use loggerFactory : script "logger-factory"
 
-use loggerLib : script "logger"
 use processLib : script "process"
 
 use spotScript : script "spot-test"
 
-property logger : loggerLib's new("step-two")
+property logger : missing value
 
 property APP_NAME : "Step Two"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -87,6 +88,8 @@ end spotCheck
 
 
 on newRetriever(credKey)
+	loggerFactory's inject(me)
+	
 	script OtpRetrieverInstance
 		
 		(*
