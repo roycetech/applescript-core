@@ -27,7 +27,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2023-08-01 10:14:50
+	@Last Modified: 2023-08-20 16:58:18
 *)
 
 use script "Core Text Utilities"
@@ -111,6 +111,7 @@ on spotCheck()
 		if frontTab is missing value then
 			logger's info("A front tab was not found")
 		else
+			logger's infof("Is Compact: {}", sut's isCompact())
 			logger's infof("URL: {}", frontTab's getURL())
 			logger's infof("URL Class: {}", class of frontTab's getURL())
 			logger's infof("Has Toolbar: {}", frontTab's hasToolBar())
@@ -120,6 +121,7 @@ on spotCheck()
 			logger's infof("Window ID: {}", frontTab's getWindowId())
 			logger's infof("Sidebar Visible: {}", sut's isSideBarVisible())
 			logger's infof("Is Loading: {}", sut's isLoading())
+			logger's infof("Is Playing: {}", sut's isPlaying())
 			logger's infof("Is Default Group: {}", sut's isDefaultGroup())
 
 			delay 3 -- Manually check below when in/visible.
@@ -310,12 +312,31 @@ on new()
 		on isAddressBarFocused()
 			if running of application "Safari" is false then return missing value
 
+			if isCompact() then
+				tell application "System Events" to tell process "Safari"
+					return value of attribute "AXSelectedText" of text field 1 of (first radio button of UI element 1 of last group of toolbar 1 of front window whose value of attribute "AXValue" is true) is not missing value
+				end tell
+			end if
+
 			tell application "System Events" to tell process "Safari"
 				value of attribute "AXSelectedText" of text field 1 of (my _getAddressBarGroup()) is not missing value
-				-- value of attribute "AXSelectedText" of text field 1 of group 6 of toolbar 1 of front window is not missing value
-
 			end tell
 		end isAddressBarFocused
+
+		on isPlaying()
+			if running of application "Safari" is false then return missing value
+
+			if isCompact() then
+				tell application "System Events" to tell process "Safari"
+					return exists (first button of (first radio button of UI element 1 of my _getAddressBarGroup() whose value of attribute "AXValue" is true) whose description contains "Mute")
+
+					-- 		exists of (first button of my _getAddressBarGroup() whose description contains "Mute")
+
+				end tell
+			end if
+
+			false
+		end isPlaying
 
 
 		on getGroupName()
@@ -445,7 +466,7 @@ on new()
 			set sideBarWasVisible to isSideBarVisible()
 			closeSideBar()
 
-			activate app "Safari"
+			activate application "Safari"
 			script ToolBarWaiter
 				tell application "System Events" to tell process "Safari"
 					click menu button 1 of group 1 of toolbar 1 of window 1
@@ -598,6 +619,12 @@ on new()
 			end tell
 		end getFirstTab
 
+
+		on isCompact()
+			tell application "System Events" to tell process "Safari"
+				not (exists group 1 of front window)
+			end tell
+		end isCompact
 
 		(*
 			TODO: Test for when Safari is not running.
@@ -907,7 +934,7 @@ on new()
 					exec of retry on result for 5 -- let's try click it 5 times, ignoring outcomes.
 				end dismissPasswordSavePrompt
 
-(* regex library is crappy.
+				(* regex library is crappy.
 				on extractUrlParam(paramName)
 					tell application "Safari" to set _url to URL of my getDocument()
 					set pattern to format {"(?<={}=)\\w+", paramName}
@@ -957,6 +984,12 @@ on new()
 		*)
 		on _getAddressBarGroup()
 			if running of application "Safari" is false then return missing value
+
+			if isCompact() then
+				tell application "System Events" to tell process "Safari"
+					return last group of toolbar 1 of front window
+				end tell
+			end if
 
 			set addressBarGroupIndex to 0
 			tell application "System Events" to tell process "Safari"
