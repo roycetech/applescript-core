@@ -147,6 +147,36 @@ on new(pProcessName)
 	script ProcessInstance
 		property processName : pProcessName
 
+		on raiseWindows()
+			tell application "System Events" to tell process processName
+				try
+					perform action "AXRaise" of windows
+				end try
+			end tell
+		end raiseWindows
+
+
+		on isHidden()
+			tell application "System Events" to tell process processName
+				visible
+			end tell
+		end isHidden
+
+
+		on hide()
+			tell application "System Events" to tell process processName
+				set visible to false
+			end tell
+		end hide
+
+
+		on unhide()
+			tell application "System Events" to tell process processName
+				set visible to true
+			end tell
+		end hide
+
+
 		on minimize()
 			tell application "System Events" to tell process processName
 				try
