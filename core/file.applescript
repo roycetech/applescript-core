@@ -8,7 +8,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2023-08-16 10:56:00
+	@Last Modified: 2023-08-22 09:57:50
 *)
 
 use script "Core Text Utilities"
@@ -79,9 +79,13 @@ end spotCheck
 
 
 on replaceText(filePath, substring, replacement)
-	-- loggerFactory's injectBasic(me)
-	set command to "sed -i '' 's/" & substring & "/" & replacement & "/' " & quoted form of filePath
-	-- logger's debug(command)
+	set quotedFilePath to filePath
+	if filePath does not start with "~" then set quotedFilePath to quoted form of filePath
+
+	set escapedReplacement to replacement
+	if replacement contains "&" then set escapedReplacement to textUtil's replace(replacement, "&", "\\&")
+
+	set command to "sed -i '' 's/" & substring & "/" & escapedReplacement & "/' " & quotedFilePath
 	do shell script command
 end replaceText
 
@@ -176,18 +180,3 @@ on convertPathToPOSIXString(thePath)
 	end tell
 	POSIX path of thePath
 end convertPathToPOSIXString
-
-
--- Private Codes below =======================================================
-
-
-on unitTest()
-	set test to testLib's new()
-	set ut to test's new()
-	tell ut
-		newMethod("getBaseFileName")
-		assertEqual("sublimetext3.applescript", my getBaseFileName("/Users/cloud.strife/projects/@rt-learn-lang/applescript/DEPLOYED/Common/sublimetext3.applescript"), "Happy Case")
-
-		done()
-	end tell
-end unitTest

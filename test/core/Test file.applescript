@@ -46,12 +46,12 @@ autorun(suite)
 script |Load script|
 	property parent : TestSet(me)
 	script |Loading the script|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		try
 			tell application "Finder"
 				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:"
 			end tell
-
+			
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
 		end try
 		assertInstanceOf(script, sutScript)
@@ -62,8 +62,8 @@ end script
 script |getBaseFilename tests|
 	property parent : TestSet(me)
 	property sut : missing value
-	script |test something|
-		property parent : UnitTest(me)
+	script |Basic Test|
+		property parent : unitTest(me)
 		assertEqual("README.md", sutScript's getBaseFilename("/Users/cloud.strife/Projects/README.md"))
 	end script
 end script
@@ -72,31 +72,31 @@ end script
 script |replaceText tests|
 	property parent : TestSet(me)
 	property sut : missing value
-
+	
 	on setUp()
 		TopLevel's __createTestFile()
 	end setUp
 	on tearDown()
 		TopLevel's __deleteTestFile()
 	end tearDown
-
-	script |Empty File|
-		property parent : UnitTest(me)
+	
+	script |Empty File| 
+		property parent : unitTest(me)
 		sutScript's replaceText(testFile, "{{keyword}}", "**replacement**")
 		assertEqual("", TopLevel's __readTextFile())
 	end script
-
+	
 	script |Substring Not Found|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's __writeTextFile("Lorem Ipsum
 Second Line
 ")
 		sutScript's replaceText(testFile, "{{keyword}}", "**replacement**")
 		ok(TopLevel's __readTextFile() does not contain "**replacement**")
 	end script
-
+	
 	script |Substring Found Once|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's __writeTextFile("Hello
 {{keyword}}
 ")
@@ -105,9 +105,9 @@ Second Line
 **replacement**
 "), TopLevel's __readTextFile())
 	end script
-
+	
 	script |Substring Multiple Times|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's __writeTextFile("Hello
 {{keyword}}
 Yes
@@ -120,26 +120,38 @@ Yes
 **replacement**
 "), TopLevel's __readTextFile())
 	end script
+	
+	script |Substring with Ampersand|
+		property parent : unitTest(me)
+		TopLevel's __writeTextFile("Hello
+{{keyword}}
+")
+		sutScript's replaceText(testFile, "{{keyword}}", "**&replacement**")
+		assertEqual(textUtil's multiline("Hello
+**&replacement**
+"), TopLevel's __readTextFile())
+	end script
+	
 end script
 
 
 (* !Do not use quoted form, they fail because of the tilde form. *)
 on __writeTextFile(textToWrite)
-	do shell script "echo '" & textToWrite & "' >> "  & testFile
+	do shell script "echo '" & textToWrite & "' >> " & testFile
 end __writeTextFile
 
 
 on __readTextFile()
-	do shell script "cat "  &  testFile
+	do shell script "cat " & testFile
 end __readTextFile
 
 
 on __createTestFile()
-		do shell script "touch " & testFile
+	do shell script "touch " & testFile
 end __createTestFile
 
 
 on __deleteTestFile()
-	do shell script "rm "  & testFile
+	do shell script "rm " & testFile
 end __deleteTestFile
 
