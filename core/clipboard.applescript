@@ -19,7 +19,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's injectBasic(me)
-
 	logger's start()
 
 	set cases to listUtil's splitByLine("

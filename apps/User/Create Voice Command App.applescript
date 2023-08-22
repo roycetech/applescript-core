@@ -1,6 +1,3 @@
-global std, usr, fileUtil, textUtil, syseve, emoji, session, seLib, automator, configUser
-global SCRIPT_NAME, IS_SPOT
-
 (*
 	@Requires:
 		automator.applescript
@@ -16,7 +13,10 @@ global SCRIPT_NAME, IS_SPOT
 		Reads config-user.plist - AppleScript Projects Path		
 		
 	@Known Issues:
+		August 21, 2023 1:24 PM - Re-add to accessibility when the System Preferences is launched automatically.
 		Fails to trigger the keystroke detection on the Command Input as of February 5, 2023. Without this, the save keystroke fails because the value in the input field is not detected.
+		
+	@Last Modified: August 21, 2023 12:23 PM
 *)
 
 use scripting additions
@@ -26,7 +26,8 @@ use textUtil : script "string"
 use fileUtil : script "file"
 use emoji : script "emoji"
 
-use loggerLib : script "logger"
+use loggerFactory : script "logger-factory"
+
 use usrLib : script "user"
 use syseveLib : script "system-events"
 use plutilLib : script "plutil"
@@ -34,25 +35,31 @@ use seLib : script "script-editor"
 use automatorLib : script "automator"
 use configLib : script "config"
 
-property logger : loggerLib's new("Create Voice Command App")
-property usr : usrLib's new()
-property syseve : syseveLib's new()
-property plutil : plutilLib's new()
-property se : seLib's new()
-property automator : automatorLib's new()
-property configUser : configLib's new("user")
+property logger : missing value
 
-property session : plutil's new("session")
+property usr : missing value
+property syseve : missing value
+property plutil : missing value
+property se : missing value
+property automator : missing value
+property configUser : missing value
+property session : missing value
 
-property SCRIPT_NAME : missing value
+property name : missing value
 property isSpot : false
 
-tell application "System Events" to set SCRIPT_NAME to get name of (path to me)
+tell application "System Events" to set my name to get name of (path to me)
 
-
+loggerFactory's inject(me)
 logger's start()
 
--- = Start of Code below =====================================================
+set usr to usrLib's new()
+set syseve to syseveLib's new()
+set plutil to plutilLib's new()
+set se to seLib's new()
+set automator to automatorLib's new()
+set configUser to configLib's new("user")
+set session to plutil's new("session")
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then set my isSpot to true
 
@@ -73,8 +80,7 @@ on main()
 		return
 	end if
 	
-	set thisAppName to text 1 thru ((offset of "." in SCRIPT_NAME) - 1) of SCRIPT_NAME
-	if IS_SPOT then
+	if isSpot then
 		logger's info("Switching to a test file for to create voice command for")
 		set seTab to se's findTabWithName("hello.applescript")
 		if seTab is missing value then
@@ -89,7 +95,6 @@ on main()
 	set baseScriptName to seTab's getBaseScriptName()
 	logger's infof("Base Script Name:  {}", baseScriptName)
 	session's setValue("New Script Name", baseScriptName & ".app")
-	
 	
 	logger's info("Conditionally quitting existing automator app...")
 	automator's forceQuitApp()
@@ -110,7 +115,7 @@ on main()
 		end if
 	end repeat
 	logger's debugf("computedProjectKey: {}", computedProjectKey)
-	assertThat of std given condition:computedProjectKey is not missing value, messageOnFail:"Error: Make sure you have registered the project containing " & SCRIPT_NAME & ". See its README.md for more details."
+	assertThat of std given condition:computedProjectKey is not missing value, messageOnFail:"Error: Make sure you have registered the project containing " & my name & ". See its README.md for more details."
 	
 	set projectPath to configUser's getValue("Project " & computedProjectKey)
 	logger's debugf("projectPath: {}", projectPath)
