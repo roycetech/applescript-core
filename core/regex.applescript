@@ -11,7 +11,7 @@
 	@Known Issues:
 		July 29, 2023 9:37 PM - Removed in plutil validation because it fails intermittently on the "matches" handler.
 
-	@Last Modified: 2023-08-07 09:14:11
+	@Last Modified: 2023-08-22 14:47:30
 *)
 
 use framework "Foundation"
@@ -190,7 +190,7 @@ on replace(source, pattern, replacement)
 end replace
 
 
-(* Shell implementation is slower the the Objective-C equivalent. *)
+(* Shell implementation is slower than the Objective-C equivalent. *)
 on matched(source, pattern)
 	matchesInString(pattern, source)
 end matched
