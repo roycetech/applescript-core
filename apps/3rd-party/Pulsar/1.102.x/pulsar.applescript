@@ -9,7 +9,7 @@
 		Project Find Results
 		Welcome Guide
 
-	@Last Modified: 2023-07-24 18:18:24
+	@Last Modified: 2023-08-27 20:17:22
 	@Tab: AC 🚧
 	@Build:
 		make compile-pulsar
@@ -52,6 +52,7 @@ on spotCheck()
 		Manual: Load File (App Open, Not Running, Already Loaded)
 		Manual: Document Info (sample.txt, no file, search result, nav bar focused, Settings)
 		Manual: Close Front Tab
+		Manual: _extractDocPathByHotkey (Tree View, Editor)
 	")
 
 	set spotClass to spotScript's new()
@@ -71,6 +72,7 @@ on spotCheck()
 	else if caseIndex is 2 then
 		logger's infof("Current Document Name: [{}]", sut's getCurrentDocumentName())
 		logger's infof("Current File Path: [{}]", sut's getCurrentFilePath())
+		logger's infof("Current File Directory: [{}]", sut's getCurrentFileDirectory())
 		logger's infof("Current File Extension: [{}]", sut's getCurrentFileExtension())
 		logger's infof("Current Resource Path: [{}]", sut's getCurrentResourcePath())
 		logger's infof("Current Base Filename: [{}]", sut's getCurrentBaseFilename())
@@ -79,6 +81,9 @@ on spotCheck()
 		sut's closeFrontTab()
 
 		activate
+
+	else if caseIndex is 4 then
+		logger's infof("File path from hotkey: [{}]", sut's _extractDocPathByHotkey())
 
 	end if
 
@@ -121,6 +126,13 @@ on new()
 			set docPath to _extractDocPathByHotkey()
 			fileUtil's getBaseFileName(docPath)
 		end getCurrentDocumentName
+
+
+		on getCurrentFileDirectory()
+			textUtil's split(getCurrentFilePath(), "/")
+			textUtil's join(items 1 thru -2 of result, "/")
+		end getCurrentFileDirectory
+
 
 		(*
 			WARNING: Can take a long time to return the value.
@@ -232,10 +244,13 @@ on new()
 
 		(*
 			@Requires app focus.
+			Unreliable. Does not work when focus is on the Tree View, which is
+			the condition used to invoke this handler.
 		*)
 		on _extractDocPathByHotkey()
 			script GetFromClipboard
 				activate application "Pulsar"
+				delay 0.1
 				kb's pressControlShiftKey("c")
 			end script
 			set docPath to clip's extract(GetFromClipboard)
