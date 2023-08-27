@@ -10,7 +10,7 @@
 	@Build:
 		make compile-lib SOURCE=core/string
 
-	@Last Modified: 2023-08-01 21:35:37
+	@Last Modified: 2023-08-26 11:12:47
 *)
 use scripting additions
 
@@ -114,6 +114,14 @@ on stringBefore(sourceText, substring)
 
 	text 1 thru ((offset of substring in sourceText) - 1) of sourceText
 end stringBefore
+
+
+on stringBetween(sourceText, substringStart, substringEnd)
+	if sourceText does not contain substringStart then return missing value
+	if sourceText does not contain substringEnd then return missing value
+
+	text ((offset of substringStart in sourceText) + (count of substringStart)) thru ((offset of substringEnd in sourceText) - 1) of sourceText
+end stringBetween
 
 
 on replaceFirst(sourceText, substring, replacement)
