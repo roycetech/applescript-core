@@ -104,6 +104,8 @@ on new()
 	end try
 
 	script CliClickInstance
+		property smoothingSeconds : 1
+
 		on clickRelative at theWindow given fromLeft:pLeft : missing value, fromBottom:pBottom : missing value, fromTop:pTop : missing value, fromRight:pRight : missing value
 			tell application "System Events"
 				tell theWindow -- do not merge with above, it will fail.
@@ -137,7 +139,7 @@ on new()
 
 			tell application "System Events"
 				-- drag down, drag up, and click.  does not work without the additional click.
-				set clickCommand to CLICLICK_CLI & " -e 1 dd:" & calcStart & " du:" & calcEnd & " c:" & calcEnd
+				set clickCommand to CLICLICK_CLI & " -e " & my smoothingSeconds & " dd:" & calcStart & " du:" & calcEnd & " c:" & calcEnd
 				do shell script clickCommand
 				delay 0.1
 				do shell script CLICLICK_CLI & " m:" & origPos
@@ -156,7 +158,7 @@ on new()
 
 			tell application "System Events"
 				-- drag down, drag up, and click.  does not work without the additional click.
-				set clickCommand to CLICLICK_CLI & " -e 1 dd:" & x1 & "," & y1 & " du:" & x2 & "," & y2 -- & " c:" & x2 & "," & y2
+				set clickCommand to CLICLICK_CLI & " -e " & my smoothingSeconds & " dd:" & x1 & "," & y1 & " du:" & x2 & "," & y2 -- & " c:" & x2 & "," & y2
 				-- log clickCommand
 				do shell script clickCommand
 			end tell
