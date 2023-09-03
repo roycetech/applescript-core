@@ -19,8 +19,6 @@ use configLib : script "config"
 
 use spotScript : script "spot-test"
 
-use testLib : script "test"
-
 property logger : missing value
 property CLI : "/usr/libexec/PlistBuddy"
 property TZ_OFFSET : (do shell script "date +'%z' | cut -c 2,3") as integer

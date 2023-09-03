@@ -22,10 +22,10 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	set logger to loggerLib's new("unicodes")
 	logger's start()
-	
+
 	logger's infof("Separator: {}", my SEPARATOR)
 	logger's infof("App{}Store", my APP_STORE_SPACE)
-	
+
 	logger's finish()
 end spotCheck
 
@@ -41,7 +41,3 @@ property OMZ_ARROW : "➜"
 property OMZ_GIT_X : "✗"
 
 property APP_STORE_SPACE : ASCII character 202
-
-
-
-

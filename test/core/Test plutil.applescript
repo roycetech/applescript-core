@@ -39,7 +39,7 @@ property logger : missing value
 property TopLevel : me
 property suite : makeTestSuite(suitename)
 
-loggerFactory's inject(me)
+loggerFactory's inject(me) 
 autorun(suite)
 
 
@@ -1080,3 +1080,4 @@ on __deleteTestPlist()
 		do shell script "rm " & plist & " || true"
 	end try
 end __deleteTestPlist
+

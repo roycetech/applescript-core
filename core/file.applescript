@@ -8,7 +8,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2023-08-22 09:57:50
+	@Last Modified: 2023-09-01 08:45:53
 *)
 
 use script "Core Text Utilities"
@@ -21,7 +21,6 @@ use textUtil : script "string"
 use loggerFactory : script "logger-factory"
 
 use spotScript : script "spot-test"
-use testLib : script "test"
 
 property logger : missing value
 
@@ -78,12 +77,43 @@ on spotCheck()
 end spotCheck
 
 
+on insertBeforeEmptyLine(filePath, substring, textToInsert)
+	-- TODO:
+end insertBeforeEmptyLine
+
+
+on deleteLineWithSubstring(filePath, substring)
+	do shell script "filePath=" & _quotePath(filePath) & " && grep -v '" & substring & "' \"$filePath\" > /tmp/tmpfile && mv /tmp/tmpfile \"$filePath\"
+"
+end deleteText
+
+
+(* @returns true if the file is successfully deleted. *)
+on deleteFile(filePath)
+	set command to  "rm " & _quotePath(filePath)
+	try
+		do shell script command
+		return true
+	end try
+
+	false
+end deleteText
+
+
+on _quotePath(filePath)
+	set quotedFilePath to filePath
+	if filePath does not start with "~" then set quotedFilePath to quoted form of filePath
+	quotedFilePath
+end _quotePath
+
+
 on replaceText(filePath, substring, replacement)
 	set quotedFilePath to filePath
 	if filePath does not start with "~" then set quotedFilePath to quoted form of filePath
 
 	set escapedReplacement to replacement
 	if replacement contains "&" then set escapedReplacement to textUtil's replace(replacement, "&", "\\&")
+	if replacement contains "|" then set escapedReplacement to textUtil's replace(replacement, "|", "\\|")
 
 	set command to "sed -i '' 's/" & substring & "/" & escapedReplacement & "/' " & quotedFilePath
 	do shell script command
@@ -149,9 +179,9 @@ on writeTextToTempFile(theText as text)
 end writeTextToTempFile
 
 (*
-	@filePath file path in Mac OS Notation (colon-separated) or POSIX
+	@filePath file path in POSIX or Mac OS Notation (colon-separated)
 *)
-on getBaseFileName(filePath)
+on getBaseFilename(filePath)
 	if (offset of ":" in filePath) is greater than 0 then -- Mac OS Notation
 		set theDelimiter to ":"
 	else -- assume POSIX format
@@ -160,7 +190,7 @@ on getBaseFileName(filePath)
 
 	set theList to textUtil's split(filePath, theDelimiter)
 	last item of theList
-end getBaseFileName
+end getBaseFilename
 
 
 on convertPosixToMacOsNotation(posixFilePath)
@@ -180,3 +210,4 @@ on convertPathToPOSIXString(thePath)
 	end tell
 	POSIX path of thePath
 end convertPathToPOSIXString
+

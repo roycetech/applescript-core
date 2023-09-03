@@ -8,12 +8,16 @@
 
 use scripting additions
 
-use loggerFactory : script "logger-factory"
-use spotScript : script "spot-test"
-use testLib : script "test"
+use std : script "std"
 use textUtil : script "string"
 
+use loggerFactory : script "logger-factory"
+
+use spotScript : script "spot-test"
+
 property logger : missing value
+
+property ERROR_LIST_COUNT_INVALID : 1000
 
 -- #%+= are probably worth considering.
 property linesDelimiter : "@"
@@ -139,7 +143,9 @@ end splitString
 	TODO: Handle special cases like tilde, or when there's single quote in the text.
 	dot character breaks it as well. FOOBAR.
 *)
-on splitByLine(theString as text)
+on splitByLine(theString)
+	if theString is missing value then return missing value
+
 	if theString contains (ASCII character 13) then return _split(theString, ASCII character 13) -- assuming this is shell command result, we have to split by CR.
 
 	-- Only printable ASCII characters below 127 works. tab character don't work.
@@ -167,10 +173,16 @@ on splitByLineX(theString as text)
 end splitByLineX
 
 
+(*
+	Removes all the references of the target element.
+	@returns the resulting list.
+*)
 on remove(aList, targetElement)
+	if aList is missing value then return missing value
+
 	set newList to {}
 	repeat with i from 1 to (number of items in aList)
-		set nextItem to item i of aList as text
+		set nextItem to item i of aList
 		if nextItem is not targetElement then
 			set end of newList to nextItem
 		end if
@@ -181,13 +193,34 @@ end remove
 
 
 on indexOf(aList, targetElement)
+	_indexOf(aList, targetElement, false)
+end indexOf
+
+on indexOfText(aList, targetElement)
+	_indexOf(aList, targetElement, true)
+end indexOfText
+
+on _indexOf(aList, targetElement, asText)
+	if aList is missing value then return missing value
+
+	set targetToCompare to targetElement
+	if targetElement is not missing value and asText then
+		set targetToCompare to targetElement as text
+	end if
+
 	repeat with i from 1 to count of aList
 		set nextElement to item i of aList
-		if nextElement as text is equal to targetElement then return i
+
+		set elementToCompare to nextElement
+		if nextElement is not missing value and asText then
+			set elementToCompare to nextElement as text
+		end if
+
+		if elementToCompare is equal to the targetToCompare then return i
 	end repeat
 
-	return 0
-end indexOf
+	0
+end _indexOf
 
 
 on simpleSort(myList)
@@ -225,19 +258,28 @@ on join(theList, theDelimiter)
 end join
 
 
-(* Vanilla contains operation that does not work when shell command is used somewhere. *)
+(* 	Vanilla contains operation that does not work when shell command is used
+	somewhere.
+*)
 on listContains(theList, target)
 	if theList is missing value then return false
 
-	repeat with nextElement in theList
-		set nextElementText to nextElement as text
-		if nextElementText is equal to the target then return true
+	-- repeat with nextElement in theList  -- This form is problematic because it converts the element into text automatically.
+	repeat with i from 1 to count of theList
+		set nextElement to item i of theList
+
+		if class of target is not text and nextElement is equal to the target then return true
+
+		set nextElementText to nextElement
+		if nextElement is not missing value then set nextElementText to nextElement as text
+		if nextElementText is equal to the target or nextElement is missing value and target is missing value then return true
+
 	end repeat
 	false
 end listContains
 
 
-on listEquals(list1, list2)
+on listsEqual(list1, list2)
 	if list1 is missing value then return list2 is missing value
 	if list2 is missing value then return list1 is missing value
 
@@ -252,7 +294,7 @@ end listEquals
 
 
 (*
-	Created bocause list equals does not behave as expected. Will cast to text first before comparing each elements.
+	Created because list equals does not behave as expected. Will cast to text first before comparing each elements.
 *)
 on stringElementEquals(list1, list2)
 	if list1 is missing value then return list2 is missing value
@@ -282,7 +324,7 @@ end clone
 	Fills an array with elements.
 *)
 on newWithElements(element, elementCount)
-	if elementCount is less than 1 then error "Elemen Count " & elementCount & " is not a valid count"
+	if elementCount is less than 1 then error "Element Count " & elementCount & " is not a valid count" number ERROR_LIST_COUNT_INVALID
 
 	set array to {}
 	repeat with i from 1 to elementCount
@@ -316,18 +358,19 @@ end split
 	@returns the index of the matched search string.
 *)
 on lastMatchingIndexOf(theList, searchString)
-	if theList is missing value or searchString is missing value then
+	if theList is missing value then
 		return -1
 	end if
 
 	set lastMatchIndex to 0
 	repeat with i from 1 to count of theList
-		if item i of theList contains searchString then
+		set nextItem to item i of theList
+		if nextItem contains searchString or nextItem is equal to the searchString then
 			set lastMatchIndex to i
 		end if
 	end repeat
 
-	return lastMatchIndex
+	lastMatchIndex
 end lastMatchingIndexOf
 
 
@@ -355,82 +398,3 @@ on _replaceAll(sourceText, substring, replacement)
 	join(theList, replacement)
 end _replaceAll
 
-
-on unitTest()
-	set test to testLib's new()
-	set ut to test's new()
-	tell ut
-		newMethod("clone")
-		assertEquals(missing value, my clone(missing value), "missing value")
-		assertEquals([], my clone([]), "Empty")
-		assertTrue(my stringElementEquals({1, 3}, my clone({1, 3})), "Happy")
-		assertTrue(my stringElementEquals({1, 3}, my clone({1, "3"})), "Caveat")
-
-		newMethod("remove")
-		assertEqual({"one", "two"}, my remove({"one", "two", "three"}, "three"), "Happy Case")
-		assertEqual({"one", "two", "three"}, my remove({"one", "two", "three"}, "nine"), "Not Found")
-		assertEqual({"two", "three"}, my remove({"one", "two", "three"}, "one"), "Found First")
-
-		newMethod("indexOf")
-		assertEqual(2, my indexOf({"three", "one", "plus", "one one", "two"}, "one"), "Happy Case-Found")
-		assertEqual(0, my indexOf({"a", "b", "c"}, "z"), "Happy Case-Not Found")
-		assertEqual(3, my indexOf({"a", "b", "c"}, "c"), "Happy Case-Not Found")
-
-		newMethod("splitByLine")
-		assertEqual(4, count of my splitByLine("
-			1a
-			2x
-			me, myself, and Irene
-			fxve
-		"), "Basic Lines Count")
-		assertEqual(2, count of my splitByLine("
-			First
-			$Second
-		"), "With Dollar Sign")
-		assertEqual(1, count of my splitByLine("
-			$One
-		"), "With Dollar Sign - Single Line")
-		assertEqual(2, count of my splitByLine("
-			You're Nice
-			I know!
-		"), "With Single Quote")
-		assertEqual(2, count of my splitByLine("
-			With tilde~hi
-			I know!
-		"), "Tilde allowed")
-
-		newMethod("listEquals")
-		assertTrue(my listEquals(missing value, missing value), "Both missing value")
-		assertFalse(my listEquals(missing value, {1}), "First list is missing value")
-		assertFalse(my listEquals({1}, missing value), "Second list is missing value")
-		assertFalse(my listEquals({1}, {1, 2}), "Unequal size")
-		assertTrue(my listEquals({1, 2}, {1, 2}), "Happy")
-		assertFalse(my listEquals({1, 2}, {"1", 2}), "Mistype")
-
-		newMethod("simpleSort")
-		assertEqual({"a", "b", "c"}, my simpleSort({"b", "c", "a"}), "Happy Case")
-
-		newMethod("newWithElements")
-		try
-			assertMissingValue(my newWithElements("b", 0), "Invalid count")
-			assertFail("Expected error was not thrown")
-		end try
-		assertEqual({"b", "b"}, my newWithElements("b", 2), "Happy case")
-		assertEqual({"b"}, my newWithElements("b", 1), "Happy case")
-
-		newMethod("lastMatchingIndexOf")
-		assertEqual(-1, my lastMatchingIndexOf(missing value, missing value), "Both missing value")
-		assertEqual(3, my lastMatchingIndexOf({"apple", "orange", "application"}, "app"), "Multiple match")
-		assertEqual(2, my lastMatchingIndexOf({"apple", "orange", "application"}, "ora"), "Single match")
-		assertEqual(0, my lastMatchingIndexOf({"apple", "orange", "application"}, "orangutan"), "No match")
-
-		newMethod("listContain")
-		assertTrue(my listContains({"Term-$Cmd"}, "Term-$Cmd"), "With dollar")
-		assertFalse(my listContains({"Term"}, "XTerm"), "Not Found")
-		assertFalse(my listContains({"Term"}, missing value), "missing value")
-		assertFalse(my listContains([], "spot"), "Empty List")
-		assertFalse(my listContains(missing value, "spot"), "Missing list")
-
-		done()
-	end tell
-end unitTest

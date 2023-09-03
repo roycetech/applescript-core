@@ -18,7 +18,7 @@ property parent : script "com.lifepillar/ASUnit"
 
 ---------------------------------------------------------------------------------------
 property suitename : "The test suite description goes here"
-property scriptName : "date-time-new" -- The name of the script to be tested
+property scriptName : "date-time" -- The name of the script to be tested
 global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
@@ -542,3 +542,4 @@ end __shellMonth
 on __shellDay(offsetText)
 	(do shell script "date -v" & offsetText & " +%d") as integer
 end __shellDay
+

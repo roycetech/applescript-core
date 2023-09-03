@@ -14,6 +14,8 @@
 use AppleScript
 use scripting additions
 
+use omz : script "oh-my-zsh"
+
 property parent : script "com.lifepillar/ASUnit"
 
 ---------------------------------------------------------------------------------------
@@ -88,12 +90,32 @@ script |lastMatchInString tests|
 end script
 
 
+script |regex numberOfMatchesInString tests|
+	property parent : TestSet(me)
+
+	script |Missing pattern|
+		property parent : UnitTest(me)
+		assertEqual(0, sutScript's numberOfMatchesInString(missing value, "hello world -"))
+	end script
+
+	script |Missing source text|
+		property parent : UnitTest(me)
+		assertEqual(0, sutScript's numberOfMatchesInString(".*", missing value))
+	end script
+
+	script |Happy Case|
+		property parent : UnitTest(me)
+		assertEqual(2, sutScript's numberOfMatchesInString("\\w+", "hello world -"))
+	end script
+end script
+
+
+
 script |regex findFirst tests|
 	property parent : TestSet(me)
 
 	script |Happy Case|
 		property parent : UnitTest(me)
-		
 		set source to "B + S Daily Standup at https://awesome.zoom.us/j/123456789. Starts on September 15, 2020 at 8:00:00 AM Norwegian Standard Time and ends at 8:15:00 AM Norwegian Standard Time."
 		set pattern to  "https:\\/\\/\\w+\\.\\w+\\.\\w+\\/j\\/\\d+(?:\\?pwd=\\w+)?"
 		assertEqual("https://awesome.zoom.us/j/123456789", sutScript's findFirst(source, pattern))
@@ -179,6 +201,53 @@ script |replace tests|
 end script
 
 
+script |firstMatchInString tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	script |Basic match|
+		property parent : UnitTest(me)
+		assertEqual("hello", sutScript's firstMatchInString("\\w+", "hello world"))
+	end script
+
+	script |No match|
+		property parent : UnitTest(me)
+		assertMissing(sutScript's firstMatchInString("\\d+", "hello world"))
+	end script
+
+	script |Different case|
+		property parent : UnitTest(me)
+		assertMissing(sutScript's firstMatchInString("abc", "the world of ABC is ok."))
+	end script
+end script
+
+
+script |firstMatchInStringNoCase tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	script |Missing pattern|
+		property parent : UnitTest(me)
+		assertMissing(sutScript's firstMatchInStringNoCase(missing value, "hello world"))
+	end script
+
+	script |No match|
+		property parent : UnitTest(me)
+		assertMissing(sutScript's firstMatchInStringNoCase("\\d+", "hello world"))
+	end script
+
+	script |Case-sensitive match|
+		property parent : UnitTest(me)
+		assertEqual("hello", sutScript's firstMatchInStringNoCase("hello", "hello world"))
+	end script
+
+	script |Case-insensitive match|
+		property parent : UnitTest(me)
+		assertEqual("hello", sutScript's firstMatchInStringNoCase("HELLO", "hello world"))
+	end script
+end script
+
+
 script |rangeOfFirstMatchInString tests|
 	property parent : TestSet(me)
 	property sut : missing value
@@ -214,9 +283,43 @@ script |matchesInString tests|
 		notOk(sutScript's matchesInString(missing value, "abc"))
 	end script
 
+	script |End of line example|
+		property parent : UnitTest(me)
+		notOk(sutScript's matchesInString("\\w+$", "hello world "))
+	end script
+
 	script |session - fails intermittently on Terminal Focus|
 		property parent : UnitTest(me)
 		ok(sutScript's matchesInString("^(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_-]+$", "session"))
+	end script
+end script
+
+
+script |stringByReplacingMatchesInString tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	script |Pattern with unicode|
+		property parent : UnitTest(me)
+		assertEqual("docker network", sutScript's stringByReplacingMatchesInString(omz's OMZ_ARROW & "  [a-zA-Z-]+\\sgit:\\([a-zA-Z0-9/-]+\\)(?: " & omz's OMZ_GIT_X & ")?\\s", omz's OMZ_ARROW & "  some-project git:(feature/RT-1000-Some-Feature) " & omz's OMZ_GIT_X & " docker network", ""))
+	end script
+
+	script |Basic match|
+		property parent : UnitTest(me)
+		assertEqual(" world", sutScript's stringByReplacingMatchesInString("hello", "hello world", ""))
+	end script
+
+	script |Pattern is missing value|
+		property parent : UnitTest(me)
+		assertEqual("unchanged", sutScript's stringByReplacingMatchesInString(missing value, "unchanged", "change it!"))
+	end script
+
+	script |Pattern is invalid|
+		property parent : UnitTest(me)
+		script Lambda
+			sutScript's stringByReplacingMatchesInString("[invalid", "some string", "change it!")
+		end script
+		shouldRaise(sutScript's ERROR_INVALID_PATTERN, Lambda, "Expected error was not thrown")
 	end script
 
 end script

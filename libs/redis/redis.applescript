@@ -24,7 +24,10 @@
 		Run "brew services restart redis" to fix the issue with "MISCONF Redis
 		is configured to save RDB snapshots, but it's currently unable to persist to disk"
 
-	@Last Modified: 2023-07-24 18:18:24
+	@Known Issues:
+		September 2, 2023 9:53 AM - Records are not currently supported.
+
+	@Last Modified: 2023-09-02 23:11:07
  *)
 
 use script "Core Text Utilities"
@@ -37,14 +40,18 @@ use dt : script "date-time"
 
 use loggerFactory : script "logger-factory"
 use spotScript : script "spot-test"
-use testLib : script "test"
-
 
 property logger : missing value
 
 property CR : ASCII character 13
 property REDIS_CLI : do shell script "plutil -extract \"Redis CLI\" raw ~/applescript-core/config-system.plist"
 property useBasicLogging : false
+
+property ERROR_UNSUPPORTED_TYPE : 1000
+property ERROR_WRONG_TYPE : 1001
+property ERROR_KEY_IS_MISSING : 1002
+property ERROR_VALUE_IS_MISSING : 1003
+property ERROR_INVALID_ELEMENT_COUNT : 1004
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then
 	set useBasicLogging to true
@@ -56,7 +63,6 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		Unit Test
 		Manual: Zulu Date
 	")
 
@@ -69,77 +75,10 @@ on spotCheck()
 	end if
 
 	if caseIndex is 1 then
-		unitTest()
-
-	else if caseIndex is 2 then
 		set sut to new(2)
 		set keyName to "spot-zulu-date"
 		sut's setValue(keyName, current date)
 		logger's infof("Result: {}", sut's getValueAsDate(keyName))
-
-	else if caseIndex is 2 then
-
-		set spotPList to new(plistName)
-		set plistKey to "spot1"
-
-		spotPList's setValue(plistKey, 1)
-		log spotPList's getValue(plistKey)
-		log spotPList's getValue("missing")
-		log spotPList's hasValue("missing")
-		log spotPList's hasValue(plistKey)
-
-	else if caseIndex is 3 then
-		try
-			new("godly")
-			tell me to error "Error expected!"
-		end try
-
-	else if caseIndex is 4 then
-		set sut to new("app-menu-links")
-		log sut's getValue("Sublime Text")'s toString()
-
-	else if caseIndex is 5 then
-		set sut to new("config-bss")
-		log sut's getString("DB_NAME")
-
-	else if caseIndex is 6 then
-		set session to new("session")
-		set logLiteValue to session's getBool("LOG_LITE")
-		log class of logLiteValue
-		log logLiteValue
-
-	else if caseIndex is 7 then
-		set session to new("app-killer")
-		set storedDate to session's getDateText("Last Focused-1Password 6")
-		log class of storedDate
-		log storedDate
-
-	else if caseIndex is 8 then
-		set session to new("app-killer")
-		set storedDate to session's getDate("Last Focused-1Password 6")
-		log class of storedDate
-		log storedDate
-
-	else if caseIndex is 9 then
-		set appKiller to new("app-killer")
-		set storedList to appKiller's getList("Monitored App List")
-		log class of storedList
-		log storedList
-
-		log "getting zoom.us list"
-		set appMenu to new("app-menu-items")
-		set zoomList to appMenu's getList("zoom.us")
-		log zoomList
-
-	else if caseIndex is 10 then
-		set session to new("session")
-		set storedList to session's getValue("Case Labels")
-		log class of storedList
-		log storedList
-
-	else if caseIndex is 12 then
-		set session to new("session")
-		log session's appendValue("Pinned Notes", "Safari-$Title-udemy.com-AWS Certified Developer - Associate 2020 | Udemy.md")
 
 	end if
 
@@ -159,8 +98,8 @@ on new(pTimeoutSeconds)
 		property timeoutSeconds : pTimeoutSeconds
 
 		on setValue(plistKey, newValue)
-
 			if plistKey is missing value then return
+
 			if newValue is missing value then deleteKey(plistKey)
 
 			set quotedPlistKey to quoted form of plistKey
@@ -188,11 +127,10 @@ on new(pTimeoutSeconds)
 				_insertList(quotedPlistKey, newValue)
 				return
 
-				(*
 			else if dataType is record then
-				_setRecordAsJson(plistKey, newValue)
-				return
-*)
+				error "Unsupported data type error" number ERROR_UNSUPPORTED_TYPE
+				-- _setRecordAsJson(plistKey, newValue)
+				-- return
 
 			else if dataType is script and name of newValue is "ASDictionary" then
 				setValue(plistKey, newValue's toJsonString())
@@ -201,37 +139,24 @@ on new(pTimeoutSeconds)
 			end if
 		end setValue
 
-		on getString(plistKey)
-			if plistKey is missing value then return missing value
-
-			set quotedPlistKey to quoted form of plistKey
-
-			set getStringShellCommand to format {"{} GET {}", {REDIS_CLI, quotedPlistKey}}
-			-- set getStringShellCommand to _getTypedGetterShellTemplate("string", plistKey, quotedPlistPosixPath)
-
-			try
-				return (do shell script getStringShellCommand) as text
-			end try -- missing key
-			missing value
-		end getString
 
 		on getBool(plistKey)
 			try
-				return getString(plistKey) is equal to "true"
+				return getValue(plistKey) is equal to "true"
 			end try
 			false
 		end getBool
 
 		on getInt(plistKey)
 			try
-				return getString(plistKey) as integer
+				return getValue(plistKey) as integer
 			end try -- missing key
 			missing value
 		end getInt
 
 		on getReal(plistKey)
 			try
-				return getString(plistKey) as real
+				return getValue(plistKey) as real
 			end try -- missing key
 			missing value
 		end getReal
@@ -252,28 +177,6 @@ on new(pTimeoutSeconds)
 			_splitByLine(csv)
 		end _getList
 
-
-		on getRecord(plistKey)
-			if plistKey is missing value then return missing value
-
-			set getRecordShellCommand to _getTypedGetterShellTemplate("record", plistKey, quotedPlistPosixPath)
-			try
-				set calcResult to missing value
-				set calcResult to (do shell script getRecordShellCommand) as record
-			end try -- missing key
-
-			logger's warn("calcResult: {}", calcResult)
-			if calcResult is missing value and mapLib's hasJsonSupport() then -- let's try json string
-				set getStringShellCommand to _getTypedGetterShellTemplate("string", plistKey, quotedPlistPosixPath)
-
-				try
-					set stringValue to (do shell script getStringShellCommand) as text
-					set calcResult to mapLib's newInstanceFromJson(stringValue)
-				end try -- missing key
-			end if
-
-			calcResult
-		end getRecord
 
 		on getValueWithDefault(plistKey, defaultValue)
 			set fetchedValue to getValue(plistKey)
@@ -343,8 +246,17 @@ on new(pTimeoutSeconds)
 		end hasValue
 
 
+		(*
+			To replace the appendValue so we have consistent naming.
+		*)
+		on appendElement(plistKey, newValue)
+			appendValue(plistKey, newValue)
+		end appendElement
+
+
 		on appendValue(plistKey, newValue)
-			if plistKey is missing value or newValue is missing value then return
+			if plistKey is missing value then error "plistkey is missing" number ERROR_KEY_IS_MISSING
+			if newValue is missing value then error "newValue is missing" number ERROR_VALUE_IS_MISSING
 
 			set escapedAndQuotedPlistKey to _escapeAndQuoteKey(plistKey)
 
@@ -362,29 +274,31 @@ on new(pTimeoutSeconds)
 
 
 		(* @returns the number of removed elements. *)
-		on removeElement(plistKey, targetElement)
-			if plistKey is missing value then return 0
-			if targetElement is missing value then return 0
+		on removeElement(plistKey, targetElement, countToRemove)
+			if plistKey is missing value then error "Key is missing" number ERROR_KEY_IS_MISSING
+			if targetElement is missing value then error "Value is missing" number ERROR_VALUE_IS_MISSING
+
 			set quotedValue to targetElement
 			if targetElement is not missing value then set quotedValue to _quoteValue(targetElement)
 
 			set quotedPlistKey to quoted form of plistKey
 
 			-- set deleteElementCommand to format {"plutil -remove {}.{} {}", {quotedPlistKey, targetIndex, quotedPlistPosixPath}}
-			set deleteElementCommand to format {"{} LREM {} 1 {}", {REDIS_CLI, quotedPlistKey, quotedValue}}
+			set deleteElementCommand to format {"{} LREM {} {} {}", {REDIS_CLI, quotedPlistKey, countToRemove, quotedValue}}
 			(do shell script deleteElementCommand) as integer
 		end removeElement
 
 
 		(* @returns true on success. *)
 		on deleteKey(plistKey)
-			if plistKey is missing value then return
+			if plistKey is missing value then error "plistkey is missing" number ERROR_KEY_IS_MISSING
 
 			set quotedPlistKey to quoted form of plistKey
 			set removeShellCommand to format {"{} DEL {}", {REDIS_CLI, quotedPlistKey}}
 			try
-				return (do shell script removeShellCommand) is 1
+				return (do shell script removeShellCommand) is "1"
 			end try
+
 			false
 		end deleteKey
 
@@ -420,24 +334,9 @@ on new(pTimeoutSeconds)
 		end _quoteValue
 
 
-		(*
-			@typeText
-			@plistKey
-			@ quotedPlistPosixPath
-		*)
-		on _getTypedGetterShellTemplate(typeText, plistKey, quotedPlistPosixPath)
-			if plistKey is missing value then return missing value
-
-			set typeClause to ""
-			if typeText is not missing value then set typeClause to "-expect " & typeText
-
-			set shellTemplate to "if [[ \"{}\" == *\".\"* ]]; then TMP=$(echo \"{}\" | sed 's/\\./\\\\./g');plutil -extract \"$TMP\" raw " & typeClause & " {}; else plutil -extract {} raw " & typeClause & " {}; fi"
-			format {shellTemplate, {plistKey, plistKey, quotedPlistPosixPath, quoted form of plistKey, quotedPlistPosixPath}}
-		end _getTypedGetterShellTemplate
-
-
 		on _escapeAndQuoteKey(plistKey)
 			if plistKey is missing value then return missing value
+
 			set escapedPlistKey to plistKey
 			if plistKey contains "." then set escapedPlistKey to do shell script (format {"echo \"{}\" | sed 's/\\./\\\\./g'", plistKey})
 
@@ -507,12 +406,6 @@ end new
 
 -- Private Codes below =======================================================
 
-(* Intended to cache the value to reduce events triggered. *)
-on _getHomeFolderPath()
-	if my homeFolderPath is missing value then set my homeFolderPath to (path to home folder)
-	my homeFolderPath
-end _getHomeFolderPath
-
 
 (* WET: Keep it wet because this library will be considered essential and shouldn't have many transitive dependencies to simplify deployment. *)
 on _split(theString, theDelimiter, plistType)
@@ -559,143 +452,3 @@ on _splitByLine(theString as text)
 
 	_split(csv, SEP, "string")
 end _splitByLine
-
-on _indexOf(aList, targetElement)
-	repeat with i from 1 to count of aList
-		set nextElement to item i of aList
-		if nextElement as text is equal to targetElement as text then return i
-	end repeat
-
-	return 0
-end _indexOf
-
-
-on unitTest()
-	set test to testLib's new()
-	set ut to test's new()
-	set UT_REDIS_TIMEOUT to 2
-	set sut to new(UT_REDIS_TIMEOUT)
-	tell ut
-		newMethod("setup")
-		sut's deleteKey(missing value)
-		sut's deleteKey("spot-array")
-		sut's deleteKey("spot-array2")
-		sut's deleteKey("spot-array-string")
-		sut's deleteKey("spot-string")
-		sut's deleteKey("spot-string-dotted")
-		sut's deleteKey("spot-integer")
-		sut's deleteKey("spot-float")
-		sut's deleteKey("spot-date")
-		sut's deleteKey("spot-bool")
-		sut's deleteKey("spot-true")
-		sut's deleteKey("spot-false")
-		sut's deleteKey("spot-record")
-		sut's deleteKey("spot-map")
-		assertMissingValue(sut's getValue("spot-array"), "Clean array key")
-
-		newMethod("setValue")
-		sut's setValue(missing value, "haha")
-		sut's setValue("spot-array", {1, 2})
-		sut's setValue("spot-array-one-time-set", {1, 2, 3})
-		sut's setValue("spot-array-string", {"one", "two"})
-		sut's setValue("spot-string", "text")
-		sut's setValue("spot-string.dotted-key", "string-dotted-value.txt")
-		sut's setValue("spot-integer", 1)
-		sut's setValue("spot-float", 1.5)
-		sut's setValue("spot-record", {one:1, two:2, three:"a&c", |four: colonized|:"apat"})
-		sut's setValue("spot-bool", false)
-		sut's setValue("spot-false", false)
-		sut's setValue("spot-true", true)
-		sut's setValue("spot text", "Multi word key")
-		sut's setValue("spot missing", missing value)
-
-		newMethod("getValue")
-		assertMissingValue(sut's getValue(missing value), "missing value key")
-		assertEqual("Multi word key", sut's getValue("spot text"), "Spaced Key")
-		assertEqual("Multi word key", sut's getValue("spot text"), "Spaced Key")
-		-- assertEqual({"1", "2"}, sut's getValue("spot-array"), "Array of integers") -- Int not supported
-
-		set arrayValue to sut's getValue("spot-array")
-		assertEqual(2, count of arrayValue, "Get array count")
-		assertEqual("1", first item of arrayValue, "Get array element first")
-		assertEqual("2", last item of arrayValue, "Get array element last")
-		assertEqual("text", sut's getValue("spot-string"), "Get string value")
-		assertEqual("string-dotted-value.txt", sut's getValue("spot-string.dotted-key"), "Get string value of dotted key")
-		(*
-		set actualRecord to sut's getValue("spot-record")
-		assertEqual({"one", "two", "three", "four: colonized"}, actualRecord's getKeys(), "Get record keys")
-		assertEqual("{one: 1, two: 2, three: a&c, four: colonized: apat}", actualRecord's toString(), "Get record value")
-		*)
-
-		newMethod("getValueWithDefault")
-		assertEqual("use me", sut's getValueWithDefault("spot-string-absent", "use me"), "Value is absent")
-		assertEqual("text", sut's getValueWithDefault("spot-string", 1), "Value is present")
-
-		newMethod("getList")
-		assertMissingValue(sut's getList(missing value), "Missing value")
-		assertEqual({"one", "two"}, sut's getList("spot-array-string"), "Get List")
-
-		newMethod("appendValue")
-		sut's appendValue("spot-array2", 3)
-		assertEqual({"3"}, sut's getList("spot-array2"), "First element")
-		sut's appendValue(missing value, 3)
-		sut's appendValue("spot-array", missing value)
-		sut's appendValue("spot-array", 3)
-		assertEqual({"1", "2", "3"}, sut's getList("spot-array"), "Append Int")
-		sut's appendValue("spot-array-string", "four")
-		assertEqual({"one", "two", "four"}, sut's getList("spot-array-string"), "Append String")
-		sut's appendValue("spot-array-string", "five.five")
-		assertEqual({"one", "two", "four", "five.five"}, sut's getList("spot-array-string"), "Append dotted string")
-
-		newMethod("removeElement")
-		assertEqual(0, sut's removeElement(missing value, "two"), "Missing value list")
-		assertEqual(0, sut's removeElement("spot-array-string", missing value), "Missing value element")
-		assertEqual(1, sut's removeElement("spot-array-string", "two"), "Successful removal")
-		assertEqual({"one", "four", "five.five"}, sut's getList("spot-array-string"), "Get after removing an element")
-		assertEqual(1, sut's removeElement("spot-array-string", "one"), "Successful removal")
-		sut's removeElement("spot-array-string", "four")
-		sut's removeElement("spot-array-string", "five.five")
-		assertEqual({}, sut's getList("spot-array-string"), "Get after removing all element")
-		assertEqual(0, sut's removeElement("spot-array-string", "Good Putin"), "Remove inexistent element")
-
-		newMethod("getInt")
-		assertMissingValue(sut's getInt(missing value), "Missing value")
-		assertEqual(1, sut's getInt("spot-integer"), "Get integer value")
-
-		newMethod("getReal")
-		assertMissingValue(sut's getReal(missing value), "Missing value")
-		assertEqual(1.5, sut's getReal("spot-float"), "Get real value")
-
-		newMethod("getBool")
-		assertFalse(sut's getBool("spot-none"), "Missing Value is False")
-		assertTrue(sut's getBool("spot-true"), "Verify True")
-		assertFalse(sut's getBool("spot-false"), "Verify False")
-
-		newMethod("update") -- huh?!
-		sut's setValue("spot-bool", 1)
-		assertEqual(1, sut's getInt("spot-bool"), "Update bool to integer")
-
-		newMethod("hasValue")
-		assertFalse(sut's hasValue(missing value), "Missing value")
-		assertFalse(sut's hasValue("spot-unicorn"), "Value not found")
-		assertTrue(sut's hasValue("spot-bool"), "Value found")
-
-		newMethod("hasValue")
-		assertFalse(sut's hasValue("spot-unicorn"), "Value not found")
-		assertFalse(sut's hasValue(missing value), missing value)
-
-		logger's infof("Delaying by {} to force timeout", UT_REDIS_TIMEOUT)
-		delay UT_REDIS_TIMEOUT
-		newScenario("getValue with expiry")
-		assertMissingValue(sut's getValue("spot-string"), "missing value expected after timeout elapsed")
-
-		newScenario("Expiring List")
-		assertMissingValue(sut's getValue("spot-array"), "missing value expected after timeout elapsed")
-		assertMissingValue(sut's getValue("spot-array2"), "missing value expected after timeout elapsed")
-		assertMissingValue(sut's getValue("spot-array-string"), "missing value expected after timeout elapsed")
-		assertMissingValue(sut's getValue("spot-array-one-time-set"), "missing value expected after timeout elapsed")
-
-		done()
-	end tell
-end unitTest
-

@@ -10,7 +10,7 @@
 	@Build:
 		make compile-lib SOURCE=core/string
 
-	@Last Modified: 2023-08-26 11:12:47
+	@Last Modified: 2023-09-01 18:35:03
 *)
 use scripting additions
 
@@ -18,8 +18,6 @@ use listUtil : script "list"
 use loggerFactory : script "logger-factory"
 
 use spotScript : script "spot-test"
-
-use testLib : script "test"
 
 property logger : missing value
 
@@ -127,6 +125,7 @@ end stringBetween
 on replaceFirst(sourceText, substring, replacement)
 	set substringOffset to offset of substring in sourceText
 	if substringOffset is 0 then return sourceText
+	if replacement is missing value then set replacement to ""
 
 	if sourceText starts with substring then return replacement & text ((length of substring) + 1) thru (length of sourceText) of sourceText
 
@@ -148,6 +147,32 @@ on replaceFirst(sourceText, substring, replacement)
 		return startText & replacement & endText
 	end if
 end replaceFirst
+
+on replaceLast(sourceText, substring, replacement)
+	set substringOffset to lastIndexOf(sourceText, substring)
+	if substringOffset is 0 then return sourceText
+	if replacement is missing value then set replacement to ""
+
+	if sourceText starts with substring then return replacement & text ((length of substring) + 1) thru (length of sourceText) of sourceText
+
+
+	if substringOffset + (length of (substring)) is equal to the (length of sourceText) + 1 then
+		set endIdx to (offset of substring in sourceText) - 1 + (length of substring)
+		return (text 1 thru (substringOffset - 1) of sourceText) & replacement
+	end if
+
+	if length of substring is greater than length of sourceText then return sourceText
+
+	if substringOffset is greater than 1 then
+		set startText to text 1 thru (substringOffset - 1) of sourceText
+		set replaceEndOffset to length of sourceText
+
+		if length of sourceText is greater than substringOffset + (length of substring) - 1 then set replaceEndOffset to substringOffset + (length of substring)
+		set endText to text replaceEndOffset thru (length of sourceText) of sourceText
+
+		return startText & replacement & endText
+	end if
+end replaceLast
 
 
 on removeUnicode(textWithUnicodeChar)
@@ -233,16 +258,18 @@ end formatClassic
 
 (*
 	Passing in "!" as part of the parameters will use the slow implementation
-	@theString the string with place holders for interpolation.
+	@sourceText the string with place holders for interpolation.
 	@theTokens list of the token replacements
 *)
-on format(theString, theTokens)
+on format(sourceText, theTokens)
+	if sourceText is missing value then return missing value
+
 	if class of theTokens is not list then set theTokens to {theTokens}
 	if theTokens is {} then set theTokens to {{}}
 
 	set oldDelimiters to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to "{}"
-	set theArray to every text item of theString
+	set theArray to every text item of sourceText
 	set AppleScript's text item delimiters to theTokens
 	set theListAsText to first item of theArray
 	repeat with i from 2 to number of items in theArray
@@ -256,6 +283,8 @@ end format
 
 
 on title(theWord)
+	if theWord is missing value then return missing value
+
 	set AppleScript's text item delimiters to ""
 	ucase(first character of theWord) & rest of characters of theWord
 end title
@@ -349,6 +378,7 @@ end replaceAll
 
 
 on replace(sourceText, substring, replacement)
+	if replacement is missing value then set replacement to ""
 	if substring is "
 " then
 		set ugly to ""
@@ -362,7 +392,7 @@ on replace(sourceText, substring, replacement)
 		return ugly
 	end if
 
-	if sourceText is equal to substring then return replacement
+	if sourceText is equal to substring then return replacement as text
 
 	if sourceText starts with substring then
 		set startIdx to the (length of substring) + 1
@@ -473,11 +503,16 @@ on hasUnicode(theString)
 end hasUnicode
 
 
-on removeEnding(theText as text, ending as text)
+(* @Deprecated.  Use #replaceLast. *)
+on removeEnding(sourceText, ending)
+	-- return replaceLast(sourceText, ending, "")
+
+	if sourceText is missing value then return missing value
+
 	try
-		text 1 thru -((length of ending) + 1) of theText
+		text 1 thru -((length of ending) + 1) of sourceText
 	on error
-		theText
+		sourceText
 	end try
 end removeEnding
 
@@ -486,69 +521,6 @@ on unitTest()
 	set test to testLib's new()
 	set ut to test's new()
 	tell ut
-		newMethod("ltrim")
-		assertEqual("SELECT", my ltrim("
-
-	   SELECT"), "Multiline")
-		assertEqual("SELECT", my ltrim("SELECT"), "no leading whitespace")
-		assertEqual("", my ltrim(" "), "spaces only")
-		assertEqual("", my ltrim(""), "empty string")
-
-		newMethod("replaceFirst")
-		assertEqual("three two plus one", my replaceFirst("three one plus one", "one", "two"), "Happy Case")
-		assertEqual("one", my replaceFirst("one", "{}", "found"), "Not Found")
-		assertEqual("one", my replaceFirst("one", "three", "dummy"), "Substring is longer")
-
-		newMethod("format")
-		assertEqual("one-two", my format("{}-{}", {"one", "two"}), "Bugged")
-		assertEqual("Ends: yo", my format("Ends: {}", "yo"), "Ends with")
-		assertEqual("Cat's daily stand up", my format("{} daily stand up", "Cat's"), "With single quote")
-		assertEqual("With Bang!", my format("With {}", "Bang!"), "With bang")
-		assertEqual("{\"attr-name\": 1}", my format("{\"{}\": 1}", "attr-name"), "Double Quoted")
-
-		set expected to "javascript;
-$('a') = 'hello';"
-		set actual to my format("javascript;
-$('{}') = '{}';", {"a", "hello"})
-		assertEqual(expected, actual, "Multiline")
-
-		newMethod("replace")
-		assertEqual("abc", my replace("zbc", "z", "a"), "Starts with")
-		assertEqual("abxyzfg", my replace("abcdefg", "cde", "xyz"), "Between")
-		assertEqual("abcdxyz", my replace("abcdefg", "efg", "xyz"), "Ending")
-		assertEqual("document.querySelector('a[href*=xyz]').click()", my replace("document.querySelector('a[href*={}]').click()", "{}", "xyz"), "With single quotes")
-		assertEqual("Meeting Free Midday. Starts on September 10, 2020 at 10:00:00 AM and ends at 12:00:00 PM.", my replace("Meeting Free Midday. Starts on September 10, 2020 at 10:00:00 AM Philippine Standard Time and ends at 12:00:00 PM Philippine Standard Time.", " Philippine Standard Time", ""), "Multiple")
-		assertEqual("yo(nes", my replace("yo(no", "no", "nes"), "With Parens")
-		assertEqual("yo\\(no", my replace("yo(no", "(", "\\("), "The Parens")
-		assertEqual("yo\\(no\\)", my replace(my replace("yo(no)", "(", "\\("), ")", "\\)"), "Two Parens")
-		assertEqual("https:\\/\\/localhost:8080\\/yo", my replace("https://localhost:8080/yo", "/", "\\/"), "Escaping Slashes")
-		assertEqual("https:\\/\\/localhost:8080\\/yo\\/", my replace("https://localhost:8080/yo/", "/", "\\/"), "Escaping Slashes ending with one")
-		assertEqual("=Applications=Setapp", my replace("/Applications/Setapp", "/", "="), "Bugged")
-		assertEqual("\\[Square] Bracket", my replace("[Square] Bracket", "[", "\\["), "Escaping")
-
-		newMethod("decodeUrl")
-		assertEqual("hello world", my decodeUrl("hello%20world"), "Basic")
-
-		newMethod("stringAfter")
-		assertEqual(missing value, my stringAfter("an apple a day", "orange "), "Not Found")
-		assertEqual("a day", my stringAfter("an apple a day", "apple "), "Found")
-		assertEqual(missing value, my stringAfter("an apple a day", "a day"), "In the end") -- I think missing value is more appropriate than empty string.
-
-		newMethod("lastStringAfter")
-		assertEqual(missing value, my lastStringAfter(missing value, missing value), "Bad parameters")
-		assertEqual(missing value, my lastStringAfter("an apple a day", "orange "), "Not Found")
-		assertEqual(" a day", my lastStringAfter("an apple a day", "apple"), "One Match")
-		assertEqual(" vendor happy", my lastStringAfter("an apple a day makes the apple vendor happy", "apple"), "Multi Match")
-
-		newMethod("stringBefore")
-		assertEqual(missing value, my stringBefore("test.applescript", "orange"), "Not Found")
-		assertEqual("an ", my stringBefore("an apple a day", "apple "), "Found")
-		assertEqual(missing value, my stringBefore("an apple a day", "an apple"), "In the beginning") -- I think missing value is more appropriate than empty string.
-
-		newMethod("title")
-		assertEqual("Hello", my title("hello"), "Basic")
-		assertEqual("Hello friend", my title("hello friend"), "Word only")
-
 		newMethod("removeEnding")
 		assertEqual("Hell", my removeEnding("Hello", "o"), "Basic")
 		assertEqual("Hello", my removeEnding("Hello", "not found"), "Not found")

@@ -14,6 +14,7 @@
 use AppleScript
 use scripting additions
 
+use std : script "std"
 use textUtil : script "string"
 
 property parent : script "com.lifepillar/ASUnit"
@@ -131,13 +132,96 @@ Yes
 **&replacement**
 "), TopLevel's __readTextFile())
 	end script
+end script
+
+
+script |deleteLineWithSubstring tests|
+	property parent : TestSet(me)
+
+	on setUp()
+		TopLevel's __createTestFile()
+	end setUp
+	on tearDown()
+		TopLevel's __deleteTestFile()
+	end tearDown
+
+	script |Substring not found|
+		property parent : UnitTest(me)
+		TopLevel's __writeTextFile("This is a paradise
+")
+		sutScript's deleteLineWithSubstring(testFile, "unicorn")
+		assertEqual(textUtil's multiline("This is a paradise
+"), TopLevel's __readTextFile()) 
+	end script
+
+	script |Substring found|
+		property parent : UnitTest(me)
+		TopLevel's __writeTextFile("This file
+has a bug
+is perfect
+")
+		sutScript's deleteLineWithSubstring(testFile, "bug")
+		assertEqual(textUtil's multiline("This file
+is perfect
+"), TopLevel's __readTextFile()) 
+	end script
+
+	script |Substring found multiple times|
+		property parent : UnitTest(me)
+		TopLevel's __writeTextFile("This file
+has a bugs here
+is perfect
+and another bug here
+")
+		sutScript's deleteLineWithSubstring(testFile, "bug")
+		assertEqual(textUtil's multiline("This file
+is perfect
+"), TopLevel's __readTextFile()) 
+	end script
+end script
+
+
+script |_quotePath tests|
+	property parent : TestSet(me)
 	
+	script |User path is ignored|
+		property parent : UnitTest(me)
+		-- assertEqual("/Users/" & std's getUsername() & "/Projects", sutScript's _quotePath("~/Projects"))
+		assertEqual("~/Projects", sutScript's _quotePath("~/Projects"))
+	end script
+
+	script |Non User path is quoted|
+		property parent : UnitTest(me)
+		assertEqual("'/Users/cloud/Script Libraries'", sutScript's _quotePath("/Users/cloud/Script Libraries"))
+	end script
+end script
+
+
+script |deleteFile tests|
+	property parent : TestSet(me)
+
+	script |File not found|
+		property parent : UnitTest(me)
+		notOk(sutScript's deleteFile("~/unicorn.txt"))
+	end script
+
+	script |File found|
+		property parent : UnitTest(me)
+		TopLevel's __createTestFile()
+		ok(sutScript's deleteFile(TopLevel's testFile))
+		notOk(TopLevel's __existTestFile())
+	end script
 end script
 
 
 (* !Do not use quoted form, they fail because of the tilde form. *)
 on __writeTextFile(textToWrite)
 	do shell script "echo '" & textToWrite & "' >> " & testFile
+end __writeTextFile
+
+
+on __existTestFile()
+	"true" is equal to do shell script "test -f '" & testFile & "' && echo true || echo false" 
 end __writeTextFile
 
 
@@ -154,4 +238,3 @@ end __createTestFile
 on __deleteTestFile()
 	do shell script "rm " & testFile
 end __deleteTestFile
-

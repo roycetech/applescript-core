@@ -8,82 +8,35 @@
 		config.plist
 		 	Timed Cache List - Can't find the reference for this - June 30, 2023 11:17 AM
 		timed-cache.plist - Contains the cached values.
+
+	@Unit Test
+		Test timed-cache-plist
 *)
 
 use scripting additions
 
 use listUtil : script "list"
-use dt : script "date-time"
 use loggerFactory : script "logger-factory"
 
 use plutilLib : script "plutil"
 
-use spotScript : script "spot-test"
-use testLib : script "test"
-
 property logger : missing value
-property cache : missing value
-
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
-
-on spotCheck()
-	loggerFactory's injectBasic(me)
-	logger's start()
-
-	set test to testLib's new()
-	set integTest to test's new()
-	set cases to listUtil's splitByLine("
-		Integration Testing
-	")
-	set spotClass to spotScript's new()
-	set spot to spotClass's new(me, cases)
-	set {caseIndex, caseDesc} to spot's start()
-	if caseIndex is 0 then
-		logger's finish()
-		return
-	end if
-
-	set spotKey to "Spot Timed Key"
-	if caseIndex is 1 then
-		tell integTest
-			newScenario("Retrieve non-expired value")
-			set sut to my new(2)
-			sut's setValue(spotKey, "Not expired")
-			assertEqual("Not expired", sut's getValue(spotKey), "Retrieve non-expired value")
-
-			newScenario("Retrieve expired value")
-			logger's info("Sleeping...")
-			delay 3
-			assertMissingValue(sut's getValue(spotKey), "Retrieve expired value")
-
-			done()
-		end tell
-
-	else if caseIndex is 2 then
-		set sut to new(2)
-		sut's setValue(spotKey, "Will expire")
-		log sut's getValue(spotKey)
-		log cache's getValue(spotKey)
-
-		done()
-	end if
-
-	spot's finish()
-	logger's finish()
-end spotCheck
+(* Set a default cache name. *)
+property cacheName : "timed-cache"
+-- property cache : missing value
 
 
 (*  *)
 on new(pExpirySeconds)
 	set plutil to plutilLib's new()
-	set cacheName to "timed-cache"
 	if not plutil's plistExists(cacheName) then
 		plutil's createNewPList(cacheName)
 	end if
-	set cache to plutil's new(cacheName)
+	set localCache to plutil's new(cacheName)
 
 	script TimedCacheInstance
 		property expirySeconds : pExpirySeconds
+		property cache : localCache
 
 		(* @return missing value if the content has expired, so client can reset it again. *)
 		on getValue(mapKey)
@@ -92,20 +45,25 @@ on new(pExpirySeconds)
 
 			set currentSeconds to do shell script "date +%s"
 			set elapsed to (currentSeconds - lastRegisteredSeconds)
-			if elapsed is greater than expirySeconds then return missing value
+			if elapsed is greater than expirySeconds then
+				deleteKey(mapKey)
+				return missing value
+			end if
 
 			cache's getValue(mapKey)
 		end getValue
 
 		on setValue(mapKey, newValue)
 			cache's setValue(mapKey, newValue)
-			set currentSeconds to do shell script "date +%s"
+			set currentSeconds to (do shell script "date +%s") as real
 			cache's setValue(_epochTimestampKey(mapKey), currentSeconds)
 			cache's setValue(_timestampKey(mapKey), current date)
 		end setValue
 
 
 		on deleteKey(mapKey)
+			if mapKey is missing value then return missing value
+
 			cache's deleteKey(mapKey)
 			cache's deleteKey(_epochTimestampKey(mapKey))
 			cache's deleteKey(_timestampKey(mapKey))
@@ -113,6 +71,8 @@ on new(pExpirySeconds)
 
 
 		on _getRegisteredSeconds(mapKey)
+			if mapKey is missing value then return missing value
+
 			cache's getValue(_epochTimestampKey(mapKey))
 		end _getRegisteredSeconds
 
@@ -123,6 +83,5 @@ on new(pExpirySeconds)
 		on _timestampKey(mapKey)
 			mapKey & "-ts"
 		end _timestampKey
-
 	end script
 end new

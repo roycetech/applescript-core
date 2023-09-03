@@ -11,7 +11,7 @@
 	@Known Issues:
 		July 29, 2023 9:37 PM - Removed in plutil validation because it fails intermittently on the "matches" handler.
 
-	@Last Modified: 2023-08-22 14:47:30
+	@Last Modified: 2023-09-01 20:24:20
 *)
 
 use framework "Foundation"
@@ -26,48 +26,8 @@ use loggerFactory : script "logger-factory"
 
 use spotScript : script "spot-test"
 
-use testLib : script "test"
-
 property logger : missing value
 property ERROR_INVALID_PATTERN : 1000
-
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
-
-on spotCheck()
-	loggerFactory's injectBasic(me)
-	logger's start()
-
-	set cases to listUtil's splitByLine("
-		Quickie
-		Case Insensitive Match
-	")
-
-	set spotClass to spotScript's new()
-	set spot to spotClass's new(me, cases)
-	set {caseIndex, caseDesc} to spot's start()
-	if caseIndex is 0 then
-		logger's finish()
-		return
-	end if
-
-	if caseIndex is 1 then
-		log stringByReplacingMatchesInString(unic's OMZ_ARROW & "  [a-zA-Z-]+\\sgit:\\([a-zA-Z0-9/-]+\\)(?: " & unic's OMZ_GIT_X & ")?\\s", unic's OMZ_ARROW & "  mobile-gateway git:(feature/MT-3644-Mobile-Gateway-create-service-adapter) " & unic's OMZ_GIT_X & " docker network", "")
-
-		log stringByReplacingMatchesInString("hello", "hello world", "")
-		log firstMatchInString("\\w+", "hello world")
-		log matchesInString("\\w+$", "hello world ")
-		log numberOfMatchesInString("\\w+", "hello world -")
-
-	else if caseIndex is 2 then
-		log firstMatchInStringNoCase("abc", "the world of ABC is ok.")
-		log firstMatchInString("abc", "the world of ABC is ok.")
-		log firstMatchInStringNoCase("abc", "the world of abc is ok.")
-		log firstMatchInString("abc", "the world of abc is ok.")
-	end if
-
-	spot's finish()
-	logger's finish()
-end spotCheck
 
 
 on numberOfMatchesInString(pattern as text, searchString)
@@ -158,11 +118,14 @@ end lastMatchInString
 
 on stringByReplacingMatchesInString(pattern, searchString, replacement)
 	if searchString is missing value then return missing value
+	if pattern is missing value then return searchString
 
 	set searchNSString to current application's NSString's stringWithString:searchString
 	set replaceNSString to current application's NSString's stringWithString:replacement
 	set stringLength to searchNSString's |length|()
 	set nsregex to current application's NSRegularExpression's regularExpressionWithPattern:pattern options:0 |error|:(missing value)
+	if nsregex is missing value then error "Unsupported pattern: [" & pattern & "]" number ERROR_INVALID_PATTERN
+
 	(nsregex's stringByReplacingMatchesInString:searchNSString options:0 range:{0, stringLength} withTemplate:replaceNSString) as text
 end stringByReplacingMatchesInString
 

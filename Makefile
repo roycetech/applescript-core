@@ -12,8 +12,8 @@ help:
 	@echo "make reveal-apps - reveals the default AppleScript apps deployment folder in Finder"
 	@echo "-s option hides the Make invocation command."
 
-# 	The stub prefix is intentional to avoid the warning for Makefile that wants
-# 	to avoid having a similar target.
+# 	The stub prefix is intentional to avoid the warning for Makefile, which
+# 	wants to avoid having a similar target.
 STUB_LIBS :=  \
 	stubs/config \
 	stubs/list \
@@ -34,7 +34,8 @@ STUB_LIBS :=  \
 # another library.
 CORE_LIBS :=  \
 	logger-factory \
-	overrider \
+	decorator \
+	simple-test \
 	unit-test \
 	list \
 	string \
@@ -62,7 +63,7 @@ CORE_LIBS :=  \
 	unicodes \
 	window \
 	logger \
-	spot-test \
+	spot-test
 
 APPS_PATH=/Applications/AppleScript
 
@@ -86,6 +87,7 @@ _init:
 	plutil -replace 'Project applescript-core' -string "`pwd`" ~/applescript-core/config-system.plist
 
 install: _init compile
+	mkdir -p ~/Library/'Script Libraries'/core/test
 	touch ~/applescript-core/logs/applescript-core.log
 	osascript scripts/setup-applescript-core-project-path.applescript
 	./scripts/setup-switches.sh
@@ -153,7 +155,7 @@ compile-stay-open:
 reveal-config:
 	open ~/applescript-core
 
-reveal-lib:
+reveal-deployed-scripts:
 	open ~/Library/Script\ Libraries
 
 reveal-apps:
@@ -162,24 +164,32 @@ reveal-apps:
 reveal-stay-open:
 	open $(APPS_PATH)/Stay\ Open
 
+
 test-all:
 	osascript "test/Test Loader.applescript"
 
 test-integration:
 
 test: test-all
+.PHONY: test
 
 test-unit:
+	osascript "test/core/Test map.applescript"
+# 	osascript "test/libs/Test log4as.applescript"
+# 	osascript "test/core/Test redis.applescript"
+# 	osascript "test/core/Test list.applescript"
+# 	osascript "test/core/Test timed-cache-plist.applescript"
 # 	osascript "test/core/Test date-time.applescript"
 # 	osascript "test/apps/3rd-party/Test keyboard-maestro.applescript"
 # 	osascript "test/core/Test decorator.applescript"
-# 	osascript test/core/Test regex.applescript
-# 	osascript test/apps/1st-party/dec-script-editor-contentTest.applescript
-	osascript "test/core/Test file.applescript"
+# 	osascript "test/core/Test regex.applescript"
+# 	osascript "test/core/Test file.applescript"
+# 	osascript "test/core/Test string.applescript"
 # 	osascript "test/core/Test plutil.applescript"
-# 	osascript "test/core/Test plistBuddy.applescript"
+# 	osascript "test/core/Test plist-buddy.applescript"
 # 	osascript test/apps/1st-party/script-editorTest.applescript
-.PHONY: test
+# 	osascript test/apps/1st-party/dec-script-editor-contentTest.applescript
+
 
 watch: test
 	scripts/run-tests_on-change.sh
@@ -387,9 +397,9 @@ install-stream-deck: compile-stream-deck
 		~/applescript-core/config-lib-factory.plist
 
 
-compile-sublime-text:
+build-sublime-text:
 	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/sublime-text
-	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/dec-syseve-with-sublime-text
+	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/dec-system-events-with-sublime-text
 
 install-sublime-text: compile-sublime-text
 	osascript ./scripts/setup-sublime-text-cli.applescript
@@ -482,4 +492,3 @@ install-timed-cache:
 	./scripts/compile-lib.sh libs/timed-cache-plist/timed-cache-plist
 
 # 	osacompile -o ~/Library/Script\ Libraries/redis.scpt redis.applescript
-
