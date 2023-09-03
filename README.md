@@ -8,7 +8,7 @@ This README is a work in progress and I'm planning on creating a simpler shorter
 
 ## Project Description
 
-AppleScript Core is a collection of valuable and simple custom AppleScripts that allows you to write automation AppleScripts faster and more efficiently than ever. It provides a variety of ready-to-use script libraries, libraries that provide essential functionalities that you can use in your scripts. It provides application wrapper scripts that can be used to interact with the supported applications. 
+AppleScript Core is a collection of valuable and simple custom AppleScripts that allows you to write automation AppleScripts faster and more efficiently than ever. It provides a variety of ready-to-use script libraries, libraries that provide essential functionalities that you can use in your scripts. It provides application wrapper scripts that can be used to interact with the supported applications.
 
 It provides core functionality like:
 
@@ -18,9 +18,8 @@ It provides core functionality like:
 * Session management
 * Configuration management
 * Common utilities for string, list, and dictionary.
-* Unit testing
 
-This project uses a monorepo approach for the project structure.
+This project uses a monorepo-like approach for the project structure.
 
 Demo(Images, Video Links, Live Demo Links)
 
@@ -29,7 +28,7 @@ The quality of a README description often differentiates a good project from a b
 *   [ ] What your application does
 * Provides basic unit testing
 * Quick spot checking
-* Essential 
+* Essential
 
 ### Configuration Files
 
@@ -63,7 +62,6 @@ If your README is very long, you might want to add a table of contents to make i
 2. To test that it works, open the files inside examples using Script Editor and run them.
 3. You will see the output.
 
-
 ## How to Use the Project (Developing)
 
 Provide instructions and examples so users/contributors can use the project. This will make it easy for them in case they encounter a problem – they will always have a place to reference what is expected.
@@ -72,11 +70,15 @@ You can also make use of visual aids by including materials like screenshots to 
 You'll need to populate the config-system.plist with some default values:
 *   Project Path - Used to locate the test files for testing.
 
-### Testing (WIP)
+### Testing
 
 Run `make test` to run the tests.
 
-When developing, install fswatch and run `fswatch -o -e ".*" -i "Test\\.applescript$" . | xargs -n1 -I{} make test` to automatically run the tests after each file change.
+When developing, install fswatch and run `fswatch -o -e ".*" -i "Test\\.applescript$" . | xargs -n 1 make test` to automatically run the tests after each file change. Or simply: `make watch`
+
+You should exclude the generated `*.scpt` files from view in your text editor.
+
+Some tests require libraries outside of the core libraries. Some tests would fail when these optional libraries are not installed but should not have a major impact on the functionality of the core libraries.
 
 ## Credits
 
@@ -133,7 +135,7 @@ We value and appreciate all contributions, whether big or small. Together, let's
 
 ### Include Tests
 
-The libraries where tested mainly on macOS Monterey. I have tried some scripts on Big Sur and I was able to get a successful result. I have also worked on using macOS Ventura as well. Most back-end libraries should work without issues on any recent version of macOS. On the other hand, scripts that interact with the UI like the app wrapper libraries are almost guaranteed to fail each time a vendor releases updates to their apps.
+The libraries where tested mainly on macOS Monterey. I have tried some scripts on Big Sur and I was able to get a successful result, but some libraries that rely on older CLI like plutil breaks.. I have also worked on using macOS Ventura as well. Most back-end libraries should work without issues on any recent version of macOS. On the other hand, scripts that interact with the UI like the app wrapper libraries are almost guaranteed to fail each time a vendor releases updates to their apps.
 
 This project includes a system for doing spot checking by utilizing a stay open app menu to manage the case number to be tested.
 This project also includes its own unit testing functionality to ensure code quality. I plan to migrate the unit tests into ASUnit which I believe is a great library, having tried it out very recently.
