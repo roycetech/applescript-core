@@ -29,7 +29,7 @@ use emoji : script "emoji"
 use loggerFactory : script "logger-factory"
 
 use usrLib : script "user"
-use syseveLib : script "system-events"
+use systemEventsLib : script "system-events"
 use plutilLib : script "plutil"
 use seLib : script "script-editor"
 use automatorLib : script "automator"
@@ -38,7 +38,7 @@ use configLib : script "config"
 property logger : missing value
 
 property usr : missing value
-property syseve : missing value
+property systemEvents : missing value
 property plutil : missing value
 property se : missing value
 property automator : missing value
@@ -54,7 +54,7 @@ loggerFactory's inject(me)
 logger's start()
 
 set usr to usrLib's new()
-set syseve to syseveLib's new()
+set systemEvents to systemEventsLib's new()
 set plutil to plutilLib's new()
 set se to seLib's new()
 set automator to automatorLib's new()

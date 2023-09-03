@@ -32,7 +32,7 @@ use fileUtil : script "file"
 use textUtil : script "string"
 
 use loggerLib : script "logger"
-use syseveLib : script "system-events"
+use systemEventsLib : script "system-events"
 use retryLib : script "retry"
 use plutilLib : script "plutil"
 use seLib : script "script-editor"
@@ -40,7 +40,7 @@ use configLib : script "config"
 use automatorLib : script "automator"
 
 property logger : loggerLib's new("Create Automator App")
-property syseve : syseveLib's new()
+property systemEvents : systemEventsLib's new()
 property retry : retryLib's new()
 property plutil : plutilLib's new()
 property se : seLib's new()
