@@ -7,12 +7,14 @@
 		property sublime : stLib's new()  -- Text Expander: "uuse sublime"
 		
 	@Build:
-		make compile-sublime-text
+		make build-sublime-text
 
 	@Known Issues:
 		The handler isCurrentFileNewUnsaved is broken when the front window does 
 		not have a saved project.
 
+	@Change Logs:
+		August 30, 2023 9:44 AM - New handler getCurrentFileDirectory()
 
  	NOTE: if AXDocument is missing, usually when filename is missing value then restart Sublime Text.
 *)
@@ -66,8 +68,9 @@ on spotCheck()
 	
 	set sut to new()
 	if caseIndex is 1 then
-		logger's infof("Current File Path: {}", sut's getCurrentFilePath())
+		logger's infof("Current File Path: {}", sut's getCurrentFilePath()) 
 		logger's infof("Current Filename: {}", sut's getCurrentFilename())
+		logger's infof("Current Directory: {}", sut's getCurrentFileDirectory())
 		logger's infof("Current Base Filename: {}", sut's getCurrentBaseFilename())
 		logger's infof("Current File Ext: {}", sut's getCurrentFileExtension())
 		logger's infof("Current Document Name: {}", sut's getCurrentDocumentName())
@@ -126,6 +129,19 @@ on new()
 		end openFile
 		
 		
+		on getCurrentFileDirectory()
+			if running of application "Sublime Text" is false then return missing value
+			
+			set filePath to getCurrentFilePath()
+			if filePath is missing value then return missing value
+			
+			set baseFilename to getCurrentDocumentName()
+			if baseFilename is missing value then return missing value
+			
+			textUtil's replace(filePath, "/" & baseFilename, "")
+		end getCurrentFileDirectory
+		
+		
 		(* Retrieves the current document name by parsing the window title. *)
 		on getCurrentDocumentName()
 			if running of application "Sublime Text" is false then return missing value
@@ -140,6 +156,10 @@ on new()
 			first item of windowNameTokens
 		end getCurrentDocumentName
 		
+
+		on getCurrentProjectDirectory()
+			getCurrentProjectPath()
+		end getCurrentProjectDirectory
 		
 		on getCurrentProjectPath()
 			set filePath to getCurrentFilePath()
@@ -239,7 +259,7 @@ on new()
 			if the number of items in filenameTokens is 1 then return missing value
 			last item of filenameTokens
 		end getCurrentFileExtension
-				
+		
 		
 		on getVisibleWindows()
 			tell application "System Events" to tell process "Sublime Text"
@@ -428,7 +448,7 @@ on new()
 			tell me to error "I can't find your project folder from: " & projectNameRaw
 		end _findProjectFolder
 	end script
-
+	
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
