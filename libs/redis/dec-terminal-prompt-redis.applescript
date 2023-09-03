@@ -10,7 +10,7 @@
 		instance name
 		handler name
 
-	@Last Modified: 2023-07-26 15:26:41
+	@Last Modified: 2023-09-02 23:12:10
 *)
 
 use listUtil : script "list"
@@ -21,8 +21,6 @@ use loggerFactory : script "logger-factory"
 use terminalLib : script "terminal"
 
 use spotScript : script "spot-test"
-
-use testLib : script "test"
 
 property logger : missing value
 property terminal : missing value
@@ -113,22 +111,3 @@ on decorate(mainScript)
 
 	end script
 end decorate
-
-
-(*
-	Handler grouped by hundredths.
-	Put the case you are debugging at the top, and move to correct place once verified.
-*)
-on unitTest()
-	set test to testLib's new()
-	set ut to test's new()
-	tell ut
-		newMethod("replaceFirst")
-		-- expected, actual, description
-		assertEqual("three two  one", my replaceFirst("three one plus one", "one", "two"), "Happy Case")
-		assertEqual("one", my replaceFirst("one", "{}", "found"), "Not Found")
-		assertEqual("one", my replaceFirst("one", "three", "dummy"), "Substring is longer")
-
-		done()
-	end tell
-end unitTest
