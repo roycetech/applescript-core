@@ -2,7 +2,7 @@
 	Note: does not print properly when run in ST3.
 	WARNING: Do not use the Core Text Utilities. It results to a not so
 	visible crash for some scripts that are triggered via Voice Command.
-	
+
 	@Build:
 		make compile-lib SOURCE=core/logger
 *)
@@ -12,8 +12,6 @@ use scripting additions
 
 use textUtil : script "string"
 use overriderLib : script "overrider"
-
-property overrider : overriderLib's new()
 
 property filename : "applescript-core.log"
 -- property name : missing value
@@ -27,21 +25,21 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	set sut to newBase("logger")
-	
+
 	tell sut
 		start()
-		
+
 		info("Info Test")
 		infof("Hello {}", "World")
 		debugf("Hello {}", "World")
 		debug("debug Test")
-		
+
 		-- return
-		
+
 		set theObj to {name:"This is an object", age:1}
 		info(theObj)
 		logObj("Example", theObj)
-		
+
 		finish()
 	end tell
 end spotCheck
@@ -53,72 +51,72 @@ on newBase(pObjectName)
 		property objectName : pObjectName
 		property logFilePath : (path to home folder as text) & "applescript-core:logs:" & filename
 		property level : 1
-		
+
 		on start()
 			set theLabel to "Running: [" & objectName & "]"
 			set theBar to _repeatText("=", count of theLabel)
-			
+
 			info(theBar)
 			info(theLabel)
-			
+
 			set my startSeconds to time of (current date)
 		end start
-		
-		
+
+
 		on finish()
 			set T2s to time of (current date)
 			set elapsed to T2s - startSeconds
-			
+
 			info("*** End: [" & my objectName & "] - " & elapsed & "s")
 		end finish
-		
-		
+
+
 		on logOnFile(thisInfo)
 			set my logOverride to true
 			info(thisInfo)
 			set my logOverride to false
 		end logOnFile
-		
-		
+
+
 		(*
 			Used only for debugging. Could not print record contents.
 		*)
 		on logObj(label, obj)
 			debug(label & ": " & _toString(obj))
 		end logObj
-		
-		
+
+
 		on infof(thisInfo as text, tokens)
 			info(textUtil's format(thisInfo, tokens))
 		end infof
-		
-		
+
+
 		on debugf(thisInfo as text, tokens)
 			debug(textUtil's format(thisInfo, tokens))
 		end debugf
-		
-		
+
+
 		on info(objectToLog)
 			set thisInfo to _toString(objectToLog)
-			
+
 			set currentDate to (current date)
 			set {year:y, month:m, day:d, time:t} to currentDate
 			set theTime to _secsToHMS(t as integer)
 			set theDate to short date string of currentDate
 			set customDateTime to theDate & " " & theTime
-			
+
 			-- What's "the"?
 			set the info_log to logFilePath
-			
+
 			set log_message to customDateTime & " " & my objectName & "> " & thisInfo
 			log log_message
-			
+
 			-- do shell script "echo \"" & log_message & "\" > ~/AppleScript/logs/applescript.log" -- hard coded experimental
 			-- return
-			
+
 			try
 				open for access file logFilePath with write permission
-				
+
 				write (log_message & "
 	") to file logFilePath starting at eof
 				close access file logFilePath
@@ -129,31 +127,31 @@ on newBase(pObjectName)
 				end try
 			end try
 		end info
-		
-		
+
+
 		on debug(thisInfo)
 			info("D " & _toString(thisInfo))
 		end debug
-		
+
 		on warn(thisMessage)
 			info("W " & _toString(thisMessage))
 		end warn
-		
+
 		on warnf(thisInfo as text, tokens)
 			warn(textUtil's format(thisInfo, tokens))
 		end warnf
-		
-		
+
+
 		on fatal(thisMessage)
 			info("F " & _toString(thisMessage))
 		end fatal
-		
-		
+
+
 		on _secsToHMS(secs)
 			tell (1000000 + secs div hours * 10000 + secs mod hours div minutes * 100 + secs mod minutes) as string to return text 2 thru 3 & ":" & text 4 thru 5 & ":" & text 6 thru 7
 		end _secsToHMS
-		
-		
+
+
 		on _toString(target)
 			if class of target is string then return target
 			if class of target is not list then set target to {target}
@@ -207,8 +205,8 @@ on newBase(pObjectName)
 			set AppleScript's text item delimiters to orgTids # '
 			return txtCombined
 		end _toString
-		
-		
+
+
 		on _repeatText(theText, ntimes)
 			set theResult to ""
 			repeat ntimes times
@@ -220,10 +218,12 @@ end newBase
 
 
 on new(pObjectName)
+	set overrider to overriderLib's new()
+
 	set basicInstance to newBase(pObjectName)
 	script LoggerOverridableInstance
 		property parent : basicInstance
 	end script
-	
+
 	overrider's applyMappedOverride(result)
 end new
