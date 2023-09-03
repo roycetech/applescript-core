@@ -4,14 +4,14 @@
 install:
 	../setup-sublime-cli.applescript
 	osacompile -o ~/Library/Script\ Libraries/sublime-text.scpt sublime-text.applescript
-	osacompile -o ~/Library/Script\ Libraries/dec-syseve-with-sublimetext.scpt dec-syseve-with-sublimetext.applescript
+	osacompile -o ~/Library/Script\ Libraries/dec-system-events-with-sublime-text.scpt dec-system-events-with-sublime-text.applescript
 	plutil \
-		-replace 'SysEveInstance' \
-		-string 'dec-syseve-with-sublimetext' \
+		-replace 'SystemEventsInstance' \
+		-string 'dec-system-events-with-sublime-text' \
 		~/applescript-core/config-lib-factory.plist
 
 # To Test
 uninstall:
-	plutil -remove 'SysEveInstance' ~/applescript-core/config-lib-factory.plist
+	plutil -remove 'SystemEventsInstance' ~/applescript-core/config-lib-factory.plist
 	rm ~/Library/Script\ Libraries/sublime-text.scpt
-	rm ~/Library/Script\ Libraries/dec-syseve-with-sublimetext.scpt
+	rm ~/Library/Script\ Libraries/dec-system-events-with-sublime-text.scpt
