@@ -41,10 +41,11 @@ use textUtil : script "string"
 use regex : script "regex"
 use counter : script "counter"
 use dt : script "date-time"
+
 use loggerFactory : script "logger-factory"
 
 use decoratorCalendarView : script "dec-calendar-view"
-use calendarEvent : script "calendar-event"
+use calendarEventLib : script "calendar-event"
 
 use overriderLib : script "overrider"
 use sbLib : script "string-builder"
@@ -65,15 +66,15 @@ property plutil : missing value
 property configUser : missing value
 property calendarProcess : missing value
 property kb : missing value
+property calendarEvent : missing value
 
-property overrider : overriderLib's new()
+-- property overrider : overriderLib's new()
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)
-	set skip of overrider to true
-
+	-- set skip of overrider to true
 	logger's start()
 
 	(* Manual Visual Verification. *)
@@ -145,7 +146,7 @@ on spotCheck()
 		set meetingsAtThisTime to sut's getMeetingsAtThisTime()
 		logger's infof("Count of Meetings Now: {}", count of meetingsAtThisTime)
 		repeat with nextActive in meetingsAtThisTime
-			logger's infof("Next Active Meeting: {}", nextActive)
+			logger's infof("Next Active Meeting: {}", nextActive's toJsonString())
 		end repeat
 
 	else if caseIndex is 5 then
@@ -237,6 +238,8 @@ on new()
 	set configUser to configLib's new("user")
 	set calendarProcess to processLib's new("Calendar")
 	set kb to kbLib's new()
+	set calendarEvent to calendarEventLib's new()
+	set overrider to overriderLib's new()
 
 	script CalendarInstance
 		property IS_TEST : false
@@ -451,9 +454,9 @@ on new()
 			repeat with idx from (count meetingsToday) to 1 by -1
 				set meetingDetail to item idx of meetingsToday
 				(*
-				log title of meetingDetail
-				log startTime of meetingDetail
-*)
+					log title of meetingDetail
+					log startTime of meetingDetail
+				*)
 				if meetingDetail's startTime is not missing value then
 					set startTriggerTime to _asDate(meetingDetail's startTime) - 2 * minutes
 					set isActive to theNow is greater than or equal to startTriggerTime and theNow is less than _asDate(meetingDetail's endTime) - 2 * minutes
@@ -484,7 +487,6 @@ end new
 
 -- Refactor below
 on initCalendarApp()
-
 	if running of application "Calendar" then
 		tell application "System Events" to tell process "Calendar"
 			if (count of windows) is 1 then
