@@ -1,5 +1,5 @@
 (*
-	@Last Modified: 2023-08-06 21:53:45
+	@Last Modified: 2023-08-31 23:10:56
 
 	@Build:
 		make compile-lib SOURCE=core/dialog
@@ -12,7 +12,7 @@ use loggerFactory : script "logger-factory"
 use listUtil : script "list"
 use speechLib : script "speech"
 use spotScript : script "spot-test"
-use testLib : script "test"
+use testLib : script "simple-test"
 
 property logger : missing value
 
@@ -35,10 +35,11 @@ on spotCheck()
 		Manual: Confirm with Timeout (Yes, No, Timeout)
 		Manual: Show 2 Choices with default
 		Manual: Show choices from a list (Options: missing value, empty, happy, mismatch-default)
+		Manual: List with default selections
 	")
 
 	set spotLib to spotScript's new()
-	set spot to spotLib's new(thisCaseId, cases)
+	set spot to spotLib's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 
 	set sut to new()
@@ -87,6 +88,10 @@ on spotCheck()
 		end try
 
 		logger's infof("Result: {}", sut's showChoicesFromList("Options from list", "Choose", optionsList, "Option 2"))
+
+	else if caseIndex is 9 then
+		logger's infof("Result: {}", sut's showListWithDefault("Choices with default", {"One", "Two", "Three", "Four"}, {"Two", "Three"}) as text)
+
 	end if
 
 	spot's finish()
@@ -166,6 +171,11 @@ on new()
 			display dialog message with title theTitle with icon 1 buttons choices default button defaultButton
 			button returned of result
 		end showChoicesWithDefault
+
+
+		on showListWithDefault(paramPrompt, choices as list, defaultSelections)
+			choose from list choices with prompt paramPrompt default items defaultSelections with multiple selections allowed
+		end showListWithDefault
 
 
 		(* @choices up to 3 choices to be shown as buttons for quick response. *)
