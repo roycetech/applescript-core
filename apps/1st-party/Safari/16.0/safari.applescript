@@ -27,7 +27,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2023-08-20 16:58:18
+	@Last Modified: 2023-08-26 16:23:14
 *)
 
 use script "Core Text Utilities"
@@ -497,6 +497,8 @@ on new()
 			@return  missing value of tab if not found, else a SafariTabInstance .
 		*)
 		on findTabWithName(targetName)
+			if running of application "Safari" is false then return missing value
+
 			tell application "Safari"
 				repeat with nextWindow in windows
 					try
@@ -511,6 +513,8 @@ on new()
 
 		(* @return  missing value of tab is not found. TabInstance *)
 		on findTabStartingWithName(targetName)
+			if running of application "Safari" is false then return missing value
+
 			tell application "Safari"
 				repeat with nextWindow in windows
 					try
@@ -525,6 +529,8 @@ on new()
 
 		(* @return  missing value of tab is not found. TabInstance *)
 		on findTabContainingInName(nameSubstring)
+			if running of application "Safari" is false then return missing value
+
 			tell application "Safari"
 				repeat with nextWindow in windows
 					try
@@ -539,6 +545,8 @@ on new()
 
 		(* @return  missing value of tab is not found. TabInstance *)
 		on findTabEndingWithName(targetName)
+			if running of application "Safari" is false then return missing value
+
 			tell application "Safari"
 				repeat with nextWindow in windows
 					try
@@ -553,6 +561,8 @@ on new()
 
 		(* @return  missing value of tab is not found. *)
 		on findTabWithUrl(targetUrl)
+			if running of application "Safari" is false then return missing value
+
 			tell application "Safari"
 				repeat with nextWindow in windows
 					try
@@ -567,6 +577,8 @@ on new()
 
 		(* @return  missing value of tab is not found. *)
 		on findTabStartingWithUrl(urlPrefix)
+			if running of application "Safari" is false then return missing value
+
 			if urlPrefix does not start with "http" then set urlPrefix to "https://" & urlPrefix
 
 			tell application "Safari"
@@ -585,7 +597,15 @@ on new()
 			@return  missing value of tab is not found.
 		*)
 		on findTabWithUrlContaining(urlSubstring)
+			if running of application "Safari" is false then return missing value
+
 			tell application "Safari"
+				tell front window
+					if URL of current tab contains urlSubstring then
+						return my _new(its id, index of current tab as integer)
+					end if
+				end tell
+
 				repeat with nextWindow in windows
 					try
 						set matchedTab to (first tab of nextWindow whose URL contains urlSubstring)
@@ -790,7 +810,8 @@ on new()
 				property _url : missing value
 
 				on getTitle()
-					name of appWindow
+					name of appWindow -- This returns the title of the front tab.
+					name of _tab -- This returns the title of the front tab.
 				end getTitle
 
 				on hasToolBar()
