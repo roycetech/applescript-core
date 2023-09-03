@@ -4,11 +4,11 @@
 	For additional functions related to a process/app, see process.applescript.
 
 	@Usage:
-		use syseveLib : script "system-events")
+		use systemEventsLib : script "system-events")
 
-		property syseve : syseveLib's new()
+		property systemEvents : systemEventsLib's new()
 
-	Or type: sset syseve
+	Or type: sset systemEvents
 
 	@Build:
 		make compile-lib SOURCE=core/system-events
