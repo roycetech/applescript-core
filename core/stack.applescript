@@ -2,27 +2,8 @@
 	@Build:
 		make compile-lib SOURCE=core/stack
 
-	@Last Modified: 2023-07-29 21:13:37
+	@Last Modified: 2023-09-04 14:00:59
 *)
-
-use loggerFactory : script "logger-factory"
-
-use testLib : script "test"
-
-property logger : missing value
-
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
-
-on spotCheck()
-	loggerFactory's injectBasic(me)
-	logger's start()
-
-	unitTest()
-
-	logger's finish()
-end spotCheck
-
-
 on new()
 	set localEmptyStack to {}
 
@@ -60,35 +41,3 @@ on new()
 		end pop
 	end script
 end new
-
-
--- Private Codes below =======================================================
-
-(*
-	Handler grouped by hundredths.
-	Put the case you are debugging at the top, and move to correct place once verified.
-*)
-on unitTest()
-	set test to testLib's new()
-	set ut to test's new()
-	set stack to new()
-
-	tell ut
-		newMethod("getSize")
-		assertEqual(0, stack's getSize(), "Initial")
-		stack's push("test 1")
-		assertEqual(1, stack's getSize(), "After adding an element")
-		stack's pop()
-		assertEqual(0, stack's getSize(), "After removing the single element")
-
-		newMethod("peek")
-		set sutPeek to new()
-		assertEqual(missing value, stack's peek(), "Initial")
-		stack's push("test 2")
-		assertEqual("test 2", stack's peek(), "After pushing a value")
-		stack's pop()
-		assertEqual(missing value, stack's peek(), "After popping the only value")
-
-		done()
-	end tell
-end unitTest

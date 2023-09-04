@@ -33,8 +33,6 @@ use plutilLib : script "plutil"
 
 use spotScript : script "spot-test"
 
-use testLib : script "test"
-
 property logger : missing value
 property session : missing value
 
@@ -42,8 +40,6 @@ property CLICLICK_CLI : missing value
 property savedPosition : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
-
-if name of current application is "osascript" then unitTest()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)
@@ -346,21 +342,3 @@ on new()
 		end _formatCoordinates
 	end script
 end new
-
-
-on unitTest()
-	set sut to new()
-
-	set test to testLib's new()
-	set ut to test's new()
-	tell ut
-		newMethod("_formatCoordinates")
-		-- expected, actual, description
-		assertEqual("1,1", sut's _formatCoordinates(1, 1), "Both positive")
-		assertEqual("1,=-1", sut's _formatCoordinates(1, -1), "Left positive")
-		assertEqual("=-1,1", sut's _formatCoordinates(-1, 1), "Right positive")
-		assertEqual("=-1,=-1", sut's _formatCoordinates(-1, -1), "Both negative")
-
-		done()
-	end tell
-end unitTest

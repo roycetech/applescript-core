@@ -2,15 +2,23 @@
 	TOFIX: Circular dependency to logger resulting to missing value for this script's logger.
 		Appears to be fixed by doing the import inside the handler, observe if there's performance degradation.
 
-	Update the "text-to-speech-_default.plist" to add customization. This is also required for the integration testing.
+	Update the "text-to-speech_default.plist" to add customization. This is also required for the integration testing.
 
 	Use Samantha as the speaker for the best experience.
+
+	@Usage:
+		use speechLib : script "core/speech"
+		set speech to speechLib's new(missing value)  for the default customization config.
+		speech's speak("some text")
 
 	@Known Issues:
 		Do not implement a logger inside any of the non-test handlers as that would result in a circular dependency with the logging library.
 
 	@Plists:
 		text-to-speech_default
+
+	@Testing:
+		Difficult to unit test. Better to test this manually.
 
 	@Build:
 		make compile-lib SOURCE=core/speech
@@ -35,8 +43,6 @@ use usrLib : script "user"
 
 use spotScript : script "spot-test"
 
-use testLib : script "test"
-
 -- PROPERTIES =================================================================
 property logger : missing value
 property usr : missing value
@@ -55,7 +61,6 @@ on spotCheck()
 
 
 	set cases to listUtil's splitByLine("
-		Integration Test
 		Manual: Random
 		Manual: Private: Load Plist
 		Manual: Private: Localize Message
@@ -70,18 +75,16 @@ on spotCheck()
 	end if
 
 	if caseIndex is 1 then
-		integrationTest()
 
-	else if caseIndex is 2 then
 		set sut to new(missing value)
 		sut's speak("2904")
 		sut's speak("hello")
 
-	else if caseIndex is 3 then
+	else if caseIndex is 2 then
 		set sut to new("text-to-speech_ama")
 		sut's _loadTranslations()
 
-	else if caseIndex is 4 then
+	else if caseIndex is 3 then
 		set sut to new("text-to-speech_ama")
 		sut's _loadTranslations()
 		logger's infof("Handler result: {}", sut's _localizeMessage("Is xlarge smaller than std?"))
@@ -114,7 +117,7 @@ on new(pLocalizationConfigName)
 		property _localizationConfigName : missing value
 		property _translationKeys : {}
 		property _translationsDictionary : missing value
-
+		property _userInMeetingStub : missing value
 
 		on _loadTranslations()
 			set _translationsLoaded to true
@@ -137,19 +140,28 @@ on new(pLocalizationConfigName)
 			set _translationKeys to plistBuddy's getKeys()
 			set _translationsDictionary to mapLib's new()
 			repeat with nextKey in _translationKeys
-				-- logger's debugf("nextKey: {}", nextKey)
+				if nextKey starts with "_" then set nextKey to text 2 thru -1 of nextKey
+				-- log "nextKey: " & nextKey
 				set nextValue to plistBuddy's getValue(nextKey)
 				-- logger's debugf("nextValue: {}", nextValue)
+				-- log "nextValue: " & nextValue
 				_translationsDictionary's putValue(nextKey, nextValue)
 			end repeat
 		end _loadTranslations
 
 
 		on _localizeMessage(message)
+			-- log "localize: " & message
 			set localizedMessage to message as text
 			repeat with nextTranslatable in _translationKeys
 				set isRegex to nextTranslatable starts with "/" and nextTranslatable ends with "/"
+				-- log "isRegex: " & isRegex
+				if nextTranslatable starts with "_" then set nextTranslatable to text 2 thru -1 of nextTranslatable
+				-- log "nextTranslatable: " & nextTranslatable
+				-- log "class: " & class of nextTranslatable
+
 				if isRegex then
+					-- log 1
 					set nextTranslation to _translationsDictionary's getValue(nextTranslatable)
 					set pattern to text 2 thru ((count of nextTranslatable) - 1) of nextTranslatable
 
@@ -159,6 +171,7 @@ on new(pLocalizationConfigName)
 					end if
 
 				else if localizedMessage contains nextTranslatable then
+					-- log 2
 					-- warzone, values from the plist needs to be coerced into text to make it work.
 					set nextTranslation to _translationsDictionary's getValue(nextTranslatable)
 					-- logger's debugf("Translating: '{}' to '{}'", {nextTranslatable, nextTranslation})
@@ -175,6 +188,20 @@ on new(pLocalizationConfigName)
 		end _localizeMessage
 
 
+		on speakFreely(rawText)
+			if my waitNextWords then
+				say rawText
+				set my waitNextWords to false
+
+			else if my synchronous then
+				say rawText
+
+			else
+				say rawText without waiting until completion
+			end if
+		end speakFreely
+
+
 		(* @returns the translated text if present, otherwise the original text to passed. *)
 		on speak(rawText)
 			if not _translationsLoaded then _loadTranslations()
@@ -184,7 +211,7 @@ on new(pLocalizationConfigName)
 			*)
 			if not isSpot then
 				try
-					if usr's isInMeeting() then
+					if std's nvl(_userInMeetingStub, false) or usr's isInMeeting() then
 						-- logger's info("SILENCED: " & rawText) -- Dangerous to have access logger instance here.
 						log "SILENCED: " & rawText
 						return rawText
@@ -204,9 +231,11 @@ on new(pLocalizationConfigName)
 				set my waitNextWords to false
 
 			else if my synchronous then
+				log "synchronous"
 				say textToSpeak
 
 			else
+				log "asynchronous"
 				say textToSpeak without waiting until completion
 			end if
 
@@ -232,25 +261,3 @@ on new(pLocalizationConfigName)
 
 	SpeechInstance
 end new
-
-
-(*
-	@requires the "custom text-to-speech.plist"
-*)
-on integrationTest()
-	set sut to new(missing value)
-	set quiet of sut to true
-
-	set test to testLib's new()
-	set ut to test's new()
-	tell ut
-		newMethod("speak")
-		assertEqual("2-9 0-4", sut's speak("2904"), "Happy scenario")
-		assertEqual("2906", sut's speak("2906"), "Unregistered text")
-		assertEqual("2-9 0-4", sut's speak(2904), "Numbers")
-		assertEqual("Q-A", sut's speak("QA"), "Exact text match")
-		assertEqual("The variable s-e is not defined", sut's speak("The variable se is not defined"), "Inline text")
-		assertEqual("The selenium is not defined", sut's speak("The selenium is not defined"), "Whole word selenium match")
-		done()
-	end tell
-end integrationTest

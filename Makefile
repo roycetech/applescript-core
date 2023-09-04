@@ -174,21 +174,27 @@ test: test-all
 .PHONY: test
 
 test-unit:
-	osascript "test/core/Test map.applescript"
+# 	osascript "test/libs/Test cliclick.applescript"
+# 	osascript "test/libs/Test jira.applescript"
 # 	osascript "test/libs/Test log4as.applescript"
-# 	osascript "test/core/Test redis.applescript"
-# 	osascript "test/core/Test list.applescript"
-# 	osascript "test/core/Test timed-cache-plist.applescript"
 # 	osascript "test/core/Test date-time.applescript"
-# 	osascript "test/apps/3rd-party/Test keyboard-maestro.applescript"
 # 	osascript "test/core/Test decorator.applescript"
-# 	osascript "test/core/Test regex.applescript"
 # 	osascript "test/core/Test file.applescript"
-# 	osascript "test/core/Test string.applescript"
-# 	osascript "test/core/Test plutil.applescript"
+# 	osascript "test/core/Test list.applescript"
+# 	osascript "test/core/Test map.applescript"
 # 	osascript "test/core/Test plist-buddy.applescript"
+# 	osascript "test/core/Test plutil.applescript"
+	osascript "test/core/Test property-list.applescript"
+# 	osascript "test/core/Test redis.applescript"
+# 	osascript "test/core/Test regex.applescript"
+# 	osascript "test/core/Test stack.applescript"
+# 	osascript "test/core/Test switch.applescript"
+# 	osascript "test/core/Test speech.applescript"
+# 	osascript "test/core/Test string.applescript"
+# 	osascript "test/core/Test timed-cache-plist.applescript"
 # 	osascript test/apps/1st-party/script-editorTest.applescript
 # 	osascript test/apps/1st-party/dec-script-editor-contentTest.applescript
+# 	osascript "test/apps/3rd-party/Test keyboard-maestro.applescript"
 
 
 watch: test
@@ -446,7 +452,7 @@ install-dvorak:
 	./scripts/compile-lib.sh core/keyboard
 	plutil -replace 'KeyboardInstance' -string 'dec-keyboard-dvorak-cmd' ~/applescript-core/config-lib-factory.plist
 
-compile-cliclick:
+build-cliclick:
 	./scripts/compile-lib.sh libs/cliclick/cliclick
 
 install-cliclick: compile-cliclick
