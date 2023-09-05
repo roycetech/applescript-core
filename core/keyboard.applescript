@@ -26,7 +26,7 @@ use std : script "std"
 use loggerFactory : script "logger-factory"
 use listUtil : script "list"
 use emoji : script "emoji"
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 use overriderLib : script "overrider"
 
 property logger : missing value

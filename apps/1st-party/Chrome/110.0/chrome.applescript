@@ -3,38 +3,38 @@ use scripting additions
 
 use listUtil : script "list"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	
+
 	set cases to listUtil's splitByLine("
     Manual: New Window
     Manual: New Tab
     Manual: Open the Developer tools
   ")
-	
+
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
-	
+
 	if caseIndex is 0 then
 		return
 	end if
-	
+
 	set sut to new()
-	
+
 	if caseIndex is 1 then
 		sut's newWindow("https://www.example.com")
-		
+
 	else if caseIndex is 2 then
 		sut's newTab("https://www.example.com")
-		
+
 	else if caseIndex is 3 then
 		sut's openDeveloperTools()
 	end if
-	
+
 end spotCheck
 
 on new()
@@ -46,7 +46,7 @@ on new()
 				set URL of active tab of newWindow to targetUrl
 			end tell
 		end newWindow
-		
+
 		on newTab(targetUrl)
 			tell application "Google Chrome"
 				activate
@@ -56,7 +56,7 @@ on new()
 				end tell
 			end tell
 		end newTab
-		
+
 		on openDeveloperTools()
 			tell application "Google Chrome"
 				activate

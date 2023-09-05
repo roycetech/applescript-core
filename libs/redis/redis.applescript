@@ -27,7 +27,7 @@
 	@Known Issues:
 		September 2, 2023 9:53 AM - Records are not currently supported.
 
-	@Last Modified: 2023-09-02 23:11:07
+	@Last Modified: 2023-09-05 12:05:52
  *)
 
 use script "Core Text Utilities"
@@ -39,7 +39,7 @@ use listUtil : script "list"
 use dt : script "date-time"
 
 use loggerFactory : script "logger-factory"
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 

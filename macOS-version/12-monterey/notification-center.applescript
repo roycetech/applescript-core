@@ -4,7 +4,7 @@
 	@Plists:
 		notification-appname - contains mapping for app id to app name.
 
-	@Last Modified: 2023-08-18 22:10:48
+	@Last Modified: 2023-09-05 12:05:52
 
 	For Mail notifications, the grouping must be set to Off.
 *)
@@ -20,7 +20,7 @@ use loggerLib : script "logger"
 use plutilLib : script "plutil"
 use notificationCenterHelperLib : script "notification-center-helper"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property plutil : missing value

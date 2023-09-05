@@ -16,7 +16,7 @@
 		Assumes automator is not used or opened for purposes other than the exclusive use of this script.
 		Wipes out clipboard contents.
 
-	@Last Modified: 2023-07-24 18:18:24
+	@Last Modified: 2023-09-05 12:05:50
 *)
 
 use scripting additions
@@ -33,7 +33,7 @@ use retryLib : script "retry"
 
 use overriderLib : script "overrider"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 

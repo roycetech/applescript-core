@@ -11,7 +11,7 @@
 	@Known Issues:
 		July 29, 2023 9:37 PM - Removed in plutil validation because it fails intermittently on the "matches" handler.
 
-	@Last Modified: 2023-09-01 20:24:20
+	@Last Modified: 2023-09-05 12:05:52
 *)
 
 use framework "Foundation"
@@ -24,7 +24,7 @@ use listUtil : script "list"
 
 use loggerFactory : script "logger-factory"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property ERROR_INVALID_PATTERN : 1000

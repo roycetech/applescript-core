@@ -31,7 +31,7 @@ use configLib : script "config"
 use retryLib : script "retry"
 use overriderLib : script "overrider"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : loggerFactory's newBasic("script-editor")
 property configSystem : configLib's new("system")
@@ -425,7 +425,7 @@ on new()
 				(* @returns the mac os notation folder of this script *)
 				on getScriptLocation()
 					if running of application "Script Editor" is false then return
-					
+
 					tell application "Script Editor" -- Wrapped due to error, was fine before.
 						set sut to path of document of appWindow
 						set scriptName to name of document of appWindow
@@ -435,20 +435,20 @@ on new()
 					set location to text 1 thru reducedLength of sut
 					(POSIX file location) as text
 				end getScriptLocation
-				
+
 				on mergeAllWindows()
 					if running of application "Script Editor" is false then return
-					
+
 					focus()
-					
+
 					tell application "System Events" to tell process "Script Editor"
 						click menu item "Merge All Windows" of menu 1 of menu bar item "Window" of menu bar 1
 					end tell
 				end mergeAllWindows
 			end script
-			
+
 			tell application "Script Editor" to set appWindow of ScriptEditorInstance to window id windowId
-			
+
 			ScriptEditorInstance
 		end _new
 	end script

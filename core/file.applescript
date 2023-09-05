@@ -8,7 +8,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2023-09-01 08:45:53
+	@Last Modified: 2023-09-05 12:05:52
 *)
 
 use script "Core Text Utilities"
@@ -20,7 +20,7 @@ use listUtil : script "list"
 use textUtil : script "string"
 use loggerFactory : script "logger-factory"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 

@@ -20,7 +20,7 @@ use listUtil : script "list"
 use loggerFactory : script "logger-factory"
 use overriderLib : script "overrider"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 

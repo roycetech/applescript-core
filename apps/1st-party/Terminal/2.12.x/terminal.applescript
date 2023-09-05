@@ -57,7 +57,7 @@ use extRun : script "dec-terminal-run"
 use extPath : script "dec-terminal-path"
 use extPrompt : script "dec-terminal-prompt"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 use overriderLib : script "overrider"
 

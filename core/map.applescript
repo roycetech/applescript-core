@@ -25,7 +25,7 @@ use loggerFactory : script "logger-factory"
 use configLib : script "config"
 use sbLib : script "string-builder"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property jsonLib : missing value

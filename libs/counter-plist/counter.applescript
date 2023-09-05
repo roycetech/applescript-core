@@ -1,9 +1,9 @@
 (*
 	Compile:
 		make compile-lib SOURCE=libs/counter-plist/counter
-		
-	WARNING: This script is crappy, do not remove the init() on every handler 
-	because it triggers a weird error where reference to countTotal is lost 
+
+	WARNING: This script is crappy, do not remove the init() on every handler
+	because it triggers a weird error where reference to countTotal is lost
 	despite being a globally declared variable.
 *)
 
@@ -18,9 +18,9 @@
 		4. All Dates
 		5. All Keys - is this useful?
 
-	UPDATE: 
+	UPDATE:
 		Removed logging to countDailyList because plutil is crashing due to the data size.
-		
+
 	TODO: Should we refactor this to use instances? June 22, 2023 3:04 PM
 *)
 
@@ -44,7 +44,7 @@ use listUtil : script "list"
 use loggerLib : script "logger"
 use plutilLib : script "plutil"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : loggerLib's new("counter")
 property plutil : plutilLib's new()
@@ -61,13 +61,13 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	logger's start()
-	
+
 	set cases to listUtil's splitByLine("
 		Total
 		Increment
 		Clear
 	")
-	
+
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -75,62 +75,62 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	set sutKey to thisCaseId
 	if caseIndex is 1 then
-		
+
 	else if caseIndex is 2 then
 		increment(thisCaseId)
-		
+
 	else if caseIndex is 3 then
 		clear(thisCaseId)
-		
+
 	end if
-	
+
 	logger's debugf("Test Key: {}", sutKey)
 	logger's infof("totalAll: {}", totalAll(sutKey))
 	logger's infof("totalToday: {}", totalToday(sutKey))
 	logger's infof("hasRunToday: {}", hasRunToday(sutKey))
 	logger's infof("hasNotRunToday: {}", hasNotRunToday(sutKey))
-	
+
 	spot's finish()
 	logger's finish()
-	
-	(*	
+
+	(*
 	log hasScriptRunToday(theKey)
-	
+
 	log isNthRun(theKey, 4)
-	log hasRun(theKey)	
+	log hasRun(theKey)
 	log hasNotRunToday(theKey)
-	
+
 	log hasScriptRunToday("Arrange Windows")
-	
+
 	log "Count total is: " & totalAll(theKey)
 	log "Count today is: " & totalToday(theKey)
 *)
-	
+
 end spotCheck
 
 
 on totalToday(theKey)
 	set todayDate to _formatDate(short date string of (current date))
 	set keyToday to format {"{}-{}", {theKey, todayDate}}
-	
+
 	set theCount to countDaily's getInt(keyToday)
 	if theCount is missing value then return 0
-	
+
 	theCount
 end totalToday
 
 (**)
 on increment(theKey)
 	set todayDate to _formatDate(short date string of (current date))
-	
+
 	set keyCount to countTotal's getInt(theKey)
 	if keyCount is missing value then set keyCount to 0
 	set keyCount to keyCount + 1
 	countTotal's setValue(theKey, keyCount)
-	
+
 	set keyToday to format {"{}-{}", {theKey, todayDate}}
 	set keyTodayCount to countDaily's getInt(keyToday)
 	if keyTodayCount is missing value then set keyTodayCount to 0
@@ -143,23 +143,23 @@ end increment
 on totalAll(theKey)
 	set theCount to countTotal's getInt(theKey)
 	if theCount is missing value then return 0
-	
+
 	theCount
 end totalAll
 
 
-(* 
-	Useful if you want lets say to do something every nth run. 
-	
-	@nth - a positive integer.	
-	@return boolean.	
+(*
+	Useful if you want lets say to do something every nth run.
+
+	@nth - a positive integer.
+	@return boolean.
 *)
 on isNthRun(theKey as text, nth as integer)
 	assertThat of std given condition:nth is greater than 0, messageOnFail:format {"The nth:{} must be a positive integer", nth}
-	
+
 	set totalCount to countTotal's getInt(theKey)
 	if the totalCount is missing value then return false
-	
+
 	totalCount mod nth is 0
 end isNthRun
 
@@ -192,14 +192,14 @@ end hasNotRunToday
 (* @scriptName - e.g. "Arrange Windows" *)
 on hasScriptRunToday(scriptName as text)
 	set keyToday to format {"Running: [{}.applescript]", my _stripExtension(scriptName)}
-	
+
 	totalToday(keyToday) is greater than 0
 end hasScriptRunToday
 
 (* @scriptName - e.g. "Arrange Windows" *)
 on totalScriptRunToday(scriptName as text)
 	set keyToday to format {"Running: [{}.applescript]", my _stripExtension(scriptName)}
-	
+
 	totalToday(keyToday)
 end totalScriptRunToday
 

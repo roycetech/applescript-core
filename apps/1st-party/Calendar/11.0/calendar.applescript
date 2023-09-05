@@ -57,7 +57,7 @@ use plutilLib : script "plutil"
 use processLib : script "process"
 use kbLib : script "keyboard"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property uiutil : missing value

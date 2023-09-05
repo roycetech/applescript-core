@@ -41,7 +41,7 @@ use plistBuddyLib : script "plist-buddy"
 use mapLib : script "map"
 use usrLib : script "user"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 -- PROPERTIES =================================================================
 property logger : missing value

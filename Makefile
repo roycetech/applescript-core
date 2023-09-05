@@ -22,9 +22,7 @@ STUB_LIBS :=  \
 	stubs/plist-buddy \
 	stubs/string \
 	stubs/string-builder \
-	stubs/notification-center-helper \
 	stubs/spot-test \
-	stubs/terminal \
 	stubs/user
 
 # 	config
@@ -94,7 +92,7 @@ install: _init compile
 	@echo "Installation done"
 
 $(STUB_LIBS): Makefile
-	osacompile -o "$(HOME)/Library/Script Libraries/$(patsubst stubs/%,%,$@).scpt" "scripts/stub.applescript"
+	osacompile -o "$(HOME)/Library/Script Libraries/core/$(patsubst stubs/%,%,$@).scpt" "scripts/stub.applescript"
 
 $(CORE_LIBS): Makefile
 	./scripts/compile-lib.sh core/$@
@@ -231,7 +229,7 @@ install-chrome:
 
 
 compile-safari: compile-dock
-	osacompile -o "$(HOME)/Library/Script Libraries/safari.scpt" "scripts/stub.applescript"
+	osacompile -o "$(HOME)/Library/Script Libraries/core/safari.scpt" "scripts/stub.applescript"
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-javascript
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari
 
@@ -241,7 +239,7 @@ install-safari: compile-safari
 	plutil -replace 'FIND_RETRY_SLEEP' -integer 1 ~/applescript-core/config-system.plist
 
 compile-safari-technology-preview:
-	osacompile -o "$(HOME)/Library/Script Libraries/safari-technology-preview.scpt" "scripts/stub.applescript"
+	osacompile -o "$(HOME)/Library/Script Libraries/core/safari-technology-preview.scpt" "scripts/stub.applescript"
 	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/dec-safari-technology-preview-javascript
 	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/safari-technology-preview
 
@@ -268,8 +266,8 @@ uninstall-automator:
 	# TODO:
 
 
-compile-terminal:
-	osacompile -o "$(HOME)/Library/Script Libraries/terminal.scpt" "scripts/stub.applescript"
+build-terminal:
+	osacompile -o "$(HOME)/Library/Script Libraries/core/terminal.scpt" "scripts/stub.applescript"
 ifeq ($(OS), ventura)
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-output
 	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-path
@@ -290,7 +288,7 @@ endif
 
 	./scripts/compile-lib.sh libs/sftp/dec-terminal-prompt-sftp
 
-install-terminal: compile-terminal
+install-terminal: build-terminal
 
 install-terminal-sftp: ## Add support to basic SFTP prompt
 	echo TODO
@@ -326,7 +324,7 @@ compile-dock:
 install-dock: compile-dock
 
 install-notification-center:
-	osacompile -o "$(HOME)/Library/Script Libraries/notification-center.scpt" "scripts/stub.applescript"
+	osacompile -o "$(HOME)/Library/Script Libraries/core/notification-center.scpt" "scripts/stub.applescript"
 
 ifeq ($(OS), ventura)
 	./scripts/compile-lib.sh "macOS-version/13-ventura/notification-center-helper"
@@ -421,7 +419,7 @@ install-viscosity:
 	./scripts/compile-lib.sh apps/3rd-party/Viscosity/1.10.x/viscosity
 
 compile-zoom:
-	osacompile -o "$(HOME)/Library/Script Libraries/zoom.scpt" "scripts/stub.applescript"
+	osacompile -o "$(HOME)/Library/Script Libraries/core/zoom.scpt" "scripts/stub.applescript"
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/dec-user-zoom
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-window
 	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions

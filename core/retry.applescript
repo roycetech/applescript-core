@@ -11,7 +11,7 @@ use scripting additions
 
 use loggerFactory : script "logger-factory"
 use listUtil : script "list"
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 use idlerLib : script "idler"
 
 property logger : missing value

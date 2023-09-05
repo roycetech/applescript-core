@@ -27,7 +27,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2023-08-26 16:23:14
+	@Last Modified: 2023-09-05 12:05:51
 *)
 
 use script "Core Text Utilities"
@@ -49,7 +49,7 @@ use retryLib : script "retry"
 
 use safariJavaScript : script "safari-javascript"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value

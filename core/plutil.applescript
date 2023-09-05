@@ -37,7 +37,7 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2023-09-01 13:33:28
+	@Last Modified: 2023-09-05 12:05:52
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
@@ -52,7 +52,7 @@ use loggerFactory : script "logger-factory"
 
 use overriderLib : script "overrider"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 -- PROPERTIES =================================================================
 property logger : missing value

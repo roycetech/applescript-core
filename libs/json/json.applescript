@@ -1,12 +1,12 @@
-(* 
+(*
 	@Prerequisites
-		Requires JSON Helper app from the AppStore.  https://apps.apple.com/us/app/json-helper-for-applescript/id453114608?mt=12. 
+		Requires JSON Helper app from the AppStore.  https://apps.apple.com/us/app/json-helper-for-applescript/id453114608?mt=12.
 		Accessibility permission for JSON Helper. You simply need to confirm access on the first time you run this script to spot check.
-		
+
 	@Plists
 		config-system.plist
 			AppleScript Core Project Path - This is required for testing only.
-			
+
 	@Build:
 		make compile-json
 *)
@@ -19,7 +19,7 @@ use listUtil : script "list"
 use loggerLib : script "logger"
 use configLib : script "config"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : loggerLib's new("json")
 
@@ -27,7 +27,7 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	logger's start()
-	
+
 	set configSystem to configLib's new("system")
 	set asProjectPath to configSystem's getValue("AppleScript Core Project Path")
 	set cases to listUtil's splitByLine("
@@ -36,7 +36,7 @@ on spotCheck()
 		Convert object to JSON String
 		From JSON String
 	")
-	
+
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -44,25 +44,25 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	if caseIndex is 1 then
 		set jsonData to readJsonFile(asProjectPath & "/test/fixtures/sample-1.json")
 		log jsonData
-		
+
 		log |menu| of jsonData
 		log menuitem of popup of |menu| of jsonData
-		
+
 	else if caseIndex is 2 then
 		log readJsonFile(asProjectPath & "/test/fixtures/sample-2.json")
-		
+
 	else if caseIndex is 3 then
 		log toJsonString({|name|:"Hadooken", startDate:missing value})
-		
+
 	else if caseIndex is 4 then
 		log class of fromJsonString("{\"name\":\"Havok\", \"last\":\"Noise\"}")
-		
+
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck

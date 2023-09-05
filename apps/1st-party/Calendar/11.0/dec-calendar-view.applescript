@@ -12,7 +12,7 @@ use loggerFactory : script "logger-factory"
 use loggerLib : script "logger"
 use usrLib : script "user"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property usr : missing value

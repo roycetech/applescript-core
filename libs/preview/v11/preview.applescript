@@ -2,7 +2,7 @@
 	Library wrapper for Preview app.
 
 		@Created: July 14, 2023 6:57 PM
-		@Last Modified: 2023-08-28 10:44:24
+		@Last Modified: 2023-09-05 12:05:52
 *)
 use scripting additions
 
@@ -15,7 +15,7 @@ use loggerFactory : script "logger-factory"
 use kbLib : script "keyboard"
 use retryLib : script "retry"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value

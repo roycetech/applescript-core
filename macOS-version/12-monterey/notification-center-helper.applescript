@@ -4,7 +4,7 @@
 
 	@Requires notification-center to be deployed first.
 
-	@Last Modified: 2023-08-18 22:10:48
+	@Last Modified: 2023-09-05 12:05:52
 *)
 
 use scripting additions
@@ -14,7 +14,7 @@ use listUtil : script "list"
 use loggerFactory : script "logger-factory"
 use notificationCenterLib : script "notification-center"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property notificationCenter : missing value

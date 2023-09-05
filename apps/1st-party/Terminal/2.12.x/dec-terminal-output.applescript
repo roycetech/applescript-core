@@ -2,7 +2,7 @@
 	@Build:
 		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-prompt-sftp
 
-	@Last Modified: 2023-07-29 10:52:09
+	@Last Modified: 2023-09-05 12:05:51
 *)
 
 use listUtil : script "list"
@@ -12,7 +12,7 @@ use loggerFactory : script "logger-factory"
 use kbLib : script "keyboard"
 use retryLib : script "retry"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property retry : missing value

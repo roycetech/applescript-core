@@ -12,7 +12,7 @@ use listUtil : script "list"
 use textUtil : script "string"
 use loggerFactory : script "logger-factory"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 
 property logger : missing value

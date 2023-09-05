@@ -2,7 +2,7 @@
 	@Build:
 		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
 
-	@Last Modified: 2023-07-29 12:34:52
+	@Last Modified: 2023-09-05 12:05:51
 *)
 
 use script "Core Text Utilities"
@@ -18,7 +18,7 @@ use loggerFactory : script "logger-factory"
 
 use retryLib : script "retry"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property retry : missing value

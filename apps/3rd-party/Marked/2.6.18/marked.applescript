@@ -1,5 +1,5 @@
 (*
-	@Last Modified: 2023-07-28 19:42:39
+	@Last Modified: 2023-09-05 12:05:51
 
 	@Version: 2.16.18
 
@@ -22,7 +22,7 @@ use loggerFactory : script "logger-factory"
 use loggerLib : script "logger"
 use configLib : script "config"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 

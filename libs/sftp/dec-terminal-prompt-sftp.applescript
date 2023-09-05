@@ -17,7 +17,7 @@ use loggerFactory : script "logger-factory"
 use loggerLib : script "logger"
 use terminalLib : script "terminal"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property terminal : missing value

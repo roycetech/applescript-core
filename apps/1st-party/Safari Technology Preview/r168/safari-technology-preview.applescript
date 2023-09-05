@@ -51,7 +51,7 @@ use kbLib : script "keyboard"
 use uiutilLib : script "ui-util"
 use winUtilLib : script "window"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property retry : missing value

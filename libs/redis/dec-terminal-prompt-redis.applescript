@@ -10,7 +10,7 @@
 		instance name
 		handler name
 
-	@Last Modified: 2023-09-02 23:12:10
+	@Last Modified: 2023-09-05 12:05:52
 *)
 
 use listUtil : script "list"
@@ -20,7 +20,7 @@ use regex : script "regex"
 use loggerFactory : script "logger-factory"
 use terminalLib : script "terminal"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property terminal : missing value

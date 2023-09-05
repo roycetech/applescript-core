@@ -1,13 +1,13 @@
 (*
 	@Created: July 9, 2023 11:52 AM
-	@Last Modified: 2023-07-09 14:41:03
+	@Last Modified: 2023-09-05 12:05:51
 *)
 
 use loggerFactory : script "logger-factory"
 
 use listUtil : script "list"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -16,12 +16,12 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-	
+
 	set cases to listUtil's splitByLine("
 		Manual: Found
 		Manual: Not found
 	")
-	
+
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -29,7 +29,7 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	set sut to new()
 	if caseIndex is 1 then
 		set sutTabName to "General"
@@ -39,16 +39,16 @@ on spotCheck()
 		-- logger's infof("Handler result: {}, ", )
 		-- assertThat of std without condition given messageOnFail:"Failed spot check"
 		-- logger's info("Passed")
-		
+
 	else if caseIndex is 2 then
 		set sutTabName to "Unicorn"
 		logger's debugf("sutTabName: {}", sutTabName)
 		sut's switchPreferencesTab(sutTabName)
-		
+
 	else
-		
+
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -58,7 +58,7 @@ on new()
 	script MosaicInstance
 		on switchPreferencesTab(newTabName)
 			if running of application "Mosaic" is false then return
-			
+
 			tell application "System Events" to tell process "Mosaic"
 				try
 					click (first button of toolbar 1 of front window whose name is newTabName)

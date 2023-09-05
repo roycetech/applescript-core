@@ -9,7 +9,7 @@
 	@Build:
 		make compile-lib SOURCE=apps/1st-party/Calendar/11.0/calendar-event
 
-	@Last Modified: 2023-08-31 15:16:15
+	@Last Modified: 2023-09-05 12:05:50
 *)
 
 use scripting additions
@@ -24,7 +24,7 @@ use kbLib : script "keyboard"
 use sbLib : script "string-builder"
 use uiutilLib : script "ui-util"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 use overriderLib : script "overrider"
 
 -- property overrider : overriderLib's new()

@@ -1,5 +1,5 @@
 (*
-	@Last Modified: 2023-07-24 18:18:24
+	@Last Modified: 2023-09-05 12:05:52
 *)
 use std : script "std"
 
@@ -7,7 +7,7 @@ use listUtil : script "list"
 
 use loggerFactory : script "logger-factory"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 

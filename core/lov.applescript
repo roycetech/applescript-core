@@ -10,7 +10,7 @@
 	@Build:
 		make compile-lib SOURCE=core/lov
 
-	@Last Modified: 2023-07-24 18:18:24
+	@Last Modified: 2023-09-05 12:05:52
 *)
 
 use listUtil : script "list"
@@ -18,7 +18,7 @@ use listUtil : script "list"
 use loggerLib : script "logger"
 use plutilLib : script "plutil"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 use loggerFactory : script "logger-factory"
 

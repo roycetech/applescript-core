@@ -26,7 +26,7 @@ use loggerFactory : script "logger-factory"
 use ccLib : script "control-center"
 use overriderLib : script "overrider"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property cc : missing value

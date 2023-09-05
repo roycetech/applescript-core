@@ -1,5 +1,5 @@
 (*
-	@Last Modified: 2023-08-31 23:10:56
+	@Last Modified: 2023-09-05 12:05:52
 
 	@Build:
 		make compile-lib SOURCE=core/dialog
@@ -11,7 +11,7 @@ use std : script "std"
 use loggerFactory : script "logger-factory"
 use listUtil : script "list"
 use speechLib : script "speech"
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 use testLib : script "simple-test"
 
 property logger : missing value

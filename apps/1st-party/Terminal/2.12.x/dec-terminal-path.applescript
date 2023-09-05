@@ -2,7 +2,7 @@
 	@Build:
 		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-path
 
-	@Last Modified: 2023-07-29 12:32:32
+	@Last Modified: 2023-09-05 12:05:51
 *)
 
 use scripting additions
@@ -14,7 +14,7 @@ use listUtil : script "list"
 
 use loggerFactory : script "logger-factory"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 

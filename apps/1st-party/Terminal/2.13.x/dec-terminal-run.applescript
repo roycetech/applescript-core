@@ -1,6 +1,6 @@
 (*
 	@Session:
-		
+
 *)
 
 use script "Core Text Utilities"
@@ -14,7 +14,7 @@ use retryLib : script "retry"
 use plutilLib : script "plutil"
 use terminalLib : script "terminal"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : loggerLib's new("dec-terminal-run")
 property retry : retryLib's new()
@@ -33,14 +33,14 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	logger's start()
-	
+
 	set cases to listUtil's splitByLine("
 		Manual: Run Shell
 		Manual: Run Shell Void
 		Manual: Change Directory
 		Manual: Run and Wait
 	")
-	
+
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -48,24 +48,24 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)
-	
+
 	if caseIndex is 1 then
 		logger's infof("Run echo command result: {}", sut's runShell("echo hello"))
-		
+
 	else if caseIndex is 2 then
 		sut's runShellVoid("echo world")
-		
+
 	else if caseIndex is 3 then
 		sut's doCd("~/Desktop")
-		
+
 	else if caseIndex is 4 then
 		sut's runAndWait("sleep 5")
-		
+
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -74,7 +74,7 @@ end spotCheck
 on decorate(termTabScript)
 	script TerminalTabInstance
 		property parent : termTabScript
-		
+
 		(*
 			Runs a bash command waiting for its result.
 
@@ -90,7 +90,7 @@ on decorate(termTabScript)
 			-- session's removeValue(propertyName)
 			session's deleteKey(propertyName)
 			-- logger's debugf("Running Command: \"{}\"", bashCommand)
-			
+
 			set calcCommmand to format {"plutil -replace {} -string \"`{}`\" {}", {quoted form of propertyName, shellCommand, SESSION_PLIST}}
 			-- logger's debugf("Calculated Command: {}", calcCommmand)
 			set NO_RESULT to "_noresult_"
@@ -111,24 +111,24 @@ on decorate(termTabScript)
 					end if
 				end script
 			end tell
-			
+
 			set waitResult to exec of retry on CommandWaiter for my commandRunMax by my commandRetrySleepSeconds
 			if waitResult is missing value or waitResult is equal to NO_RESULT then
 				logger's warn("Bash Script did not communicate OK via session.plist")
 				session's deleteKey(propertyName)
 				return missing value
 			end if
-			
+
 			session's deleteKey(propertyName)
 			return waitResult
 		end runShell
-		
+
 		(*
 			Runs a shell command without waiting for the result
-			
+
 			@Known Issue:
-				Beeps when doing a multi-line echo command. Solved, you need 
-				to avoid indentation using the tab character. You may indent 
+				Beeps when doing a multi-line echo command. Solved, you need
+				to avoid indentation using the tab character. You may indent
 				using spaces instead.
 		*)
 		on runShellVoid(shellCommand)
@@ -141,7 +141,7 @@ on decorate(termTabScript)
 				do script shellCommand in my appWindow
 			end tell
 		end runShellVoid
-		
+
 		on runAndWait(shellCommand)
 			runShellVoid(shellCommand)
 			delay 0.2 -- experiment from 0.1, SSH to EC2 stack on new install is crappy.
@@ -149,7 +149,7 @@ on decorate(termTabScript)
 			_refreshTabName()
 			delay 0.2 -- Seems to solve mysterious issues. 0.1 has issues, finding BSS stack reports incorrect result.
 		end runAndWait
-		
+
 		on doCd(thePath)
 			tell application "Terminal" to do script "cd " & thePath in my appWindow
 			waitForPrompt()

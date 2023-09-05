@@ -2,7 +2,7 @@
 	@Build:
 		make compile-lib SOURCE=core/date-time
 
-	@Last Modified: 2023-08-31 16:24:05
+	@Last Modified: 2023-09-05 12:05:52
 *)
 use framework "Foundation"
 
@@ -17,7 +17,7 @@ use regex : script "regex"
 
 use loggerFactory : script "logger-factory"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property timeBufferMin : 2

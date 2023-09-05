@@ -21,7 +21,7 @@ use loggerLib : script "logger"
 use retryLib : script "retry"
 use usrLib : script "user"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : loggerLib's new("system-settings")
 property retry : retryLib's new()

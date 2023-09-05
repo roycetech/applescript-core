@@ -34,7 +34,7 @@ use finderLib : script "finder"
 use configLib : script "config"
 use kbLib : script "keyboard"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 use decoratorLib : script "decorator"
 

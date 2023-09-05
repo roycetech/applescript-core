@@ -43,7 +43,7 @@ use mapLib : script "map"
 use switchLib : script "switch"
 use plutilLib : script "plutil"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property speech : speechLib's new(missing value)

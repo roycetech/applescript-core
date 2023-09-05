@@ -9,7 +9,7 @@
 		Project Find Results
 		Welcome Guide
 
-	@Last Modified: 2023-08-27 20:17:22
+	@Last Modified: 2023-09-05 12:05:51
 	@Tab: AC 🚧
 	@Build:
 		make compile-pulsar
@@ -28,7 +28,7 @@ use loggerFactory : script "logger-factory"
 use listUtil : script "list"
 use retryLib : script "retry"
 use configLib : script "config"
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 use kbLib : script "keyboard"
 use syseveLib : script "system-events"
 use clipLib : script "clipboard"

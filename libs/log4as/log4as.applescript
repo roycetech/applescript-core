@@ -25,7 +25,7 @@ use listUtil : script "list"
 use mapLib : script "map"
 use plistBuddyLib : script "plist-buddy"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 (* A bit confusing initially but the idea is, the higher the number, the more chances of getting logged. *)
 property level : {debug:1, info:2, warn:3, ERR:4, OFF:5}

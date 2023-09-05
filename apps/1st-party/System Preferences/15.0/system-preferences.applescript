@@ -21,7 +21,7 @@ use usrLib : script "user"
 
 use overriderLib : script "overrider"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 property retry : missing value

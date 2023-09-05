@@ -3,7 +3,7 @@
 		applescript-core
 
 	@Created: September 4, 2023 3:58 PM
-	@Last Modified: 2023-09-04 19:46:48
+	@Last Modified: 2023-09-05 10:17:11
 *)
 
 use loggerFactory : script "logger-factory"
@@ -62,6 +62,19 @@ on new()
 				textUtil's stringAfter(name of sut, "repository ")
 			end tell
 		end getCurrentRepositoryName
+
+
+		on clickStageFile()
+			if running of application "GitKraken" is false then return missing value
+
+			tell application "System Events" to tell process "GitKraken"
+				if (count of windows) is 0 then return missing value
+
+				set sut to button 1 of group 1 of group 3 of group 5 of group 2 of group 1 of UI element 1 of front window
+
+			end tell
+
+		end clickStageFile
 	end script
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()

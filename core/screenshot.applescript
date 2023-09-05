@@ -6,6 +6,9 @@
 
 		Date Format: 0819-0859-
 
+	@Project:
+		applescript-core
+
 	@Script Menu
 		View Image From Clipboard - to view the clipboard contents during testing.
 
@@ -23,7 +26,7 @@ use loggerFactory : script "logger-factory"
 
 use dateTime : script "date-time"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -100,12 +103,17 @@ on new()
 			All handlers lead here.
 		*)
 		on captureDimensionsToFile(x, y, w, h, baseFilename)
-			set filePath to std's ternary(baseFilename is missing value, "", format {"{}/{}-{}", {savePath, dateTime's nowForScreenShot(), baseFilename}})
+			if baseFilename is missing value then
+				set filePathParam to ""
+			else
+				set filePathParam to format {"{}/{}-{}", {savePath, dateTime's nowForScreenShot(), baseFilename}}
+			end if
+
 			set clipboardParam to std's ternary(baseFilename is missing value, " -c", "")
-			set command to format {"screencapture{} -R{},{},{},{} {}", {clipboardParam, x, y, w, h, filePath}}
+			set command to format {"screencapture{} -R{},{},{},{} {}", {clipboardParam, x, y, w, h, filePathParam}}
 			-- logger's debugf("command: {}", command)
 			do shell script command
-			std's ternary(baseFilename is missing value, missing value, filePath)
+			std's ternary(baseFilename is missing value, missing value, filePathParam)
 		end captureDimensionsToFile
 
 

@@ -1,13 +1,13 @@
 (*
 	This decorator provides zoom action handlers.
-	
+
 	@Related:
 		zoom.applescript
 
 	@Build:
 		make compile-lib SOURCE=apps/3rd-party/zoom.us/5.x/zoom-actions
 
-	@Last Modified: 2023-07-13 21:07:07
+	@Last Modified: 2023-09-05 12:05:51
 *)
 
 use listUtil : script "list"
@@ -18,7 +18,7 @@ use kbLib : script "keyboard"
 use processLib : script "process"
 use zoomLib : script "zoom"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -34,21 +34,21 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-	
+
 	set cases to listUtil's splitByLine("
 		Manual: Unmute
 		Manual Mute
 		Manual: Start Video
 		Manual: Stop Video
 		Manual: Raise Hand
-		
+
 		Manual: Lower Hand
 		Manual: Start Screen Sharing
 		Manual: Stop Screen Sharing
 		Manual: End Meeting
 		Manual: Cycle Camera
 	")
-	
+
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -56,48 +56,48 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	set sut to zoomLib's new()
 	try
 		sut's unmute
 	on error
 		set sut to decorate(sut)
 	end try
-	
+
 	if caseIndex is 1 then
 		sut's unmute()
-		
+
 	else if caseIndex is 2 then
 		sut's mute()
-		
+
 	else if caseIndex is 3 then
 		sut's cameraOn()
-		
+
 	else if caseIndex is 4 then
 		sut's cameraOff()
-		
+
 	else if caseIndex is 5 then
 		sut's raiseHand()
-		
+
 	else if caseIndex is 6 then
 		sut's lowerHand()
-		
+
 	else if caseIndex is 7 then
 		sut's startSharing()
-		
+
 	else if caseIndex is 8 then
 		sut's stopSharing()
-		
+
 	else if caseIndex is 9 then
 		sut's endMeeting()
-		
+
 	else if caseIndex is 10 then
 		sut's cycleCamera()
-		
+
 	else
-		
+
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -121,52 +121,52 @@ on decorate(mainScript)
 	script ZoomInstance
 		property parent : mainScript
 		property currentCamera : missing value
-		
+
 		(**)
 		on cycleCamera(listOfCamera)
-			# TODO		
+			# TODO
 		end cycleCamera
-		
-		
+
+
 		on mute()
 			_clickMenuAction("Mute Audio")
 		end mute
-		
-		
+
+
 		on unmute()
 			_clickMenuAction("Unmute Audio")
 		end unmute
-		
-		
+
+
 		on cameraOn()
 			_clickMainButton("Start Video")
 		end cameraOn
-		
-		
+
+
 		on cameraOff()
 			_clickMainButton("Stop Video")
 		end cameraOff
-		
-		
+
+
 		on setMicToSystem()
 			_clickAudioSubMenu("MacBook Pro Microphone (MacBook Pro Microphone)")
 		end setMicToSystem
-		
-		
+
+
 		on setAudioToSystem()
 			_clickAudioSubMenu("MacBook Pro Speakers (MacBook Pro Speakers)")
 		end setAudioToSystem
-		
-		
+
+
 		on raiseHand()
 			if running of application "zoom.us" is false then return false
-			
+
 			activate application "zoom.us"
 			delay 0.1
 			tell application "System Events" to tell process "zoom.us"
 				if name of front window is "Reactions" then
 					logger's warn("Your virtual hand may already be raised")
-					
+
 				else if name of front window is "Zoom Meeting" then
 					kb's pressOptionKey("y")
 				else
@@ -174,10 +174,10 @@ on decorate(mainScript)
 				end if
 			end tell
 		end raiseHand
-		
+
 		on lowerHand()
 			if running of application "zoom.us" is false then return false
-			
+
 			activate application "zoom.us"
 			delay 0.1
 			tell application "System Events" to tell process "zoom.us"
@@ -188,59 +188,59 @@ on decorate(mainScript)
 				end if
 			end tell
 		end lowerHand
-		
-		
+
+
 		(* Too slow when in a big meeting. *)
 		on startSharing given audio:theAudio as boolean
 			if not running of application "zoom.us" then return
-			
+
 			set soundRequested to false
 			try
 				theAudio
 				set soundRequested to theAudio
 			end try
-			
+
 			tell application "System Events" to tell process "zoom.us"
 				if exists (window SHARING_WIN_NAME) then
 					logger's debug("Already sharing...")
-					
+
 					set sharingSound to (count of (images of window "zoom share statusbar window" whose help starts with "You are sharing sound")) is not 0
 					set synched to sharingSound is equal to soundRequested
 					logger's debug("Synched: " & synched)
 					if synched then return
-					
+
 					my stopSharing()
 				end if
-				
+
 				tell window "Zoom Meeting"
 					click (first button whose description is "Share Screen")
 				end tell
-				
+
 				logger's debug("Waiting for the share screen system dialogue window...")
 				repeat until window SELECT_SHARE_WIN_NAME exists
 					delay 0.5
 				end repeat
-				
+
 				set doTurnOn to soundRequested and value of checkbox 1 of window SELECT_SHARE_WIN_NAME is 0
 				set doTurnOff to soundRequested is false and value of checkbox 1 of window SELECT_SHARE_WIN_NAME is 1
-				
+
 				if doTurnOff or doTurnOn then
 					click (first checkbox of window SELECT_SHARE_WIN_NAME whose description is "Share sound")
 				end if
-				
+
 				tell window SELECT_SHARE_WIN_NAME to click (first button whose description starts with "Share ")
 			end tell
 		end startSharing
-		
-		
+
+
 		on stopSharing()
 			if not running of application "zoom.us" then return
-			
+
 			if usr's isScreenSharing() is false then
 				logger's warn("Screen sharing appears to be off already.")
 				return
 			end if
-			
+
 			logger's debug("Stopping shared...")
 			tell application "System Events" to tell process "zoom.us" to tell window "zoom share statusbar window"
 				ignoring application responses
@@ -248,25 +248,25 @@ on decorate(mainScript)
 				end ignoring
 			end tell
 		end stopSharing
-		
-		
+
+
 		on endMeeting()
 			if not running of application "zoom.us" then return false
-			
+
 			tell application "System Events" to tell process "zoom.us"
 				set meetingWindowAbsent to not (exists (window "Zoom Meeting"))
 			end tell
-			
+
 			if meetingWindowAbsent then
 				set zoomProcess to process's new("zoom.us")
 				zoomProcess's terminate()
 				return
 			end if
-			
+
 			tell application "System Events" to tell process "zoom.us"
 				click (first button of window "Zoom Meeting" whose role description is "close button")
 				delay 0.1
-				
+
 				try
 					click (first button of window "" whose description is "Leave Meeting")
 				on error
@@ -274,14 +274,14 @@ on decorate(mainScript)
 				end try
 			end tell
 		end endMeeting
-		
-		
+
+
 		on _clickAudioSubMenu(buttonDescription)
 			if running of application "zoom.us" is false then return
-			
+
 			tell application "System Events" to tell process "zoom.us"
 				if not (window "Zoom Meeting" exists) then return
-				
+
 				click (first button of window "Zoom Meeting" whose description is "Audio sub menu")
 				delay 0.1
 				try
@@ -291,8 +291,8 @@ on decorate(mainScript)
 				end try
 			end tell
 		end _clickAudioSubMenu
-		
-		
+
+
 		on _clickMenuAction(menuItemName)
 			tell application "System Events" to tell process "zoom.us"
 				try
@@ -300,14 +300,14 @@ on decorate(mainScript)
 				end try
 			end tell
 		end _clickMenuAction
-		
-		
+
+
 		(*
 			Will fail when the controls are not visible. We'll use menus instead for better predictability.
 		*)
 		on _clickMainButton(buttonStartName)
 			if running of application "zoom.us" is false then return
-			
+
 			tell application "System Events" to tell process "zoom.us" to tell my _getMeetingWindow()
 				try
 					click (first button whose description starts with buttonStartName)

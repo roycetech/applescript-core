@@ -11,7 +11,7 @@ use listUtil : script "list"
 
 use kbLib : script "keyboard"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 

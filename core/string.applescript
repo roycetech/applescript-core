@@ -10,14 +10,14 @@
 	@Build:
 		make compile-lib SOURCE=core/string
 
-	@Last Modified: 2023-09-01 18:35:03
+	@Last Modified: 2023-09-05 12:05:52
 *)
 use scripting additions
 
 use listUtil : script "list"
 use loggerFactory : script "logger-factory"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : missing value
 

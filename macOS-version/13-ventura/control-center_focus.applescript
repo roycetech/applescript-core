@@ -2,10 +2,10 @@ global std, retryLib, kb, textUtil, uiUtil, listUtil
 
 (*
 	This script provides focus-related functionalities to the control-center library.
-	
+
 	@Version
 		13. Ventura
-		
+
 	Possible focus IDs
 		focus-mode-activity-com.apple.donotdisturb.mode.default
 		focus-mode-activity-com.apple.focus.work
@@ -25,7 +25,7 @@ use retryLib : script "retry"
 use uiutilLib : script "ui-util"
 use ccLib : script "control-center"
 
-use spotScript : script "spot-test"
+use spotScript : script "core/spot-test"
 
 property logger : loggerLib's new("control-center_focus")
 property kb : kbLib's new()
@@ -37,7 +37,7 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	logger's start()
-	
+
 	(*
 		Re-run manual tests with the Microphone ON.
 	*)
@@ -48,7 +48,7 @@ on spotCheck()
 		Manual: Switch Focus (DND Off, DND On, Happy, Not Found)
 		Manual: Activate Focus Pane (Mic on/off)
 	")
-	
+
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -56,32 +56,32 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	-- activate application ""
 	set sut to decorate(cc)
-	
+
 	if caseIndex is 1 then
 		logger's infof("DND Status: {}", sut's getDNDStatus())
 		delay 0.4 -- Allow dismiss transition, 0.2 fails intermittently.
 		logger's infof("Current Focus Keyword: {}", sut's getCurrentFocusKeyword())
 		logger's infof("Mic is active: {}", sut's _isMicrophoneActive())
-		
+
 	else if caseIndex is 2 then
 		sut's setDoNotDisturbOn()
-		
+
 	else if caseIndex is 3 then
 		sut's setDoNotDisturbOff()
-		
+
 	else if caseIndex is 4 then
 		(* Only one focus case must be active at a time. *)
 		-- sut's setFocus("Not Found")
 		sut's setFocus("donotdisturb.mode.driving")
-		
+
 	else if caseIndex is 5 then
 		sut's _activateControlCenter()
 		sut's _activateFocusPane()
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -99,41 +99,41 @@ on decorate(mainScript)
 	script ControlCenterFocusDecorated
 		property parent : mainScript
 		property decorators : []
-		
-		(* 
+
+		(*
 			@Known Issues:
-		
+
 		*)
 		on getDNDStatus()
 			set currentState to 0
 			_activateControlCenter()
-			
+
 			set currentState to missing value
 			if not _isMicrophoneActive() then
 				tell application "System Events" to tell process "ControlCenter"
 					set currentState to the value of first checkbox of group 1 of front window whose value of attribute "AXIdentifier" is "controlcenter-focus-modes"
 				end tell
 			end if
-			
+
 			if currentState is missing value then
 				_activateFocusPane()
-				
+
 				tell application "System Events" to tell process "ControlCenter" to tell front window to tell group 1
 					set currentState to value of first checkbox whose value of attribute "AXIdentifier" is "focus-mode-activity-com.apple.donotdisturb.mode.default"
 				end tell
 			end if
-			
+
 			-- if exists (first checkbox of front window whose title is "Do Not Disturb") then set currentState to 1
 			kb's pressKey("esc")
 			currentState
 		end getDNDStatus
-		
-		
+
+
 		on getCurrentFocusKeyword()
 			set currentFocus to missing value
 			_activateControlCenter()
 			_activateFocusPane()
-			
+
 			tell application "System Events" to tell process "ControlCenter" to tell front window to tell group 1
 				try
 					set checkedCheckbox to first checkbox whose value is 1
@@ -143,16 +143,16 @@ on decorate(mainScript)
 					set currentFocus to textUtil's stringAfter(currentFocusRaw, "focus-mode-activity-com.apple.")
 				end try
 			end tell
-			
+
 			kb's pressKey("esc")
 			currentFocus
 		end getCurrentFocusKeyword
-		
-		
+
+
 		on setFocus(focusId)
 			_activateControlCenter()
 			_activateFocusPane()
-			
+
 			tell application "System Events" to tell process "ControlCenter" to tell front window to tell group 1
 				try
 					set targetUi to first checkbox whose value of attribute "AXIdentifier" contains focusId
@@ -165,21 +165,21 @@ on decorate(mainScript)
 					end if
 				end try
 			end tell
-			
+
 			kb's pressKey("esc")
 		end setFocus
-		
-		
+
+
 		on setDoNotDisturbOn()
 			_setDoNotDisturb(true)
-			
+
 		end setDoNotDisturbOn
-		
+
 		on setDoNotDisturbOff()
 			_setDoNotDisturb(false)
 		end setDoNotDisturbOff
-		
-		
+
+
 		(*
 			Cases:
 				Mic is Off
@@ -189,23 +189,23 @@ on decorate(mainScript)
 						Activate focus pane
 						Get current state
 						Click if different
-		
+
 			@newValue boolean true to activate DND, false to deactivate.
 		*)
 		on _setDoNotDisturb(newValue)
 			_activateControlCenter()
-			
+
 			set currentState to 1
 			-- set focusUi to first UI element whose value of attribute "AXIdentifier" is "controlcenter-focus-modes" -- fails to work, that's why we manually iterate instead.
 			tell application "System Events" to tell process "ControlCenter"
 				set focusUi to uiUtil's findUiContainingIdAttribute(UI elements of group 1 of front window, "controlcenter-focus-modes")
-				
+
 				assertThat of std given condition:focusUi is not missing value, messageOnFail:"focusUi is missing value"
-				
+
 				-- set currentFocusId to value of attribute "AXIdentifier" of second checkbox
 				-- uiUtil's printAttributeValues(focusUi)
-				
-				set focusUiRole to value of attribute "AXRole" of focusUi -- AXButton or AXCheckBox				
+
+				set focusUiRole to value of attribute "AXRole" of focusUi -- AXButton or AXCheckBox
 				if focusUiRole is "AXCheckBox" then
 					set currentState to value of focusUi
 					logger's debugf("_setDoNotDisturb currentState: {}", currentState)
@@ -215,7 +215,7 @@ on decorate(mainScript)
 					if changeRequested then
 						click focusUi
 					end if
-					
+
 				else -- Mic Active
 					my _activateFocusPane()
 					set dndOption to first checkbox of group 1 of front window whose value of attribute "AXIdentifier" is "focus-mode-activity-com.apple.donotdisturb.mode.default"
@@ -224,20 +224,20 @@ on decorate(mainScript)
 					if changeRequested then
 						click dndOption
 					end if
-					
+
 				end if
-				
+
 				kb's pressKey("esc")
 			end tell
 		end _setDoNotDisturb
-		
-		
+
+
 		on _isMicrophoneActive()
 			tell application "System Events" to tell process "ControlCenter"
 				(description of first menu bar item of menu bar 1 whose value of attribute "AXIdentifier" contains "com.apple.menuextra.controlcenter") is "Microphone is in use"
 			end tell
 		end _isMicrophoneActive
-		
+
 		(*
 			TOFIX:
 			While the Control Center is already visible, it moves to the Focus pane by triggering the "Show Details" of the Focus check box
@@ -245,19 +245,19 @@ on decorate(mainScript)
 		on _activateFocusPane()
 			tell application "System Events" to tell process "ControlCenter"
 				set focusUi to uiUtil's findUiContainingIdAttribute(UI elements of group 1 of front window, "controlcenter-focus-modes")
-				
+
 				set focusUiRole to value of attribute "AXRole" of focusUi -- AXButton or AXCheckBox
-				
+
 				if focusUiRole is "AXButton" then
 					perform action 1 of focusUi
 				else
 					perform action 2 of focusUi
 				end if
-				
+
 				-- Below does not always work.
 				-- perform action 2 of (first UI element of group 1 of front window whose value of attribute "AXIdentifier" contains "controlcenter-focus-modes")
 			end tell
-			
+
 			set retry to retryLib's new()
 			script FocusPanelWaiter
 				tell application "System Events" to tell process "ControlCenter" to tell front window to tell group 1
@@ -267,12 +267,12 @@ on decorate(mainScript)
 			exec of retry on result for 10 by 0.2
 		end _activateFocusPane
 	end script
-	
+
 	if the decorators of mainScript is missing value then
 		set mainScript's decorators to []
 	end if
 	set ControlCenterFocusDecorated's decorators to listUtil's clone(mainScript's decorators)
 	set the end of ControlCenterFocusDecorated's decorators to the name of ControlCenterFocusDecorated
-	
+
 	ControlCenterFocusDecorated
 end decorate
