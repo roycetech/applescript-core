@@ -1,12 +1,12 @@
 #!/usr/bin/osascript
 
-(* 
-	Browse the AppleScript Core project path so it can referenced by user 
+(*
+	Browse the AppleScript Core project path so it can referenced by user
 	scripts for testing.
 
 	@Prerequisites:
-		Project must be checked out consistently with the same folder as the 
-		repository name. (e.g. https://gh.com/org/project must be cloned with a folder 
+		Project must be checked out consistently with the same folder as the
+		repository name. (e.g. https://gh.com/org/project must be cloned with a folder
 		named "project".
 
 	@Plists:
@@ -16,7 +16,7 @@
 		config-user.plist
 			AppleScript Projects Path(list)
 			Project applescript-core (project path)
-			
+
 	@Uninstall:
 		plutil -remove 'AppleScript Core Project Path' ~/applescript-core/config-system.plist
 *)
@@ -29,8 +29,8 @@ use listUtil : script "list"
 use loggerLib : script "logger"
 use plutilLib : script "plutil"
 
-property logger : loggerLib's new("setup-applescript-core-project-path")
-property plutil : plutilLib's new()
+set logger to loggerLib's new("setup-applescript-core-project-path")
+set plutil to plutilLib's new()
 
 set username to short user name of (system info)
 set PROJECT_PATH_KEY to "AppleScript Core Project Path"
