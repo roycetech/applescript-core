@@ -11,8 +11,11 @@
 		Elgato Stream Deck App
 		lsusb installed via brew to check if stream deck via USB is plugged in.
 
-	@Installation:
-		Run `make install` from this file's sub directory.
+	@Project:
+		applescript-core
+
+	@Build:
+		make install-stream-deck
 		
 	@Last Modified: July 25, 2023 9:02 PM
 *)
@@ -24,7 +27,7 @@ use loggerFactory : script "core/logger-factory"
 use listUtil : script "core/list"
 use textUtil : script "core/string"
 use spotScript : script "core/spot-test"
-use overriderLib : script "core/overrider"
+use decoratorLib : script "core/decorator"
 
 property logger : missing value
 property isSpot : false
@@ -119,8 +122,8 @@ on new()
 	end script
 	
 	if not isSpot then
-		set overrider to overriderLib's new()
-		return overrider's applyMappedOverride(StreamDeckInstance)
+		set decorator to decoratorLib's new(StreamDeckInstance)
+		return decorator's decorate()
 	end if
 	
 	StreamDeckInstance
