@@ -295,5 +295,7 @@ on new()
 			tell application "Keyboard Maestro Engine" to setvariable varName to newValue
 		end setVariable
 	end script
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new
 
