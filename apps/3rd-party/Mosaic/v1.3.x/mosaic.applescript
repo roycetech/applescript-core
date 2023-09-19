@@ -1,11 +1,11 @@
 (*
 	@Created: July 9, 2023 11:52 AM
-	@Last Modified: 2023-09-05 12:05:51
+	@Last Modified: 2023-09-18 22:33:08
 *)
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
 use spotScript : script "core/spot-test"
 

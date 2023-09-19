@@ -4,7 +4,7 @@
 	For additional functions related to a process/app, see process.applescript.
 
 	@Usage:
-		use systemEventsLib : script "system-events")
+		use systemEventsLib : script "core/system-events")
 
 		property systemEvents : systemEventsLib's new()
 
@@ -14,11 +14,11 @@
 		make compile-lib SOURCE=core/system-events
 *)
 
-use std : script "std"
-use listUtil : script "list"
+use std : script "core/std"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
-use overriderLib : script "overrider"
+use loggerFactory : script "core/logger-factory"
+use overriderLib : script "core/overrider"
 
 use spotScript : script "core/spot-test"
 

@@ -5,11 +5,11 @@
 
 *)
 
-use unic : script "unicodes"
-use listUtil : script "list"
+use unic : script "core/unicodes"
+use listUtil : script "core/list"
 
-use loggerLib : script "logger"
-use kbLib : script "keyboard"
+use loggerLib : script "core/logger"
+use kbLib : script "core/keyboard"
 
 use spotScript : script "core/spot-test"
 use decoratorNetwork : "control-center_network"

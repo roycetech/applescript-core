@@ -2,12 +2,12 @@
 
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 property logger : null
 

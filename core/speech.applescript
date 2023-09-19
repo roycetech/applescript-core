@@ -25,21 +25,21 @@
 *)
 
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use std : script "std"
+use std : script "core/std"
 
-use textUtil : script "string"
-use listUtil : script "list"
-use regex : script "regex"
-use loggerFactory : script "logger-factory"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use regex : script "core/regex"
+use loggerFactory : script "core/logger-factory"
 
-use userLib : script "user"
-use plutilLib : script "plutil"
-use plistBuddyLib : script "plist-buddy"
-use mapLib : script "map"
-use usrLib : script "user"
+use userLib : script "core/user"
+use plutilLib : script "core/plutil"
+use plistBuddyLib : script "core/plist-buddy"
+use mapLib : script "core/map"
+use usrLib : script "core/user"
 
 use spotScript : script "core/spot-test"
 

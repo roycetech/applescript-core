@@ -3,17 +3,23 @@
 
 		@Created: July 14, 2023 6:57 PM
 		@Last Modified: 2023-09-05 12:05:52
+
+	@Project:
+		applescript-core
+
+	@Build:
+		install-preview
 *)
 use scripting additions
 
-use listUtil : script "list"
-use textUtil : script "string"
-use windowUtilLib : script "window"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use windowUtilLib : script "core/window"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use kbLib : script "keyboard"
-use retryLib : script "retry"
+use kbLib : script "core/keyboard"
+use retryLib : script "core/retry"
 
 use spotScript : script "core/spot-test"
 

@@ -33,29 +33,29 @@
 -- global regex, textUtil, retry, sb, calendarEvent, counter, plutil, dt, kb, configUser, uiutil
 -- global decoratorCalView, calProcess
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "list"
-use textUtil : script "string"
-use regex : script "regex"
-use counter : script "counter"
-use dt : script "date-time"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use regex : script "core/regex"
+use counter : script "core/counter"
+use dt : script "core/date-time"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use decoratorCalendarView : script "dec-calendar-view"
-use calendarEventLib : script "calendar-event"
+use decoratorCalendarView : script "core/dec-calendar-view"
+use calendarEventLib : script "core/calendar-event"
 
-use overriderLib : script "overrider"
-use sbLib : script "string-builder"
-use uiutilLib : script "ui-util"
-use retryLib : script "retry"
-use configLib : script "config"
-use mapLib : script "map"
-use plutilLib : script "plutil"
-use processLib : script "process"
-use kbLib : script "keyboard"
+use overriderLib : script "core/overrider"
+use sbLib : script "core/string-builder"
+use uiutilLib : script "core/ui-util"
+use retryLib : script "core/retry"
+use configLib : script "core/config"
+use mapLib : script "core/map"
+use plutilLib : script "core/plutil"
+use processLib : script "core/process"
+use kbLib : script "core/keyboard"
 
 use spotScript : script "core/spot-test"
 

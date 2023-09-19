@@ -1,6 +1,6 @@
 (*
 	Usage:
-		use std : script "std"
+		use std : script "core/std"
 
 		Do not use logger here because it will result in circular dependency.
 
@@ -10,7 +10,7 @@
 
 use scripting additions
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 -- property logger : loggerFactory's newBasic("std") -- Problematic. Assignment outcome is unpredictable.
 property logger : missing value
@@ -102,7 +102,7 @@ on assertThat given condition:condition as boolean, messageOnFail:message : miss
 	if condition is false then
 		loggerFactory's injectBasic(me)
 
-		-- set loggerLib to script "logger"
+		-- set loggerLib to script "core/logger"
 		-- set logger to loggerLib's new()
 
 		if message is missing value then set message to "Assertion failed"

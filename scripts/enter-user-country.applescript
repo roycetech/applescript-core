@@ -1,23 +1,23 @@
 (*
 	Checks the config-system.plist then adds this project key and path if it is not yet registered.
-	
+
 	@Plist:
 		config-user.plist
-		
+
 	@Plist Keys
 		User Country - Just an example.
-		
+
 	@Uninstall:
 		plutil -remove 'User Country' ~/applescript-core/config-user.plist
 *)
 
 use scripting additions
 
-use textUtil : script "string"
-use listUtil : script "list"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
 
-use loggerLib : script "logger"
-use plutilLib : script "plutil"
+use loggerLib : script "core/logger"
+use plutilLib : script "core/plutil"
 
 property logger : loggerLib's new("enter-user-country")
 property plutil : plutilLib's new()

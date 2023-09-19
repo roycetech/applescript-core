@@ -1,6 +1,6 @@
 (*
 	@Usage:
-		use fileUtil : script "file"
+		use fileUtil : script "core/file"
 
 	@Build:
 		make compile-lib SOURCE=core/file
@@ -8,17 +8,17 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2023-09-05 12:05:52
+	@Last Modified: 2023-09-18 22:33:40
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use std : script "std"
+use std : script "core/std"
 
-use listUtil : script "list"
-use textUtil : script "string"
-use loggerFactory : script "logger-factory"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 

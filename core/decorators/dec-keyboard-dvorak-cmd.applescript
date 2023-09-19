@@ -3,13 +3,13 @@
 		make install-dvorak
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use loggerFactory : script "logger-factory"
-use listUtil : script "list"
+use loggerFactory : script "core/logger-factory"
+use listUtil : script "core/list"
 
-use kbLib : script "keyboard"
+use kbLib : script "core/keyboard"
 
 use spotScript : script "core/spot-test"
 

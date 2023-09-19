@@ -9,23 +9,23 @@
 	@Build:
 		make compile-lib SOURCE=apps/1st-party/Calendar/11.0/calendar-event
 
-	@Last Modified: 2023-09-05 12:05:50
+	@Last Modified: 2023-09-18 22:33:07
 *)
 
 use scripting additions
 
-use listUtil : script "list"
-use textUtil : script "string"
-use regex : script "regex"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use regex : script "core/regex"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use kbLib : script "keyboard"
-use sbLib : script "string-builder"
-use uiutilLib : script "ui-util"
+use kbLib : script "core/keyboard"
+use sbLib : script "core/string-builder"
+use uiutilLib : script "core/ui-util"
 
 use spotScript : script "core/spot-test"
-use overriderLib : script "overrider"
+use overriderLib : script "core/overrider"
 
 -- property overrider : overriderLib's new()
 

@@ -1,13 +1,13 @@
 (*
-	@Last Modified: 2023-09-05 12:05:52
+	@Last Modified: 2023-09-18 22:33:06
 
 	@Build:
 		make compile-lib SOURCE=core/window
 *)
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 

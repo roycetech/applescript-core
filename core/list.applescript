@@ -1,6 +1,6 @@
 (*
 	@Usage:
-		use listUtil : script "list"
+		use listUtil : script "core/list"
 
 	@Build:
 		make compile-lib SOURCE=core/list
@@ -8,10 +8,10 @@
 
 use scripting additions
 
-use std : script "std"
-use textUtil : script "string"
+use std : script "core/std"
+use textUtil : script "core/string"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 

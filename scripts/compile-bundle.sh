@@ -6,4 +6,4 @@ SOURCE=$1
 # SOURCE="core/Core Text Utilities" # for spot checking.
 
 BASEFILENAME=$(echo $SOURCE | awk -F/ '{print $NF}')
-cp -r "$SOURCE.scptd" ~/Library/Script\ Libraries/
+cp -r "$SOURCE.scptd" ~/Library/Script\ Libraries/core/

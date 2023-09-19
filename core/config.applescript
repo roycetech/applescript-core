@@ -1,6 +1,6 @@
 (*
 @Usage:
-    use configLib :  script "config"
+    use configLib :  script "core/config"
 
 property configUser : configLib's new("user")
 
@@ -12,9 +12,9 @@ TODO: Optimize by creating new handlers with type like getValueString.
 		make compile-lib SOURCE=core/config
 *)
 
-use plutilLib : script "plutil"
+use plutilLib : script "core/plutil"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
 property filename : "~/applescript-core/config-default.plist"

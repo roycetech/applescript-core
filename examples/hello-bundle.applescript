@@ -1,7 +1,7 @@
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use loggerLib : script "logger"
+use loggerLib : script "core/logger"
 
 property logger : missing value
 

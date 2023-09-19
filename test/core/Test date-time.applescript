@@ -22,8 +22,7 @@ property scriptName : "date-time" -- The name of the script to be tested
 global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
-use loggerFactory : script "logger-factory"
-use testUtilLib : script "test-util"
+use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
 

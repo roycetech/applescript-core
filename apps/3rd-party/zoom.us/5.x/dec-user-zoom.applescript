@@ -11,13 +11,13 @@
 		make remove-lib SOURCE=libs/user/dec-user-zoom
 		plutil -remove 'UserInstance' ~/applescript-core/config-lib-factory.plist
 
-	@Last Modified: 2023-09-05 12:05:51
+	@Last Modified: 2023-09-18 22:33:07
 *)
-use std : script "std"
-use listUtil : script "list"
+use std : script "core/std"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
-use usrLib : script "user"
+use loggerFactory : script "core/logger-factory"
+use usrLib : script "core/user"
 
 use spotScript : script "core/spot-test"
 
@@ -93,7 +93,7 @@ on decorate(baseScript)
 			if std's appExists("zoom.us") is false then return false
 
 			try
-				script "zoom"
+				script "core/zoom"
 				return true
 			end try
 			false

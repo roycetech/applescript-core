@@ -13,11 +13,11 @@
 
 use scripting additions
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
 
-use loggerLib : script "logger"
-use configLib : script "config"
+use loggerLib : script "core/logger"
+use configLib : script "core/config"
 
 use spotScript : script "core/spot-test"
 

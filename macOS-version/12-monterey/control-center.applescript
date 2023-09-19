@@ -7,14 +7,14 @@
 		make compile-lib SOURCE=macOS-version/12-monterey/control-center
 *)
 
-use textUtil : script "string"
-use listUtil : script "list"
-use unic : script "unicodes"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use unic : script "core/unicodes"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use retryLib : script "retry"
-use kbLib : script "keyboard"
+use retryLib : script "core/retry"
+use kbLib : script "core/keyboard"
 
 use spotScript : script "core/spot-test"
 

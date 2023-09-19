@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CFBundleIdentifier</key>
-	<string>com.roycetech.id.Core-Text-Utilities</string>
+	<string>com.roycetech.id.Text-Utilities</string>
 	<key>CFBundleName</key>
-	<string>Core Text Utilities</string>
+	<string>Text Utilities</string>
 	<key>CFBundleShortVersionString</key>
 	<string>1.0</string>
 	<key>CFBundleVersion</key>
@@ -13,7 +13,7 @@
 	<key>NSHumanReadableCopyright</key>
 	<string>Yo</string>
 	<key>OSAScriptingDefinition</key>
-	<string>Core Text Utilities</string>
+	<string>Text Utilities</string>
 	<key>WindowState</key>
 	<dict>
 		<key>bundleDividerCollapsed</key>
@@ -27,9 +27,9 @@
 		<key>name</key>
 		<string>ScriptWindowState</string>
 		<key>positionOfDivider</key>
-		<real>627</real>
+		<real>679</real>
 		<key>savedFrame</key>
-		<string>387 1448 1445 883 0 1117 3440 1415 </string>
+		<string>0 116 864 963 0 0 1728 1079 </string>
 		<key>selectedTab</key>
 		<string>log</string>
 	</dict>

@@ -1,5 +1,5 @@
 (*
-	@Last Modified: 2023-09-05 12:05:51
+	@Last Modified: 2023-09-18 22:33:08
 
 	@Version: 2.16.18
 
@@ -10,17 +10,17 @@
 		July 2, 2023 8:39 PM - Application keeps reference to closed windows, we need to use System Events instead to check actual windows.
 *)
 
-use std : script "std"
+use std : script "core/std"
 
-use listUtil : script "list"
-use fileUtil : script "file"
-use regex : script "regex"
+use listUtil : script "core/list"
+use fileUtil : script "core/file"
+use regex : script "core/regex"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 
-use loggerLib : script "logger"
-use configLib : script "config"
+use loggerLib : script "core/logger"
+use configLib : script "core/config"
 
 use spotScript : script "core/spot-test"
 

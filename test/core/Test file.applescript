@@ -14,8 +14,8 @@
 use AppleScript
 use scripting additions
 
-use std : script "std"
-use textUtil : script "string"
+use std : script "core/std"
+use textUtil : script "core/string"
 
 property parent : script "com.lifepillar/ASUnit"
 
@@ -26,7 +26,7 @@ property testFile : "~/applescript-core/file-test.txt"
 global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 property logger : missing value
 
 property TopLevel : me

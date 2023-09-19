@@ -27,8 +27,8 @@ property scriptName : "decorator" -- The name of the script to be tested
 global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
-use loggerFactory : script "logger-factory"
-use testUtilLib : script "test-util"
+use loggerFactory : script "core/logger-factory"
+use testUtilLib : script "core/test-util"
 
 property logger : missing value
 
@@ -96,7 +96,7 @@ script |getHierarchy tests|
 
 	script |Integration - No override|
 		property parent : UnitTest(me)
-		set dialogLib to script "dialog" 
+		set dialogLib to script "core/dialog" 
 		set dialog to dialogLib's new()
 		set sut to sutScript's new(dialog)
 		assertEqual({"dialog", "DialogInstance"}, sut's _getHierarchy())
@@ -104,7 +104,7 @@ script |getHierarchy tests|
 
 	script |Integration - Single override|
 		property parent : UnitTest(me)
-		set systemEventsLib to script "system-events"
+		set systemEventsLib to script "core/system-events"
 		set systemEvents to systemEventsLib's new()
 		set sut to sutScript's new(systemEvents)  
 		assertEqual({"system-events", "SystemEventsInstance", "SystemEventsSublimeTextInstance"}, sut's _getHierarchy())
@@ -113,7 +113,7 @@ script |getHierarchy tests|
 	script |Integration - Double override|
 		property parent : UnitTest(me)
 		skip("No public example yet.")
-		set systemEventsLib to script "sublime-text"
+		set systemEventsLib to script "core/sublime-text"
 		set systemEvents to systemEventsLib's new()
 		set sut to sutScript's new(systemEvents)  
 		assertEqual({"sublime-text", "SublimeTextInstance", "SublimeTextWindowFocusInstance", "SublimeTextFrontFileToucher"}, sut's _getHierarchy())

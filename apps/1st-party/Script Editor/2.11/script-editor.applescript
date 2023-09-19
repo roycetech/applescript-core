@@ -9,27 +9,27 @@
 		make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
 				
 	@Usage:
-		use seLib : script "script-editor"
+		use seLib : script "core/script-editor"
 		property se : seLib's new()
 		set frontTab to se's getFrontTab()
 		or
 		KM Text Expander: uuse scripteditor
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use fileUtil : script "file"
-use listUtil : script "list"
-use textUtil : script "string"
+use fileUtil : script "core/file"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
 
-use contentDecorator : script "dec-script-editor-content"
+use contentDecorator : script "core/dec-script-editor-content"
 
-use configLib : script "config"
-use retryLib : script "retry"
-use overriderLib : script "overrider"
+use configLib : script "core/config"
+use retryLib : script "core/retry"
+use overriderLib : script "core/overrider"
 
 use spotScript : script "core/spot-test"
 

@@ -10,11 +10,11 @@
 		instance name
 		handler name
 *)
-use listUtil : script "list"
+use listUtil : script "core/list"
 
-use safariTechPreviewLib : script "safari-technology-preview"
+use safariTechPreviewLib : script "core/safari-technology-preview"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 

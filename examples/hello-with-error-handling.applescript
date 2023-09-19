@@ -1,8 +1,8 @@
 use scripting additions
 
-use std : script "std"
+use std : script "core/std"
 
-use loggerLib : script "logger"
+use loggerLib : script "core/logger"
 
 property logger : missing value
 property scriptName : missing value

@@ -15,7 +15,7 @@
 use AppleScript
 use scripting additions
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
 property parent : script "com.lifepillar/ASUnit"
 property xmlUtil : missing value
@@ -25,7 +25,7 @@ property scriptName : "plist-buddy" -- The name of the script to be tested
 global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 use xmlUtilLib : script "core/test/xml-util"
 
 property logger : missing value

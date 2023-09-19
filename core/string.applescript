@@ -1,6 +1,6 @@
 (*
 	@Usage:
-		use textUtil : script "string"
+		use textUtil : script "core/string"
 
 	Logger depends on this script so we cannot use logger here because it will result in a circular dependency.
 
@@ -10,12 +10,12 @@
 	@Build:
 		make compile-lib SOURCE=core/string
 
-	@Last Modified: 2023-09-05 12:05:52
+	@Last Modified: 2023-09-18 22:33:06
 *)
 use scripting additions
 
-use listUtil : script "list"
-use loggerFactory : script "logger-factory"
+use listUtil : script "core/list"
+use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 

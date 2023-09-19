@@ -16,8 +16,8 @@
 		SafariTechnologyPreviewTabInstance - wrapper to a Safari tab.
 
 	Debugging existing tab:
-		use loggerLib : script "logger"
-		use safariTechPreviewLib : script "safari-technology-preview"
+		use loggerLib : script "core/logger"
+		use safariTechPreviewLib : script "core/safari-technology-preview"
 		
 		property logger : loggerLib's new("ad hoc")
 		property safariTechPreview : safariTechPreviewLib's new()
@@ -33,23 +33,23 @@
 	@Last Modified: July 5, 2023 3:53 PM
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use textUtil : script "string"
-use listUtil : script "list"
-use regex : script "regex"
-use unic : script "unicodes"
-use safariJavaScript : script "safari-javascript"
-use jsSafariTechPreviewDecorator : script "dec-safari-technology-preview-javascript"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use regex : script "core/regex"
+use unic : script "core/unicodes"
+use safariJavaScript : script "core/safari-javascript"
+use jsSafariTechPreviewDecorator : script "core/dec-safari-technology-preview-javascript"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use retryLib : script "retry"
-use dockLib : script "dock"
-use kbLib : script "keyboard"
-use uiutilLib : script "ui-util"
-use winUtilLib : script "window"
+use retryLib : script "core/retry"
+use dockLib : script "core/dock"
+use kbLib : script "core/keyboard"
+use uiutilLib : script "core/ui-util"
+use winUtilLib : script "core/window"
 
 use spotScript : script "core/spot-test"
 

@@ -23,11 +23,11 @@
 
 use scripting additions
 
-use textUtil : script "string"
-use listUtil : script "list"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
 
-use loggerLib : script "logger"
-use plutilLib : script "plutil"
+use loggerLib : script "core/logger"
+use plutilLib : script "core/plutil"
 
 set logger to loggerLib's new("setup-applescript-core-project-path")
 set plutil to plutilLib's new()

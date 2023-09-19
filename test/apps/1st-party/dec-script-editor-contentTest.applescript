@@ -24,7 +24,7 @@ global sutBaseScript -- The variable holding the base script to be wrapped
 global sutScript -- The variable holding the decorator script to be tested
 ---------------------------------------------------------------------------------------
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 property logger : missing value
 
 property TopLevel : me

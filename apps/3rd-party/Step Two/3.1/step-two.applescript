@@ -13,13 +13,13 @@
 		otpUser's executeExample()
 *)
 use scripting additions
-use std : script "std"
+use std : script "core/std"
 
-use listUtil : script "list"
-use textUtil : script "string"
-use loggerFactory : script "logger-factory"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use loggerFactory : script "core/logger-factory"
 
-use processLib : script "process"
+use processLib : script "core/process"
 
 use spotScript : script "core/spot-test"
 

@@ -1,5 +1,5 @@
-use loggerLib : script "logger"
-use listUtil : script "list"
+use loggerLib : script "core/logger"
+use listUtil : script "core/list"
 use spotScript : script "core/spot-test"
 
 property logger : loggerLib's new("keyboard-maestro-macro")

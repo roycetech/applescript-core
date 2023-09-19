@@ -4,7 +4,7 @@
 	of this framework but let's give it a try
 
 	@Usage:
-		use userLib : script "user"
+		use userLib : script "core/user"
 
 		property usr : userLib's new()
 
@@ -19,12 +19,12 @@
 
 use scripting additions
 
-use std : script "std"
-use listUtil : script "list"
+use std : script "core/std"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
-use ccLib : script "control-center"
-use overriderLib : script "overrider"
+use loggerFactory : script "core/logger-factory"
+use ccLib : script "core/control-center"
+use overriderLib : script "core/overrider"
 
 use spotScript : script "core/spot-test"
 

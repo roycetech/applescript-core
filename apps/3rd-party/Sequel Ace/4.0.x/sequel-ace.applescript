@@ -12,15 +12,15 @@
 
 use scripting additions
 
-use listUtil : script "list"
-use textUtil : script "string"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
 
-use loggerFactory : script "logger-factory"
-use retryLib : script "retry"
-use syseveLib : script "system-events"
-use kbLib : script "keyboard"
+use loggerFactory : script "core/logger-factory"
+use retryLib : script "core/retry"
+use syseveLib : script "core/system-events"
+use kbLib : script "core/keyboard"
 
-use overriderLib : script "overrider"
+use overriderLib : script "core/overrider"
 
 use spotScript : script "core/spot-test"
 

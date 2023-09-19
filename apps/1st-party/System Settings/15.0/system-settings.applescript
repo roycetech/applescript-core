@@ -15,11 +15,11 @@
 
 use scripting additions
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
-use loggerLib : script "logger"
-use retryLib : script "retry"
-use usrLib : script "user"
+use loggerLib : script "core/logger"
+use retryLib : script "core/retry"
+use usrLib : script "core/user"
 
 use spotScript : script "core/spot-test"
 

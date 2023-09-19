@@ -1,4 +1,4 @@
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
 (*
@@ -6,7 +6,7 @@ use scripting additions
 	Each individual project tabs are not treated as separate windows as compared to first party apps.
 
 	@Usage:
-		use tmLib : script "text-mate"
+		use tmLib : script "core/text-mate"
 		property tm : tmLi's new()
 	-- Text Expander: "uuse tb"
 
@@ -17,12 +17,12 @@ use scripting additions
  	NOTE: if AXDocument is missing, usually when filename is missing value then restart Sublime Text.
 *)
 
-use textUtil : script "string"
-use listUtil : script "list"
-use unic : script "unicodes"
-use loggerFactory : script "logger-factory"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use unic : script "core/unicodes"
+use loggerFactory : script "core/logger-factory"
 
-use configLib : script "config"
+use configLib : script "core/config"
 
 use spotScript : script "core/spot-test"
 
@@ -359,7 +359,7 @@ on new()
 		end _findProjectFolder
 	end script
 
-	set overriderLib to script "overrider"
+	set overriderLib to script "core/overrider"
 	set overrider to overriderLib's new()
 	overrider's applyMappedOverride(TextMateInstance)
 end new

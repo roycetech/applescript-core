@@ -6,16 +6,16 @@
 		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-run
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "list"
-use textUtil : script "string"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use plutilLib : script "plutil"
-use retryLib : script "retry"
+use plutilLib : script "core/plutil"
+use retryLib : script "core/retry"
 
 use spotScript : script "core/spot-test"
 
@@ -43,7 +43,7 @@ on spotCheck()
 		return
 	end if
 
-	set terminalLib to script "terminal"
+	set terminalLib to script "core/terminal"
 	set terminal to terminalLib's new()
 	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)

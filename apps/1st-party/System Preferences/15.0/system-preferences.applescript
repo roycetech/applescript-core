@@ -12,14 +12,14 @@
 
 use scripting additions
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
-use retryLib : script "retry"
-use usrLib : script "user"
+use retryLib : script "core/retry"
+use usrLib : script "core/user"
 
-use overriderLib : script "overrider"
+use overriderLib : script "core/overrider"
 
 use spotScript : script "core/spot-test"
 

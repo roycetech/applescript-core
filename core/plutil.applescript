@@ -5,7 +5,7 @@
 
 	@Usage:
 		-- Create new plist in the defalt location with:
-		use plutilLib : script "plutil"
+		use plutilLib : script "core/plutil"
 		property plutil : plutilLib's new()
 
 		plutil's createNewPList("your-new-plist")  -- don't put the extension.
@@ -37,20 +37,20 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2023-09-05 12:05:52
+	@Last Modified: 2023-09-18 22:33:39
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use std : script "std"
+use std : script "core/std"
 
-use textUtil : script "string"
-use listUtil : script "list"
-use loggerFactory : script "logger-factory"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use loggerFactory : script "core/logger-factory"
 
-use overriderLib : script "overrider"
+use overriderLib : script "core/overrider"
 
 use spotScript : script "core/spot-test"
 
@@ -201,7 +201,7 @@ end spotCheck
 
 on new()
 	loggerFactory's injectBasic(me)
-	set regex to script "regex"
+	set regex to script "core/regex"
 
 	script PlutilInstance
 		(*

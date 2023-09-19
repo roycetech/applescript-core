@@ -36,13 +36,13 @@ if not plutil's plistExists(countTotalName) then
 	plutil's createNewPList(countTotalName)
 end if
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
-use loggerLib : script "logger"
-use plutilLib : script "plutil"
+use loggerLib : script "core/logger"
+use plutilLib : script "core/plutil"
 
 use spotScript : script "core/spot-test"
 

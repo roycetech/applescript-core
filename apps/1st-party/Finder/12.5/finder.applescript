@@ -11,20 +11,20 @@
 	@Install:
 		make install-finder
 
-	@Last Modified: 2023-09-05 12:05:51
+	@Last Modified: 2023-09-18 22:33:40
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use std : script "std"
-use textUtil : script "string"
-use listUtil : script "list"
+use std : script "core/std"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use kbLib : script "keyboard"
-use overriderLib : script "overrider"
+use kbLib : script "core/keyboard"
+use overriderLib : script "core/overrider"
 
 use spotScript : script "core/spot-test"
 

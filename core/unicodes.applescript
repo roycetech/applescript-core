@@ -11,8 +11,8 @@
 
 use scripting additions
 
-use loggerLib : script "logger"
-use configLib : script "config"
+use loggerLib : script "core/logger"
+use configLib : script "core/config"
 
 property logger : missing value
 -- property config : configLib's new("default")

@@ -3,7 +3,7 @@
 		See spotCheck
 
 	Testing Template:
-		use safariLib : script "safari"
+		use safariLib : script "core/safari"
 		property safari : safariLib's new()
 
 	@Plists
@@ -11,20 +11,23 @@
 			app-core Web Max Retry Count
 			app-core Web Retry Sleep
 
-	@Installation
+	@Build:
 		make install-safari
+
+	@Change Logs:
+		September 6, 2023 9:30 AM - Added submitFirstForm.
  *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
-use configLib : script "config"
-use retryLib : script "retry"
-use safariLib : script "safari"
+use configLib : script "core/config"
+use retryLib : script "core/retry"
+use safariLib : script "core/safari"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 
@@ -449,8 +452,14 @@ on decorate(safariTab)
 
 		on runScriptPlain(scriptText)
 			-- tell application "Safari" to do JavaScript scriptText in _tab of safariTab
+			if scriptText does not end with ";" then set scriptText to scriptText & ";"
 			tell application "Safari" to return do JavaScript ("try {" & scriptText & "'true';} catch(e) { e.message; }") in _tab of safariTab
 		end runScriptPlain
+
+
+		on submitFirstForm()
+			runScriptPlain("document.querySelector('form').submit()")
+		end submitFirstForm
 	end script
 
 	set findRunMax of SafariJavaScriptInstance to configSystem's getValue("FIND_RETRY_MAX")

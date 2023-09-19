@@ -1,14 +1,14 @@
 (*
 	Sets up some useful user configurations that are specific to using the zoom app.
-	
+
 	@Plist:
 		zoom.us/config.plist
-		
+
 	@Plist Keys
 		User Meeting ID
 		Username
 		Display Name
-		
+
 	@Uninstall:
 		plutil -remove 'User Meeting ID' ~/applescript-core/zoom.us/config.plist
 		plutil -remove 'Username' ~/applescript-core/zoom.us/config.plist
@@ -17,11 +17,11 @@
 
 use scripting additions
 
-use textUtil : script "string"
-use listUtil : script "list"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
 
-use loggerLib : script "logger"
-use plutilLib : script "plutil"
+use loggerLib : script "core/logger"
+use plutilLib : script "core/plutil"
 
 
 property logger : loggerLib's new("enter-user-info")

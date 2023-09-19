@@ -13,7 +13,7 @@
 *)
 use AppleScript
 use scripting additions
-use textUtil : script "string"
+use textUtil : script "core/string"
 
 property parent : script "com.lifepillar/ASUnit"
 property xmlUtil : missing value

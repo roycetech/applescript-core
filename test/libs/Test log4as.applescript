@@ -22,7 +22,7 @@ property scriptName : "log4as" -- The name of the script to be tested
 global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 use xmlUtilLib : script "core/test/xml-util"
 
 property logger : missing value 

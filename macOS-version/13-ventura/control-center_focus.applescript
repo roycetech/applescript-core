@@ -16,14 +16,14 @@ global std, retryLib, kb, textUtil, uiUtil, listUtil
 *)
 
 
-use listUtil : script "list"
-use textUtil : script "string"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
 
-use loggerLib : script "logger"
-use kbLib : script "keyboard"
-use retryLib : script "retry"
-use uiutilLib : script "ui-util"
-use ccLib : script "control-center"
+use loggerLib : script "core/logger"
+use kbLib : script "core/keyboard"
+use retryLib : script "core/retry"
+use uiutilLib : script "core/ui-util"
+use ccLib : script "core/control-center"
 
 use spotScript : script "core/spot-test"
 

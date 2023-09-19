@@ -1,22 +1,27 @@
 (* 
 	WARNING: This script is still heavily user customised, TODO: to make it more generic and document required changes to Keyboard Maestro. 
 	
-	Compile:
-		make compile-lib SOURCE="apps/3rd-party/Keyboard Maestro/keyboard-maestro"
-		or (from the project root)
+	@Project:
+		applescript-core
+	
+	@Build:
 		make install-keyboard-maestro
+		or (from the project root)
+		make compile-lib SOURCE="apps/3rd-party/Keyboard Maestro/keyboard-maestro"
 
-	@Last Modified: 	
+	@Last Modified: September 9, 2023 2:43 PM
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "list"
-use textUtil : script "string"
-use unic : script "unicodes"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use unic : script "core/unicodes"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
+
+use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
@@ -154,7 +159,7 @@ on new()
 			if params is not missing value then
 				set paramPart to "&value=" & textUtil's encodeUrl(params)
 			end if
-
+			
 			set encodedName to textUtil's encodeUrl(scriptName)
 			format {"kmtrigger://m={}{}", {encodedName, paramPart}}
 		end createTriggerLink
@@ -183,7 +188,7 @@ on new()
 				do script macroName
 			end tell
 		end runMacro
-
+		
 		(* Runs a keyboard maestro macro plainly, no extras. *)
 		on runMacroWithParameter(macroName, macroParameter)
 			tell application "Keyboard Maestro Engine"

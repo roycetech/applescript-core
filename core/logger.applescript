@@ -10,8 +10,8 @@
 
 use scripting additions
 
-use textUtil : script "string"
-use overriderLib : script "overrider"
+use textUtil : script "core/string"
+use overriderLib : script "core/overrider"
 
 property filename : "applescript-core.log"
 -- property name : missing value

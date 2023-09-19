@@ -1,5 +1,5 @@
 (*
-	use tcache : script "timed-cache-plist"
+	use tcache : script "core/timed-cache-plist"
 
 	@Build:
 		make install-timed-cache
@@ -15,10 +15,10 @@
 
 use scripting additions
 
-use listUtil : script "list"
-use loggerFactory : script "logger-factory"
+use listUtil : script "core/list"
+use loggerFactory : script "core/logger-factory"
 
-use plutilLib : script "plutil"
+use plutilLib : script "core/plutil"
 
 property logger : missing value
 (* Set a default cache name. *)

@@ -1,6 +1,6 @@
 (*
 	Usage:
-		use clipboardLib : script "clipboard"
+		use clipboardLib : script "core/clipboard"
 
 		property cp : clipboardLib's new()
 
@@ -9,8 +9,8 @@
 
 use scripting additions
 
-use loggerFactory : script "logger-factory"
-use listUtil : script "list"
+use loggerFactory : script "core/logger-factory"
+use listUtil : script "core/list"
 use spotScript : script "core/spot-test"
 
 property logger : missing value

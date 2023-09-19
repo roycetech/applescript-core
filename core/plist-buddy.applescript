@@ -3,19 +3,19 @@
 		make compile-lib SOURCE=core/plist-buddy
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use std : script "std"
+use std : script "core/std"
 
-use textUtil : script "string"
-use listUtil : script "list"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
 
-use regex : script "regex"
+use regex : script "core/regex"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use configLib : script "config"
+use configLib : script "core/config"
 
 use spotScript : script "core/spot-test"
 

@@ -2,21 +2,21 @@
 	@Build:
 		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
 
-	@Last Modified: 2023-09-05 12:05:51
+	@Last Modified: 2023-09-18 22:33:39
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "list"
-use textUtil : script "string"
-use fileUtil : script "file"
-use regex : script "regex"
-use unic : script "unicodes"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use fileUtil : script "core/file"
+use regex : script "core/regex"
+use unic : script "core/unicodes"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use retryLib : script "retry"
+use retryLib : script "core/retry"
 
 use spotScript : script "core/spot-test"
 
@@ -46,8 +46,8 @@ on spotCheck()
 		return
 	end if
 
-	set terminalLib to script "terminal"
-	set decTerminalOutput to script "dec-terminal-output"
+	set terminalLib to script "core/terminal"
+	set decTerminalOutput to script "core/dec-terminal-output"
 
 	set terminal to terminalLib's new()
 	terminal's getFrontTab()

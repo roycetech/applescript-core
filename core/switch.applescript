@@ -3,23 +3,23 @@
 	when its value is set.
 
 	@Usage:
-		use switchLib : script "switch"
+		use switchLib : script "core/switch"
 		set yourSwitch to switchLib's new("Switch Name")
 		yourSwitch's turnOn()
 
 	@Build:
 		make compile-lib SOURCE=core/switch
 
-	@Last Modified: 2023-09-04 13:37:03
+	@Last Modified: 2023-09-18 22:33:06
 	@TODO: Migrate to ASUnit.
 	@Change Log:
 		September 4, 2023 11:42 AM - Removed reference to the built-in unit test.
 		August 4, 2023 12:30 PM
 *)
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use plutilLib : script "plutil"
+use plutilLib : script "core/plutil"
 
 property logger : missing value
 property switchPlist : missing value

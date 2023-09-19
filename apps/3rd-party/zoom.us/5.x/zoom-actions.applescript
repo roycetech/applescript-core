@@ -7,16 +7,16 @@
 	@Build:
 		make compile-lib SOURCE=apps/3rd-party/zoom.us/5.x/zoom-actions
 
-	@Last Modified: 2023-09-05 12:05:51
+	@Last Modified: 2023-09-18 22:33:07
 *)
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
-use usrLib : script "user"
-use kbLib : script "keyboard"
-use processLib : script "process"
-use zoomLib : script "zoom"
+use loggerFactory : script "core/logger-factory"
+use usrLib : script "core/user"
+use kbLib : script "core/keyboard"
+use processLib : script "core/process"
+use zoomLib : script "core/zoom"
 
 use spotScript : script "core/spot-test"
 

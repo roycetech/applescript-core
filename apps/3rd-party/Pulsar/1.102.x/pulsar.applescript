@@ -9,29 +9,29 @@
 		Project Find Results
 		Welcome Guide
 
-	@Last Modified: 2023-09-05 12:05:51
+	@Last Modified: 2023-09-18 22:33:40
 	@Tab: AC 🚧
 	@Build:
 		make compile-pulsar
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use std : script "std"
-use fileUtil : script "file"
-use unic : script "unicodes"
-use textUtil : script "string"
+use std : script "core/std"
+use fileUtil : script "core/file"
+use unic : script "core/unicodes"
+use textUtil : script "core/string"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use listUtil : script "list"
-use retryLib : script "retry"
-use configLib : script "config"
+use listUtil : script "core/list"
+use retryLib : script "core/retry"
+use configLib : script "core/config"
 use spotScript : script "core/spot-test"
-use kbLib : script "keyboard"
-use syseveLib : script "system-events"
-use clipLib : script "clipboard"
+use kbLib : script "core/keyboard"
+use syseveLib : script "core/system-events"
+use clipLib : script "core/clipboard"
 
 property logger : missing value
 property configSystem : missing value

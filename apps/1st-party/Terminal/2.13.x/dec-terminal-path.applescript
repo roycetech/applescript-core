@@ -1,12 +1,12 @@
 use scripting additions
 
-use textUtil : script "string"
-use listUtil : script "list"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
 
 use spotScript : script "core/spot-test"
 
-use loggerLib : script "logger"
-use terminalLib : script "terminal"
+use loggerLib : script "core/logger"
+use terminalLib : script "core/terminal"
 
 property logger : loggerLib's new("dec-terminal-path")
 property terminal : terminalLib's new()

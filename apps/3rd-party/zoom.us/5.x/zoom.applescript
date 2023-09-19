@@ -40,19 +40,19 @@
 	@Last Modified
 *)
 
-use listUtil : script "list"
-use regex : script "regex"
+use listUtil : script "core/list"
+use regex : script "core/regex"
 
-use zoomActions : script "zoom-actions"
-use zoomParticipants : script "zoom-participants"
-use zoomWindow : script "zoom-window"
+use zoomActions : script "core/zoom-actions"
+use zoomParticipants : script "core/zoom-participants"
+use zoomWindow : script "core/zoom-window"
 
-use loggerLib : script "logger"
-use configLib : script "config"
-use plutilLib : script "plutil"
-use retryLib : script "retry"
-use kbLib : script "keyboard"
-use overriderLib : script "overrider"
+use loggerLib : script "core/logger"
+use configLib : script "core/config"
+use plutilLib : script "core/plutil"
+use retryLib : script "core/retry"
+use kbLib : script "core/keyboard"
+use overriderLib : script "core/overrider"
 
 use spotScript : script "core/spot-test"
 
@@ -62,7 +62,7 @@ property configZoom : missing value
 property retry : missing value
 property kb : missing value
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
 property logger : missing value

@@ -3,8 +3,8 @@
 		make compile-lib SOURCE=core/string-builder
 *)
 
-use listUtil : script "list"
-use loggerFactory : script "logger-factory"
+use listUtil : script "core/list"
+use loggerFactory : script "core/logger-factory"
 use spotScript : script "core/spot-test"
 
 property logger : missing value

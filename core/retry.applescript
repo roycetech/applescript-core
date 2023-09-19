@@ -1,6 +1,6 @@
 (*
 	@Usage:
-		use retryLib : script "retry"
+		use retryLib : script "core/retry"
 		property retry : retryLib's new()
 
 	@Build:
@@ -9,10 +9,10 @@
 
 use scripting additions
 
-use loggerFactory : script "logger-factory"
-use listUtil : script "list"
+use loggerFactory : script "core/logger-factory"
+use listUtil : script "core/list"
 use spotScript : script "core/spot-test"
-use idlerLib : script "idler"
+use idlerLib : script "core/idler"
 
 property logger : missing value
 

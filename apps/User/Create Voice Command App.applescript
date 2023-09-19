@@ -21,19 +21,19 @@
 
 use scripting additions
 
-use std : script "std"
-use textUtil : script "string"
-use fileUtil : script "file"
-use emoji : script "emoji"
+use std : script "core/std"
+use textUtil : script "core/string"
+use fileUtil : script "core/file"
+use emoji : script "core/emoji"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use usrLib : script "user"
-use systemEventsLib : script "system-events"
-use plutilLib : script "plutil"
-use seLib : script "script-editor"
-use automatorLib : script "automator"
-use configLib : script "config"
+use usrLib : script "core/user"
+use systemEventsLib : script "core/system-events"
+use plutilLib : script "core/plutil"
+use seLib : script "core/script-editor"
+use automatorLib : script "core/automator"
+use configLib : script "core/config"
 
 property logger : missing value
 

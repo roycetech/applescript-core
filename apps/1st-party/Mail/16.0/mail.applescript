@@ -1,5 +1,5 @@
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 
@@ -12,7 +12,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set listUtil to script "list"
+	set listUtil to script "core/list"
 
 	set cases to listUtil's splitByLine("
 		Goto Favorite Folder

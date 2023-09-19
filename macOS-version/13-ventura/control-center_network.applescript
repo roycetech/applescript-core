@@ -3,12 +3,12 @@
 *)
 
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
-use loggerLib : script "logger"
-use kbLib : script "keyboard"
-use retryLib : script "retry"
-use ccLib : script "control-center"
+use loggerLib : script "core/logger"
+use kbLib : script "core/keyboard"
+use retryLib : script "core/retry"
+use ccLib : script "core/control-center"
 
 use spotScript : script "core/spot-test"
 

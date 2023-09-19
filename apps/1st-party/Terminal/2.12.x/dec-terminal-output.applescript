@@ -2,15 +2,15 @@
 	@Build:
 		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-prompt-sftp
 
-	@Last Modified: 2023-09-05 12:05:51
+	@Last Modified: 2023-09-18 22:33:04
 *)
 
-use listUtil : script "list"
-use textUtil : script "string"
-use loggerFactory : script "logger-factory"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use loggerFactory : script "core/logger-factory"
 
-use kbLib : script "keyboard"
-use retryLib : script "retry"
+use kbLib : script "core/keyboard"
+use retryLib : script "core/retry"
 
 use spotScript : script "core/spot-test"
 
@@ -42,7 +42,7 @@ on spotCheck()
 		return
 	end if
 
-	set terminalLib to script "terminal"
+	set terminalLib to script "core/terminal"
 	set terminal to terminalLib's new()
 	set frontTab to terminal's getFrontTab()
 

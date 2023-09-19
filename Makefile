@@ -81,7 +81,7 @@ _init:
 	cp -n plist.template ~/applescript-core/config-business.plist || true
 	cp -n notification-app-id-name.plist ~/applescript-core/notification-app-id-name.plist || true
 	cp -a assets/sounds/. ~/applescript-core/sounds/
-	./scripts/compile-bundle.sh 'core/Core Text Utilities'
+	./scripts/compile-bundle.sh 'core/Text Utilities'
 	plutil -replace 'Project applescript-core' -string "`pwd`" ~/applescript-core/config-system.plist
 
 install: _init compile
@@ -115,7 +115,7 @@ endif
 
 compile-core-bundle:
 	@echo "Core Bundle compiled."
-	./scripts/compile-bundle.sh 'core/Core Text Utilities'
+	./scripts/compile-bundle.sh 'core/Text Utilities'
 
 
 
@@ -180,9 +180,9 @@ test-unit:
 # 	osascript "test/core/Test file.applescript"
 # 	osascript "test/core/Test list.applescript"
 # 	osascript "test/core/Test map.applescript"
-# 	osascript "test/core/Test plist-buddy.applescript"
+	osascript "test/core/Test plist-buddy.applescript"
 # 	osascript "test/core/Test plutil.applescript"
-	osascript "test/core/Test property-list.applescript"
+# 	osascript "test/core/Test property-list.applescript"
 # 	osascript "test/core/Test redis.applescript"
 # 	osascript "test/core/Test regex.applescript"
 # 	osascript "test/core/Test stack.applescript"
@@ -222,10 +222,15 @@ install-system-settings:
 
 
 compile-chrome:
-	./scripts/compile-lib.sh  apps/1st-party/Chrome/110.0/chrome.applescript
+	./scripts/compile-lib.sh apps/1st-party/Chrome/110.0/chrome.applescript
 
 install-chrome:
 	osascript scripts/allow-apple-events-in-chrome.applescript
+	./scripts/compile-lib.sh apps/1st-party/Chrome/110.0/chrome
+
+
+install-preview:
+	./scripts/compile-lib.sh apps/1st-party/Preview/v11/preview
 
 
 compile-safari: compile-dock
@@ -349,6 +354,11 @@ install-1password: compile-one-password install-cliclick
 install-atom:  ## Deprecated
 	./scripts/compile-lib.sh apps/3rd-party/Atom/1.60.0/atom
 
+install-eclipse:
+	./scripts/compile-lib.sh apps/3rd-party/Eclipse/v202306/eclipse
+
+install-intellij:
+	./scripts/compile-lib.sh apps/3rd-party/IntelliJ IDEA/v2023.2.1/intellij-idea
 
 compile-pulsar:
 	./scripts/compile-lib.sh apps/3rd-party/Pulsar/1.102.x/pulsar

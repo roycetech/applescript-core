@@ -6,11 +6,11 @@
 	@Notes:
 		June 30, 2023 12:09 PM - Crashes when being debugged using Script Debugger.
 *)
-use listUtil : script "list"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
-use loggerLib : script "logger"
-use usrLib : script "user"
+use loggerFactory : script "core/logger-factory"
+use loggerLib : script "core/logger"
+use usrLib : script "core/user"
 
 use spotScript : script "core/spot-test"
 

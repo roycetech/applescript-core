@@ -12,18 +12,18 @@
 *)
 
 use framework "Foundation"
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 
 use scripting additions
 
-use std : script "std"
+use std : script "core/std"
 
-use listUtil : script "list"
-use textUtil : script "string"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
 
-use loggerFactory : script "logger-factory"
-use configLib : script "config"
-use sbLib : script "string-builder"
+use loggerFactory : script "core/logger-factory"
+use configLib : script "core/config"
+use sbLib : script "core/string-builder"
 
 use spotScript : script "core/spot-test"
 

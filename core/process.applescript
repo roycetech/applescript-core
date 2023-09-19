@@ -13,13 +13,13 @@
 
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use std : script "std"
-use listUtil : script "list"
+use std : script "core/std"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 

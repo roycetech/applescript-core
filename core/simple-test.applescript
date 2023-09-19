@@ -4,10 +4,10 @@
 		make compile-lib SOURCE=core/test
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
 

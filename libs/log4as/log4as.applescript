@@ -19,11 +19,11 @@
 		log print out for now.
 *)
 
-use std : script "std"
+use std : script "core/std"
 
-use listUtil : script "list"
-use mapLib : script "map"
-use plistBuddyLib : script "plist-buddy"
+use listUtil : script "core/list"
+use mapLib : script "core/map"
+use plistBuddyLib : script "core/plist-buddy"
 
 use spotScript : script "core/spot-test"
 

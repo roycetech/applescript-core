@@ -7,11 +7,11 @@
 		Install/Uninstall this with the other Sublime Text related libraries by 
 		running `make install` or make uninstall in this file's sub directory.
 *)
-use std : script "std"
+use std : script "core/std"
 
-use listUtil : script "list"
-use loggerFactory : script "logger-factory"
-use syseveLib : script "system-events"
+use listUtil : script "core/list"
+use loggerFactory : script "core/logger-factory"
+use syseveLib : script "core/system-events"
 
 use spotScript : script "core/spot-test"
 

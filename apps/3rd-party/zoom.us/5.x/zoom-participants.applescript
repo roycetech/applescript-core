@@ -12,13 +12,13 @@
 
 *)
 
-use regex : script "regex"
-use listUtil : script "list"
+use regex : script "core/regex"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
-use retryLib : script "retry"
-use usrLib : script "user"
-use zoomUtilLib : script "zoom"
+use loggerFactory : script "core/logger-factory"
+use retryLib : script "core/retry"
+use usrLib : script "core/user"
+use zoomUtilLib : script "core/zoom"
 
 use spotScript : script "core/spot-test"
 

@@ -19,12 +19,12 @@
 	@Last Modified: 
 *)
 
-use std : script "std"
+use std : script "core/std"
 
-use loggerFactory : script "logger-factory"
-use listUtil : script "list"
-use kmLib : script "keyboard-maestro"
-use textUtil : script "string"
+use loggerFactory : script "core/logger-factory"
+use listUtil : script "core/list"
+use kmLib : script "core/keyboard-maestro"
+use textUtil : script "core/string"
 
 property logger : missing value
 property km : missing value

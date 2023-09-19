@@ -2,17 +2,17 @@
 	@Build:
 		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-path
 
-	@Last Modified: 2023-09-05 12:05:51
+	@Last Modified: 2023-09-18 22:33:04
 *)
 
 use scripting additions
 
-use std : script "std"
+use std : script "core/std"
 
-use textUtil : script "string"
-use listUtil : script "list"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 
@@ -40,7 +40,7 @@ on spotCheck()
 		return
 	end if
 
-	set terminalLib to script "terminal"
+	set terminalLib to script "core/terminal"
 	set terminal to terminalLib's new()
 	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)

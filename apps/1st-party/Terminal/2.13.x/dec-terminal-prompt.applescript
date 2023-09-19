@@ -3,19 +3,19 @@
 
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "list"
-use textUtil : script "string"
-use regex : script "regex"
-use unic : script "unicodes"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use regex : script "core/regex"
+use unic : script "core/unicodes"
 use extOutput : "dec-terminal-output"
-use fileUtil : script "file"
+use fileUtil : script "core/file"
 
-use loggerLib : script "logger"
-use retryLib : script "retry"
-use terminalLib : script "terminal"
+use loggerLib : script "core/logger"
+use retryLib : script "core/retry"
+use terminalLib : script "core/terminal"
 
 use spotScript : script "core/spot-test"
 

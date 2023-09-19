@@ -13,18 +13,18 @@
 		Open the Menu Case.applescript and that will be used to test this script.
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use std : script "std"
+use std : script "core/std"
 
-use switchLib : script "switch"
-use loggerFactory : script "logger-factory"
-use seLib : script "script-editor"
-use speechLib : script "speech"
-use retryLib : script "retry"
-use plutilLib : script "plutil"
-use finderLib : script "finder"
+use switchLib : script "core/switch"
+use loggerFactory : script "core/logger-factory"
+use seLib : script "core/script-editor"
+use speechLib : script "core/speech"
+use retryLib : script "core/retry"
+use plutilLib : script "core/plutil"
+use finderLib : script "core/finder"
 
 property logger : missing value
 

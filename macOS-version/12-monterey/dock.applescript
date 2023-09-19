@@ -3,11 +3,11 @@
 	Desktop "Spaces" available.
 *)
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
-use retryLib : script "retry"
-use kbLib : script "keyboard"
+use loggerFactory : script "core/logger-factory"
+use retryLib : script "core/retry"
+use kbLib : script "core/keyboard"
 
 use spotScript : script "core/spot-test"
 

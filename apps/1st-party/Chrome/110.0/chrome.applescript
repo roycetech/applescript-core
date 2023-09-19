@@ -1,7 +1,7 @@
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
 use spotScript : script "core/spot-test"
 

@@ -2,20 +2,20 @@
 	@Build:
 		make compile-lib SOURCE=core/date-time
 
-	@Last Modified: 2023-09-05 12:05:52
+	@Last Modified: 2023-09-18 22:33:40
 *)
 use framework "Foundation"
 
 use scripting additions
 
-use script "Core Text Utilities"
-use std : script "std"
+use script "core/Text Utilities"
+use std : script "core/std"
 
-use textUtil : script "string"
-use listUtil : script "list"
-use regex : script "regex"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use regex : script "core/regex"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 

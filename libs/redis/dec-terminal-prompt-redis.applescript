@@ -10,15 +10,15 @@
 		instance name
 		handler name
 
-	@Last Modified: 2023-09-05 12:05:52
+	@Last Modified: 2023-09-18 22:33:05
 *)
 
-use listUtil : script "list"
-use textUtil : script "string"
-use regex : script "regex"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use regex : script "core/regex"
 
-use loggerFactory : script "logger-factory"
-use terminalLib : script "terminal"
+use loggerFactory : script "core/logger-factory"
+use terminalLib : script "core/terminal"
 
 use spotScript : script "core/spot-test"
 

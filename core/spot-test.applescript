@@ -8,17 +8,17 @@
 	@Build:
 		make compile-lib SOURCE=core/spot-test
 
-	@Last Modified: 2023-07-27 09:15:26
+	@Last Modified: 2023-09-18 22:33:40
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use loggerFactory : script "logger-factory"
-use plutilLib : script "plutil"
-use switchLib : script "switch"
+use loggerFactory : script "core/logger-factory"
+use plutilLib : script "core/plutil"
+use switchLib : script "core/switch"
 
-use overriderLib : script "overrider"
+use overriderLib : script "core/overrider"
 
 (*
 	Let's optionally use a logger only when this script is being spot checked.

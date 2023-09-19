@@ -3,13 +3,13 @@
 		applescript-core
 
 	@Created: September 4, 2023 3:58 PM
-	@Last Modified: 2023-09-05 10:17:11
+	@Last Modified: 2023-09-18 22:33:08
 *)
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use textUtil : script "string"
-use decoratorLib : script "decorator"
+use textUtil : script "core/string"
+use decoratorLib : script "core/decorator"
 
 property logger : missing value
 

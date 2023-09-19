@@ -7,9 +7,9 @@
 
 use scripting additions
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 use spotScript : script "core/spot-test"
 
 property logger : missing value

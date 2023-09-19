@@ -22,7 +22,7 @@
 use AppleScript
 use scripting additions
 
-use textUtil : script "string"
+use textUtil : script "core/string"
 
 property parent : script "com.lifepillar/ASUnit"
 
@@ -33,7 +33,7 @@ property plist : "~/applescript-core/test-plutil.plist"
 global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 property logger : missing value
 
 property TopLevel : me

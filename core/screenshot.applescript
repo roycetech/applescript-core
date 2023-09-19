@@ -15,16 +15,16 @@
 	@Redesigned: August 25, 2023 7:19 PM
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use std : script "std"
+use std : script "core/std"
 
-use Math : script "math"
-use listUtil : script "list"
-use loggerFactory : script "logger-factory"
+use Math : script "core/math"
+use listUtil : script "core/list"
+use loggerFactory : script "core/logger-factory"
 
-use dateTime : script "date-time"
+use dateTime : script "core/date-time"
 
 use spotScript : script "core/spot-test"
 

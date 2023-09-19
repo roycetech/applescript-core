@@ -22,14 +22,14 @@
 
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use textUtil : script "string"
-use listUtil : script "list"
-use loggerFactory : script "logger-factory"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use loggerFactory : script "core/logger-factory"
 
-use plutilLib : script "plutil"
+use plutilLib : script "core/plutil"
 
 use spotScript : script "core/spot-test"
 

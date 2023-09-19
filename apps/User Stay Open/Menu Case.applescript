@@ -19,7 +19,7 @@ use framework "Foundation"
 use framework "AppKit"
 use framework "Cocoa"
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
 property StatusItem : missing value
@@ -30,18 +30,18 @@ property externalMenuItem : class "NSMenuItem"
 property newMenu : class "NSMenu"
 
 
-use std : script "std"
+use std : script "core/std"
 
-use textUtil : script "string"
-use listUtil : script "list"
-use emoji : script "emoji"
-use unic : script "unicodes"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use emoji : script "core/emoji"
+use unic : script "core/unicodes"
 
-use loggerFactory : script "logger-factory"
-use speechLib : script "speech"
-use mapLib : script "map"
-use switchLib : script "switch"
-use plutilLib : script "plutil"
+use loggerFactory : script "core/logger-factory"
+use speechLib : script "core/speech"
+use mapLib : script "core/map"
+use switchLib : script "core/switch"
+use plutilLib : script "core/plutil"
 
 use spotScript : script "core/spot-test"
 

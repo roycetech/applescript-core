@@ -6,8 +6,8 @@
 		make compile-lib SOURCE=core/decorators/dec-logger-speech-and-tracking
 *)
 
-use speechLib : script "speech"
-use overriderLib : script "overrider"
+use speechLib : script "core/speech"
+use overriderLib : script "core/overrider"
 
 property speech : speechLib's new(missing value)
 property overrider : overriderLib's new()
@@ -32,15 +32,15 @@ end newSpotBase
 on decorate(baseScript)
 	script LoggerSpeechAndTrackingInstance
 		property parent : baseScript
-		
+
 		on fatal(logMessage)
 			continue fatal(logMessage)
-			
+
 			if logMessage does not contain "User canceled" then
 				if (count of characters of logMessage) is less than 141 then speech's speak(logMessage)
 			end if
 		end fatal
 	end script
-	
+
 	overrider's applyMappedOverride(result)
 end decorate

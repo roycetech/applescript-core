@@ -16,22 +16,22 @@
 		Assumes automator is not used or opened for purposes other than the exclusive use of this script.
 		Wipes out clipboard contents.
 
-	@Last Modified: 2023-09-05 12:05:50
+	@Last Modified: 2023-09-18 22:33:07
 *)
 
 use scripting additions
 
-use std : script "std"
-use listUtil : script "list"
+use std : script "core/std"
+use listUtil : script "core/list"
 
-use loggerFactory : script "logger-factory"
-use configLib : script "config"
-use syseveLib : script "system-events"
-use kbLib : script "keyboard"
-use processLib : script "process"
-use retryLib : script "retry"
+use loggerFactory : script "core/logger-factory"
+use configLib : script "core/config"
+use syseveLib : script "core/system-events"
+use kbLib : script "core/keyboard"
+use processLib : script "core/process"
+use retryLib : script "core/retry"
 
-use overriderLib : script "overrider"
+use overriderLib : script "core/overrider"
 
 use spotScript : script "core/spot-test"
 

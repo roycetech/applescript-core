@@ -5,12 +5,12 @@
 
 use scripting additions
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
 use spotScript : script "core/spot-test"
 
-use loggerLib : script "logger"
-use notificationCenterLib : script "notification-center"
+use loggerLib : script "core/logger"
+use notificationCenterLib : script "core/notification-center"
 
 property speech : false
 property logger : loggerLib's new("notification-certer-helper")

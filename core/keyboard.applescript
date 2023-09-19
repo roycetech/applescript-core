@@ -1,13 +1,13 @@
 (*
 	@Usage:
-		use kbLib : script "keyboard"
+		use kbLib : script "core/keyboard"
 	Or type (Text Expander): uuse kb
 
 	@Build:
 		make compile-lib SOURCE=core/keyboard
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
 use AppleScript version "2.4"
@@ -21,13 +21,13 @@ property NSShiftKeyMask : a reference to 131072
 property NSCommandKeyMask : a reference to 1048576
 property NSEvent : a reference to current application's NSEvent
 
-use std : script "std"
+use std : script "core/std"
 
-use loggerFactory : script "logger-factory"
-use listUtil : script "list"
-use emoji : script "emoji"
+use loggerFactory : script "core/logger-factory"
+use listUtil : script "core/list"
+use emoji : script "core/emoji"
 use spotScript : script "core/spot-test"
-use overriderLib : script "overrider"
+use overriderLib : script "core/overrider"
 
 property logger : missing value
 
@@ -233,6 +233,13 @@ on new()
 			end tell
 			delay delayAfterKeySeconds
 		end pressOptionKey
+
+		on pressShiftKey(keyToPress)
+			tell application "System Events"
+				key code my _charToKeycode(keyToPress) using {shift down}
+			end tell
+			delay delayAfterKeySeconds
+		end pressShiftKey
 
 		on typeText(theText)
 			tell application "System Events" to keystroke theText

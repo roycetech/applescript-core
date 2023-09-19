@@ -4,21 +4,21 @@
 	@Plists:
 		notification-appname - contains mapping for app id to app name.
 
-	@Last Modified: 2023-09-05 12:05:52
+	@Last Modified: 2023-09-18 22:33:39
 
 	For Mail notifications, the grouping must be set to Off.
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "list"
-use regex : script "regex"
-use loggerFactory : script "logger-factory"
+use listUtil : script "core/list"
+use regex : script "core/regex"
+use loggerFactory : script "core/logger-factory"
 
-use loggerLib : script "logger"
-use plutilLib : script "plutil"
-use notificationCenterHelperLib : script "notification-center-helper"
+use loggerLib : script "core/logger"
+use plutilLib : script "core/plutil"
+use notificationCenterHelperLib : script "core/notification-center-helper"
 
 use spotScript : script "core/spot-test"
 

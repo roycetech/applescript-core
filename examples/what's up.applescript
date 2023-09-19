@@ -1,4 +1,4 @@
-use loggerLib : script "logger"
+use loggerLib : script "core/logger"
 
 property logger : loggerLib's new("what's up")
 

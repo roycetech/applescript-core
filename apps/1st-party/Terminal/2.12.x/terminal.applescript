@@ -6,7 +6,7 @@
 	Dependent on your Terminal configuration for window/tab items.
 
 	@Usage:
-		use terminalLib : script "terminal"
+		use terminalLib : script "core/terminal"
 		property terminal : terminalLib's new()
 
 		set foundTab to terminal's findTabWithName("project-dir-name", "tab_name")
@@ -38,28 +38,28 @@
 
 use scripting additions
 
-use script "Core Text Utilities"
-use std : script "std"
+use script "core/Text Utilities"
+use std : script "core/std"
 
-use textUtil : script "string"
-use listUtil : script "list"
-use unic : script "unicodes"
-use regex : script "regex"
-use emoji : script "emoji"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use unic : script "core/unicodes"
+use regex : script "core/regex"
+use emoji : script "core/emoji"
 
-use loggerFactory : script "logger-factory"
-use retryLib : script "retry"
-use windowLib : script "window"
-use syseveLib : script "system-events"
+use loggerFactory : script "core/logger-factory"
+use retryLib : script "core/retry"
+use windowLib : script "core/window"
+use syseveLib : script "core/system-events"
 
-use extOutput : script "dec-terminal-output"
-use extRun : script "dec-terminal-run"
-use extPath : script "dec-terminal-path"
-use extPrompt : script "dec-terminal-prompt"
+use extOutput : script "core/dec-terminal-output"
+use extRun : script "core/dec-terminal-run"
+use extPath : script "core/dec-terminal-path"
+use extPrompt : script "core/dec-terminal-prompt"
 
 use spotScript : script "core/spot-test"
 
-use overriderLib : script "overrider"
+use overriderLib : script "core/overrider"
 
 property logger : missing value
 property retry : missing value

@@ -15,19 +15,19 @@
 
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "list"
-use regex : script "regex"
+use listUtil : script "core/list"
+use regex : script "core/regex"
 
-use loggerLib : script "logger"
-use plutilLib : script "plutil"
-use uiutilLib : script "ui-util"
-use calendarLib : script "calendar"
-use calendarEventLib : script "calendar-event"
+use loggerLib : script "core/logger"
+use plutilLib : script "core/plutil"
+use uiutilLib : script "core/ui-util"
+use calendarLib : script "core/calendar"
+use calendarEventLib : script "core/calendar-event"
 
-use overriderLib : script "overrider"
+use overriderLib : script "core/overrider"
 
 use spotScript : script "core/spot-test"
 

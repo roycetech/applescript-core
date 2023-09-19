@@ -22,8 +22,8 @@ property scriptName : "script-editor" -- The name of the script to be tested
 global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
-use loggerFactory : script "logger-factory"
-use testUtilLib : script "test-util"
+use loggerFactory : script "core/logger-factory"
+use testUtilLib : script "core/test-util"
 
 property logger : missing value
 
@@ -43,7 +43,7 @@ autorun(suite)
 -- this will work when all the tests in the current folder are run together using loadTestsFromFolder().
 -- Besides, this will make sure that we are using the latest version of the script
 -- to be tested even if we do not recompile this test script.
-script |Load script|
+script |Load script - scriptEditorTest|
 	property parent : TestSet(me)
 	script |Loading the script|
 		property parent : UnitTest(me)

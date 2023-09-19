@@ -1,18 +1,18 @@
 (*
-	@Last Modified: 2023-09-05 12:05:52
+	@Last Modified: 2023-09-18 22:33:40
 
 	@Build:
 		make compile-lib SOURCE=core/dialog
 *)
 use scripting additions
-use script "Core Text Utilities"
-use std : script "std"
+use script "core/Text Utilities"
+use std : script "core/std"
 
-use loggerFactory : script "logger-factory"
-use listUtil : script "list"
-use speechLib : script "speech"
+use loggerFactory : script "core/logger-factory"
+use listUtil : script "core/list"
+use speechLib : script "core/speech"
 use spotScript : script "core/spot-test"
-use testLib : script "simple-test"
+use testLib : script "core/simple-test"
 
 property logger : missing value
 

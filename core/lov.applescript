@@ -10,17 +10,17 @@
 	@Build:
 		make compile-lib SOURCE=core/lov
 
-	@Last Modified: 2023-09-05 12:05:52
+	@Last Modified: 2023-09-18 22:33:06
 *)
 
-use listUtil : script "list"
+use listUtil : script "core/list"
 
-use loggerLib : script "logger"
-use plutilLib : script "plutil"
+use loggerLib : script "core/logger"
+use plutilLib : script "core/plutil"
 
 use spotScript : script "core/spot-test"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
 

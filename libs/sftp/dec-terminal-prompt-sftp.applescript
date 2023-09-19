@@ -8,14 +8,14 @@
 		make compile-lib SOURCE=libs/sftp/dec-terminal-prompt-sftp
 *)
 
-use textUtil : script "string"
-use listUtil : script "list"
-use regex : script "regex"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use regex : script "core/regex"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use loggerLib : script "logger"
-use terminalLib : script "terminal"
+use loggerLib : script "core/logger"
+use terminalLib : script "core/terminal"
 
 use spotScript : script "core/spot-test"
 

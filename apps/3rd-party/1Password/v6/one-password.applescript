@@ -7,14 +7,14 @@
 
 use scripting additions
 
-use textUtil : script "string"
-use listUtil : script "list"
-use cliclick : script "cliclick"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use cliclick : script "core/cliclick"
 
-use loggerFactory : script "logger-factory"
-use retryLib : script "retry"
-use clipLib : script "clipboard"
-use kbLib : script "keyboard"
+use loggerFactory : script "core/logger-factory"
+use retryLib : script "core/retry"
+use clipLib : script "core/clipboard"
+use kbLib : script "core/keyboard"
 
 use spotScript : script "core/spot-test"
 

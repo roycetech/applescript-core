@@ -27,17 +27,17 @@
 
 use scripting additions
 
-use std : script "std"
-use fileUtil : script "file"
-use textUtil : script "string"
+use std : script "core/std"
+use fileUtil : script "core/file"
+use textUtil : script "core/string"
 
-use loggerLib : script "logger"
-use systemEventsLib : script "system-events"
-use retryLib : script "retry"
-use plutilLib : script "plutil"
-use seLib : script "script-editor"
-use configLib : script "config"
-use automatorLib : script "automator"
+use loggerLib : script "core/logger"
+use systemEventsLib : script "core/system-events"
+use retryLib : script "core/retry"
+use plutilLib : script "core/plutil"
+use seLib : script "core/script-editor"
+use configLib : script "core/config"
+use automatorLib : script "core/automator"
 
 property logger : loggerLib's new("Create Automator App")
 property systemEvents : systemEventsLib's new()

@@ -14,7 +14,7 @@
 use AppleScript
 use scripting additions
 
-use omz : script "oh-my-zsh"
+use omz : script "core/oh-my-zsh"
 
 property parent : script "com.lifepillar/ASUnit"
 
@@ -24,7 +24,7 @@ property scriptName : "regex" -- The name of the script to be tested
 global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
 

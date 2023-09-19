@@ -23,12 +23,12 @@
 
 use scripting additions
 
-use listUtil : script "list"
-use textUtil : script "string"
-use loggerFactory : script "logger-factory"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use loggerFactory : script "core/logger-factory"
 
-use retryLib : script "retry"
-use configLib : script "config"
+use retryLib : script "core/retry"
+use configLib : script "core/config"
 
 use spotScript : script "core/spot-test"
 

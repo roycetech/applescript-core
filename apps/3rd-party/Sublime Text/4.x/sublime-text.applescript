@@ -3,7 +3,7 @@
 	Each individual project tabs are not treated as separate windows as compared to first party apps.
 
 	@Usage:
-		use stLib : script "sublime-text"
+		use stLib : script "core/sublime-text"
 		property sublime : stLib's new()  -- Text Expander: "uuse sublime"
 		
 	@Build:
@@ -19,24 +19,24 @@
  	NOTE: if AXDocument is missing, usually when filename is missing value then restart Sublime Text.
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use std : script "std"
+use std : script "core/std"
 
-use textUtil : script "string"
-use listUtil : script "list"
-use unic : script "unicodes"
-use loggerFactory : script "logger-factory"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use unic : script "core/unicodes"
+use loggerFactory : script "core/logger-factory"
 
-use loggerLib : script "logger"
-use finderLib : script "finder"
-use configLib : script "config"
-use kbLib : script "keyboard"
+use loggerLib : script "core/logger"
+use finderLib : script "core/finder"
+use configLib : script "core/config"
+use kbLib : script "core/keyboard"
 
 use spotScript : script "core/spot-test"
 
-use decoratorLib : script "decorator"
+use decoratorLib : script "core/decorator"
 
 property logger : missing value
 property finder : missing value

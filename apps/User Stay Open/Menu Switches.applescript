@@ -37,19 +37,19 @@ global SCRIPT_NAME, IDLE_SECONDS
 global SWITCHES_LIST, SWITCHES_ID, SESSION_SWITCHES_LIST, SESSION_SWITCHES_ID
 
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use std : script "std"
-use listUtil : script "list"
-use textUtil : script "string"
-use emoji : script "emoji"
+use std : script "core/std"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use emoji : script "core/emoji"
 
-use loggerLib : script "logger"
-use switchLib : script "switch"
-use configLib : script "config"
-use mapLib : script "map"
-use plutilLib : script "plutil"
+use loggerLib : script "core/logger"
+use switchLib : script "core/switch"
+use configLib : script "core/config"
+use mapLib : script "core/map"
+use plutilLib : script "core/plutil"
 
 property logger : loggerLib's new("Menu Switches")
 property configUser : configLib's new("user")

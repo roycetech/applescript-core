@@ -11,7 +11,7 @@
 		make install-redis
 
 	@Usage:
-		use redisLib : script "redis"
+		use redisLib : script "core/redis"
 
 		property redis : redisLib's new(0) -- 0 for no timeout
 
@@ -27,18 +27,18 @@
 	@Known Issues:
 		September 2, 2023 9:53 AM - Records are not currently supported.
 
-	@Last Modified: 2023-09-05 12:05:52
+	@Last Modified: 2023-09-18 22:33:39
  *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
 -- PROPERTIES =================================================================
 
-use listUtil : script "list"
-use dt : script "date-time"
+use listUtil : script "core/list"
+use dt : script "core/date-time"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 use spotScript : script "core/spot-test"
 
 property logger : missing value

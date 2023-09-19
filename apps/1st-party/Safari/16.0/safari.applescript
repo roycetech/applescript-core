@@ -12,8 +12,8 @@
 		SafariTabInstance - wrapper to a Safari tab.
 
 	Debugging existing tab:
-		use loggerLib : script "logger"
-		use safariLib : script "safari"
+		use loggerLib : script "core/logger"
+		use safariLib : script "core/safari"
 
 		set logger to loggerLib's new("ad hoc")
 		set safari to safariLib's new()
@@ -27,27 +27,27 @@
 		13")
 		end tell
 
-	@Last Modified: 2023-09-05 12:05:51
+	@Last Modified: 2023-09-18 22:33:39
 *)
 
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
-use std : script "std"
-use textUtil : script "string"
-use listUtil : script "list"
-use unic : script "unicodes"
--- use regex : script "regex"
+use std : script "core/std"
+use textUtil : script "core/string"
+use listUtil : script "core/list"
+use unic : script "core/unicodes"
+-- use regex : script "core/regex"
 
-use loggerFactory : script "logger-factory"
+use loggerFactory : script "core/logger-factory"
 
-use kbLib : script "keyboard"
-use uiutilLib : script "ui-util"
-use winUtilLib : script "window"
-use dockLib : script "dock"
-use retryLib : script "retry"
+use kbLib : script "core/keyboard"
+use uiutilLib : script "core/ui-util"
+use winUtilLib : script "core/window"
+use dockLib : script "core/dock"
+use retryLib : script "core/retry"
 
-use safariJavaScript : script "safari-javascript"
+use safariJavaScript : script "core/safari-javascript"
 
 use spotScript : script "core/spot-test"
 
@@ -106,11 +106,12 @@ on spotCheck()
 				Safari Can't Connect to the Server (Failed to open page) - Connect to localhost while no local server is running.
 				safari-resource:/ErrorPage.html (Title: Failed to open page,Address Bar Value: localhost:8080)
 		*)
-
+		activate application "Safari"
 		set frontTab to sut's getFrontTab()
 		if frontTab is missing value then
 			logger's info("A front tab was not found")
 		else
+			logger's infof("Keychain Form Visible: {}", sut's isKeychainFormVisible())
 			logger's infof("Is Compact: {}", sut's isCompact())
 			logger's infof("URL: {}", frontTab's getURL())
 			logger's infof("URL Class: {}", class of frontTab's getURL())
@@ -126,7 +127,6 @@ on spotCheck()
 
 			delay 3 -- Manually check below when in/visible.
 			logger's infof("Address Bar is focused: {}", frontTab's isAddressBarFocused())
-			logger's infof("Keychain Form Visible: {}", sut's isKeychainFormVisible())
 		end if
 
 	else if caseIndex is 2 then
@@ -284,11 +284,15 @@ on new()
 			false
 		end isLoading
 
+		(*
+			@returns true if successfully clicked.
+		*)
 		on selectKeychainItem(itemName)
 			if running of application "Safari" is false then return
 
 			set itemIndex to 0
 			tell application "System Events" to tell process "Safari"
+				try
 				repeat with nextRow in rows of table 1 of scroll area 1
 					set itemIndex to itemIndex + 1
 					if value of static text 1 of UI element 1 of nextRow is equal to itemName then
@@ -296,10 +300,13 @@ on new()
 							kb's pressKey("down")
 						end repeat
 						kb's pressKey("enter")
-						return
+						return true
+
 					end if
 				end repeat
+				end try
 			end tell
+			false
 		end selectKeychainItem
 
 		on isKeychainFormVisible()
@@ -808,6 +815,7 @@ on new()
 
 				property _tab : missing value
 				property _url : missing value
+
 
 				on getTitle()
 					name of appWindow -- This returns the title of the front tab.

@@ -8,9 +8,9 @@
 *)
 use scripting additions
 
-use listUtil : script "list"
-use textUtil : script "string"
-use loggerFactory : script "logger-factory"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
+use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 
@@ -44,7 +44,7 @@ on spotCheck()
 	end if
 	
 	-- activate application ""
-	set sutLib to script "script-editor"
+	set sutLib to script "core/script-editor"
 	set sut to sutLib's new()
 	set sut to decorate(sut)
 	

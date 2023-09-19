@@ -4,7 +4,7 @@
 	application response to prevent this script from blocking.
 	
 	@Usage:
-		use streamDeckLib : script "stream-deck"
+		use streamDeckLib : script "core/stream-deck"
 		set streamDeck to streamDeckLib's new()
 
 	@Requires:
@@ -19,12 +19,12 @@
 
 use scripting additions
 
-use std : script "std"
-use loggerFactory : script "logger-factory"
-use listUtil : script "list"
-use textUtil : script "string"
+use std : script "core/std"
+use loggerFactory : script "core/logger-factory"
+use listUtil : script "core/list"
+use textUtil : script "core/string"
 use spotScript : script "core/spot-test"
-use overriderLib : script "overrider"
+use overriderLib : script "core/overrider"
 
 property logger : missing value
 property isSpot : false
