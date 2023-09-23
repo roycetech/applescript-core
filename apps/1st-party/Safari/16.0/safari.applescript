@@ -5,7 +5,11 @@
 		This library is designed initially to handle when new windows are opened
 		with Start Page. To support other configurations.
 
-	@Installation:
+	@Project:
+		applescript-core
+
+	@Build:
+		make install-safari
 
 	This library creates 2 instances:
 		SafariInstance - this library
@@ -27,7 +31,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2023-09-18 22:33:39
+	@Last Modified: 2023-09-20 22:06:04
 *)
 
 use script "core/Text Utilities"
@@ -41,13 +45,18 @@ use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
 
+use safariTabLib : script "core/safari-tab"
+use decSafariUiNoncompact : script "core/dec-safari-ui-noncompact"
+use decSafariUiCompact : script "core/dec-safari-ui-compact"
+use decSafariSideBar : script "core/dec-safari-side-bar"
+use decSafariTabGroup : script "core/dec-safari-tab-group"
+use decSafariKeychain : script "core/dec-safari-keychain"
+
 use kbLib : script "core/keyboard"
 use uiutilLib : script "core/ui-util"
 use winUtilLib : script "core/window"
 use dockLib : script "core/dock"
 use retryLib : script "core/retry"
-
-use safariJavaScript : script "core/safari-javascript"
 
 use spotScript : script "core/spot-test"
 
@@ -119,14 +128,14 @@ on spotCheck()
 			logger's infof("Address Bar Value: {}", frontTab's getAddressBarValue())
 			logger's infof("Title: {}", frontTab's getTitle())
 			logger's infof("Window Name: {}", frontTab's getWindowName())
-			logger's infof("Window ID: {}", frontTab's getWindowId())
+			logger's infof("Window ID: {}", frontTab's getWindowID())
 			logger's infof("Sidebar Visible: {}", sut's isSideBarVisible())
 			logger's infof("Is Loading: {}", sut's isLoading())
 			logger's infof("Is Playing: {}", sut's isPlaying())
 			logger's infof("Is Default Group: {}", sut's isDefaultGroup())
 
 			delay 3 -- Manually check below when in/visible.
-			logger's infof("Address Bar is focused: {}", frontTab's isAddressBarFocused())
+			logger's infof("Address Bar is focused: {}", sut's isAddressBarFocused())
 		end if
 
 	else if caseIndex is 2 then
@@ -238,83 +247,6 @@ on new()
 	set retry to retryLib's new()
 
 	script SafariInstance
-		(*
-			Determine if on default group when:
-				SideBar Visible: first row is selected.
-				SideBar Hidden: the tab picker is small, without any labels
-
-		*)
-		on isDefaultGroup()
-			if isSideBarVisible() then
-				tell application "System Events" to tell process "Safari"
-					return value of attribute "AXSelected" of row 1 of outline 1 of scroll area 1 of group 1 of splitter group 1 of front window
-				end tell
-			end if
-
-			-- else: SideBar not visible.
-			set groupPicker to missing value
-			tell application "System Events" to tell process "Safari"
-				try
-					set groupPicker to first menu button of group 1 of toolbar 1 of front window whose help is "Tab Group Picker"
-				end try
-			end tell
-			if groupPicker is missing value then error "Unable to find the group picker UI"
-
-			tell application "System Events" to tell process "Safari"
-				set wh to the size of groupPicker
-				(first item of wh) is less than 40
-			end tell
-		end isDefaultGroup
-
-
-		on isLoading()
-			if running of application "Safari" is false then return false
-
-			(*
-				-- For testing
-				activate application "Safari"
-				kb's pressCommandKey("r")
-			*)
-			tell application "System Events" to tell process "Safari"
-				try
-					return exists (first button of (my _getAddressBarGroup()) whose description is "Stop loading this page")
-				end try
-			end tell
-
-			false
-		end isLoading
-
-		(*
-			@returns true if successfully clicked.
-		*)
-		on selectKeychainItem(itemName)
-			if running of application "Safari" is false then return
-
-			set itemIndex to 0
-			tell application "System Events" to tell process "Safari"
-				try
-				repeat with nextRow in rows of table 1 of scroll area 1
-					set itemIndex to itemIndex + 1
-					if value of static text 1 of UI element 1 of nextRow is equal to itemName then
-						repeat itemIndex times
-							kb's pressKey("down")
-						end repeat
-						kb's pressKey("enter")
-						return true
-
-					end if
-				end repeat
-				end try
-			end tell
-			false
-		end selectKeychainItem
-
-		on isKeychainFormVisible()
-			tell application "System Events" to tell process "Safari"
-				exists (scroll area 1)
-			end tell
-		end isKeychainFormVisible
-
 		(* Slow operation, 3s. *)
 		on isAddressBarFocused()
 			if running of application "Safari" is false then return missing value
@@ -330,305 +262,12 @@ on new()
 			end tell
 		end isAddressBarFocused
 
-		on isPlaying()
-			if running of application "Safari" is false then return missing value
-
-			if isCompact() then
-				tell application "System Events" to tell process "Safari"
-					return exists (first button of (first radio button of UI element 1 of my _getAddressBarGroup() whose value of attribute "AXValue" is true) whose description contains "Mute")
-
-					-- 		exists of (first button of my _getAddressBarGroup() whose description contains "Mute")
-
-				end tell
-			end if
-
-			false
-		end isPlaying
-
-
-		on getGroupName()
-			if running of application "Safari" is false then return missing value
-
-			tell application "System Events" to tell process "Safari"
-				if (count of windows) is 0 then return
-
-				set windowTitle to name of front window
-			end tell
-
-
-			set sideBarWasVisible to isSideBarVisible()
-			-- logger's debugf("sideBarWasVisible: {}", sideBarWasVisible)
-
-			if sideBarWasVisible is false then -- let's try to simplify by getting the name from the window name
-				set nameTokens to textUtil's split(windowTitle, unic's SEPARATOR)
-				if number of items in nameTokens is 2 then -- There's a small risk that a current website has the same separator characters in its title and thus result in the wrong group name.
-					logger's info("Returning group name from window title")
-					return first item of nameTokens
-				end if
-			end if
-
-			showSideBar()
-
-
-			-- UI detects side bar is still hidden, so we wait, to make close work reliably.
-			script SidebarWaiter
-				if isSideBarVisible() is true then return true
-			end script
-			exec of retry on SidebarWaiter for 5
-
-			tell application "System Events" to tell process "Safari"
-				repeat with nextRow in rows of outline 1 of scroll area 1 of group 1 of splitter group 1 of front window
-					if selected of nextRow is true then
-						if not sideBarWasVisible then
-							-- logger's debug("Closing Sidebar...")
-							my closeSideBar()
-						end if
-
-						set groupDesc to description of UI element 1 of UI element 1 of nextRow
-						set groupNameTokens to textUtil's split(groupDesc, ",")
-						return first item of groupNameTokens
-					end if
-				end repeat
-			end tell
-
-			if not sideBarWasVisible then
-				closeSideBar()
-			end if
-			missing value
-		end getGroupName
-
-
-		on showSideBar()
-			if running of application "Safari" is false then return
-			tell application "System Events" to tell process "Safari"
-				if (count of windows) is 0 then return
-			end tell
-			if isSideBarVisible() then return
-
-			tell application "System Events" to tell application process "Safari"
-				set groupOneButtons to buttons of group 1 of toolbar 1 of front window
-			end tell
-
-			set sideBarButton to uiutil's new()'s findUiContainingIdAttribute(groupOneButtons, "SidebarButton")
-			tell application "System Events" to click sideBarButton
-		end showSideBar
-
-
-		on closeSideBar()
-			if not isSideBarVisible() then return return
-
-			if running of application "Safari" is false then return
-
-			tell application "System Events" to tell process "Safari"
-				if (count of windows) is 0 then return
-			end tell
-
-			tell application "System Events" to tell application process "Safari"
-				set groupOneButtons to buttons of group 1 of toolbar 1 of front window
-			end tell
-
-			set sideBarButton to uiutil's new()'s findUiContainingIdAttribute(groupOneButtons, "SidebarButton")
-			script CloseWaiter
-				tell application "System Events" to click sideBarButton
-				if isSideBarVisible() is false then return true
-			end script
-			exec of retry on result for 3
-		end closeSideBar
-
-
-		on isSideBarVisible()
-			if running of application "Safari" is false then return false
-
-			tell application "System Events" to tell process "Safari"
-				try
-					return get value of attribute "AXIdentifier" of menu button 1 of group 1 of toolbar 1 of window 1 is "NewTabGroupButton"
-				end try
-			end tell
-			false
-		end isSideBarVisible
-
-
-		(*
-			Will switch group by:
-				1.  Closing the SideBar
-				2.  Triggering the group switcher menu UI
-				3.  Clicking the first (missing value) or the matching menu item.
-				4.  Restore if SideBar wasn't initially closed.
-
-			@requires app focus.
-		*)
-		on switchGroup(groupName)
-			if running of application "Safari" is false then
-				logger's debug("Launching Safari...")
-				activate application "Safari"
-				delay 0.1
-			end if
-
-			tell application "System Events" to tell process "Safari"
-				if (count of windows) is 0 then
-					my newWindow(missing value)
-				end if
-			end tell
-
-			set sideBarWasVisible to isSideBarVisible()
-			closeSideBar()
-
-			activate application "Safari"
-			script ToolBarWaiter
-				tell application "System Events" to tell process "Safari"
-					click menu button 1 of group 1 of toolbar 1 of window 1
-				end tell
-				true
-			end script
-			set waitResult to exec of retry on result for 3
-			-- logger's debugf("WaitResult: {}", waitResult)
-
-			tell application "System Events" to tell process "Safari"
-				if groupName is missing value then
-					click menu item 1 of menu 1 of group 1 of toolbar 1 of front window
-				else
-					try
-						click menu item groupName of menu 1 of group 1 of toolbar 1 of window 1
-					on error
-						logger's warnf("Group: {} was not found", groupName)
-						kb's pressKey("esc")
-					end try
-				end if
-			end tell
-
-			if sideBarWasVisible then showSideBar()
-		end switchGroup
-
-
-		(*
-			@return  missing value of tab if not found, else a SafariTabInstance .
-		*)
-		on findTabWithName(targetName)
-			if running of application "Safari" is false then return missing value
-
-			tell application "Safari"
-				repeat with nextWindow in windows
-					try
-						set matchedTab to (first tab of nextWindow whose name is equal to targetName)
-						return my _new(id of nextWindow, index of matchedTab as integer)
-					end try
-				end repeat
-			end tell
-			return missing value
-		end findTabWithName
-
-
-		(* @return  missing value of tab is not found. TabInstance *)
-		on findTabStartingWithName(targetName)
-			if running of application "Safari" is false then return missing value
-
-			tell application "Safari"
-				repeat with nextWindow in windows
-					try
-						set matchedTab to (first tab of nextWindow whose name starts with targetName)
-						return my _new(id of nextWindow, index of matchedTab as integer)
-					end try
-				end repeat
-			end tell
-			missing value
-		end findTabStartingWithName
-
-
-		(* @return  missing value of tab is not found. TabInstance *)
-		on findTabContainingInName(nameSubstring)
-			if running of application "Safari" is false then return missing value
-
-			tell application "Safari"
-				repeat with nextWindow in windows
-					try
-						set matchedTab to (first tab of nextWindow whose name contains nameSubstring)
-						return my _new(id of nextWindow, index of matchedTab as integer)
-					end try
-				end repeat
-			end tell
-			return missing value
-		end findTabContainingInName
-
-
-		(* @return  missing value of tab is not found. TabInstance *)
-		on findTabEndingWithName(targetName)
-			if running of application "Safari" is false then return missing value
-
-			tell application "Safari"
-				repeat with nextWindow in windows
-					try
-						set matchedTab to (first tab of nextWindow whose name ends with targetName)
-						return my _new(id of nextWindow, index of matchedTab as integer)
-					end try
-				end repeat
-			end tell
-			missing value
-		end findTabEndingWithName
-
-
-		(* @return  missing value of tab is not found. *)
-		on findTabWithUrl(targetUrl)
-			if running of application "Safari" is false then return missing value
-
-			tell application "Safari"
-				repeat with nextWindow in windows
-					try
-						set matchedTab to (first tab of nextWindow whose URL is equal to the targetUrl)
-						return my _new(id of nextWindow, index of matchedTab as integer)
-					end try
-				end repeat
-			end tell
-			missing value
-		end findTabWithUrl
-
-
-		(* @return  missing value of tab is not found. *)
-		on findTabStartingWithUrl(urlPrefix)
-			if running of application "Safari" is false then return missing value
-
-			if urlPrefix does not start with "http" then set urlPrefix to "https://" & urlPrefix
-
-			tell application "Safari"
-				repeat with nextWindow in windows
-					try
-						set matchedTab to (first tab of nextWindow whose URL starts with urlPrefix)
-						return my _new(id of nextWindow, index of matchedTab as integer)
-					end try
-				end repeat
-			end tell
-			missing value
-		end findTabStartingWithUrl
-
-
-		(*
-			@return  missing value of tab is not found.
-		*)
-		on findTabWithUrlContaining(urlSubstring)
-			if running of application "Safari" is false then return missing value
-
-			tell application "Safari"
-				tell front window
-					if URL of current tab contains urlSubstring then
-						return my _new(its id, index of current tab as integer)
-					end if
-				end tell
-
-				repeat with nextWindow in windows
-					try
-						set matchedTab to (first tab of nextWindow whose URL contains urlSubstring)
-						return my _new(id of nextWindow, index of matchedTab as integer)
-					end try
-				end repeat
-			end tell
-			missing value
-		end findTabWithUrlContaining
-
 
 		on getFrontTab()
 			if not winUtil's hasWindow("Safari") then return missing value
 
 			tell application "Safari" to tell first window
-				my _new(its id, index of current tab)
+				safariTabLib's new(its id, index of current tab, me)
 			end tell
 		end getFrontTab
 
@@ -641,7 +280,7 @@ on new()
 				if (count of windows) is 0 then return missing value
 
 				tell first window
-					my _new(its id, index of current tab)
+					safariTabLib's new(its id, index of current tab, me)
 				end tell
 			end tell
 		end getFirstTab
@@ -693,7 +332,7 @@ on new()
 			assertThat of std given condition:windowId is not missing value, messageOnFail:"Failed to initialize safari window to a valid state"
 
 			tell application "Safari"
-				set newSafariTabInstance to my _new(windowId, count of tabs of window "Start Page")
+				set newSafariTabInstance to safariTabLib's new(windowId, count of tabs of window "Start Page", me)
 			end tell
 			newSafariTabInstance's focus()
 
@@ -756,7 +395,7 @@ on new()
 		*)
 			end tell
 
-			_new(id of appWindow, tabTotal)
+			safariTabLib's new(id of appWindow, tabTotal)
 		end newTab
 
 		on newCognito(targetUrl)
@@ -770,7 +409,7 @@ on new()
 				set the URL of current tab of front window to targetUrl
 				set windowId to id of front window as integer
 			end tell
-			_new(windowId, 1)
+			safariTabLib's new(windowId, 1)
 		end newCognito
 
 
@@ -796,244 +435,11 @@ on new()
 				end if
 			end tell
 		end focusWindowWithToolbar
-
-
-		-- Private Codes below =======================================================
-		(*
-			@windowId app window ID
-			@pTabIndex the Safari tab index
-		*)
-		on _new(windowId, pTabIndex)
-			-- logger's debugf("Window ID: {}, TabIndex: {}", {windowId, pTabIndex}) -- wished the name or the url can be included in the log, not easy to do.
-
-			script SafariTabInstance
-				property appWindow : missing value -- app window, not syseve window.
-				property maxTryTimes : 60
-				property sleepSec : 1
-				property closeOtherTabsOnFocus : false
-				property tabIndex : pTabIndex
-
-				property _tab : missing value
-				property _url : missing value
-
-
-				on getTitle()
-					name of appWindow -- This returns the title of the front tab.
-					name of _tab -- This returns the title of the front tab.
-				end getTitle
-
-				on hasToolBar()
-					tell application "System Events" to tell process "Safari"
-						try
-							return exists toolbar 1 of my getSysEveWindow()
-						end try
-					end tell
-					false
-				end hasToolBar
-
-				on hasAlert()
-					tell application "System Events" to tell process "Safari" to tell getSysEveWindow()
-						try
-							button "Close" of group 1 of tab group 1 of splitter group 1 exists
-						on error
-							false
-						end try
-					end tell
-				end hasAlert
-
-				on dismissAlert()
-					tell application "System Events" to tell process "Safari" to tell getSysEveWindow()
-						try
-							(click button "Close" of group 1 of tab group 1 of splitter group 1) exists
-						end try
-					end tell
-				end dismissAlert
-
-				(* Creates a new tab at the end of the window (not next to the tab) *)
-				on newTab(targetUrl)
-					tell application "Safari"
-						tell my appWindow to set current tab to (make new tab with properties {URL:targetUrl})
-						set miniaturized of appWindow to false
-						set tabTotal to count of tabs of appWindow
-					end tell
-
-					set newInstance to _new(windowId, tabTotal)
-					set _url of newInstance to targetUrl
-					the newInstance
-				end newTab
-
-				(* It checks the starting characters to match because Safari trims it in the menu when then name is more than 30 characters. *)
-				on focus()
-					tell application "Safari" to set current tab of my appWindow to _tab
-				end focus
-
-				on closeTab()
-					tell application "Safari" to close _tab
-				end closeTab
-
-				to closeWindow()
-					tell application "Safari" to close my appWindow()
-				end closeWindow
-
-				on reload()
-					focus()
-					tell application "Safari"
-						set currentUrl to URL of my getDocument()
-						set URL of my getDocument() to currentUrl
-					end tell
-					delay 0.01
-				end reload
-
-				on waitForPageToLoad()
-					waitForPageLoad()
-				end waitForPageToLoad
-
-				on waitForPageLoad()
-					script SourceWaiter
-						tell application "Safari"
-							if my getWindowName() is equal to "Failed to open page" then return "failed"
-							if source of my getDocument() is not "" then return true
-						end tell
-					end script
-					exec of retry on result for maxTryTimes by sleepSec
-				end waitForPageLoad
-
-				on waitInSource(substring)
-					script SubstringWaiter
-						if getSource() contains substring then return true
-					end script
-					exec of retry on result for maxTryTimes by sleepSec
-				end waitInSource
-
-				on getSource()
-					tell application "Safari"
-						try
-							return (source of my getDocument()) as text
-						end try
-					end tell
-
-					missing value
-				end getSource
-
-				on getURL()
-					tell application "Safari"
-						try
-							return URL of my getDocument()
-						end try
-					end tell
-
-					missing value
-				end getURL
-
-				on getAddressBarValue()
-					if hasToolBar() is false then return missing value
-
-					tell application "System Events" to tell process "Safari"
-						try
-							set addressBarValue to value of text field 1 of last group of toolbar 1 of my getSysEveWindow()
-							if addressBarValue is "" then return missing value
-							return addressBarValue
-						end try
-					end tell
-					missing value
-				end getAddressBarValue
-
-				on goto(targetUrl)
-					script PageWaiter
-
-						-- tell application "Safari" to set URL of document (name of my appWindow) to targetUrl
-						tell application "Safari" to set URL of my getDocument() to targetUrl
-						true
-					end script
-					exec of retry on result for 2
-					delay 0.1 -- to give waitForPageLoad ample time to enter a loading state.
-				end goto
-
-
-				(* Note: Will dismiss the prompt of the*)
-				on dismissPasswordSavePrompt()
-					focus()
-					script PasswordPrompt
-						tell application "System Events" to tell process "Safari"
-							click button "Not Now" of sheet 1 of front window
-							-- we need system event window, appWindow is app Safari window so it would not work here.
-							true
-						end tell
-					end script
-					exec of retry on result for 5 -- let's try click it 5 times, ignoring outcomes.
-				end dismissPasswordSavePrompt
-
-				(* regex library is crappy.
-				on extractUrlParam(paramName)
-					tell application "Safari" to set _url to URL of my getDocument()
-					set pattern to format {"(?<={}=)\\w+", paramName}
-					set matchedString to regex's findFirst(_url, pattern)
-					if matchedString is "nil" then return missing value
-
-					matchedString
-				end extractUrlParam
-*)
-
-				on getWindowId()
-					id of appWindow
-				end getWindowId
-
-				on getWindowName()
-					name of appWindow
-				end getWindowName
-
-				on getDocument()
-					tell application "Safari"
-						document (my getWindowName())
-					end tell
-				end getDocument
-
-
-				on getSysEveWindow()
-					tell application "System Events" to tell process "Safari"
-						return window (name of appWindow)
-					end tell
-				end getSysEveWindow
-			end script
-
-			tell application "Safari"
-				set appWindow of SafariTabInstance to window id windowId
-				set _url of SafariTabInstance to URL of document of window id windowId
-				set _tab of SafariTabInstance to item pTabIndex of tabs of appWindow of SafariTabInstance
-			end tell
-			set theInstance to safariJavaScript's decorate(SafariTabInstance)
-
-			theInstance
-		end _new
-
-		(*
-			Finds the address bar group by iterating from last to first, returning the first group with a text field.
-
-			Note: Iteration is not slow, it's the client call to this that is actually slow.
-		*)
-		on _getAddressBarGroup()
-			if running of application "Safari" is false then return missing value
-
-			if isCompact() then
-				tell application "System Events" to tell process "Safari"
-					return last group of toolbar 1 of front window
-				end tell
-			end if
-
-			set addressBarGroupIndex to 0
-			tell application "System Events" to tell process "Safari"
-				set toolbarGroups to groups of toolbar 1 of front window
-				repeat with i from (count of toolbarGroups) to 1 by -1
-					set nextGroup to item i of toolbarGroups
-
-					if exists text field 1 of nextGroup then
-						set addressBarGroupIndex to i
-						exit repeat
-					end if
-				end repeat
-				group addressBarGroupIndex of toolbar 1 of front window
-			end tell
-		end _getAddressBarGroup
-
 	end script
+
+	decSafariUiNoncompact's decorate(result)
+	decSafariUiCompact's decorate(result)
+	decSafariSideBar's decorate(result)
+	decSafariTabGroup's decorate(result)
+	decSafariKeychain's decorate(result)
 end new
