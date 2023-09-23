@@ -2,8 +2,11 @@
 	@Project:
 		applescript-core
 
+	@Build:
+		make install-git-kraken
+
 	@Created: September 4, 2023 3:58 PM
-	@Last Modified: 2023-09-18 22:33:08
+	@Last Modified: 2023-09-19 18:51:24
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -20,6 +23,8 @@ on spotCheck()
 	logger's start()
 
 	set sut to new()
+
+
 	set selectedResourcePath to sut's getSelectedResourcePath()
 	logger's infof("Selected resource path: {}", selectedResourcePath)
 	set currentRepoKey to sut's getCurrentRepositoryName()
@@ -58,22 +63,25 @@ on new()
 			tell application "System Events" to tell process "GitKraken"
 				if (count of windows) is 0 then return missing value
 
-				set sut to pop up button 1 of group 2 of group 1 of group 1 of group 1 of group 4 of group 2 of group 1 of UI element 1 of front window
+				set sut to pop up button 1 of group 1 of group 1 of group 1 of group 1 of group 4 of group 2 of group 1 of UI element 1 of front window
 				textUtil's stringAfter(name of sut, "repository ")
 			end tell
 		end getCurrentRepositoryName
 
 
 		on clickStageFile()
-			if running of application "GitKraken" is false then return missing value
+			if running of application "GitKraken" is false then false
 
 			tell application "System Events" to tell process "GitKraken"
-				if (count of windows) is 0 then return missing value
+				if (count of windows) is 0 then return false
 
-				set sut to button 1 of group 1 of group 3 of group 5 of group 2 of group 1 of UI element 1 of front window
-
+				try
+					button 1 of group 1 of group 3 of group 5 of group 2 of group 1 of UI element 1 of front window
+					return true
+				end try
 			end tell
 
+			false
 		end clickStageFile
 	end script
 	set decorator to decoratorLib's new(result)
