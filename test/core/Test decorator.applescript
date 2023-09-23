@@ -20,7 +20,7 @@ use AppleScript
 use scripting additions
 
 property parent : script "com.lifepillar/ASUnit"
-property testUtil : missing value
+property xmlUtil : missing value
 ---------------------------------------------------------------------------------------
 property suitename : "The test suite description goes here"
 property scriptName : "decorator" -- The name of the script to be tested
@@ -28,12 +28,13 @@ global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
 use loggerFactory : script "core/logger-factory"
-use testUtilLib : script "core/test-util"
+use xmlUtilLib : script "core/test/xml-util"
 
 property logger : missing value
 
 property TopLevel : me
 property suite : makeTestSuite(suitename)
+property plist : "decorator-test"
 property plistPath : "~/applescript-core/config-lib-factory.plist"
 
 loggerFactory's inject(me)
@@ -58,7 +59,7 @@ script |Load script|
 			end tell
 			
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
-			set testUtil to testUtilLib's new(plistPath)
+			set TopLevel's xmlUtil to xmlUtilLib's newPlist(plist)
 		end try
 		assertInstanceOf(script, sutScript) 
 	end script
@@ -74,11 +75,11 @@ script |getHierarchy tests|
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
-		set originalFactoryXml to TopLevel's testUtil's __grepValueXml("SublimeTextInstance")
+		set originalFactoryXml to TopLevel's xmlUtil's __grepValueXml("SublimeTextInstance")
 	end setUp
 	on tearDown()
 		if executedTestCases is equal to the totalTestCases then afterClass()
-		TopLevel's testUtil's __writeQuotedValue("SublimeTextInstance", "xml", originalFactoryXml)
+		TopLevel's xmlUtil's __writeQuotedValue("SublimeTextInstance", "xml", originalFactoryXml)
 	end tearDown
 	on beforeClass()
 	end beforeClass

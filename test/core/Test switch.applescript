@@ -385,7 +385,7 @@ script |Switch static.inactive tests|
 		ok(sutScript's inactive("Unicorn"))
 	end script
 
-	script |Registered ininactive|
+	script |Registered inactive|
 		property parent : UnitTest(me)
 		xmlUtil's __writeValue(TopLevel's commonSwitchName, "bool", false)
 		ok(sutScript's inactive(TopLevel's commonSwitchName))

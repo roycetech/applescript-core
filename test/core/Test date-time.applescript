@@ -41,7 +41,7 @@ autorun(suite)
 -- this will work when all the tests in the current folder are run together using loadTestsFromFolder().
 -- Besides, this will make sure that we are using the latest version of the script
 -- to be tested even if we do not recompile this test script.
-script |Load script|
+script |Load script - date-time|
 	property parent : TestSet(me)
 	script |Loading the script|
 		property parent : UnitTest(me)

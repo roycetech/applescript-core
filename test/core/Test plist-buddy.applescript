@@ -47,13 +47,13 @@ autorun(suite)
 -- this will work when all the tests in the current folder are run together using loadTestsFromFolder().
 -- Besides, this will make sure that we are using the latest version of the script
 -- to be tested even if we do not recompile this test script.
-script |Load script|
+script |Load script - plist-buddy|
 	property parent : TestSet(me)
 	script |Loading the script|
 		property parent : UnitTest(me)
 		try
 			tell application "Finder"
-				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:"
+				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:core:"
 			end tell
 			
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias

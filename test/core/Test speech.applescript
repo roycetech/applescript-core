@@ -41,7 +41,7 @@ autorun(suite)
 -- this will work when all the tests in the current folder are run together using loadTestsFromFolder().
 -- Besides, this will make sure that we are using the latest version of the script
 -- to be tested even if we do not recompile this test script.
-script |Load script|
+script |Load script - speech|
 	property parent : TestSet(me)
 	script |Loading the script|
 		property parent : UnitTest(me)
@@ -58,7 +58,7 @@ script |Load script|
 end script
 
 
-script |speech.speak tests|
+script |speak tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
 	property totalTestCases : 6
@@ -199,4 +199,3 @@ on __newSut(lambda)
 	-- set _userInMeetingStub of sut to true -- Can't use this, because translation happens only when UNSILENCED.
 	sut
 end __newSut
-
