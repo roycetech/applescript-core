@@ -15,10 +15,14 @@
 			cliclick CLI
 
 	@Change Log:
+		September 20, 2023 11:46 AM - Removed smoothing for movePointer because having it, the pointer doesn't move to the given coordinates.
 		Last tested on macOS Monterey, fixed the movePointer now working.
 
+	@Project:
+		applescript-core
+
 	@Build:
-		make compile-cliclick
+		make build-cliclick
 
 *)
 
@@ -123,8 +127,8 @@ on new()
 		end clickRelative
 
 		(*
-	Usage: drag from {350, -1250} onto {1020, -1355}
-*)
+			Usage: drag from {350, -1250} onto {1020, -1355}
+		*)
 		on drag from startPos onto endPos
 
 			set origPos to do shell script CLICLICK_CLI & " p:."
@@ -164,12 +168,16 @@ on new()
 		(*
 			-e is for easing, to make it move human-like, sometimes necessary for some
 				UIs to detect and respond to.
+			September 20, 2023 11:46 AM - Removed smoothing because it does not work.  It does not move the pointer at all.
 		*)
-		on movePointer at theUi
+		on movePointer at theUi given smoothing:smoothingArg : true
 			set coord to getCoord at theUi
 			set formattedCoord to _formatCoordinates(item 1 of coord, item 2 of coord)
 
-			set clickCommand to CLICLICK_CLI & " -e 1 m:" & formattedCoord
+			set smoothingParam to ""
+			if smoothingArg then set smoothingParam to " -e " & smoothingSeconds
+
+			set clickCommand to CLICLICK_CLI & smoothingParam & " m:0,0 m:" & formattedCoord
 			do shell script clickCommand
 		end movePointer
 
