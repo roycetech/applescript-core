@@ -326,7 +326,7 @@ end script
 script |getValue tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
-	property totalTestCases : 6
+	property totalTestCases : 7
 	property sut : missing value
 
 	on setUp()
@@ -387,6 +387,13 @@ script |getValue tests|
 		</dict>")
 		assertEqual("1", sut's getValue({"Animals", "Horse"}))
 		xmlUtil's __deleteValue("Animals")
+	end script
+
+	script |Key with colon - Found|
+		property parent : UnitTest(me)
+		xmlUtil's __writeValue("with: colon", "string", "'colon-value'")
+		assertEqual("colon-value", sut's getValue("with: colon"))
+		xmlUtil's __deleteValue("with: colon")
 	end script
 end script
 

@@ -1,4 +1,7 @@
 (*
+	@Project:
+		applescript-core
+
 	@Build:
 		make compile-lib SOURCE=core/plist-buddy
 *)
@@ -30,8 +33,6 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		Test
-
 		Manual: Add a key-value pair (existing, non-existing, root not/found)
 		Manual: Delete a root key (existing, non-existing)
 		Manual: Delete a key-value pair
@@ -52,18 +53,16 @@ on spotCheck()
 
 	set sut to new("plist-spot")
 	if caseIndex is 1 then
-		integrationTest()
-
-	else if caseIndex is 2 then
 		logger's infof("Handler result: {}", sut's addDictionaryKeyValue("added", "add subkey", "add subvalue"))
 
-	else if caseIndex is 3 then
+	else if caseIndex is 2 then
 		logger's infof("Handler result: {}", sut's deleteRootKey("snone"))
 
-	else if caseIndex is 4 then
+	else if caseIndex is 3 then
 		logger's infof("Handler result: {}", sut's deleteDictionaryKeyValue("spot", "second"))
 
-	else if caseIndex is 5 then
+	else if caseIndex is 4 then
+
 		set keys to sut's getKeys()
 		if the number of items in keys is 0 then
 			logger's info("The plist doesn't have any items")
@@ -84,7 +83,7 @@ on spotCheck()
 			end repeat
 		end if
 
-	else if caseIndex is 5 then
+	else if caseIndex is 6 then
 		logger's infof("Handler result: {}", sut's getValue("_README"))
 
 	else if caseIndex is 7 then
@@ -412,27 +411,3 @@ on new(pPlistName)
 		end _zuluToLocalDate
 	end script
 end new
-
-
-on integrationTest()
-	set sut to new("plist-spot")
-	set configSystem to configLib's new("system")
-	set asProjectPath to configSystem's getValue("AppleScript Core Project Path")
-	set plistFilename of sut to asProjectPath & "/test/fixtures/plist-buddy-test.plist"
-	set quotedPlistPosixPath of sut to quoted form of plistFilename of sut
-
-	set test to testLib's new()
-	set suite to test's new()
-
-	tell suite
-		newMethod("getValue")
-		assertEqual("A.P. ", sut's getValue("/aP\\b/"), "Regular Expression key")
-		assertEqual(" and one third", sut's getValue("/\\.6{3,}7?/"), "Regular Expression key 2")
-		assertMissingValue(sut's getValue("categoriesx"), "Not Found")
-		assertEqual("DEBUG", sut's getValue({"categories", "log4as.test"}), "Nested Key")
-		assertMissingValue(sut's getValue("categories:log4as.unicorn"), "Nested key not found")
-		assertEqual("https://github.com/cflint/CFLint/blob/master/RULES.md", sut's getValue({"mobile-bss", "Code: CFML Lint"}), "Key with colon") -- tracing.
-
-		done()
-	end tell
-end integrationTest
