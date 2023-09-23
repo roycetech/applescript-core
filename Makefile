@@ -84,6 +84,9 @@ _init:
 	./scripts/compile-bundle.sh 'core/Text Utilities'
 	plutil -replace 'Project applescript-core' -string "`pwd`" ~/applescript-core/config-system.plist
 
+clean:
+	rm -r *.scpt
+
 install: _init compile
 	mkdir -p ~/Library/'Script Libraries'/core/test
 	touch ~/applescript-core/logs/applescript-core.log
@@ -118,12 +121,27 @@ compile-core-bundle:
 	./scripts/compile-bundle.sh 'core/Text Utilities'
 
 
-
 # There are circular dependency issue that needs to be considered. You may need
 # to re-order the build of the script depending on which script is needed first.
 build: compile
 
-compile: compile-stub compile-standard compile-core-bundle compile-core compile-control-center compile-user
+compile: \
+	compile-stub \
+	compile-standard \
+	compile-core-bundle \
+	compile-core \
+	compile-control-center \
+	compile-user
+
+compile-extras:
+	./scripts/compile-lib.sh "libs/zsh/oh-my-zsh"
+
+compile-all: \
+	compile \
+	compile-extras \
+	install-system-preferences
+
+install-all: compile-all
 
 compile-stub: $(STUB_LIBS)
 	@echo "Stubs compiled. This target is meant to help compile other scripts. \
@@ -236,6 +254,12 @@ install-preview:
 compile-safari: compile-dock
 	osacompile -o "$(HOME)/Library/Script Libraries/core/safari.scpt" "scripts/stub.applescript"
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-javascript
+	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-tab
+	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-noncompact
+	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
+	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
+	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-group
+	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-keychain
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari
 
 install-safari: compile-safari
@@ -357,6 +381,9 @@ install-atom:  ## Deprecated
 install-eclipse:
 	./scripts/compile-lib.sh apps/3rd-party/Eclipse/v202306/eclipse
 
+install-git-kraken:
+	./scripts/compile-lib.sh apps/3rd-party/GitKraken/v9.7.1/git-kraken
+
 install-intellij:
 	./scripts/compile-lib.sh apps/3rd-party/IntelliJ IDEA/v2023.2.1/intellij-idea
 
@@ -407,7 +434,7 @@ compile-stream-deck:
 install-stream-deck: compile-stream-deck
 	plutil \
 		-replace 'SpotTestInstance' \
-		-string 'dec-spot-stream-deck' \
+		-string 'core/dec-spot-stream-deck' \
 		~/applescript-core/config-lib-factory.plist
 
 
@@ -415,11 +442,11 @@ build-sublime-text:
 	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/sublime-text
 	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/dec-system-events-with-sublime-text
 
-install-sublime-text: compile-sublime-text
+install-sublime-text: build-sublime-text
 	osascript ./scripts/setup-sublime-text-cli.applescript
 	plutil \
-		-replace 'SysEveInstance' \
-		-string 'dec-syseve-with-sublime-text' \
+		-replace 'SystemEventsInstance' \
+		-string 'core/dec-system-events-with-sublime-text' \
 		~/applescript-core/config-lib-factory.plist
 
 install-text-mate:
@@ -441,8 +468,8 @@ install-zoom: compile-zoom
 	mkdir -p ~/applescript-core/zoom.us/
 	cp -n plist.template ~/applescript-core/zoom.us/config.plist || true
 	osascript ./apps/3rd-party/zoom.us/setup-configurations.applescript
-	plutil -replace 'UserInstance' -string 'dec-user-zoom' ~/applescript-core/config-lib-factory.plist
-	plutil -replace 'CalendarEventLibrary' -string 'dec-calendar-event-zoom' ~/applescript-core/config-lib-factory.plist
+	plutil -replace 'UserInstance' -string 'core/dec-user-zoom' ~/applescript-core/config-lib-factory.plist
+	plutil -replace 'CalendarEventLibrary' -string 'core/dec-calendar-event-zoom' ~/applescript-core/config-lib-factory.plist
 
 # Other libraries
 compile-counter:
@@ -487,7 +514,7 @@ compile-log4as:
 
 install-log4as: compile-log4as
 # 	plutil -replace 'LoggerSpeechAndTrackingInstance' -string 'dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
-	plutil -replace 'LoggerInstance' -string 'dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
+	plutil -replace 'LoggerInstance' -string 'core/dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
 	cp -n libs/log4as/log4as.plist.template ~/applescript-core/log4as.plist || true
 	plutil -replace 'defaultLevel' -string 'DEBUG' ~/applescript-core/log4as.plist
 	plutil -replace 'printToConsole' -bool true ~/applescript-core/log4as.plist
