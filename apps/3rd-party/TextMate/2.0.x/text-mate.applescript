@@ -26,6 +26,8 @@ use configLib : script "core/config"
 
 use spotScript : script "core/spot-test"
 
+use decoratorLib : script "core/decorator"
+
 property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -359,8 +361,7 @@ on new()
 		end _findProjectFolder
 	end script
 
-	set overriderLib to script "core/overrider"
-	set overrider to overriderLib's new()
-	overrider's applyMappedOverride(TextMateInstance)
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new
 
