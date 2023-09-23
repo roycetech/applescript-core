@@ -9,7 +9,7 @@
 		2) Write tests :)
 
 	@charset macintosh
-	@Created:
+	@Created: 2023
 *)
 use AppleScript
 use scripting additions
