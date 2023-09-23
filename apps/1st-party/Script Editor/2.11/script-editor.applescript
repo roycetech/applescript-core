@@ -36,19 +36,19 @@ use contentDecorator : script "core/dec-script-editor-content"
 
 use configLib : script "core/config"
 use retryLib : script "core/retry"
-use overriderLib : script "core/overrider"
+
+use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
-property logger : loggerFactory's newBasic("script-editor")
-property configSystem : configLib's new("system")
-property retry : retryLib's new()
-property overrider : overriderLib's new()
+property logger : missing value
+property configSystem : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	
+	loggerFactory's injectBasic(me)
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -126,7 +126,11 @@ end spotCheck
 
 on new()
 	script ScriptEditorInstance
-		
+		loggerFactory's injectBasic(me)
+
+		set configSystem to configLib's new("system")
+		set retry to retryLib's new()
+
 		(* @return  missing value of tab is not found. ScriptEditorInstance *)
 		on findTabWithName(theName as text)
 			if running of application "Script Editor" is false then return missing value
