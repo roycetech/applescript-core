@@ -202,7 +202,7 @@ script |plutil getValue tests|
 		TopLevel's __deleteValue("string")
 	end script
 
-	script |Dot in keyname|
+	script |Dot in key name|
 		property parent : unitTest(me)
 		TopLevel's __writeQuotedValue("string\\.dotted", "string", "string-dotted-value")
 		assertEqual("string-dotted-value", sut's getValue("string.dotted"))

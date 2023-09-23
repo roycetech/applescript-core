@@ -8,11 +8,15 @@
 		1) Provide a description for this test suite and the name of the script to be tested.
 		2) Write tests :)
 
+	@Known Issues:
+		September 23, 2023 1:07 PM - Crashes with strange errors. Fixed by randomly placing a "say" statement somewhere in this script file.
+
 	@charset macintosh
 	@Created: 2023
 *)
 use AppleScript
 use scripting additions
+
 
 property parent : script "com.lifepillar/ASUnit"
 
@@ -51,7 +55,7 @@ script |Load script - speech|
 			end tell
 			
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
-			set xmlUtil to xmlUtilLib's new(plist)
+			set xmlUtil to xmlUtilLib's newPlist(plist)
 		end try
 		assertInstanceOf(script, sutScript)
 	end script
@@ -62,7 +66,7 @@ script |speak tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
 	property totalTestCases : 6
-
+	
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
@@ -75,15 +79,15 @@ script |speak tests|
 		set sut to sutScript's new(plist)
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist() 
-	end afterClass 
+		xmlUtil's __deleteTestPlist()
+	end afterClass
 	
 	script |Unknown|
 		property parent : UnitTest(me)
 		set sut to TopLevel's __newSut(missing value)
 		assertEqual("Unicorn", sut's speak("Unicorn"))
 	end script
-
+	
 	script |Dashing 4 digits|
 		property parent : UnitTest(me)
 		script Lambda
@@ -95,7 +99,7 @@ script |speak tests|
 		assertEqual("12-34", sut's speak("1234"))
 		xmlUtil's __deleteValue("_1234")
 	end script
-
+	
 	script |Digits as integer|
 		property parent : UnitTest(me)
 		script Lambda
@@ -106,13 +110,13 @@ script |speak tests|
 		-- Expect that speech correctly pronounces it as one thousand, two hundred, thirty four.
 		xmlUtil's __deleteValue("_1234")
 	end script
-
+	
 	script |Unregistered digits|
 		property parent : UnitTest(me)
 		set sut to TopLevel's __newSut(missing value)
 		assertEqual("0000", sut's speak("0000"))
 	end script
-
+	
 	script |Exact Text Match|
 		property parent : UnitTest(me)
 		script Lambda
@@ -121,7 +125,7 @@ script |speak tests|
 		set sut to TopLevel's __newSut(Lambda)
 		assertEqual("Q-A", sut's speak("QA"))
 	end script
-
+	
 	script |Partial Text Match|
 		property parent : UnitTest(me)
 		script Lambda
@@ -130,7 +134,7 @@ script |speak tests|
 		set sut to TopLevel's __newSut(Lambda)
 		assertEqual("The variable S-E is not defined", sut's speak("The variable se is not defined"))
 	end script
-
+	
 	(* Unable to test.
 	script |Not synchronized doesn't wait for speech to complete|
 		property parent : UnitTest(me)
@@ -153,14 +157,14 @@ script |speak tests|
 		ok(endTime - startTime > 2)
 	end script
 	*)
-end script 
+end script
 
 
 script |speech.speakSynchronously tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
 	property totalTestCases : 2
-
+	
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
@@ -173,8 +177,8 @@ script |speech.speakSynchronously tests|
 		set sut to sutScript's new(plist)
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist() 
-	end afterClass 
+		xmlUtil's __deleteTestPlist()
+	end afterClass
 	
 	script |Restores the original state to async|
 		property parent : UnitTest(me)
@@ -182,7 +186,7 @@ script |speech.speakSynchronously tests|
 		sut's speakSynchronously("one")
 		notOk(synchronous of sut)
 	end script
-
+	
 	script |Restores the original state to synchronous|
 		property parent : UnitTest(me)
 		set sut to TopLevel's __newSut(missing value)
@@ -193,8 +197,8 @@ script |speech.speakSynchronously tests|
 end script
 
 
-on __newSut(lambda)
-	if lambda is not missing value then run script lambda
+on __newSut(Lambda)
+	if Lambda is not missing value then run script Lambda
 	set sut to sutScript's new(plist)
 	-- set _userInMeetingStub of sut to true -- Can't use this, because translation happens only when UNSILENCED.
 	sut
