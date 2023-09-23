@@ -81,7 +81,7 @@ _init:
 	cp -n plist.template ~/applescript-core/config-business.plist || true
 	cp -n notification-app-id-name.plist ~/applescript-core/notification-app-id-name.plist || true
 	cp -a assets/sounds/. ~/applescript-core/sounds/
-	./scripts/compile-bundle.sh 'core/Text Utilities'
+# 	./scripts/compile-bundle.sh 'core/Text Utilities'
 	plutil -replace 'Project applescript-core' -string "`pwd`" ~/applescript-core/config-system.plist
 
 clean:
@@ -133,7 +133,8 @@ compile: \
 	compile-control-center \
 	compile-user
 
-compile-extras:
+compile-extras: install-terminal \
+	compile-redis
 	./scripts/compile-lib.sh "libs/zsh/oh-my-zsh"
 
 compile-all: \
