@@ -5,6 +5,13 @@
 		This script expects that finder preferences has to always
 	display the file extension.
 
+	@Plists:
+		config-system
+			AppleScript Core Project Path
+
+	@Project:
+		applescript-core
+
 	@Build:
 		make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
 				
@@ -452,6 +459,8 @@ on new()
 			ScriptEditorInstance
 		end _new
 	end script
+
 	contentDecorator's decorate(result)
-	overrider's applyMappedOverride(result)
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new

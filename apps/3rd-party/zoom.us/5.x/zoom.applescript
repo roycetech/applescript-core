@@ -52,7 +52,7 @@ use configLib : script "core/config"
 use plutilLib : script "core/plutil"
 use retryLib : script "core/retry"
 use kbLib : script "core/keyboard"
-use overriderLib : script "core/overrider"
+use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
@@ -331,6 +331,6 @@ on new()
 	zoomParticipants's decorate(result)
 	set lastResult to zoomWindow's decorate(result)
 
-	set overrider to overriderLib's new()
-	overrider's applyMappedOverride(lastResult)
+	set decorator to decoratorLib's new(lastResult)
+	decorator's decorate()
 end new

@@ -31,13 +31,16 @@
 		Keys are case-sensitive.
 		Script Debugger - Unit test fails when debugger is ON.
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make compile-lib SOURCE=core/plutil
 
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2023-09-18 22:33:39
+	@Last Modified: 2023-09-20 19:04:31
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
@@ -50,7 +53,7 @@ use textUtil : script "core/string"
 use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 
-use overriderLib : script "core/overrider"
+use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
@@ -942,6 +945,6 @@ on new()
 	end script
 	if isSpot then return PlutilInstance
 
-	set overrider to overriderLib's new()
-	overrider's applyMappedOverride(PlutilInstance)
+	set decorator to decoratorLib's new(PlutilInstance)
+	decorator's decorate()
 end new

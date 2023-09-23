@@ -16,7 +16,7 @@
 		Assumes automator is not used or opened for purposes other than the exclusive use of this script.
 		Wipes out clipboard contents.
 
-	@Last Modified: 2023-09-18 22:33:07
+	@Last Modified: 2023-09-20 21:27:00
 *)
 
 use scripting additions
@@ -31,7 +31,7 @@ use kbLib : script "core/keyboard"
 use processLib : script "core/process"
 use retryLib : script "core/retry"
 
-use overriderLib : script "core/overrider"
+use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
@@ -41,7 +41,6 @@ property kb : missing value
 property configSystem : missing value
 property syseve : missing value
 property retry : missing value
-property overrider : missing value
 
 property documentType : missing value
 property windowName : missing value
@@ -133,7 +132,6 @@ on new()
 	set configSystem to configLib's new("system")
 	set syseve to syseveLib's new()
 	set retry to retryLib's new()
-	set overrider to overriderLib's new()
 
 	(* Note: Handlers are ordered by which step they are called. *)
 	script AutomatorInstance
@@ -397,5 +395,6 @@ end run
 		end forceQuitApp
 	end script
 
-	overrider's applyMappedOverride(result)
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new

@@ -26,8 +26,7 @@ use plutilLib : script "core/plutil"
 use uiutilLib : script "core/ui-util"
 use calendarLib : script "core/calendar"
 use calendarEventLib : script "core/calendar-event"
-
-use overriderLib : script "core/overrider"
+use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
@@ -176,6 +175,6 @@ on decorate(mainScript)
 		end extractMeetingPassword
 	end script
 
-	set overrider to overriderLib's new()
-	overrider's applyMappedOverride(CalendarEventZoomLibrary)
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end decorate

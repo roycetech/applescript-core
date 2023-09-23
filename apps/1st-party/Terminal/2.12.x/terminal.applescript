@@ -28,6 +28,9 @@
 		Under Tab:
 			Uncheck all except "Show activity indicator"
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make compile-terminal
 
@@ -59,7 +62,7 @@ use extPrompt : script "core/dec-terminal-prompt"
 
 use spotScript : script "core/spot-test"
 
-use overriderLib : script "core/overrider"
+use decoratorLib : script "core/decorator"
 
 property logger : missing value
 property retry : missing value
@@ -85,7 +88,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set skip of overrider to true
+	-- set skip of overrider to true
 	set cases to listUtil's splitByLine("
 		Manual: Front Tab and Info
 		Manual: New Tab, Find
@@ -590,13 +593,13 @@ on new()
 				set appWindow of TerminalTabInstance to window id pWindowId
 			end tell
 
-			set overrider to overriderLib's new()
 			set |instance name| of TerminalTabInstance to the name of appWindow of TerminalTabInstance
 			set decorated to extOutput's decorate(TerminalTabInstance)
 			set decorated to extRun's decorate(decorated)
 			set decorated to extPath's decorate(decorated)
 			set decorated to extPrompt's decorate(decorated)
-			overrider's applyMappedOverride(decorated)
+			set decorator to decoratorLib's new(decorated)
+			decorator's decorate()
 		end new
 	end script
 end new

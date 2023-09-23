@@ -47,7 +47,6 @@ use loggerFactory : script "core/logger-factory"
 use decoratorCalendarView : script "core/dec-calendar-view"
 use calendarEventLib : script "core/calendar-event"
 
-use overriderLib : script "core/overrider"
 use sbLib : script "core/string-builder"
 use uiutilLib : script "core/ui-util"
 use retryLib : script "core/retry"
@@ -56,6 +55,8 @@ use mapLib : script "core/map"
 use plutilLib : script "core/plutil"
 use processLib : script "core/process"
 use kbLib : script "core/keyboard"
+
+use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
@@ -68,13 +69,10 @@ property calendarProcess : missing value
 property kb : missing value
 property calendarEvent : missing value
 
--- property overrider : overriderLib's new()
-
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)
-	-- set skip of overrider to true
 	logger's start()
 
 	(* Manual Visual Verification. *)
@@ -239,7 +237,6 @@ on new()
 	set calendarProcess to processLib's new("Calendar")
 	set kb to kbLib's new()
 	set calendarEvent to calendarEventLib's new()
-	set overrider to overriderLib's new()
 
 	script CalendarInstance
 		property IS_TEST : false
@@ -481,7 +478,8 @@ on new()
 	end script
 
 	decoratorCalendarView's decorate(CalendarInstance)
-	overrider's applyMappedOverride(result)
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new
 
 

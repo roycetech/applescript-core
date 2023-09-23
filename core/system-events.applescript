@@ -10,6 +10,9 @@
 
 	Or type: sset systemEvents
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make compile-lib SOURCE=core/system-events
 *)
@@ -18,9 +21,10 @@ use std : script "core/std"
 use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
-use overriderLib : script "core/overrider"
 
 use spotScript : script "core/spot-test"
+
+use decoratorLib : script "core/decorator"
 
 property logger : missing value
 
@@ -56,7 +60,6 @@ end spotCheck
 
 on new()
 	loggerFactory's injectBasic(me)
-	set overrider to overriderLib's new()
 
 	script SystemEventsInstance
 		on getFrontWindow()
@@ -87,8 +90,6 @@ on new()
 		end getFrontAppName
 	end script
 
-	overrider's applyMappedOverride(result)
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new
-
-
--- EOS

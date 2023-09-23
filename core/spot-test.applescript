@@ -5,10 +5,13 @@
 	WARNING: The log needs to choose between console and logger object each time
 	we need to log to avoid the circular dependency.
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make compile-lib SOURCE=core/spot-test
 
-	@Last Modified: 2023-09-18 22:33:40
+	@Last Modified: 2023-09-20 21:29:22
 *)
 
 use script "core/Text Utilities"
@@ -18,7 +21,7 @@ use loggerFactory : script "core/logger-factory"
 use plutilLib : script "core/plutil"
 use switchLib : script "core/switch"
 
-use overriderLib : script "core/overrider"
+use decoratorLib : script "core/decorator"
 
 (*
 	Let's optionally use a logger only when this script is being spot checked.
@@ -70,7 +73,6 @@ end spotCheck
 on new()
 	loggerFactory's injectBasic(me)
 	set session to plutilLib's new()'s new("session")
-	set overrider to overriderLib's new()
 
 	script SpotTestInstance
 		on setSessionCaseIndex(newCaseIndex)
@@ -187,10 +189,12 @@ on new()
 			set incrementSwitch to switchLib's new("Auto Increment Case Index")
 			set autoIncrement of SpotTestCaseInstance to incrementSwitch's active()
 
-			overrider's applyMappedOverride(SpotTestCaseInstance)
+			set decoratorInner to decoratorLib's new(SpotTestCaseInstance)
+			decoratorInner's decorate()
 		end new
 	end script
 
-	overrider's applyMappedOverride(result)
+	set decoratorOuter to decoratorLib's new(result)
+	decoratorOuter's decorate()
 end new
 

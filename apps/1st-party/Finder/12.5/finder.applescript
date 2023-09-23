@@ -11,7 +11,7 @@
 	@Install:
 		make install-finder
 
-	@Last Modified: 2023-09-18 22:33:40
+	@Last Modified: 2023-09-20 19:12:59
 *)
 
 use script "core/Text Utilities"
@@ -24,7 +24,7 @@ use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 
 use kbLib : script "core/keyboard"
-use overriderLib : script "core/overrider"
+use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
@@ -551,6 +551,6 @@ on new()
 		end _posixSubPathToFolder
 	end script
 
-	set overrider to overriderLib's new()
-	overrider's applyMappedOverride(FinderInstance)
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new

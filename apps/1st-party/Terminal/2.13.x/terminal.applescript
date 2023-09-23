@@ -32,7 +32,10 @@
 		Under Tab:
 			Uncheck all except "Show activity indicator"
 
-	@Installation:
+	@Project:
+		applescript-core
+
+	@Build:
 		make install-terminal
 
 	@Known Issues:
@@ -54,6 +57,8 @@ use kbLib : script "core/keyboard"
 use winUtil : script "core/window"
 use syseveLib : script "core/system-events"
 use retryLib : script "core/retry"
+
+use decoratorLib : script "core/decorator"
 
 use extOutput : "dec-terminal-output"
 use extRun : "dec-terminal-run"
@@ -583,8 +588,8 @@ on new()
 			extRun's decorate(result)
 			extPath's decorate(result)
 			extPrompt's decorate(result)
-
-			overrider's applyMappedOverride(result)
+			set decorator to decoratorLib's new(result)
+			decorator's decorate()
 		end new
 	end script
 end new

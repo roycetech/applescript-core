@@ -4,6 +4,12 @@
 		A database called "crm" must exist
 		A table called customers must exist.
 
+	@Project:
+		applescript-core
+
+	@Build:
+		make install-sequel-ace
+
 	@Last Modified: August 18, 2023 9:27 AM
 	@Change Logs:
 		August 18, 2023 9:28 AM - update switchView to use only menus as the last resort so that app focus is not always required.
@@ -20,7 +26,7 @@ use retryLib : script "core/retry"
 use syseveLib : script "core/system-events"
 use kbLib : script "core/keyboard"
 
-use overriderLib : script "core/overrider"
+use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
@@ -28,8 +34,6 @@ property logger : missing value
 property retry : missing value
 property syseve : missing value
 property kb : missing value
-
-property overrider : missing value
 
 property TEST_CONNECTION_NAME : "Docker MySQL 5"
 
@@ -131,7 +135,6 @@ on new()
 	set retry to retryLib's new()
 	set syseve to syseveLib's new()
 	set kb to kbLib's new()
-	set overrider to overriderLib's new()
 	
 	script SequelAceInstance
 		(*  *)
@@ -437,9 +440,12 @@ on new()
 					end tell
 				end getSysEveWindow
 			end script
-			overrider's applyMappedOverride(result)
+			set decoratorInner to decoratorLib's new(result)
+			decoratorInner's decorate()
 		end new
 	end script
-	overrider's applyMappedOverride(result)
+
+	set decoratorOuter to decoratorLib's new(result)
+	decoratorOuter's decorate()
 end new
 

@@ -6,8 +6,8 @@
 		make compile-lib SOURCE=core/decorators/dec-logger-log4as
 *)
 
-use log4asLib : script "log4as"
-use overriderLib : script "core/overrider"
+use log4asLib : script "core/log4as"
+use decoratorLib : script "core/decorator"
 
 property log4as : missing value
 
@@ -42,6 +42,6 @@ on decorate(baseScript)
 		end warn
 	end script
 
-	set overrider to overriderLib's new()
-	overrider's applyMappedOverride(LoggerLog4ASInstance)
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end decorate

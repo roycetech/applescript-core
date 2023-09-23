@@ -8,6 +8,9 @@
 
 		property usr : userLib's new()
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make compile-lib SOURCE=libs/user/user
 
@@ -24,14 +27,13 @@ use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 use ccLib : script "core/control-center"
-use overriderLib : script "core/overrider"
+
+use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
 property logger : missing value
 property cc : missing value
-
-property overrider : overriderLib's new()
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -124,7 +126,7 @@ on new()
 			return (do shell script "echo '" & system version of sysinfo & "' | cut -d '.' -f 1") as integer
 		end getOsMajorVersion
 	end script
-	overrider's applyMappedOverride(result)
+
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new
-
-

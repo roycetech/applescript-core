@@ -2,15 +2,17 @@
 	@Plists:
 		config-lib-factory - Add an override "LoggerInstance => dec-logger-speech-and-tracking" to use this as override.
 
-	Compile:
+	@Project:
+		applescript-core
+
+	Build:
 		make compile-lib SOURCE=core/decorators/dec-logger-speech-and-tracking
 *)
 
 use speechLib : script "core/speech"
-use overriderLib : script "core/overrider"
+use decoratorLib : script "core/decorator"
 
-property speech : speechLib's new(missing value)
-property overrider : overriderLib's new()
+property speech : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -30,6 +32,8 @@ end newSpotBase
 
 (* *)
 on decorate(baseScript)
+	set speech to speechLib's new(missing value)
+
 	script LoggerSpeechAndTrackingInstance
 		property parent : baseScript
 
@@ -42,5 +46,6 @@ on decorate(baseScript)
 		end fatal
 	end script
 
-	overrider's applyMappedOverride(result)
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end decorate

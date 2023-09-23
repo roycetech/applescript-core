@@ -6,6 +6,9 @@
 	@Version:
 		macOS Ventura 13.x.
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make compile-lib SOURCE="apps/1st-party/System Settings/15.0/system-settings"
 		
@@ -20,6 +23,8 @@ use listUtil : script "core/list"
 use loggerLib : script "core/logger"
 use retryLib : script "core/retry"
 use usrLib : script "core/user"
+
+use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
@@ -384,5 +389,7 @@ on new()
 			end repeat
 		end quitApp
 	end script
-	overrider's applyMappedOverride(result)
+
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new

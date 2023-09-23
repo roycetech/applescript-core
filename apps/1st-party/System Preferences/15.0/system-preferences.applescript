@@ -19,14 +19,13 @@ use listUtil : script "core/list"
 use retryLib : script "core/retry"
 use usrLib : script "core/user"
 
-use overriderLib : script "core/overrider"
-
 use spotScript : script "core/spot-test"
+
+use decoratorLib : script "core/decorator"
 
 property logger : missing value
 property retry : missing value
 property usr : missing value
-property overrider : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -110,7 +109,6 @@ on new()
 	loggerFactory's inject(me)
 	set retry to retryLib's new()
 	set usr to usrLib's new()
-	set overrider to overriderLib's new()
 	
 	script SystemPreferences
 		on revealAccessibilityDictation()
@@ -356,6 +354,7 @@ on new()
 			end repeat
 		end quitApp
 	end script
-	
-	overrider's applyMappedOverride(result)
+
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new

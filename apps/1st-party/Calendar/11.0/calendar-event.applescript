@@ -9,7 +9,7 @@
 	@Build:
 		make compile-lib SOURCE=apps/1st-party/Calendar/11.0/calendar-event
 
-	@Last Modified: 2023-09-18 22:33:07
+	@Last Modified: 2023-09-20 21:27:12
 *)
 
 use scripting additions
@@ -25,9 +25,8 @@ use sbLib : script "core/string-builder"
 use uiutilLib : script "core/ui-util"
 
 use spotScript : script "core/spot-test"
-use overriderLib : script "core/overrider"
 
--- property overrider : overriderLib's new()
+use decoratorLib : script "core/decorator"
 
 property logger : missing value
 property kb : missing value
@@ -46,7 +45,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's inject(me)
-	-- set skip of overrider to true
 	logger's start()
 
 	set my isSpot to true
@@ -92,7 +90,6 @@ end spotCheck
 *)
 on new()
 	loggerFactory's inject(me)
-	set overrider to overriderLib's new()
 	set kb to kbLib's new()
 	set uiutil to uiutilLib's new()
 
@@ -293,5 +290,6 @@ Passcode: {}
 		end _checkFacilitator
 	end script
 
-	overrider's applyMappedOverride(result)
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new

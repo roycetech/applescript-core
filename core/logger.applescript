@@ -11,7 +11,7 @@
 use scripting additions
 
 use textUtil : script "core/string"
-use overriderLib : script "core/overrider"
+use decoratorLib : script "core/decorator"
 
 property filename : "applescript-core.log"
 -- property name : missing value
@@ -218,12 +218,11 @@ end newBase
 
 
 on new(pObjectName)
-	set overrider to overriderLib's new()
-
 	set basicInstance to newBase(pObjectName)
 	script LoggerOverridableInstance
 		property parent : basicInstance
 	end script
 
-	overrider's applyMappedOverride(result)
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new

@@ -27,7 +27,7 @@ use loggerFactory : script "core/logger-factory"
 use listUtil : script "core/list"
 use emoji : script "core/emoji"
 use spotScript : script "core/spot-test"
-use overriderLib : script "core/overrider"
+use decoratorLib : script "core/decorator"
 
 property logger : missing value
 
@@ -120,7 +120,6 @@ end spotCheck
 
 on new()
 	loggerFactory's inject(me)
-	set overrider to overriderLib's new()
 
 	script KeyboardInstance
 		property delayAfterKeySeconds : 0.01
@@ -274,7 +273,9 @@ on new()
 			end try
 		end insertTextByPasting
 	end script
-	overrider's applyMappedOverride(result)
+
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new
 
 
