@@ -3,12 +3,20 @@
 		The original safari script is quite big and we want to improve its manageability by breaking it down into smaller pieces.
 		This decorator will contain the handlers relating tab finding.
 
+	@Project:
+		applescript-core
+
+	@Build:
+		make install-safari
+
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-09-20 15:21:57
+	@Last Modified: 2023-09-24 10:53:30
 	@Change Logs: .
 *)
 use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
+
+use safariTabLib : script "core/safari-tab"
 
 use spotScript : script "core/spot-test"
 use kbLib : script "core/keyboard"
@@ -73,10 +81,10 @@ on decorate(mainScript)
 
 	set kb to kbLib's new()
 
-	script SafariInstance
+	script SafariFinderDecorator
 		property parent : mainScript
 
-	(*
+		(*
 			@return  missing value of tab if not found, else a SafariTabInstance .
 		*)
 		on findTabWithName(targetName)
@@ -86,7 +94,7 @@ on decorate(mainScript)
 				repeat with nextWindow in windows
 					try
 						set matchedTab to (first tab of nextWindow whose name is equal to targetName)
-						return my _new(id of nextWindow, index of matchedTab as integer)
+						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
 					end try
 				end repeat
 			end tell
@@ -102,7 +110,7 @@ on decorate(mainScript)
 				repeat with nextWindow in windows
 					try
 						set matchedTab to (first tab of nextWindow whose name starts with targetName)
-						return my _new(id of nextWindow, index of matchedTab as integer)
+						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
 					end try
 				end repeat
 			end tell
@@ -118,7 +126,7 @@ on decorate(mainScript)
 				repeat with nextWindow in windows
 					try
 						set matchedTab to (first tab of nextWindow whose name contains nameSubstring)
-						return my _new(id of nextWindow, index of matchedTab as integer)
+						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
 					end try
 				end repeat
 			end tell
@@ -134,7 +142,7 @@ on decorate(mainScript)
 				repeat with nextWindow in windows
 					try
 						set matchedTab to (first tab of nextWindow whose name ends with targetName)
-						return my _new(id of nextWindow, index of matchedTab as integer)
+						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
 					end try
 				end repeat
 			end tell
@@ -150,7 +158,7 @@ on decorate(mainScript)
 				repeat with nextWindow in windows
 					try
 						set matchedTab to (first tab of nextWindow whose URL is equal to the targetUrl)
-						return my _new(id of nextWindow, index of matchedTab as integer)
+						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
 					end try
 				end repeat
 			end tell
@@ -168,7 +176,7 @@ on decorate(mainScript)
 				repeat with nextWindow in windows
 					try
 						set matchedTab to (first tab of nextWindow whose URL starts with urlPrefix)
-						return my _new(id of nextWindow, index of matchedTab as integer)
+						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
 					end try
 				end repeat
 			end tell
@@ -185,14 +193,14 @@ on decorate(mainScript)
 			tell application "Safari"
 				tell front window
 					if URL of current tab contains urlSubstring then
-						return my _new(its id, index of current tab as integer)
+						return safariTabLib's new(its id, index of current tab as integer, me)
 					end if
 				end tell
 
 				repeat with nextWindow in windows
 					try
 						set matchedTab to (first tab of nextWindow whose URL contains urlSubstring)
-						return my _new(id of nextWindow, index of matchedTab as integer)
+						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
 					end try
 				end repeat
 			end tell

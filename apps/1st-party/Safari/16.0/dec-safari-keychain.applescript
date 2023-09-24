@@ -4,7 +4,7 @@
 		This decorator will contain the handlers relating to the keychain.
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-09-20 15:19:42
+	@Last Modified: 2023-09-24 10:53:08
 	@Change Logs: .
 *)
 use listUtil : script "core/list"
@@ -73,7 +73,7 @@ on decorate(mainScript)
 
 	set kb to kbLib's new()
 
-	script SafariInstance
+	script SafariKeychainDecorator
 		property parent : mainScript
 
 		(*

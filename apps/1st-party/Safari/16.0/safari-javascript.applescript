@@ -113,7 +113,7 @@ on decorate(safariTab)
 	set configSystem to configLib's new("system")
 	set retry to retryLib's new()
 
-	script SafariJavaScriptInstance
+	script SafariJavaScriptDecorator
 		property parent : safariTab
 		property findRunMax : 0
 		property findRetrySleep : 0
@@ -462,7 +462,7 @@ on decorate(safariTab)
 		end submitFirstForm
 	end script
 
-	set findRunMax of SafariJavaScriptInstance to configSystem's getValue("FIND_RETRY_MAX")
-	set findRetrySleep of SafariJavaScriptInstance to configSystem's getValue("FIND_RETRY_SLEEP")
-	SafariJavaScriptInstance
+	set findRunMax of SafariJavaScriptDecorator to configSystem's getValue("FIND_RETRY_MAX")
+	set findRetrySleep of SafariJavaScriptDecorator to configSystem's getValue("FIND_RETRY_SLEEP")
+	SafariJavaScriptDecorator
 end decorate

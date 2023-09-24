@@ -11,7 +11,7 @@
 		make install-safari
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-09-20 21:52:29
+	@Last Modified: 2023-09-24 10:54:01
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -80,7 +80,7 @@ on decorate(mainScript)
 
 	set kb to kbLib's new()
 
-	script SafariInstance
+	script SafariUiNoncompactDecorator
 		property parent : mainScript
 
 		(*
