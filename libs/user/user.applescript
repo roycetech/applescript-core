@@ -42,7 +42,6 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		Manual: Info
 		Manual: Get Meeting window
 		Manual: Cue for Touch ID
 		Manual: Done Audible Cue
@@ -58,21 +57,25 @@ on spotCheck()
 
 
 	set sut to new()
+	set decoratorLib to script "core/decorator"
+	set decorator to decoratorLib's new(sut)
+	decorator's printHierarchy()
+
+	logger's infof("In Meeting: {}", sut's isInMeeting())
+	logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
+	logger's infof("Is Online?: {}", sut's isOnline())
+	logger's infof("Major OS Version?: {}", sut's getOsMajorVersion())
+
 	if caseIndex is 1 then
-		logger's infof("In Meeting: {}", sut's isInMeeting())
-		logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
-		logger's infof("Is Online?: {}", sut's isOnline())
-		logger's infof("Major OS Version?: {}", sut's getOsMajorVersion())
-
-	else if caseIndex is 2 then
-
 		logger's logObj("Meeting Window", sut's getMeetingWindow())
 
-	else if caseIndex is 3 then
+	else if caseIndex is 2 then
 		sut's cueForTouchId()
 
+	else if caseIndex is 3 then
+		sut's done()
+
 	else if caseIndex is 4 then
-		sdone()
 
 	end if
 
@@ -115,8 +118,8 @@ on new()
 
 		on isOnline()
 			try
-				set pingResult to do shell script "/usr/local/bin/gtimeout 1s bash -c 'ping -c 1 apple.com'"
-				return pingResult contains "0.0% packet loss"
+				do shell script "ping -c 1 8.8.8.8"
+				return true
 			end try
 			false
 		end isOnline
