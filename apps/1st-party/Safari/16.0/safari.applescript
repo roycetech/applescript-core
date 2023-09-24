@@ -31,7 +31,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2023-09-20 22:06:04
+	@Last Modified: 2023-09-24 08:31:13
 *)
 
 use script "core/Text Utilities"
@@ -46,6 +46,7 @@ use unic : script "core/unicodes"
 use loggerFactory : script "core/logger-factory"
 
 use safariTabLib : script "core/safari-tab"
+use decSafariTabFinder : script "core/dec-safari-tab-finder"
 use decSafariUiNoncompact : script "core/dec-safari-ui-noncompact"
 use decSafariUiCompact : script "core/dec-safari-ui-compact"
 use decSafariSideBar : script "core/dec-safari-side-bar"
@@ -437,6 +438,7 @@ on new()
 		end focusWindowWithToolbar
 	end script
 
+	decSafariTabFinder's decorate(result)
 	decSafariUiNoncompact's decorate(result)
 	decSafariUiCompact's decorate(result)
 	decSafariSideBar's decorate(result)
