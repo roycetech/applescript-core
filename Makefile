@@ -1,4 +1,6 @@
-OS := $(shell osascript -e "system version of (system info)" | cut -d '.' -f 1 | awk '{if ($$1 ~ /^13/) print "ventura"; else if ($$1 ~ /^12/) print "monterey"; else print "unknown"}')
+OS := $(shell osascript -e "system version of (system info)" \
+| cut -d '.' -f 1 \
+| awk '{if ($$1 ~ /^13/) print "ventura"; else if ($$1 ~ /^12/) print "monterey"; else print "unknown"}')
 
 help:
 	@echo "make install - Create config files, assets, and install essential
@@ -135,12 +137,14 @@ compile: \
 
 compile-extras: install-terminal \
 	compile-redis
+compile-extras: install-timed-cache
 	./scripts/compile-lib.sh "libs/zsh/oh-my-zsh"
+
 
 compile-all: \
 	compile \
 	compile-extras \
-	install-system-preferences
+	install-macos-apps
 
 install-all: compile-all
 
@@ -194,6 +198,7 @@ test-unit:
 # 	osascript "test/libs/Test cliclick.applescript"
 # 	osascript "test/libs/Test jira.applescript"
 # 	osascript "test/libs/Test log4as.applescript"
+# 	osascript "test/core/Test redis.applescript"
 # 	osascript "test/core/Test date-time.applescript"
 # 	osascript "test/core/Test decorator.applescript"
 # 	osascript "test/core/Test file.applescript"
@@ -202,7 +207,6 @@ test-unit:
 # 	osascript "test/core/Test plist-buddy.applescript"
 # 	osascript "test/core/Test plutil.applescript"
 # 	osascript "test/core/Test property-list.applescript"
-# 	osascript "test/core/Test redis.applescript"
 # 	osascript "test/core/Test regex.applescript"
 # 	osascript "test/core/Test stack.applescript"
 # 	osascript "test/core/Test switch.applescript"
@@ -217,15 +221,28 @@ test-unit:
 watch: test
 	scripts/run-tests_on-change.sh
 
-#
-#
+
+
+build-macos-apps: \
+	build-automator \
+	compile-calendar \
+	install-control-center \
+	install-dock \
+	install-finder \
+	install-notification-center \
+	install-preview \
+	install-safari \
+	install-system-preferences \
+	install-terminal
+
 
 # Extra Libraries ================================
 # Suggestion: Install related core libraries so that related updates don't
 # require a separate make install.
 
 # 1st Party Apps Library
-compile-calendar: compile-counter
+# compile-calendar: compile-counter
+compile-calendar:
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/dec-calendar-view"
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar-event"
 	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar"
@@ -256,6 +273,7 @@ compile-safari: compile-dock
 	osacompile -o "$(HOME)/Library/Script Libraries/core/safari.scpt" "scripts/stub.applescript"
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-javascript
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-tab
+	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-finder
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-noncompact
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
 	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
@@ -283,7 +301,7 @@ install-script-editor:
 install-finder:
 	./scripts/compile-lib.sh apps/1st-party/Finder/12.5/finder
 
-compile-automator:
+build-automator:
 	./scripts/compile-lib.sh apps/1st-party/Automator/2.10/automator
 
 install-automator: compile-automator
@@ -320,15 +338,9 @@ endif
 
 install-terminal: build-terminal
 
-install-terminal-sftp: ## Add support to basic SFTP prompt
-	echo TODO
-
-install-terminal-ec2-ssh: ## Add support to basic ec2 SSH
-	echo TODO
 
 # macOS Version-Specific Apps
-install-macos-monterey: install-control-center install-dock install-notification-center
-	#TODO
+
 
 compile-control-center:
 ifeq ($(OS), ventura)
