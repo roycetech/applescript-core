@@ -1,25 +1,34 @@
 (*
 	This script provides network-specific functions to the control-center library.
+
+	@Project:
+		applescript-core
+
+	@Build:
+		make build-control-center
+
+	@Migrated: September 25, 2023 11:18 AM
 *)
 
 
 use listUtil : script "core/list"
 
-use loggerLib : script "core/logger"
+use loggerFactory : script "core/logger-factory"
+
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 use ccLib : script "core/control-center"
 
 use spotScript : script "core/spot-test"
 
-property logger : loggerLib's new("control-center_network")
-property kb : kbLib's new()
-property retry : retryLib's new()
-property cc : ccLib's new()
+property logger : missing value
+property kb : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 
 	set cases to listUtil's splitByLine("
@@ -36,7 +45,9 @@ on spotCheck()
 		return
 	end if
 
-	set sut to decorate(cc)
+	set controlCenterLib to script "core/control-center"
+	set controlCenter to controlCenterLib's new()
+	set sut to decorate(controlCenter)
 	if caseIndex is 1 then
 		set hotspots to sut's getListOfAvailableHotspot()
 		if the number of items in hotspots is 0 then
@@ -72,6 +83,11 @@ end newSpotBase
 
 (*  *)
 on decorate(mainScript)
+	loggerFactory's inject(me)
+	set kb to kbLib's new()
+	set retry to retryLib's new()
+
+
 	script ControlCenterNetworkDecorated
 		property parent : mainScript
 		property decorators : []

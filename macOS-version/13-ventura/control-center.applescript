@@ -8,20 +8,21 @@
 use unic : script "core/unicodes"
 use listUtil : script "core/list"
 
-use loggerLib : script "core/logger"
+use loggerFactory : script "core/logger-factory"
 use kbLib : script "core/keyboard"
 
 use spotScript : script "core/spot-test"
-use decoratorNetwork : "control-center_network"
-use decoratorSound : "control-center_sound"
-use decoratorFocus : "control-center_focus"
+use decoratorNetwork : script "core/control-center_network"
+use decoratorSound : script "core/control-center_sound"
+use decoratorFocus : script "core/control-center_focus"
 
-property logger : loggerLib's new("control-center")
-property kb : kbLib's new()
+property logger : missing value
+property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 
 	set cases to listUtil's splitByLine("
@@ -101,9 +102,10 @@ end spotCheck
 
 
 on new()
-	script ControlCenterInstance
-		property decorators : []
+	loggerFactory's inject(me)
+	set kb to kbLib's new()
 
+	script ControlCenterInstance
 		(* Accomplished by clicking on the time in the menu bar items *)
 		on showWidgets()
 			tell application "System Events" to tell process "ControlCenter"

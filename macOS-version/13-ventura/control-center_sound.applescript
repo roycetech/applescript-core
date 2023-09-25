@@ -1,34 +1,30 @@
 (*
-	Update the following quite obvious if you read through the template code.:
-	spotCheck()
-		thisCaseId
-		base library instantiation
+	@Purpose:
+		This decorator contains the handlers that are used around sound settings.
 
-		logger constructor parameter inside init handler
 
-	decorate()
-		instance name
-		handler name
-
+	@Migrated:
+		September 25, 2023 11:35 AM
 *)
 
 use listUtil : script "core/list"
 
-use loggerLib : script "core/logger"
+use loggerFactory : script "core/logger-factory"
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 use ccLib : script "core/control-center"
 
 use spotScript : script "core/spot-test"
 
-property logger : loggerLib's new("control-center_sound")
-property kb : kbLib's new()
-property retry : retryLib's new()
-property cc : ccLib's new()
+property logger : missing value
+property kb : missing value
+property retry : missing value
+property cc : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 
 	set cases to listUtil's splitByLine("
@@ -46,6 +42,7 @@ on spotCheck()
 	end if
 
 	-- activate application ""
+	set cc to ccLib's new()
 	set sut to decorate(cc)
 
 	if caseIndex is 1 then
@@ -78,6 +75,10 @@ end newSpotBase
 
 (*  *)
 on decorate(mainScript)
+	loggerFactory's inject(me)
+	set kb to kbLib's new()
+	set retry to retryLib's new()
+
 	script ControlCenterSoundDecorated
 		property parent : mainScript
 		property decorators : []

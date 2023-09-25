@@ -1,7 +1,7 @@
-global std, retryLib, kb, textUtil, uiUtil, listUtil
-
 (*
-	This script provides focus-related functionalities to the control-center library.
+	@Purpose:
+		This script provides focus-related functionalities to the control-center library.
+
 
 	@Version
 		13. Ventura
@@ -13,11 +13,22 @@ global std, retryLib, kb, textUtil, uiUtil, listUtil
 		focus-mode-activity-com.apple.donotdisturb.mode.stethoscope
 		focus-mode-activity-com.apple.donotdisturb.mode.emoji.face.grinning
 		focus-mode-activity-com.apple.donotdisturb.mode.driving
+
+	@Project:
+		applescript-core
+
+	@Build:
+		make build-control-center
+
+	@Created:
+		2023
 *)
 
 
 use listUtil : script "core/list"
 use textUtil : script "core/string"
+
+use loggerFactory : script "core/logger-factory"
 
 use loggerLib : script "core/logger"
 use kbLib : script "core/keyboard"
@@ -27,15 +38,16 @@ use ccLib : script "core/control-center"
 
 use spotScript : script "core/spot-test"
 
-property logger : loggerLib's new("control-center_focus")
-property kb : kbLib's new()
-property retry : retryLib's new()
-property uiUtil : uiutilLib's new()
-property cc : ccLib's new()
+property logger : missing value
+property kb : missing value
+property retry : missing value
+property uiUtil : missing value
+property cc : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 
 	(*
@@ -58,6 +70,7 @@ on spotCheck()
 	end if
 
 	-- activate application ""
+	set cc to ccLib's new()
 	set sut to decorate(cc)
 
 	if caseIndex is 1 then
@@ -96,6 +109,12 @@ end newSpotBase
 
 (*  *)
 on decorate(mainScript)
+	loggerFactory's inject(me)
+
+	set kb to kbLib's new()
+	set retry to retryLib's new()
+	set uiUtil to uiutilLib's new()
+
 	script ControlCenterFocusDecorated
 		property parent : mainScript
 		property decorators : []
