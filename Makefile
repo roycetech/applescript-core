@@ -1,3 +1,5 @@
+# Use "build" instead of "compile" to make it uniform.
+
 OS := $(shell osascript -e "system version of (system info)" \
 | cut -d '.' -f 1 \
 | awk '{if ($$1 ~ /^13/) print "ventura"; else if ($$1 ~ /^12/) print "monterey"; else print "unknown"}')
@@ -8,7 +10,7 @@ help:
 
 	@echo "make install-core - install the core AppleScript libraries in the current user's Library/Script Library folder"
 	@echo "make install-automator - install additional config for spot testing"
-	@echo "make compile-library - compiles a script library.  e.g. make compile-lib SOURCE=core/config"
+	@echo "make build-library - compiles a script library.  e.g. make build-lib SOURCE=core/config"
 	@echo "make reveal-config - reveals the default AppleScript Core configurations folder in Finder"
 	@echo "make reveal-lib - reveals the default AppleScript user libraries deployment folder in Finder"
 	@echo "make reveal-apps - reveals the default AppleScript apps deployment folder in Finder"
@@ -83,7 +85,7 @@ _init:
 	cp -n plist.template ~/applescript-core/config-business.plist || true
 	cp -n notification-app-id-name.plist ~/applescript-core/notification-app-id-name.plist || true
 	cp -a assets/sounds/. ~/applescript-core/sounds/
-# 	./scripts/compile-bundle.sh 'core/Text Utilities'
+# 	./scripts/build-bundle.sh 'core/Text Utilities'
 	plutil -replace 'Project applescript-core' -string "`pwd`" ~/applescript-core/config-system.plist
 
 clean:
@@ -100,27 +102,27 @@ $(STUB_LIBS): Makefile
 	osacompile -o "$(HOME)/Library/Script Libraries/core/$(patsubst stubs/%,%,$@).scpt" "scripts/stub.applescript"
 
 $(CORE_LIBS): Makefile
-	./scripts/compile-lib.sh core/$@
+	./scripts/build-lib.sh core/$@
 
 uninstall:
 	# TODO
 
 
-compile-standard:
+build-standard:
 ifeq ($(OS), ventura)
-	./scripts/compile-lib.sh macOS-version/13-ventura/std
+	./scripts/build-lib.sh macOS-version/13-ventura/std
 
 else ifeq ($(OS), monterey)
-	./scripts/compile-lib.sh macOS-version/12-monterey/std
+	./scripts/build-lib.sh macOS-version/12-monterey/std
 
 else
-	./scripts/compile-lib.sh macOS-version/12-monterey/std
-	@echo "compile-core unimplemented macOS version error"
+	./scripts/build-lib.sh macOS-version/12-monterey/std
+	@echo "build-core unimplemented macOS version error"
 endif
 
-compile-core-bundle:
+build-core-bundle:
 	@echo "Core Bundle compiled."
-	./scripts/compile-bundle.sh 'core/Text Utilities'
+	./scripts/build-bundle.sh 'core/Text Utilities'
 
 
 # There are circular dependency issue that needs to be considered. You may need
@@ -128,49 +130,49 @@ compile-core-bundle:
 build: compile
 
 compile: \
-	compile-stub \
-	compile-standard \
-	compile-core-bundle \
-	compile-core \
-	compile-control-center \
-	compile-user
+	build-stub \
+	build-standard \
+	build-core-bundle \
+	build-core \
+	build-control-center \
+	build-user
 
-compile-extras: install-terminal \
-	compile-redis
-compile-extras: install-timed-cache
-	./scripts/compile-lib.sh "libs/zsh/oh-my-zsh"
+build-extras: install-terminal \
+	build-redis
+build-extras: install-timed-cache
+	./scripts/build-lib.sh "libs/zsh/oh-my-zsh"
 
 
-compile-all: \
+build-all: \
 	compile \
-	compile-extras \
+	build-extras \
 	install-macos-apps
 
-install-all: compile-all
+install-all: build-all
 
-compile-stub: $(STUB_LIBS)
+build-stub: $(STUB_LIBS)
 	@echo "Stubs compiled. This target is meant to help compile other scripts. \
 Make sure this is not the last target you run, otherwise the scripts that \
 need the real library will fail."
 
-compile-core: $(CORE_LIBS)
+build-core: $(CORE_LIBS)
 	@echo "Core libraries compiled."
 
 
-compile-lib:
-	./scripts/compile-lib.sh $(SOURCE)
+build-lib:
+	./scripts/build-lib.sh $(SOURCE)
 
-compile-bundle:
-	./scripts/compile-bundle.sh $(SOURCE)
+build-bundle:
+	./scripts/build-bundle.sh $(SOURCE)
 
 # Fails to work with accessibility permission error. Export via Script Editor
 # fails as well. Use Automator-created apps instead, see "Create Automator App.applescript"
-compile-app:
-	./scripts/compile-app.sh $(SOURCE)
+build-app:
+	./scripts/build-app.sh $(SOURCE)
 
 # Fails to work when we try to hide the icon in the dock.
-compile-stay-open:
-	./scripts/compile-stay-open.sh $(SOURCE)
+build-stay-open:
+	./scripts/build-stay-open.sh $(SOURCE)
 
 
 reveal-config:
@@ -225,7 +227,7 @@ watch: test
 
 build-macos-apps: \
 	build-automator \
-	compile-calendar \
+	build-calendar \
 	install-control-center \
 	install-dock \
 	install-finder \
@@ -241,70 +243,70 @@ build-macos-apps: \
 # require a separate make install.
 
 # 1st Party Apps Library
-# compile-calendar: compile-counter
-compile-calendar:
-	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/dec-calendar-view"
-	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar-event"
-	./scripts/compile-lib.sh "apps/1st-party/Calendar/11.0/calendar"
+# build-calendar: build-counter
+build-calendar:
+	./scripts/build-lib.sh "apps/1st-party/Calendar/11.0/dec-calendar-view"
+	./scripts/build-lib.sh "apps/1st-party/Calendar/11.0/calendar-event"
+	./scripts/build-lib.sh "apps/1st-party/Calendar/11.0/calendar"
 
-install-calendar: compile-calendar
+install-calendar: build-calendar
 	osascript ./scripts/enter-user-country.applescript
 
 install-system-preferences:
-	./scripts/compile-lib.sh "apps/1st-party/System Preferences/15.0/system-preferences"
+	./scripts/build-lib.sh "apps/1st-party/System Preferences/15.0/system-preferences"
 
 install-system-settings:
-	./scripts/compile-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
+	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 
 
-compile-chrome:
-	./scripts/compile-lib.sh apps/1st-party/Chrome/110.0/chrome.applescript
+build-chrome:
+	./scripts/build-lib.sh apps/1st-party/Chrome/110.0/chrome.applescript
 
 install-chrome:
 	osascript scripts/allow-apple-events-in-chrome.applescript
-	./scripts/compile-lib.sh apps/1st-party/Chrome/110.0/chrome
+	./scripts/build-lib.sh apps/1st-party/Chrome/110.0/chrome
 
 
 install-preview:
-	./scripts/compile-lib.sh apps/1st-party/Preview/v11/preview
+	./scripts/build-lib.sh apps/1st-party/Preview/v11/preview
 
 
-compile-safari: compile-dock
+build-safari: build-dock
 	osacompile -o "$(HOME)/Library/Script Libraries/core/safari.scpt" "scripts/stub.applescript"
-	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-javascript
-	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari-tab
-	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-finder
-	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-noncompact
-	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
-	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
-	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-group
-	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/dec-safari-keychain
-	./scripts/compile-lib.sh apps/1st-party/Safari/16.0/safari
+	./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
+	./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-tab
+	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-finder
+	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-noncompact
+	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
+	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
+	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-group
+	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-keychain
+	./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari
 
-install-safari: compile-safari
+install-safari: build-safari
 	osascript ./scripts/allow-apple-events-in-safari.applescript
 	plutil -replace 'FIND_RETRY_MAX' -integer 90 ~/applescript-core/config-system.plist
 	plutil -replace 'FIND_RETRY_SLEEP' -integer 1 ~/applescript-core/config-system.plist
 
-compile-safari-technology-preview:
+build-safari-technology-preview:
 	osacompile -o "$(HOME)/Library/Script Libraries/core/safari-technology-preview.scpt" "scripts/stub.applescript"
-	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/dec-safari-technology-preview-javascript
-	./scripts/compile-lib.sh  apps/1st-party/Safari Technology Preview/r168/safari-technology-preview
+	./scripts/build-lib.sh  apps/1st-party/Safari Technology Preview/r168/dec-safari-technology-preview-javascript
+	./scripts/build-lib.sh  apps/1st-party/Safari Technology Preview/r168/safari-technology-preview
 
-install-safari-technology-preview: compile-safari-technology-preview
+install-safari-technology-preview: build-safari-technology-preview
 	osascript ./scripts/allow-apple-events-in-safari-technology-preview.applescript
 
 
 install-script-editor:
-	make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
+	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
 
 install-finder:
-	./scripts/compile-lib.sh apps/1st-party/Finder/12.5/finder
+	./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
 
 build-automator:
-	./scripts/compile-lib.sh apps/1st-party/Automator/2.10/automator
+	./scripts/build-lib.sh apps/1st-party/Automator/2.10/automator
 
-install-automator: compile-automator
+install-automator: build-automator
 	mkdir -p /Applications/AppleScript
 	# cp -n plist.template ~/applescript-core/config-system.plist || true
 	osascript scripts/setup-applescript-apps-path.applescript
@@ -317,24 +319,24 @@ uninstall-automator:
 build-terminal:
 	osacompile -o "$(HOME)/Library/Script Libraries/core/terminal.scpt" "scripts/stub.applescript"
 ifeq ($(OS), ventura)
-	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-output
-	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-path
-	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-prompt
-	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-run
-	./scripts/compile-lib.sh apps/1st-party/Terminal/2.13.x/terminal
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-output
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-path
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-prompt
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-run
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/terminal
 
 else ifeq ($(OS), monterey)
-	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-output
-	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-path
-	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
-	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-run
-	./scripts/compile-lib.sh apps/1st-party/Terminal/2.12.x/terminal
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-output
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-path
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-run
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/terminal
 
 else
 	@echo "Hello Something Else"
 endif
 
-	./scripts/compile-lib.sh libs/sftp/dec-terminal-prompt-sftp
+	./scripts/build-lib.sh libs/sftp/dec-terminal-prompt-sftp
 
 install-terminal: build-terminal
 
@@ -342,109 +344,110 @@ install-terminal: build-terminal
 # macOS Version-Specific Apps
 
 
-compile-control-center:
+build-control-center:
 ifeq ($(OS), ventura)
-	./scripts/compile-lib.sh "macOS-version/13-ventura/control-center"
-	./scripts/compile-lib.sh "macOS-version/13-ventura/control-center_focus"
-	./scripts/compile-lib.sh "macOS-version/13-ventura/control-center_sound"
-	./scripts/compile-lib.sh "macOS-version/13-ventura/control-center_network"
+	osacompile -o "$(HOME)/Library/Script Libraries/core/control-center.scpt" "scripts/stub.applescript"
+	./scripts/build-lib.sh "macOS-version/13-ventura/control-center_network"
+	./scripts/build-lib.sh "macOS-version/13-ventura/control-center_sound"
+	./scripts/build-lib.sh "macOS-version/13-ventura/control-center_focus"
+	./scripts/build-lib.sh "macOS-version/13-ventura/control-center"
 
 else ifeq ($(OS), monterey)
-	./scripts/compile-lib.sh "macOS-version/12-monterey/control-center"
+	./scripts/build-lib.sh "macOS-version/12-monterey/control-center"
 
 else
-	./scripts/compile-lib.sh "macOS-version/12-monterey/control-center"
+	./scripts/build-lib.sh "macOS-version/12-monterey/control-center"
 	@echo "Unsupported macOS version for control-center"
 endif
 
-install-control-center: compile-control-center
+install-control-center: build-control-center
 
 
-compile-dock:
-	./scripts/compile-lib.sh "macOS-version/12-monterey/dock"
+build-dock:
+	./scripts/build-lib.sh "macOS-version/12-monterey/dock"
 
-install-dock: compile-dock
+install-dock: build-dock
 
 install-notification-center:
 	osacompile -o "$(HOME)/Library/Script Libraries/core/notification-center.scpt" "scripts/stub.applescript"
 
 ifeq ($(OS), ventura)
-	./scripts/compile-lib.sh "macOS-version/13-ventura/notification-center-helper"
-	./scripts/compile-lib.sh "macOS-version/13-ventura/notification-center"
+	./scripts/build-lib.sh "macOS-version/13-ventura/notification-center-helper"
+	./scripts/build-lib.sh "macOS-version/13-ventura/notification-center"
 
 else ifeq ($(OS), monterey)
-	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center-helper"
-	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center"
+	./scripts/build-lib.sh "macOS-version/12-monterey/notification-center-helper"
+	./scripts/build-lib.sh "macOS-version/12-monterey/notification-center"
 
 else
-	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center-helper"
-	./scripts/compile-lib.sh "macOS-version/12-monterey/notification-center"
+	./scripts/build-lib.sh "macOS-version/12-monterey/notification-center-helper"
+	./scripts/build-lib.sh "macOS-version/12-monterey/notification-center"
 	@echo "Unsupported macOS version for notification-center"
 endif
 
 # 3rd Party Apps Library
-compile-one-password: compile-cliclick
-	./scripts/compile-lib.sh apps/3rd-party/1Password/v6/one-password
+build-one-password: build-cliclick
+	./scripts/build-lib.sh apps/3rd-party/1Password/v6/one-password
 
-install-1password: compile-one-password install-cliclick
+install-1password: build-one-password install-cliclick
 
 install-atom:  ## Deprecated
-	./scripts/compile-lib.sh apps/3rd-party/Atom/1.60.0/atom
+	./scripts/build-lib.sh apps/3rd-party/Atom/1.60.0/atom
 
 install-eclipse:
-	./scripts/compile-lib.sh apps/3rd-party/Eclipse/v202306/eclipse
+	./scripts/build-lib.sh apps/3rd-party/Eclipse/v202306/eclipse
 
 install-git-kraken:
-	./scripts/compile-lib.sh apps/3rd-party/GitKraken/v9.7.1/git-kraken
+	./scripts/build-lib.sh apps/3rd-party/GitKraken/v9.7.1/git-kraken
 
 install-intellij:
-	./scripts/compile-lib.sh apps/3rd-party/IntelliJ IDEA/v2023.2.1/intellij-idea
+	./scripts/build-lib.sh apps/3rd-party/IntelliJ IDEA/v2023.2.1/intellij-idea
 
-compile-pulsar:
-	./scripts/compile-lib.sh apps/3rd-party/Pulsar/1.102.x/pulsar
+build-pulsar:
+	./scripts/build-lib.sh apps/3rd-party/Pulsar/1.102.x/pulsar
 
-install-pulsar: compile-pulsar
+install-pulsar: build-pulsar
 
 
 install-keyboard-maestro:
-	./scripts/compile-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro
-	./scripts/compile-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro
+	./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro
+	./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro
 
 install-last-pass:
-	./scripts/compile-lib.sh apps/3rd-party/LastPass/4.4.x/last-pass
+	./scripts/build-lib.sh apps/3rd-party/LastPass/4.4.x/last-pass
 
 
-compile-marked:
-	./scripts/compile-lib.sh apps/3rd-party/Marked/2.6.18/marked
+build-marked:
+	./scripts/build-lib.sh apps/3rd-party/Marked/2.6.18/marked
 
-install-marked: compile-marked
-
-
-compile-mosaic:
-	./scripts/compile-lib.sh apps/3rd-party/Mosaic/v1.3.x/mosaic
+install-marked: build-marked
 
 
-compile-script-debugger:
-	./scripts/compile-lib.sh 'apps/3rd-party/Script Debugger/v8.0.x/script-debugger'
+build-mosaic:
+	./scripts/build-lib.sh apps/3rd-party/Mosaic/v1.3.x/mosaic
 
-install-script-debugger: compile-script-debugger
+
+build-script-debugger:
+	./scripts/build-lib.sh 'apps/3rd-party/Script Debugger/v8.0.x/script-debugger'
+
+install-script-debugger: build-script-debugger
 
 
 install-step-two:
-	./scripts/compile-lib.sh apps/3rd-party/Step Two/3.1/step-two
+	./scripts/build-lib.sh apps/3rd-party/Step Two/3.1/step-two
 
 
-compile-sequel-ace:
-	./scripts/compile-lib.sh apps/3rd-party/Sequel Ace/4.0.x/sequel-ace
+build-sequel-ace:
+	./scripts/build-lib.sh apps/3rd-party/Sequel Ace/4.0.x/sequel-ace
 
-install-sequel-ace: compile-sequel-ace
+install-sequel-ace: build-sequel-ace
 
 
-compile-stream-deck:
-	./scripts/compile-lib.sh apps/3rd-party/Stream Deck/6.x/stream-deck
-	./scripts/compile-lib.sh apps/3rd-party/Stream Deck/6.x/dec-spot-stream-deck
+build-stream-deck:
+	./scripts/build-lib.sh apps/3rd-party/Stream Deck/6.x/stream-deck
+	./scripts/build-lib.sh apps/3rd-party/Stream Deck/6.x/dec-spot-stream-deck
 
-install-stream-deck: compile-stream-deck
+install-stream-deck: build-stream-deck
 	plutil \
 		-replace 'SpotTestInstance' \
 		-string 'core/dec-spot-stream-deck' \
@@ -452,8 +455,8 @@ install-stream-deck: compile-stream-deck
 
 
 build-sublime-text:
-	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/sublime-text
-	./scripts/compile-lib.sh apps/3rd-party/Sublime Text/4.x/dec-system-events-with-sublime-text
+	./scripts/build-lib.sh apps/3rd-party/Sublime Text/4.x/sublime-text
+	./scripts/build-lib.sh apps/3rd-party/Sublime Text/4.x/dec-system-events-with-sublime-text
 
 install-sublime-text: build-sublime-text
 	osascript ./scripts/setup-sublime-text-cli.applescript
@@ -463,21 +466,21 @@ install-sublime-text: build-sublime-text
 		~/applescript-core/config-lib-factory.plist
 
 install-text-mate:
-	./scripts/compile-lib.sh apps/3rd-party/TextMate/2.0.x/text-mate
+	./scripts/build-lib.sh apps/3rd-party/TextMate/2.0.x/text-mate
 
 install-viscosity:
-	./scripts/compile-lib.sh apps/3rd-party/Viscosity/1.10.x/viscosity
+	./scripts/build-lib.sh apps/3rd-party/Viscosity/1.10.x/viscosity
 
-compile-zoom:
+build-zoom:
 	osacompile -o "$(HOME)/Library/Script Libraries/core/zoom.scpt" "scripts/stub.applescript"
-	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/dec-user-zoom
-	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-window
-	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
-	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom-participants
-	./scripts/compile-lib.sh apps/3rd-party/zoom.us/dec-calendar-event-zoom
-	./scripts/compile-lib.sh apps/3rd-party/zoom.us/5.x/zoom
+	./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/dec-user-zoom
+	./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-window
+	./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
+	./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-participants
+	./scripts/build-lib.sh apps/3rd-party/zoom.us/dec-calendar-event-zoom
+	./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom
 
-install-zoom: compile-zoom
+install-zoom: build-zoom
 	mkdir -p ~/applescript-core/zoom.us/
 	cp -n plist.template ~/applescript-core/zoom.us/config.plist || true
 	osascript ./apps/3rd-party/zoom.us/setup-configurations.applescript
@@ -485,47 +488,47 @@ install-zoom: compile-zoom
 	plutil -replace 'CalendarEventLibrary' -string 'core/dec-calendar-event-zoom' ~/applescript-core/config-lib-factory.plist
 
 # Other libraries
-compile-counter:
-	./scripts/compile-lib.sh libs/counter-plist/counter
+build-counter:
+	./scripts/build-lib.sh libs/counter-plist/counter
 
-install-counter: compile-counter
+install-counter: build-counter
 
-compile-user:
-	./scripts/compile-lib.sh libs/user/user
+build-user:
+	./scripts/build-lib.sh libs/user/user
 
 
 # Library Decorators
 install-dvorak:
-	./scripts/compile-lib.sh core/decorators/dec-keyboard-dvorak-cmd
-	./scripts/compile-lib.sh core/keyboard
+	./scripts/build-lib.sh core/decorators/dec-keyboard-dvorak-cmd
+	./scripts/build-lib.sh core/keyboard
 	plutil -replace 'KeyboardInstance' -string 'dec-keyboard-dvorak-cmd' ~/applescript-core/config-lib-factory.plist
 
 build-cliclick:
-	./scripts/compile-lib.sh libs/cliclick/cliclick
+	./scripts/build-lib.sh libs/cliclick/cliclick
 
-install-cliclick: compile-cliclick
+install-cliclick: build-cliclick
 	osascript libs/cliclick/setup-cliclick-cli.applescript
 
 install-jira:
-	./scripts/compile-lib.sh libs/jira/jira
+	./scripts/build-lib.sh libs/jira/jira
 
 
 # Optional with 3rd party app dependency.
-compile-json:
-	./scripts/compile-lib.sh libs/json/json
+build-json:
+	./scripts/build-lib.sh libs/json/json
 
-install-json: compile-json
-
-
-compile-logger:
-	./scripts/compile-lib.sh core/logger
+install-json: build-json
 
 
-compile-log4as:
-	./scripts/compile-lib.sh libs/log4as/log4as
-	./scripts/compile-lib.sh core/decorators/dec-logger-log4as
+build-logger:
+	./scripts/build-lib.sh core/logger
 
-install-log4as: compile-log4as
+
+build-log4as:
+	./scripts/build-lib.sh libs/log4as/log4as
+	./scripts/build-lib.sh core/decorators/dec-logger-log4as
+
+install-log4as: build-log4as
 # 	plutil -replace 'LoggerSpeechAndTrackingInstance' -string 'dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
 	plutil -replace 'LoggerInstance' -string 'core/dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
 	cp -n libs/log4as/log4as.plist.template ~/applescript-core/log4as.plist || true
@@ -534,15 +537,15 @@ install-log4as: compile-log4as
 	plutil -replace 'writeToFile' -bool true ~/applescript-core/log4as.plist
 	plutil -insert categories -xml "<dict></dict>" ~/applescript-core/log4as.plist || true
 
-compile-redis:
+build-redis:
 	osascript ./scripts/setup-redis-cli.applescript
-	./scripts/compile-lib.sh libs/redis/redis
-	./scripts/compile-lib.sh libs/redis/dec-terminal-prompt-redis
+	./scripts/build-lib.sh libs/redis/redis
+	./scripts/build-lib.sh libs/redis/dec-terminal-prompt-redis
 
-install-redis: compile-redis
+install-redis: build-redis
 
 install-timed-cache:
 	cp -n plist.template ~/applescript-core/timed-cache.plist || true
-	./scripts/compile-lib.sh libs/timed-cache-plist/timed-cache-plist
+	./scripts/build-lib.sh libs/timed-cache-plist/timed-cache-plist
 
 # 	osacompile -o ~/Library/Script\ Libraries/redis.scpt redis.applescript
