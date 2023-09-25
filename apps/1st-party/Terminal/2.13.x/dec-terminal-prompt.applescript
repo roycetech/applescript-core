@@ -1,6 +1,15 @@
 (*
-	@Known Issues:
+	@Purpose:
+		This script incorporates handlers that encompass the terminal's prompt.
 
+	@Project:
+		applescript-core
+
+	@Build:
+		make build-terminal
+
+	@Migrated:
+		September 25, 2023 12:19 PM
 *)
 
 use script "core/Text Utilities"
@@ -10,7 +19,7 @@ use listUtil : script "core/list"
 use textUtil : script "core/string"
 use regex : script "core/regex"
 use unic : script "core/unicodes"
-use extOutput : "dec-terminal-output"
+use extOutput : script "core/dec-terminal-output"
 use fileUtil : script "core/file"
 
 use loggerLib : script "core/logger"
@@ -19,9 +28,9 @@ use terminalLib : script "core/terminal"
 
 use spotScript : script "core/spot-test"
 
-property logger : loggerLib's new("dec-terminal-prompt")
-property retry : retryLib's new()
-property terminal : terminalLib's new()
+property logger  : missing value
+property retry  : missing value
+property terminal  : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -81,6 +90,10 @@ end spotCheck
 
 
 on decorate(termTabScript)
+	loggerFactory's inject(me)
+	set retry to retryLib's new()
+	set terminal to terminalLib's new()
+
 	script TerminalTabInstance
 		property parent : termTabScript
 

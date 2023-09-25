@@ -3,13 +3,14 @@ use scripting additions
 use textUtil : script "core/string"
 use listUtil : script "core/list"
 
-use spotScript : script "core/spot-test"
+use loggerFactory : script "core/logger-factory"
 
-use loggerLib : script "core/logger"
 use terminalLib : script "core/terminal"
 
-property logger : loggerLib's new("dec-terminal-path")
-property terminal : terminalLib's new()
+use spotScript : script "core/spot-test"
+
+property logger  : missing value
+property terminal  : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -59,6 +60,9 @@ end spotCheck
 
 
 on decorate(termTabScript)
+	loggerFactory's inject(me)
+	set terminal to terminalLib's new()
+
 	script TerminalTabInstance
 		property parent : termTabScript
 		property _posixPath : missing value

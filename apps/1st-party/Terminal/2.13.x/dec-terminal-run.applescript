@@ -1,6 +1,15 @@
 (*
-	@Session:
+	@Purpose:
+		This script integrates handlers that encompass the run capabilities of the terminal.
 
+	@Project:
+		applescript-core
+
+	@Build:
+		make build-terminal
+
+	@Migrated:
+		September 25, 2023 12:24 PM
 *)
 
 use script "core/Text Utilities"
@@ -9,19 +18,18 @@ use scripting additions
 use listUtil : script "core/list"
 use textUtil : script "core/string"
 
-use loggerLib : script "core/logger"
+use loggerFactory : script "core/logger-factory"
+
 use retryLib : script "core/retry"
 use plutilLib : script "core/plutil"
 use terminalLib : script "core/terminal"
 
 use spotScript : script "core/spot-test"
 
-property logger : loggerLib's new("dec-terminal-run")
-property retry : retryLib's new()
-property plutil : plutilLib's new()
-property terminal : terminalLib's new()
-
-property session : plutil's new("session")
+property logger : missing value
+property retry : missing value
+property plutil : missing value
+property terminal : missing value
 
 property SESSION_PLIST : missing value
 
@@ -32,6 +40,7 @@ end tell
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 
 	set cases to listUtil's splitByLine("
@@ -72,6 +81,12 @@ end spotCheck
 
 
 on decorate(termTabScript)
+	loggerFactory's inject(me)
+	set retry to retryLib's new()
+	set plutil to plutilLib's new()
+	set terminal to terminalLib's new()
+	set session to plutil's new("session")
+
 	script TerminalTabInstance
 		property parent : termTabScript
 

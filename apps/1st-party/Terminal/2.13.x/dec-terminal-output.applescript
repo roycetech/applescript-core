@@ -1,21 +1,23 @@
 (*
-
+	@Purpose:
+		This script includes handlers that encompass the output functionality of the terminal.
 *)
 
 use listUtil : script "core/list"
 use textUtil : script "core/string"
 
-use loggerLib : script "core/logger"
+use loggerFactory : script "core/logger-factory"
+
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 use terminalLib : script "core/terminal"
 
 use spotScript : script "core/spot-test"
 
-property logger : loggerLib's new("dec-terminal-output")
-property kb : kbLib's new()
-property retry : retryLib's new()
-property terminal : terminalLib's new()
+property logger : missing value
+property kb : missing value
+property retry : missing value
+property terminal : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -74,6 +76,11 @@ end spotCheck
 
 
 on decorate(termTabScript)
+	loggerFactory's inject(me)
+	set kb to kbLib's new()
+	set retry to retryLib's new()
+	set terminal to terminalLib's new()
+
 	script TerminalTabInstance
 		property parent : termTabScript
 

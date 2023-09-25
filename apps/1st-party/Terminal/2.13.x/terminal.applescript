@@ -1,5 +1,3 @@
-
-
 (*
     Script terminal.applescript.
 
@@ -36,7 +34,7 @@
 		applescript-core
 
 	@Build:
-		make install-terminal
+		make build-terminal
 
 	@Known Issues:
 		Breaks on macOS Ventura, when there is no existing Terminal window to launch from.
@@ -46,31 +44,36 @@
 use script "core/Text Utilities"
 use scripting additions
 
+use std : script "core/std"
+
 use textUtil : script "core/string"
 use listUtil : script "core/list"
 use emoji : script "core/emoji"
 use regex : script "core/regex"
 use unic : script "core/unicodes"
 
+use loggerFactory : script "core/logger-factory"
+
 use loggerLib : script "core/logger"
 use kbLib : script "core/keyboard"
-use winUtil : script "core/window"
+use winUtilLib : script "core/window"
 use syseveLib : script "core/system-events"
 use retryLib : script "core/retry"
 
 use decoratorLib : script "core/decorator"
 
-use extOutput : "dec-terminal-output"
-use extRun : "dec-terminal-run"
-use extPath : "dec-terminal-path"
-use extPrompt : "dec-terminal-prompt"
+use extOutput : script "dec-terminal-output"
+use extRun : script "dec-terminal-run"
+use extPath : script "dec-terminal-path"
+use extPrompt : script "dec-terminal-prompt"
 
-property logger : loggerLib's new("terminal")
-property kb : kbLib's new()
-property winUtil : winUtilLib's new()
-property syseve : syseveLib's new()
-property retry : retryLib's new()
+use spotScript : script "core/spot-test"
 
+property logger : missing value
+property kb : missing value
+property winUtil : missing value
+property syseve : missing value
+property retry : missing value
 -- set main to me
 
 property SEPARATOR : unic's SEPARATOR
@@ -85,6 +88,7 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 	Transient snippets, delete code once verified.
 *)
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 
 	set cases to listUtil's splitByLine("
@@ -134,7 +138,7 @@ on spotCheck()
 	else if caseIndex is 2 then
 		set spotTab to sut's newWindow("ls", "Main")
 		spotTab's setProfile("Ocean")
-		set spotTab2Name to "oc " & emoji's work
+		set spotTab2Name to "oc " & emoji's WORK
 		set secondTab to spotTab's newTab(spotTab2Name)
 		set foundTab to sut's findTabWithName(std's getUsername(), spotTab2Name)
 		if foundTab is missing value then
@@ -172,15 +176,15 @@ on spotCheck()
 
 	else if caseIndex is 15 then
 		log sut's findTabWithName("AppleScript", "applescript logs")
-		log sut's findTabWithName("AppleScript", "AS " & emoji's work)
+		log sut's findTabWithName("AppleScript", "AS " & emoji's WORK)
 
 	else if caseIndex is 16 then
-		set spotTabName to "AS " & emoji's work
+		set spotTabName to "AS " & emoji's WORK
 		set spotTab to sut's newWindow("ls", "Main")
 
 	else if caseIndex is 17 then
 		(* Manually open a tab on the user home directory and name it as "spot <construction_sign_emoji>"*)
-		set spotTabName to "spot " & emoji's work
+		set spotTabName to "spot " & emoji's WORK
 		set foundTab to sut's findTabWithName(std's getUsername(), spotTabName)
 		if foundTab is missing value then
 			logger's info("Tab was not found")
@@ -190,7 +194,7 @@ on spotCheck()
 		end if
 
 	else if caseIndex is 18 then
-		set foundTab to sut's findTabEndingWith("MBSS " & emoji's work)
+		set foundTab to sut's findTabEndingWith("MBSS " & emoji's WORK)
 		if foundTab is not missing value then
 			foundTab's focus()
 		end if
@@ -202,6 +206,12 @@ end spotCheck
 
 
 on new()
+	loggerFactory's inject(me)
+	set kb to kbLib's new()
+	set winUtil to winUtilLib's new()
+	set syseve to syseveLib's new()
+	set retry to retryLib's new()
+
 	script TerminalInstance
 		on getFrontTab()
 			getFrontMostInstance()
