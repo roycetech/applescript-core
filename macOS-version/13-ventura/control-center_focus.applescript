@@ -117,12 +117,7 @@ on decorate(mainScript)
 
 	script ControlCenterFocusDecorated
 		property parent : mainScript
-		property decorators : []
 
-		(*
-			@Known Issues:
-
-		*)
 		on getDNDStatus()
 			set currentState to 0
 			_activateControlCenter()
@@ -286,12 +281,4 @@ on decorate(mainScript)
 			exec of retry on result for 10 by 0.2
 		end _activateFocusPane
 	end script
-
-	if the decorators of mainScript is missing value then
-		set mainScript's decorators to []
-	end if
-	set ControlCenterFocusDecorated's decorators to listUtil's clone(mainScript's decorators)
-	set the end of ControlCenterFocusDecorated's decorators to the name of ControlCenterFocusDecorated
-
-	ControlCenterFocusDecorated
 end decorate

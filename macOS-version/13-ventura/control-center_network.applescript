@@ -90,7 +90,6 @@ on decorate(mainScript)
 
 	script ControlCenterNetworkDecorated
 		property parent : mainScript
-		property decorators : []
 
 		(*
 			@hotspotKey - the hotspot identifier to join, e.g. "Joe's iPhone". (Use the correct Unicode apostrophe)
@@ -207,13 +206,4 @@ on decorate(mainScript)
 			end if
 		end _activateWifiPane
 	end script
-
-	if the decorators of mainScript is missing value then
-		set mainScript's decorators to []
-	end if
-	set ControlCenterNetworkDecorated's decorators to listUtil's clone(mainScript's decorators)
-	set the end of ControlCenterNetworkDecorated's decorators to the name of ControlCenterNetworkDecorated
-
-	ControlCenterNetworkDecorated
-
 end decorate

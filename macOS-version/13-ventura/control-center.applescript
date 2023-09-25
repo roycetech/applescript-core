@@ -94,8 +94,6 @@ on spotCheck()
 
 	end if
 
-	log decorators of sut
-
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -103,7 +101,7 @@ end spotCheck
 
 on new()
 	loggerFactory's inject(me)
-	set kb to kbLib's new()
+		set kb to kbLib's new()
 
 	script ControlCenterInstance
 		(* Accomplished by clicking on the time in the menu bar items *)

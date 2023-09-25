@@ -81,7 +81,6 @@ on decorate(mainScript)
 
 	script ControlCenterSoundDecorated
 		property parent : mainScript
-		property decorators : []
 
 		on isMicInUse()
 			tell application "System Events" to tell process "ControlCenter"
@@ -128,12 +127,4 @@ on decorate(mainScript)
 			exec of retry on result for 10 by 0.2
 		end _activateSoundPane
 	end script
-
-	if the decorators of mainScript is missing value then
-		set mainScript's decorators to []
-	end if
-	set ControlCenterSoundDecorated's decorators to listUtil's clone(mainScript's decorators)
-	set the end of ControlCenterSoundDecorated's decorators to the name of ControlCenterSoundDecorated
-
-	ControlCenterSoundDecorated
 end decorate
