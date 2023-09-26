@@ -7,6 +7,8 @@
 
 	@Created: September 4, 2023 3:58 PM
 	@Last Modified: 2023-09-19 18:51:24
+	@Change Logs:
+		September 25, 2023 10:08 PM - v9.8.2 Pop up address has changed.
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -63,7 +65,7 @@ on new()
 			tell application "System Events" to tell process "GitKraken"
 				if (count of windows) is 0 then return missing value
 
-				set sut to pop up button 1 of group 1 of group 1 of group 1 of group 1 of group 4 of group 2 of group 1 of UI element 1 of front window
+				set sut to pop up button 1 of group 2 of group 1 of group 1 of group 1 of group 4 of group 2 of group 1 of UI element 1 of front window
 				textUtil's stringAfter(name of sut, "repository ")
 			end tell
 		end getCurrentRepositoryName
