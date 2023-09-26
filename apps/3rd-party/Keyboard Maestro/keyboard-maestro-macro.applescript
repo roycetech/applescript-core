@@ -1,12 +1,27 @@
-use loggerLib : script "core/logger"
+(*
+	@Purpose:
+		For manipulating the state of a macro or macro group.
+		
+	@Project:
+		applescript-core
+		
+	@Build:
+		make build-keyboard-maestro
+*)
+
+use std : script "core/std"
+
+use loggerFactory : script "core/logger-factory"
 use listUtil : script "core/list"
+
 use spotScript : script "core/spot-test"
 
-property logger : loggerLib's new("keyboard-maestro-macro")
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -23,9 +38,10 @@ on spotCheck()
 		return
 	end if
 	
-	set sut to new("POC")
+	set sutMacroName to "POC"	
+	set sut to new(sutMacroName)
+	
 	if caseIndex is 1 then
-		set sut to new("POC")
 		try
 			set sut to new("POCx")
 		on error
@@ -53,6 +69,8 @@ end spotCheck
 
 (*  *)
 on new(pMacroName)
+	loggerFactory's inject(me)
+	
 	set matchedMacro to missing value
 	tell application "Keyboard Maestro"
 		try

@@ -424,9 +424,10 @@ build-pulsar:
 install-pulsar: build-pulsar
 
 
-install-keyboard-maestro:
+build-keyboard-maestro:
 	./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro
 	./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro
+	./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro-group
 
 install-last-pass:
 	./scripts/build-lib.sh apps/3rd-party/LastPass/4.4.x/last-pass
