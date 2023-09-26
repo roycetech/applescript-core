@@ -21,13 +21,15 @@ use scripting additions
 use listUtil : script "core/list"
 use regex : script "core/regex"
 
-use loggerLib : script "core/logger"
+use loggerFactory : script "core/logger-factory"
 use plutilLib : script "core/plutil"
 use notificationCenterHelperLib : script "core/notification-center-helper"
 
-property logger : loggerLib's new("notification-center")
-property plutil : plutilLib's new()
-property notificationCenterHelper : notificationCenterHelperLib's new()
+use spotScript : script "core/spot-test"
+
+property logger : missing value
+property plutil : missing value
+property notificationCenterHelper : missing value
 
 (*
 	Problem with expanding notification of a Slack status report.
@@ -41,6 +43,7 @@ property notificationCenterHelper : notificationCenterHelperLib's new()
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 
 	set cases to listUtil's splitByLine("
@@ -164,6 +167,11 @@ end spotCheck
 
 
 on new()
+	loggerFactory's inject(me)
+
+	set plutil to plutilLib's new()
+	set notificationCenterHelper to notificationCenterHelperLib's new()
+
 	script NotificationCenterInstance
 
 		on expandNotification()

@@ -6,6 +6,12 @@
 		is critical in this library, because this library is loaded differently from the rest.
 
 		Do not use logger here because it will result in circular dependency.
+
+	@Project:
+		applescript-core
+
+	@Build:
+		make build-standard
 *)
 
 use scripting additions
@@ -39,6 +45,8 @@ end spotCheck
 
 (* My general catch handler for all my scripts. Used as top most only. *)
 on catch(source, errorNumber, errorMessage)
+	loggerFactory's injectBasic(me)
+
 	if errorMessage contains "user canceled" or errorMessage contains "abort" then
 		logger's warn(errorMessage)
 		say "aborted"
@@ -112,3 +120,12 @@ on ternary(condition, ifTrue, otherwise)
 
 	otherwise
 end ternary
+
+
+(*  *)
+on nvl(nonMissingValue, ifMissingValue)
+	if nonMissingValue is missing value then return ifMissingValue
+
+	nonMissingValue
+end nvl
+

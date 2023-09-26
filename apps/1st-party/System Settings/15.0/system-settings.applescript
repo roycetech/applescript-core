@@ -20,7 +20,7 @@ use scripting additions
 
 use listUtil : script "core/list"
 
-use loggerLib : script "core/logger"
+use loggerFactory : script "core/logger-factory"
 use retryLib : script "core/retry"
 use usrLib : script "core/user"
 
@@ -28,13 +28,14 @@ use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
-property logger : loggerLib's new("system-settings")
-property retry : retryLib's new()
-property usr : usrLib's new()
+property logger : missing value
+property retry : missing value
+property usr : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
@@ -70,6 +71,7 @@ on spotCheck()
 	else if caseIndex is 2 then
 		sut's quitApp()
 		sut's revealSecurityAccessibilityPrivacy()
+		logger's infof("Handler result: {}", result)
 		
 	else if caseIndex is 3 then
 		sut's unlockSecurityAccessibilityPrivacy()
@@ -119,6 +121,10 @@ on spotCheck()
 end spotCheck
 
 on new()
+	loggerFactory's inject(me)
+	set retry to retryLib's new()
+	set usr to usrLib's new()
+	
 	script SystemSettings
 		on printPaneIds()
 			tell application "System Settings"
@@ -140,12 +146,14 @@ on new()
 		on revealSecurityAccessibilityPrivacy()
 			tell application "System Settings"
 				activate
-				reveal anchor "Accessibility" of pane id "com.apple.preference.security"
+				delay 0.1  -- Fails without this delay.
+				set current pane to pane id "com.apple.settings.PrivacySecurity.extension"
 			end tell
 			
 			script PanelWaiter
 				tell application "System Events" to tell process "System Settings"
 					if (value of radio button "Privacy" of tab group 1 of window "Security & Privacy") is 0 then return missing value
+					
 				end tell
 				true
 			end script
@@ -389,7 +397,7 @@ on new()
 			end repeat
 		end quitApp
 	end script
-
+	
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new

@@ -1,24 +1,31 @@
 (*
 	@Version:
 		macOS Ventura
+
+	@Project:
+		applescript-core
+
+	@Build:
+		make build-notification-center
 *)
 
 use scripting additions
 
 use listUtil : script "core/list"
+use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 
 use loggerLib : script "core/logger"
 use notificationCenterLib : script "core/notification-center"
 
-property speech : false
-property logger : loggerLib's new("notification-certer-helper")
-property notificationCenter : notificationCenterLib's new()
+property logger : missing value
+property notificationCenter : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 
 	set cases to listUtil's splitByLine("
@@ -54,6 +61,9 @@ on spotCheck()
 end spotCheck
 
 on new()
+	loggerFactory's inject(me)
+	set notificationCenter to notificationCenterLib's new()
+
 	script NotificationCenterHelperInstance
 		on getActiveMeetingsFromNotices() -- For Migration.
 			set meetingNotices to {}
