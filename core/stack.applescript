@@ -1,8 +1,8 @@
 (*
 	@Build:
-		make compile-lib SOURCE=core/stack
+		make build-lib SOURCE=core/stack
 
-	@Last Modified: 2023-09-04 14:00:59
+	@Last Modified: 2023-09-25 14:57:57
 *)
 on new()
 	set localEmptyStack to {}

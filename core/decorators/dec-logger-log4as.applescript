@@ -3,7 +3,7 @@
 		config-lib-factory - Add an override "LoggerSpeechAndTrackingInstance => dec-logger-speech-and-tracking" to use this as override.
 
 	@Build:
-		make compile-lib SOURCE=core/decorators/dec-logger-log4as
+		make build-lib SOURCE=core/decorators/dec-logger-log4as
 *)
 
 use log4asLib : script "core/log4as"

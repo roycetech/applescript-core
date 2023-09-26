@@ -35,12 +35,12 @@
 		applescript-core
 
 	@Build:
-		make compile-lib SOURCE=core/plutil
+		make build-lib SOURCE=core/plutil
 
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2023-09-20 19:04:31
+	@Last Modified: 2023-09-25 14:57:57
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)

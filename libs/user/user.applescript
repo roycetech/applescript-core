@@ -12,7 +12,7 @@
 		applescript-core
 
 	@Build:
-		make compile-lib SOURCE=libs/user/user
+		make build-lib SOURCE=libs/user/user
 
 	@Troubleshooting:
 		Zoom is not yet tested at this time. June 25, 2023 5:22 PM. Test that library set before adding it to the config-lib-factory.
@@ -65,6 +65,7 @@ on spotCheck()
 	logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
 	logger's infof("Is Online?: {}", sut's isOnline())
 	logger's infof("Major OS Version?: {}", sut's getOsMajorVersion())
+	logger's infof("Sound output device: {}", sut's getSoundOutput())
 
 	if caseIndex is 1 then
 		logger's logObj("Meeting Window", sut's getMeetingWindow())

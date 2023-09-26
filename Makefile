@@ -146,7 +146,7 @@ build-extras: install-timed-cache
 build-all: \
 	compile \
 	build-extras \
-	install-macos-apps
+	build-macos-apps
 
 install-all: build-all
 
@@ -228,13 +228,14 @@ watch: test
 build-macos-apps: \
 	build-automator \
 	build-calendar \
+	build-console \
 	install-control-center \
 	install-dock \
 	install-finder \
-	install-notification-center \
+	build-notification-center \
 	install-preview \
 	install-safari \
-	install-system-preferences \
+	build-system-preferences \
 	install-terminal
 
 
@@ -252,12 +253,26 @@ build-calendar:
 install-calendar: build-calendar
 	osascript ./scripts/enter-user-country.applescript
 
-install-system-preferences:
+build-console:
+ifeq ($(OS), ventura)
+	./scripts/build-lib.sh "apps/1st-party/Console/v1.1/console"
+else
+	@echo "Unsupported"
+endif
+
+build-system-preferences:
+ifeq ($(OS), ventura)
+	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
+
+else ifeq ($(OS), monterey)
 	./scripts/build-lib.sh "apps/1st-party/System Preferences/15.0/system-preferences"
+
+else
+	@echo "Unsupported"
+endif
 
 install-system-settings:
 	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
-
 
 build-chrome:
 	./scripts/build-lib.sh apps/1st-party/Chrome/110.0/chrome.applescript
@@ -368,7 +383,7 @@ build-dock:
 
 install-dock: build-dock
 
-install-notification-center:
+build-notification-center:
 	osacompile -o "$(HOME)/Library/Script Libraries/core/notification-center.scpt" "scripts/stub.applescript"
 
 ifeq ($(OS), ventura)
@@ -398,7 +413,7 @@ install-eclipse:
 	./scripts/build-lib.sh apps/3rd-party/Eclipse/v202306/eclipse
 
 install-git-kraken:
-	./scripts/build-lib.sh apps/3rd-party/GitKraken/v9.7.1/git-kraken
+	./scripts/build-lib.sh apps/3rd-party/GitKraken/v9.8.2/git-kraken
 
 install-intellij:
 	./scripts/build-lib.sh apps/3rd-party/IntelliJ IDEA/v2023.2.1/intellij-idea

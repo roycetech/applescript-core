@@ -4,7 +4,7 @@
 	visible crash for some scripts that are triggered via Voice Command.
 
 	@Build:
-		make compile-lib SOURCE=core/logger
+		make build-lib SOURCE=core/logger
 *)
 
 

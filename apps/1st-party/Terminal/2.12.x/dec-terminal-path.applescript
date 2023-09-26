@@ -1,8 +1,8 @@
 (*
 	@Build:
-		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-path
+		make build-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-path
 
-	@Last Modified: 2023-09-18 22:33:04
+	@Last Modified: 2023-09-25 14:57:56
 *)
 
 use scripting additions

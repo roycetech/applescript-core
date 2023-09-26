@@ -8,9 +8,9 @@
 		https://www.urlencoder.io
 
 	@Build:
-		make compile-lib SOURCE=core/string
+		make build-lib SOURCE=core/string
 
-	@Last Modified: 2023-09-18 22:33:06
+	@Last Modified: 2023-09-25 14:57:57
 *)
 use scripting additions
 

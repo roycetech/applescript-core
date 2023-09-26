@@ -7,7 +7,7 @@
 	@Build:
 		make install-keyboard-maestro
 		or (from the project root)
-		make compile-lib SOURCE="apps/3rd-party/Keyboard Maestro/keyboard-maestro"
+		make build-lib SOURCE="apps/3rd-party/Keyboard Maestro/keyboard-maestro"
 
 	@Last Modified: September 9, 2023 2:43 PM
 *)

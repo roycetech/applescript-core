@@ -7,9 +7,9 @@
 		config-lib-factory.plist
 
 	@Build:
-		make compile-lib SOURCE=core/decorator
+		make build-lib SOURCE=core/decorator
 
-	@Last Modified: 2023-08-10 11:04:56
+	@Last Modified: 2023-09-25 14:57:57
 	@Change Logs:
 		August 10, 2023 7:49 AM - Allow multiple overrides on the same instance name.
 *)

@@ -4,14 +4,14 @@
 		zoom.us application installed.
 
 	Install:
-		make compile-lib SOURCE=libs/user/dec-user-zoom
+		make build-lib SOURCE=libs/user/dec-user-zoom
 		plutil -replace 'UserInstance' -string 'dec-user-zoom' ~/applescript-core/config-lib-factory.plist
 
 	Uninstall:
 		make remove-lib SOURCE=libs/user/dec-user-zoom
 		plutil -remove 'UserInstance' ~/applescript-core/config-lib-factory.plist
 
-	@Last Modified: 2023-09-18 22:33:07
+	@Last Modified: 2023-09-25 14:57:56
 *)
 use std : script "core/std"
 use listUtil : script "core/list"

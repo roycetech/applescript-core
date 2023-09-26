@@ -4,7 +4,7 @@
 	Or type (Text Expander): uuse kb
 
 	@Build:
-		make compile-lib SOURCE=core/keyboard
+		make build-lib SOURCE=core/keyboard
 *)
 
 use script "core/Text Utilities"

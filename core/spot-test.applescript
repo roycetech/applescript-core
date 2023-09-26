@@ -9,9 +9,9 @@
 		applescript-core
 
 	@Build:
-		make compile-lib SOURCE=core/spot-test
+		make build-lib SOURCE=core/spot-test
 
-	@Last Modified: 2023-09-20 21:29:22
+	@Last Modified: 2023-09-25 14:57:57
 *)
 
 use script "core/Text Utilities"

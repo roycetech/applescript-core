@@ -9,7 +9,7 @@ set DEPLOY_DIR to configUser's getValue("User Key")
 TODO: Optimize by creating new handlers with type like getValueString.
 
 	@Build:
-		make compile-lib SOURCE=core/config
+		make build-lib SOURCE=core/config
 *)
 
 use plutilLib : script "core/plutil"

@@ -3,7 +3,7 @@
 		applescript-core
 
 	@Build:
-		make compile-lib SOURCE=core/plist-buddy
+		make build-lib SOURCE=core/plist-buddy
 *)
 
 use script "core/Text Utilities"

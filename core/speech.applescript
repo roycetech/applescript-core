@@ -21,7 +21,7 @@
 		Difficult to unit test. Better to test this manually.
 
 	@Build:
-		make compile-lib SOURCE=core/speech
+		make build-lib SOURCE=core/speech
 *)
 
 

@@ -1,8 +1,8 @@
 (*
 	@Build:
-		make compile-lib SOURCE=core/date-time
+		make build-lib SOURCE=core/date-time
 
-	@Last Modified: 2023-09-18 22:33:40
+	@Last Modified: 2023-09-25 14:57:56
 *)
 use framework "Foundation"
 

@@ -7,9 +7,9 @@
 		Calendar needs to be in "Day" view.
 
 	@Build:
-		make compile-lib SOURCE=apps/1st-party/Calendar/11.0/calendar-event
+		make build-lib SOURCE=apps/1st-party/Calendar/11.0/calendar-event
 
-	@Last Modified: 2023-09-20 21:27:12
+	@Last Modified: 2023-09-25 14:57:56
 *)
 
 use scripting additions

@@ -5,7 +5,7 @@
 		Do not use logger here because it will result in circular dependency.
 
 	@Build:
-		make compile-lib SOURCE=macOS-version/12-monterey/std
+		make build-lib SOURCE=macOS-version/12-monterey/std
 *)
 
 use scripting additions

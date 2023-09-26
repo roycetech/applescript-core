@@ -5,9 +5,9 @@
 		zoom.applescript
 
 	@Build:
-		make compile-lib SOURCE=apps/3rd-party/zoom.us/5.x/zoom-actions
+		make build-lib SOURCE=apps/3rd-party/zoom.us/5.x/zoom-actions
 
-	@Last Modified: 2023-09-18 22:33:07
+	@Last Modified: 2023-09-25 14:57:56
 *)
 
 use listUtil : script "core/list"

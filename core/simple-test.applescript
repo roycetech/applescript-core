@@ -1,7 +1,7 @@
 (*
 	@Tab: AC
 	@Build:
-		make compile-lib SOURCE=core/test
+		make build-lib SOURCE=core/test
 *)
 
 use script "core/Text Utilities"

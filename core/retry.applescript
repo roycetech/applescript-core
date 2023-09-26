@@ -4,7 +4,7 @@
 		property retry : retryLib's new()
 
 	@Build:
-		make compile-lib SOURCE=core/retry
+		make build-lib SOURCE=core/retry
 *)
 
 use scripting additions

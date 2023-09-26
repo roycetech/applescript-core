@@ -10,7 +10,7 @@
 		applescript-core
 
 	@Build:
-		make compile-lib SOURCE="apps/1st-party/System Settings/15.0/system-settings"
+		make build-lib SOURCE="apps/1st-party/System Settings/15.0/system-settings"
 		
 	@References:
 		https://derflounder.wordpress.com/2022/10/25/opening-macos-venturas-system-settings-to-desired-locations-via-the-command-line/

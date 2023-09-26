@@ -6,12 +6,12 @@
 	WARNING: Do not use unicode characters, it does not work with the ruby commandline!
 
 	@Build:
-		make compile-lib SOURCE=core/regex
+		make build-lib SOURCE=core/regex
 
 	@Known Issues:
 		July 29, 2023 9:37 PM - Removed in plutil validation because it fails intermittently on the "matches" handler.
 
-	@Last Modified: 2023-09-18 22:33:06
+	@Last Modified: 2023-09-25 14:57:57
 *)
 
 use framework "Foundation"

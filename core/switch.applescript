@@ -8,9 +8,9 @@
 		yourSwitch's turnOn()
 
 	@Build:
-		make compile-lib SOURCE=core/switch
+		make build-lib SOURCE=core/switch
 
-	@Last Modified: 2023-09-18 22:33:06
+	@Last Modified: 2023-09-25 14:57:57
 	@TODO: Migrate to ASUnit.
 	@Change Log:
 		September 4, 2023 11:42 AM - Removed reference to the built-in unit test.

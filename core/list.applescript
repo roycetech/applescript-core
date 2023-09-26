@@ -3,7 +3,7 @@
 		use listUtil : script "core/list"
 
 	@Build:
-		make compile-lib SOURCE=core/list
+		make build-lib SOURCE=core/list
 *)
 
 use scripting additions

@@ -16,7 +16,7 @@
 		property redis : redisLib's new(0) -- 0 for no timeout
 
 	@Build:
-		make compile-lib SOURCE=libs/redis/redis
+		make build-lib SOURCE=libs/redis/redis
 
 	@Troubleshooting:
 		When you do an update, make sure to re-run the setup-redis-cli.applescript
@@ -27,7 +27,7 @@
 	@Known Issues:
 		September 2, 2023 9:53 AM - Records are not currently supported.
 
-	@Last Modified: 2023-09-18 22:33:39
+	@Last Modified: 2023-09-25 14:57:57
  *)
 
 use script "core/Text Utilities"

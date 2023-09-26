@@ -14,7 +14,7 @@
 		applescript-core
 
 	@Build:
-		make compile-lib SOURCE=core/system-events
+		make build-lib SOURCE=core/system-events
 *)
 
 use std : script "core/std"

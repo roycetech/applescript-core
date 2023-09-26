@@ -7,7 +7,7 @@
 		macOS Monterey 12.x.
 
 	@Build:
-		make compile-lib SOURCE="apps/1st-party/System Preferences/15.0/system-preferences"
+		make build-lib SOURCE="apps/1st-party/System Preferences/15.0/system-preferences"
 *)
 
 use scripting additions

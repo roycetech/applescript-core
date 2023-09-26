@@ -4,7 +4,7 @@
 	Depends on the position of the focus checkbox to be the 2nd one.
 
 	@Build:
-		make compile-lib SOURCE=macOS-version/12-monterey/control-center
+		make build-lib SOURCE=macOS-version/12-monterey/control-center
 *)
 
 use textUtil : script "core/string"

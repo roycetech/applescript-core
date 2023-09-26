@@ -6,7 +6,7 @@
 		redis
 
 	Compile:
-		make compile-lib SOURCE=core/decorators/plutil-exists-cache
+		make build-lib SOURCE=core/decorators/plutil-exists-cache
 *)
 
 

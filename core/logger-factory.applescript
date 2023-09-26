@@ -2,9 +2,9 @@
 	This script provides a convenient way to inject an appropriate logging instance to a library.
 
 	@Build:
-		make compile-lib SOURCE=core/logger-factory
+		make build-lib SOURCE=core/logger-factory
 
-	@Last Modified: 2023-09-18 22:33:06
+	@Last Modified: 2023-09-25 14:57:57
 *)
 
 use loggerLib : script "core/logger"

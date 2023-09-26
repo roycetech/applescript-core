@@ -6,7 +6,7 @@
 		applescript-core
 
 	Build:
-		make compile-lib SOURCE=core/decorators/dec-logger-speech-and-tracking
+		make build-lib SOURCE=core/decorators/dec-logger-speech-and-tracking
 *)
 
 use speechLib : script "core/speech"

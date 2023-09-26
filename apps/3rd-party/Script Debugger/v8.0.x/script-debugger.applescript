@@ -12,7 +12,7 @@
 		Cannot get the id of the app window.
 
 	@Build:
-		make compile-lib SOURCE='apps/3rd-party/Script Debugger/v8.0.x/script-debugger'
+		make build-lib SOURCE='apps/3rd-party/Script Debugger/v8.0.x/script-debugger'
 		
 	@Create ON: June 24, 2023 2:21 PM
 	

@@ -8,9 +8,9 @@
 		$ ./scripts/plist-array-append.sh "spot-lov" "option 1" ~/applescript-core/lov.plist
 
 	@Build:
-		make compile-lib SOURCE=core/lov
+		make build-lib SOURCE=core/lov
 
-	@Last Modified: 2023-09-18 22:33:06
+	@Last Modified: 2023-09-25 14:57:57
 *)
 
 use listUtil : script "core/list"

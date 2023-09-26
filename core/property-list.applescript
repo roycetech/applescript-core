@@ -7,7 +7,7 @@
 		applescript-core
 
 	@Build:
-		make compile-lib SOURCE=core/property-list
+		make build-lib SOURCE=core/property-list
  *)
 
 use script "core/Text Utilities"

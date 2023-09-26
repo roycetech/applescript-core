@@ -1,8 +1,8 @@
 (*
-	@Last Modified: 2023-09-18 22:33:06
+	@Last Modified: 2023-09-25 14:57:57
 
 	@Build:
-		make compile-lib SOURCE=core/window
+		make build-lib SOURCE=core/window
 *)
 
 use listUtil : script "core/list"

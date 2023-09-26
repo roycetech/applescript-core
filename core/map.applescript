@@ -8,7 +8,7 @@
 		- Saving to plist.
 
 	@Build:
-		make compile-lib SOURCE=core/map
+		make build-lib SOURCE=core/map
 *)
 
 use framework "Foundation"

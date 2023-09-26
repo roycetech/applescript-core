@@ -3,7 +3,7 @@
 		runShell-<tab-name>
 
 	@Build:
-		make compile-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-run
+		make build-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-run
 *)
 
 use script "core/Text Utilities"

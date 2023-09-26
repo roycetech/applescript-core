@@ -5,7 +5,7 @@
 				array to be active.
 
 	@Build:
-		make compile-lib SOURCE=libs/sftp/dec-terminal-prompt-sftp
+		make build-lib SOURCE=libs/sftp/dec-terminal-prompt-sftp
 *)
 
 use textUtil : script "core/string"

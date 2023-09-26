@@ -9,7 +9,7 @@
 		Have 3 Script Editor windows, this window plus 2 Untitled windows.
 
 	@Build:
-		make compile-lib SOURCE=core/process
+		make build-lib SOURCE=core/process
 
 *)
 

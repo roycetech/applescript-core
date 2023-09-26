@@ -10,7 +10,7 @@
 		Keys in the plist are case-sensitive!
 
 	@Build:
-		make compile-lib SOURCE=libs/log4as/log4as
+		make build-lib SOURCE=libs/log4as/log4as
 
 	@Known Issues:
 		July 3, 2023 2:07 PM - Default log prints multiple times for each

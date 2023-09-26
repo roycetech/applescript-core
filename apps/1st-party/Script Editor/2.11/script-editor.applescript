@@ -13,7 +13,7 @@
 		applescript-core
 
 	@Build:
-		make compile-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
+		make build-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
 				
 	@Usage:
 		use seLib : script "core/script-editor"

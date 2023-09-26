@@ -3,12 +3,12 @@
 		use fileUtil : script "core/file"
 
 	@Build:
-		make compile-lib SOURCE=core/file
+		make build-lib SOURCE=core/file
 
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2023-09-18 22:33:40
+	@Last Modified: 2023-09-25 14:57:57
 *)
 
 use script "core/Text Utilities"

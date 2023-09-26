@@ -1,9 +1,9 @@
 (*
 	@Build:
-		make compile-lib SOURCE=core/emoji
-		
+		make build-lib SOURCE=core/emoji
+
 	@Known Issues:
-		errOSAInternalTableOverflow - Just by adding new line, sometime it even crashes the app.		
+		errOSAInternalTableOverflow - Just by adding new line, sometime it even crashes the app.
 *)
 
 property WORK : "🚧"

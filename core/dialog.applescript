@@ -1,8 +1,8 @@
 (*
-	@Last Modified: 2023-09-25 14:06:40
+	@Last Modified: 2023-09-25 14:57:57
 
 	@Build:
-		make compile-lib SOURCE=core/dialog
+		make build-lib SOURCE=core/dialog
 *)
 use scripting additions
 use script "core/Text Utilities"

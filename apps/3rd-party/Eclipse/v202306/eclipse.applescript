@@ -3,10 +3,10 @@
 		applescript-core
 
 	@Build:
-		make compile-lib SOURCE="apps/3rd-party/Eclipse/v202306/eclipse"
+		make build-lib SOURCE="apps/3rd-party/Eclipse/v202306/eclipse"
 
 	@Created: September 7, 2023 11:02 AM
-	@Last Modified: 2023-09-17 11:49:34
+	@Last Modified: 2023-09-25 14:57:56
 *)
 
 use textUtil : script "core/string"

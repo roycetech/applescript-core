@@ -1,6 +1,6 @@
 (*
 	@Build:
-		make compile-lib SOURCE=core/string-builder
+		make build-lib SOURCE=core/string-builder
 *)
 
 use listUtil : script "core/list"

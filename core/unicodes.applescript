@@ -6,7 +6,7 @@
 		Migrate out domain-specific characters like the OMZ.
 
 	@Build:
-		make compile-lib SOURCE=core/unicodes
+		make build-lib SOURCE=core/unicodes
 *)
 
 use scripting additions

@@ -3,7 +3,7 @@
 		applescript-core
 
 	@Build:
-		make compile-lib SOURCE=libs/counter-plist/counter
+		make build-lib SOURCE=libs/counter-plist/counter
 
 	WARNING: This script is crappy, do not remove the init() on every handler
 	because it triggers a weird error where reference to countTotal is lost
