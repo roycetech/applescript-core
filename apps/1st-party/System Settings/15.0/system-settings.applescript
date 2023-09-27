@@ -212,6 +212,9 @@ on new()
 			true
 		end toggleVoiceControl
 		
+		(*
+			While on the Voice Control panel, click on the button "Commands..."
+		*)
 		on clickAccessibilityCommands()
 			if running of application "System Settings" is false then return false
 			
