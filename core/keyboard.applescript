@@ -212,6 +212,13 @@ on new()
 			delay delayAfterKeySeconds
 		end pressCommandOptionKey
 
+		on pressCommandOptionShiftKey(keyToPress)
+			tell application "System Events"
+				key code my _charToKeycode(keyToPress) using {command down, option down, shift down}
+			end tell
+			delay delayAfterKeySeconds
+		end pressCommandOptionShiftKey
+
 		on pressControlKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {control down}
