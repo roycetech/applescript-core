@@ -415,8 +415,12 @@ install-eclipse:
 install-git-kraken:
 	./scripts/build-lib.sh apps/3rd-party/GitKraken/v9.8.2/git-kraken
 
-install-intellij:
+
+build-intellij:
 	./scripts/build-lib.sh apps/3rd-party/IntelliJ IDEA/v2023.2.1/intellij-idea
+
+install-intellij: build-intellij
+	osascript ./scripts/setup-intellij-cli.applescript
 
 build-pulsar:
 	./scripts/build-lib.sh apps/3rd-party/Pulsar/1.102.x/pulsar
