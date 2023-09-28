@@ -5,6 +5,12 @@
 		property cp : clipboardLib's new()
 
 	NOTE: Currently only supports text contents. May support other data types in the future.
+
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh core/clipboard
 *)
 
 use scripting additions
@@ -109,7 +115,8 @@ on new()
 			run of scriptObj
 
 			set maxWait to 50 -- 5 seconds
-			repeat until (the clipboard) is not ""
+			repeat until (the clipboard) is not "" or maxWait is greater than 0
+				set maxWait to maxWait - 1
 				delay 0.1
 			end repeat
 
