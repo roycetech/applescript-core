@@ -15,6 +15,7 @@
 
 use scripting additions
 
+use std : script "core/std"
 use loggerFactory : script "core/logger-factory"
 use listUtil : script "core/list"
 use spotScript : script "core/spot-test"
@@ -115,7 +116,7 @@ on new()
 			run of scriptObj
 
 			set maxWait to 50 -- 5 seconds
-			repeat until (the clipboard) is not "" or maxWait is greater than 0
+			repeat until (the clipboard) is not "" or maxWait is less than 0
 				set maxWait to maxWait - 1
 				delay 0.1
 			end repeat
