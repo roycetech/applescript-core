@@ -242,7 +242,7 @@ on new()
 		*)
 		-- on lclick at theUi with reset and smoothing
 		-- on lclick at theUi with reset:false and smoothing:true
-		on lclick at theUi given reset:resetArg : true, smoothing:smoothingArg : true
+		on lclick at theUi given reset:resetArg : true, smoothing:smoothingArg : true, relativex:relativexArg:0, relativey:relativeyArg:0
 
 			-- WARNING: if we don't log these parameters, compile error :tableflip:.
 			-- Seems  it's no longer a problem February 19, 2021
@@ -260,11 +260,11 @@ on new()
 					set {xSize, ySize} to size
 				end tell
 
-				set theYPos to yPosition + (ySize div 2)
+				set theYPos to yPosition + relativeyArg + (ySize div 2)
 				if theYPos is less than 0 then
 					set theYPos to "=" & theYPos
 				end if
-				set clickCommand to CLICLICK_CLI & " " & smoothingParam & "c:" & xPosition + (xSize div 2) & "," & theYPos
+				set clickCommand to CLICLICK_CLI & " " & smoothingParam & "c:" & xPosition + relativexArg +  (xSize div 2) & "," & theYPos
 				-- logger's debug(clickCommand)
 				do shell script clickCommand
 			end tell
