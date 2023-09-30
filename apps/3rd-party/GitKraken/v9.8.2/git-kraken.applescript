@@ -9,7 +9,7 @@
 		9.8.2
 
 	@Created: September 4, 2023 3:58 PM
-	@Last Modified: 2023-09-26 21:59:17
+	@Last Modified: 2023-09-30 09:34:12
 	@Change Logs:
 		September 25, 2023 10:08 PM - v9.8.2 Pop up address has changed.
 *)
@@ -68,8 +68,11 @@ on new()
 			tell application "System Events" to tell process "GitKraken"
 				if (count of windows) is 0 then return missing value
 
-				-- set sut to pop up button 1 of group 2 of group 1 of group 1 of group 1 of group 4 of group 2 of group 1 of UI element 1 of front window
-				set sut to pop up button 1 of group 1 of group 1 of group 1 of group 1 of group 4 of group 2 of group 1 of UI element 1 of front window
+				try
+				set sut to pop up button 1 of group 2 of group 1 of group 1 of group 1 of group 4 of group 2 of group 1 of UI element 1 of front window
+				on error -- Seems it likes to tango between group 1 and 2 without even a version update so let's try both.
+					set sut to pop up button 1 of group 1 of group 1 of group 1 of group 1 of group 4 of group 2 of group 1 of UI element 1 of front window
+				end try
 				textUtil's stringAfter(name of sut, "repository ")
 			end tell
 		end getCurrentRepositoryName
