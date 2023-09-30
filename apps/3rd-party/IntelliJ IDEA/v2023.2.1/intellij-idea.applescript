@@ -57,6 +57,7 @@ on spotCheck()
 	set sutProjectFilePath to sutProjectPath & "/pom.xml"
 	logger's infof("Current Project Name: {}", sut's getCurrentProjectName())
 	logger's infof("Current Document Name: {}", sut's getCurrentDocumentName())
+	logger's infof("Is Project Selected: {}", sut's isProjectSelected())
 	logger's debugf("sutProjectFilePath: {}", sutProjectFilePath)
 	if caseIndex is 1 then
 		
@@ -116,6 +117,18 @@ on new()
 			end tell
 			last item of result
 		end getCurrentDocumentName
+		
+		
+		(*
+			@returns true of the project is selected from the Tree View, when the buttons at the status bar is single.
+		*)
+		on isProjectSelected()
+			if running of application "IntelliJ IDEA" is false then return missing value
+		
+			tell application "System Events" to tell process "IntelliJ IDEA"
+				(count of buttons of group 1 of scroll area 1 of group 6 of group 1 of front window) is 1
+			end tell
+		end isProjectSelected
 		
 		
 		(* Change to the next scheme (called theme on most other editors) *)
