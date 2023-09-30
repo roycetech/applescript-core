@@ -205,6 +205,7 @@ test-unit:
 # 	osascript "test/core/Test decorator.applescript"
 # 	osascript "test/core/Test file.applescript"
 # 	osascript "test/core/Test list.applescript"
+	osascript "test/core/Test lov.applescript"
 # 	osascript "test/core/Test map.applescript"
 # 	osascript "test/core/Test plist-buddy.applescript"
 # 	osascript "test/core/Test plutil.applescript"
@@ -212,7 +213,7 @@ test-unit:
 # 	osascript "test/core/Test regex.applescript"
 # 	osascript "test/core/Test stack.applescript"
 # 	osascript "test/core/Test switch.applescript"
-	osascript "test/core/Test speech.applescript"
+# 	osascript "test/core/Test speech.applescript"
 # 	osascript "test/core/Test string.applescript"
 # 	osascript "test/core/Test timed-cache-plist.applescript"
 # 	osascript test/apps/1st-party/script-editorTest.applescript

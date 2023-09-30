@@ -7,12 +7,16 @@
 	@Installation Example:
 		$ ./scripts/plist-array-append.sh "spot-lov" "option 1" ~/applescript-core/lov.plist
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make build-lib SOURCE=core/lov
 
-	@Last Modified: 2023-09-25 14:57:57
+	@Last Modified: 2023-09-29 17:24:01
 *)
 
+use scripting additions
 use listUtil : script "core/list"
 
 use loggerLib : script "core/logger"
@@ -23,6 +27,7 @@ use spotScript : script "core/spot-test"
 use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
+property plutil : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -33,6 +38,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Manual: Binary
 		Manual: Tertiary
+		Manual: missing value returns the first item
 	")
 
 	set spotClass to spotScript's new()
@@ -70,6 +76,9 @@ on spotCheck()
 		logger's infof("Has Value: {}", sut's hasValue("Option 2"))
 		logger's infof("Has Value: {}", sut's hasValue("Option X"))
 		logger's infof("Is Binary: {}", sut's isBinary())
+
+	else if caseIndex is 3 then
+
 	end if
 
 	spot's finish()
@@ -81,15 +90,23 @@ end spotCheck
 on new(lovName)
 	loggerFactory's injectBasic(me)
 	set plutil to plutilLib's new()
-	set localLovPlist to plutil's new("lov")
 
 	script LovInstance
 		property _lovName : lovName
-		property _lov : localLovPlist's getValue(lovName)
+		property _lov : missing value
+		property _plistName : missing value
 
+		(*
+			@Deprecated: Use #hasElement.
+		*)
 		on hasValue(targetElement)
+			hasElement(targetElement)
+		end hasValue
+
+		on hasElement(targetElement)
 			listUtil's listContains(_lov, targetElement)
 		end hasValue
+
 
 		on getLov()
 			_lov
@@ -110,5 +127,16 @@ on new(lovName)
 		on isBinary()
 			(count of my _lov) is 2
 		end isBinary
+
+
+		(* Used by unit test. *)
+		on _setLovPlist(plistName, lovName)
+			set _plistName to plistName
+			set lovPlist to plutil's new(plistName)
+			set _lov to lovPlist's getValue(lovName)
+		end _setLovPlist
 	end script
+	result's _setLovPlist("lov", lovName)
+
+	LovInstance
 end new
