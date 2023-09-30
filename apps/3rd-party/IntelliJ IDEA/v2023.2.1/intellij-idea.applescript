@@ -56,6 +56,7 @@ on spotCheck()
 	set sutProjectPath to "/Users/" & std's getUsername() & "/Projects/@rt-playground/spring-boot-3-tickets"
 	set sutProjectFilePath to sutProjectPath & "/pom.xml"
 	logger's infof("Current Project Name: {}", sut's getCurrentProjectName())
+	logger's infof("Current Document Name: {}", sut's getCurrentDocumentName())
 	logger's debugf("sutProjectFilePath: {}", sutProjectFilePath)
 	if caseIndex is 1 then
 		
@@ -105,6 +106,16 @@ on new()
 			end tell
 			first item of result
 		end getCurrentProjectName
+		
+		
+		on getCurrentDocumentName()
+			if running of application "IntelliJ IDEA" is false then return missing value
+			
+			tell application "System Events" to tell process "idea"
+				textUtil's split(name of front window, " " & unic's MAIL_SUBDASH & " ")
+			end tell
+			last item of result
+		end getCurrentDocumentName
 		
 		
 		(* Change to the next scheme (called theme on most other editors) *)
