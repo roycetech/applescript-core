@@ -38,9 +38,10 @@ on spotCheck()
 		return
 	end if
 	
-	set sutMacroName to "POC"	
+	set sutMacroName to "POC"
 	set sut to new(sutMacroName)
-	
+	logger's infof("sutMacroName: {}", sutMacroName)
+	logger's infof("Macro UUID: {}", sut's getUUID())
 	if caseIndex is 1 then
 		try
 			set sut to new("POCx")
@@ -83,6 +84,13 @@ on new(pMacroName)
 	script KeyboardMaestroMacroInstance
 		property macroName : pMacroName
 		property _macro : matchedMacro
+		
+		
+		on getUUID()
+			tell application "Keyboard Maestro"
+				id of _macro
+			end tell
+		end getUUID
 		
 		on disable()
 			tell application "Keyboard Maestro"
