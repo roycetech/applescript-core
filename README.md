@@ -2,7 +2,7 @@
 
 AppleScript Core Framework
 
-An framework and collection of libraries for for writing AppleScripts that utilizes re-usability of components.
+A framework and collection of libraries for for writing AppleScripts that utilizes re-usability of components.
 
 This README is a work in progress and I'm planning on creating a simpler shorter version in the near future.
 
