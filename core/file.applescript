@@ -2,13 +2,16 @@
 	@Usage:
 		use fileUtil : script "core/file"
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make build-lib SOURCE=core/file
 
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2023-09-25 14:57:57
+	@Last Modified: 2023-10-03 17:36:50
 *)
 
 use script "core/Text Utilities"
@@ -193,6 +196,14 @@ on getBaseFilename(filePath)
 end getBaseFilename
 
 
+on quoteFilePath(posixFilePath)
+	if posixFilePath is missing value then return missing value
+	if posixFilePath starts with "~" then return posixFilePath
+
+	quoted form of posixFilePath
+end quoteFilePath
+
+
 on convertPosixToMacOsNotation(posixFilePath)
 	(POSIX file posixFilePath) as string
 end convertPosixToMacOsNotation
@@ -211,3 +222,23 @@ on convertPathToPOSIXString(thePath)
 	POSIX path of thePath
 end convertPathToPOSIXString
 
+
+on convertPathToTilde(filePath)
+	set markerText to "/Users/" & std's getUsername()
+	if filePath starts with markerText then
+		return textUtil's replace(filePath, markerText, "~")
+	end if
+
+	filePath
+end convertPathToTilde
+
+
+on containsText(filePath, substring)
+	try
+		set shellCommand to "grep " & substring & " " & quoteFilePath(filePath)
+		log shellCommand
+		"" is not equals (do shell script shellCommand)
+	on error errorMessage
+		log errorMessage
+	end try
+end containsText

@@ -203,9 +203,9 @@ test-unit:
 # 	osascript "test/core/Test redis.applescript"
 # 	osascript "test/core/Test date-time.applescript"
 # 	osascript "test/core/Test decorator.applescript"
-# 	osascript "test/core/Test file.applescript"
+	osascript "test/core/Test file.applescript"
 # 	osascript "test/core/Test list.applescript"
-	osascript "test/core/Test lov.applescript"
+# 	osascript "test/core/Test lov.applescript"
 # 	osascript "test/core/Test map.applescript"
 # 	osascript "test/core/Test plist-buddy.applescript"
 # 	osascript "test/core/Test plutil.applescript"
@@ -231,10 +231,10 @@ build-macos-apps: \
 	build-calendar \
 	build-console \
 	install-control-center \
-	install-dock \
-	install-finder \
+	build-dock \
+	build-finder \
 	build-notification-center \
-	install-preview \
+	build-preview \
 	install-safari \
 	build-system-preferences \
 	install-terminal
@@ -272,7 +272,7 @@ else
 	@echo "Unsupported"
 endif
 
-install-system-settings:
+build-system-settings:
 	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 
 build-chrome:
@@ -283,7 +283,11 @@ install-chrome:
 	./scripts/build-lib.sh apps/1st-party/Chrome/110.0/chrome
 
 
-install-preview:
+build-mail:
+	./scripts/build-lib.sh apps/1st-party/Mail/16.0/mail
+
+
+build-preview:
 	./scripts/build-lib.sh apps/1st-party/Preview/v11/preview
 
 
@@ -313,7 +317,7 @@ install-safari-technology-preview: build-safari-technology-preview
 	osascript ./scripts/allow-apple-events-in-safari-technology-preview.applescript
 
 
-install-script-editor:
+build-script-editor:
 	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
 
 install-finder:
@@ -354,10 +358,8 @@ endif
 
 	./scripts/build-lib.sh libs/sftp/dec-terminal-prompt-sftp
 
-install-terminal: build-terminal
 
-
-# macOS Version-Specific Apps
+# macOS Version-Specific Apps -------------------------------------------------
 
 
 build-control-center:
@@ -382,7 +384,6 @@ install-control-center: build-control-center
 build-dock:
 	./scripts/build-lib.sh "macOS-version/12-monterey/dock"
 
-install-dock: build-dock
 
 build-notification-center:
 	osacompile -o "$(HOME)/Library/Script Libraries/core/notification-center.scpt" "scripts/stub.applescript"
@@ -401,7 +402,8 @@ else
 	@echo "Unsupported macOS version for notification-center"
 endif
 
-# 3rd Party Apps Library
+
+# 3rd Party Apps Library ------------------------------------------------------
 build-one-password: build-cliclick
 	./scripts/build-lib.sh apps/3rd-party/1Password/v6/one-password
 

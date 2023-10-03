@@ -48,7 +48,7 @@ script |Load script|
 		property parent : UnitTest(me)
 		try
 			tell application "Finder"
-				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:"
+				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:core:"
 			end tell
 			set sutBaseScript to load script (deploymentPath & "script-editor.scpt") as alias
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias

@@ -7,10 +7,13 @@
 	Online Tool:
 		https://www.urlencoder.io
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make build-lib SOURCE=core/string
 
-	@Last Modified: 2023-09-25 14:57:57
+	@Last Modified: 2023-10-03 10:21:33
 *)
 use scripting additions
 

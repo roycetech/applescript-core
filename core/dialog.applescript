@@ -1,5 +1,8 @@
 (*
-	@Last Modified: 2023-09-25 14:57:57
+	@Last Modified: 2023-10-01 16:36:18
+
+	@Project:
+		applescript-core
 
 	@Build:
 		make build-lib SOURCE=core/dialog
