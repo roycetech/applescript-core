@@ -126,6 +126,14 @@ on new()
 	set usr to usrLib's new()
 	
 	script SystemSettings
+		on clickAddVoiceCommand()
+			tell application "System Events" to tell process "System Settings"
+				try
+					click (first button of group 2 of sheet 1 of window "Voice Control" whose description is "add")
+				end try
+			end tell
+		end clickAddVoiceCommand
+
 		on printPaneIds()
 			tell application "System Settings"
 				set panesList to id of panes
@@ -146,7 +154,7 @@ on new()
 		on revealSecurityAccessibilityPrivacy()
 			tell application "System Settings"
 				activate
-				delay 0.1  -- Fails without this delay.
+				delay 0.1 -- Fails without this delay.
 				set current pane to pane id "com.apple.settings.PrivacySecurity.extension"
 			end tell
 			
