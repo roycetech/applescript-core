@@ -20,12 +20,11 @@ use loggerLib : script "core/logger"
 use notificationCenterLib : script "core/notification-center"
 
 property logger : missing value
-property notificationCenter : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's inject(me)
+	loggerFactory's injectBasic(me)
 	logger's start()
 
 	set cases to listUtil's splitByLine("
@@ -60,11 +59,13 @@ on spotCheck()
 	logger's finish()
 end spotCheck
 
-on new()
-	loggerFactory's inject(me)
-	set notificationCenter to notificationCenterLib's new()
 
+on new()
+	loggerFactory's injectBasic(me)
 	script NotificationCenterHelperInstance
+		(* Defined here to avoid circular call. *)
+		property notificationCenter : missing value
+
 		on getActiveMeetingsFromNotices() -- For Migration.
 			set meetingNotices to {}
 
@@ -94,7 +95,7 @@ on new()
 			end tell
 
 			set sortedGroup to _simpleSort(noticeGroups)
-			notificationCenter's new(first item of sortedGroup)
+			_getNotificationCenterInstance()'s new(first item of sortedGroup)
 		end firstNotice
 
 
@@ -109,7 +110,7 @@ on new()
 			end tell
 
 			set sortedGroup to _simpleSort(noticeGroups)
-			notificationCenter's new(last item of sortedGroup)
+			_getNotificationCenterInstance()'s new(last item of sortedGroup)
 		end lastNotice
 
 
@@ -125,7 +126,7 @@ on new()
 
 			set sortedGroup to _simpleSort(noticeGroups)
 			repeat with nextNotice in sortedGroup
-				scriptObj's next(notificationCenter's new(nextNotice))
+				scriptObj's next(_getNotificationCenterInstance()'s new(nextNotice))
 			end repeat
 		end _forEach
 
@@ -141,7 +142,7 @@ on new()
 
 			set sortedGroup to _simpleSort(noticeGroups)
 			repeat with i from (count noticeGroups) to 1 by -1
-				scriptObj's next(notificationCenter's new(item i of noticeGroups))
+				scriptObj's next(_getNotificationCenterInstance()'s new(item i of noticeGroups))
 			end repeat
 		end _reverseLoop
 
@@ -182,5 +183,11 @@ on new()
 
 			sorted_list
 		end _simpleSort
+
+
+		on _getNotificationCenterInstance()
+			if notificationCenter is missing value then set notificationCenter to notificationCenterLib's new()
+			notificationCenter
+		end _getNotificationCenterInstance
 	end script
 end new

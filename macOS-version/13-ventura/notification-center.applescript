@@ -11,6 +11,12 @@
 	@Plists:
 		notification-appname - contains mapping for app id to app name.
 
+	@Project:
+		applescript-core
+
+	@Build:
+		make build-notification-center
+
 	@Known Issues
 		For grouped notifications, if you want to dismiss the first notification only, the client code should expand the notification first.
 *)
@@ -43,7 +49,7 @@ property notificationCenterHelper : missing value
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's inject(me)
+	loggerFactory's injectBasic(me)
 	logger's start()
 
 	set cases to listUtil's splitByLine("
@@ -62,12 +68,10 @@ on spotCheck()
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
-
 	if caseIndex is 0 then
 		logger's finish()
 		return
 	end if
-
 
 	set sut to new()
 	if caseIndex is 1 then
@@ -167,13 +171,11 @@ end spotCheck
 
 
 on new()
-	loggerFactory's inject(me)
-
+	loggerFactory's injectBasic(me)
 	set plutil to plutilLib's new()
 	set notificationCenterHelper to notificationCenterHelperLib's new()
 
 	script NotificationCenterInstance
-
 		on expandNotification()
 			tell application "System Events" to tell process "Notification Center"
 				if (count of windows) is 0 then return
