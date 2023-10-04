@@ -38,6 +38,7 @@ property plist : "decorator-test"
 property plistPath : "~/applescript-core/config-lib-factory.plist"
 
 loggerFactory's inject(me)
+set xmlUtil to xmlUtilLib's newPlist(plist) 
 autorun(suite)
 
 ---------------------------------------------------------------------------------------
@@ -49,17 +50,17 @@ autorun(suite)
 -- this will work when all the tests in the current folder are run together using loadTestsFromFolder().
 -- Besides, this will make sure that we are using the latest version of the script
 -- to be tested even if we do not recompile this test script.
-script |Load script|
+script |Load script - decorator|
 	property parent : TestSet(me)
 	script |Loading the script|
 		property parent : UnitTest(me)
 		try
 			tell application "Finder"
-				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:core:core:"
+				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:core:"
 			end tell
 			
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
-			set TopLevel's xmlUtil to xmlUtilLib's newPlist(plist)
+			set xmlUtil to xmlUtilLib's newPlist(plist)
 		end try
 		assertInstanceOf(script, sutScript) 
 	end script
@@ -75,7 +76,7 @@ script |getHierarchy tests|
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
-		set originalFactoryXml to TopLevel's xmlUtil's __grepValueXml("SublimeTextInstance")
+		set originalFactoryXml to xmlUtil's __grepValueXml("SublimeTextInstance")
 	end setUp
 	on tearDown()
 		if executedTestCases is equal to the totalTestCases then afterClass()
@@ -91,7 +92,7 @@ script |getHierarchy tests|
 		script Empty 
 		end script
 		set sut to sutScript's new(Empty)
-		skip("Different behavior during suite test")
+		skip("Different behavior during suite test") 
 		assertEqual({"ASUnit", "Test decorator", "Empty"}, sut's _getHierarchy())
 	end script
 
