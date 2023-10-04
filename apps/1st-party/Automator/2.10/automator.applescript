@@ -9,14 +9,17 @@
 		user-specific keyboard maestro macro: Automator: Click At Command Phrase Input
 		clipboard.applescript - Some input fields could not be manipulated directly so the clipboard is utilized.
 
+	@Project:
+		applescript-core
+
 	@Build:
-		make install-automator
+		make build-automator
 
 	WARNING:
 		Assumes automator is not used or opened for purposes other than the exclusive use of this script.
 		Wipes out clipboard contents.
 
-	@Last Modified: 2023-09-20 21:27:00
+	@Last Modified: 2023-10-03 23:31:33
 *)
 
 use scripting additions
@@ -234,8 +237,8 @@ on new()
 				set value of theCodeTextArea to "
 use scripting additions
 
-use configLib : script \"config\"
-use fileUtil : script \"file\"
+use configLib : script \"core/config\"
+use fileUtil : script \"core/file\"
 
 property configUser : missing value
 
