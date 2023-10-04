@@ -1,5 +1,18 @@
+(*
+	@Project:
+		applescript-core
+
+	@Build:
+		make build-mail
+
+	@Created: Pre-2023
+*)
+
+use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
+
+use cliclickLib : script "core/cliclick"
 
 use spotScript : script "core/spot-test"
 
@@ -15,7 +28,8 @@ on spotCheck()
 	set listUtil to script "core/list"
 
 	set cases to listUtil's splitByLine("
-		Goto Favorite Folder
+		Manual: Goto Favorite Folder
+
 	")
 
 	set spotLib to spotScript's new()
@@ -27,8 +41,15 @@ on spotCheck()
 	end if
 
 	set sut to new()
+	set isMessageWindow to sut's isMessageWindowActive()
+	logger's infof("Message window at front?: {}", isMessageWindow)
+	if isMessageWindow then
+		logger's infof("Sender: {}", sut's getMessageSender())
+
+	end if
+
 	if caseIndex is 1 then
-		sut's gotoFolder("04 Updates")
+		-- sut's gotoFolder("04 Updates")
 
 	else if caseIndex is 2 then
 
@@ -41,11 +62,54 @@ end spotCheck
 
 on new()
 	loggerFactory's inject(me)
+	set cliclick to cliclickLib's new()
 
 	script MailInstance
 
+		(*
+			The front window of the Mail application is either a message window or the standard email list window.
+
+			@returns true when the front window is a message window.
+		*)
+		on isMessageWindowActive()
+			if running of application "Mail" is false then return false
+
+			tell application "System Events" to tell process "Mail"
+				set windowTitle to the name of front window
+			end tell
+
+			windowTitle does not contain unic's MAIL_SUBDASH
+		end isMessageWindowActive
+
+
+		(*
+			@requires: App Focus.
+
+			@returns the email address from the message window.
+
+		*)
+		on getMessageSender()
+			if running of application "Mail" is false then return missing value
+
+			tell application "System Events" to tell process "Mail"
+				set frontmost to true
+				try
+					set subjectContainer to text area 1 of group 1 of group 1 of scroll area 1 of front window
+				on error the errorMessage number the errorNumber
+					logger's warn(errorMessage)
+					return missing value
+				end try
+				lclick of cliclick at static text 1 of subjectContainer given relativex:-10
+				set email to the name of menu item 1 of menu 1 of subjectContainer
+				lclick of cliclick at static text 1 of subjectContainer
+			end tell
+			email
+		end getMessageSender
+
+
 		(*  *)
 		on gotoFolder(folderName)
+
 			tell application "System Events" to tell process "Mail"
 				repeat with nextRow in rows of outline 1 of scroll area 1 of splitter group 1 of front window
 					if get description of UI element 1 of nextRow contains folderName then
