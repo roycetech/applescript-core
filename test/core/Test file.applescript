@@ -10,13 +10,17 @@
 
 	@charset macintosh
 	@Created:
+
+	@Known Issues:
+		October 3, 2023 9:30 PM - Still fails intermittently, about 1 in every 5 runs. Warzone.
 *)
 use AppleScript
 use scripting additions
 
 use std : script "core/std"
-use textUtil : script "core/string"
-
+use textUtil : script "core/string"             
+use retryLib : script "core/retry"
+    
 property parent : script "com.lifepillar/ASUnit"
 
 ---------------------------------------------------------------------------------------
@@ -28,7 +32,7 @@ global sutScript -- The variable holding the script to be tested
 
 use loggerFactory : script "core/logger-factory"
 property logger : missing value
-
+property retry : missing value
 property TopLevel : me
 property suite : makeTestSuite(suitename)
 
@@ -53,6 +57,7 @@ script |Load script|
 				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:core:"
 			end tell
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
+			set retry to retryLib's new()
 		end try
 		assertInstanceOf(script, sutScript)
 	end script
@@ -61,41 +66,51 @@ end script
 
 script |getBaseFilename tests|
 	property parent : TestSet(me)
-	property sut : missing value
+	property sut : missing value 
+
+	on setUp() 
+		TopLevel's __createTestFile()
+	end setUp
+
+	on tearDown()
+		TopLevel's __deleteTestFile()   
+	end tearDown 
+
 	script |Basic Test|
 		property parent : unitTest(me)
 		assertEqual("README.md", sutScript's getBaseFilename("/Users/cloud.strife/Projects/README.md"))
 	end script
-end script
+end script 
 
 
 script |replaceText tests|
 	property parent : TestSet(me)
 	property sut : missing value
 	
-	on setUp()
+	on setUp() 
 		TopLevel's __createTestFile()
 	end setUp
+
 	on tearDown()
-		TopLevel's __deleteTestFile()
-	end tearDown
+		TopLevel's __deleteTestFile()   
+	end tearDown 
 	
 	script |Empty File| 
 		property parent : unitTest(me)
 		sutScript's replaceText(testFile, "{{keyword}}", "**replacement**")
-		assertEqual("", TopLevel's __readTextFile())
+		assertEqual("", TopLevel's __readTestFile())
 	end script
 	
-	script |Substring Not Found|
+	script |Substring Not Found| 
 		property parent : unitTest(me)
 		TopLevel's __writeTextFile("Lorem Ipsum
 Second Line
 ")
 		sutScript's replaceText(testFile, "{{keyword}}", "**replacement**")
-		ok(TopLevel's __readTextFile() does not contain "**replacement**")
+		ok(TopLevel's __readTestFile() does not contain "**replacement**")
 	end script
 	
-	script |Substring Found Once|
+	script |Substring Found Once| 
 		property parent : unitTest(me)
 		TopLevel's __writeTextFile("Hello
 {{keyword}}
@@ -103,7 +118,7 @@ Second Line
 		sutScript's replaceText(testFile, "{{keyword}}", "**replacement**")
 		assertEqual(textUtil's multiline("Hello
 **replacement**
-"), TopLevel's __readTextFile())
+"), TopLevel's __readTestFile())
 	end script
 	
 	script |Substring Multiple Times|
@@ -118,7 +133,7 @@ Yes
 **replacement**
 Yes
 **replacement**
-"), TopLevel's __readTextFile())
+"), TopLevel's __readTestFile())
 	end script
 	
 	script |Substring with Ampersand|
@@ -129,20 +144,20 @@ Yes
 		sutScript's replaceText(testFile, "{{keyword}}", "**&replacement**")
 		assertEqual(textUtil's multiline("Hello
 **&replacement**
-"), TopLevel's __readTextFile())
+"), TopLevel's __readTestFile())
 	end script
 end script
-
+ 
 
 script |deleteLineWithSubstring tests|
 	property parent : TestSet(me)
 
 	on setUp()
-		TopLevel's __createTestFile()
+		TopLevel's __createTestFile() 
 	end setUp
 	on tearDown()
 		TopLevel's __deleteTestFile()
-	end tearDown
+	end tearDown 
 
 	script |Substring not found|
 		property parent : UnitTest(me)
@@ -150,11 +165,11 @@ script |deleteLineWithSubstring tests|
 ")
 		sutScript's deleteLineWithSubstring(testFile, "unicorn")
 		assertEqual(textUtil's multiline("This is a paradise
-"), TopLevel's __readTextFile()) 
+"), TopLevel's __readTestFile()) 
 	end script
 
 	script |Substring found|
-		property parent : UnitTest(me)
+		property parent : UnitTest(me) 
 		TopLevel's __writeTextFile("This file
 has a bug
 is perfect
@@ -162,7 +177,7 @@ is perfect
 		sutScript's deleteLineWithSubstring(testFile, "bug")
 		assertEqual(textUtil's multiline("This file
 is perfect
-"), TopLevel's __readTextFile()) 
+"), TopLevel's __readTestFile()) 
 	end script
 
 	script |Substring found multiple times|
@@ -175,9 +190,9 @@ and another bug here
 		sutScript's deleteLineWithSubstring(testFile, "bug")
 		assertEqual(textUtil's multiline("This file
 is perfect
-"), TopLevel's __readTextFile()) 
+"), TopLevel's __readTestFile()) 
 	end script
-end script
+end script 
 
 
 script |_quotePath tests|
@@ -213,27 +228,156 @@ script |deleteFile tests|
 end script
 
 
+script |quoteFilePath tests|
+	property parent : TestSet(me)
+
+	script |Missing value| 
+		property parent : UnitTest(me)
+		assertMissing(sutScript's quoteFilePath(missing value))
+	end script
+
+	script |tilde-relative Path|
+		property parent : UnitTest(me)
+		assertEqual("~/Projects", sutScript's quoteFilePath("~/Projects"))
+	end script
+
+	script |non tilde-relative Path|
+		property parent : UnitTest(me)
+		assertEqual("'/Users/Spaced Path'", sutScript's quoteFilePath("/Users/Spaced Path"))
+	end script 
+end script
+
+
+script |convertPathToTilde tests|
+	property parent : TestSet(me)
+
+	script |Missing value| 
+		property parent : UnitTest(me)
+		assertMissing(sutScript's convertPathToTilde(missing value))
+	end script
+
+	script |User Path|
+		property parent : UnitTest(me)
+		assertEqual("~/Projects", sutScript's convertPathToTilde("/Users/" & std's getUsername() & "/Projects"))
+	end script
+
+	script |Non-User Path|
+		property parent : UnitTest(me)
+		assertEqual("/Applications", sutScript's convertPathToTilde("/Applications"))
+	end script
+
+	script |Tilde-relative Path|
+		property parent : UnitTest(me)
+		assertEqual("~/Desktop", sutScript's convertPathToTilde("~/Desktop"))
+	end script
+end script
+
+
+script |containsText tests|
+	property parent : TestSet(me)
+
+	on setUp()
+		TopLevel's __createTestFile()
+	end setUp
+	on tearDown()
+		TopLevel's __deleteTestFile()
+	end tearDown
+
+	script |Substring not found|
+		property parent : UnitTest(me)
+		TopLevel's __writeTextFile("This is a paradise
+")
+		notOk(sutScript's containsText(testFile, "unicorn"))
+	end script
+
+	script |Substring found|
+		property parent : UnitTest(me)
+		TopLevel's __writeTextFile("This is a paradise
+")
+		ok(sutScript's containsText(testFile, "paradise"))
+	end script
+
+	script |Substring found - Spaced Substring|
+		property parent : UnitTest(me)
+		TopLevel's __writeTextFile("This is a paradise
+")
+		ok(sutScript's containsText(testFile, "a paradise"))
+	end script
+end script
+
+
+script |insertBeforeEmptyLine tests|
+	property parent : TestSet(me)
+
+	on setUp()
+		TopLevel's __createTestFile()
+	end setUp
+	on tearDown()
+		TopLevel's __deleteTestFile()
+	end tearDown
+
+	script |Substring not found|
+		property parent : UnitTest(me)
+		TopLevel's __writeTextFile("Lorem Ipsum.
+Same paragraph
+
+2nd para.
+")
+		notOk(sutScript's insertBeforeEmptyLine(testFile, "unicorn", "kindness"))
+	end script
+
+	script |Substring found|
+		property parent : UnitTest(me)
+		TopLevel's __writeTextFile("Lorem Ipsum.
+Same paragraph
+
+2nd para.
+")
+		ok(sutScript's insertBeforeEmptyLine(testFile, "Lorem", "kindness"))
+		assertEqual(textUtil's multiline(""), TopLevel's __readTestFile())
+	end script
+end script
+
+
 (* !Do not use quoted form, they fail because of the tilde form. *)
 on __writeTextFile(textToWrite)
 	do shell script "echo '" & textToWrite & "' >> " & testFile
+end __writeTextFile  
+
+
+on __existTestFile() 
+	"true" is equal to do shell script "test -f " & testFile & " && echo true || echo false" 
 end __writeTextFile
 
 
-on __existTestFile()
-	"true" is equal to do shell script "test -f '" & testFile & "' && echo true || echo false" 
-end __writeTextFile
+on __readTestFile()   
+	script RetryableRead
+		do shell script "cat " & testFile 
+	end script	
+	retry's exec on result for 15 by 0.5
+end __readTestFile
 
 
-on __readTextFile()
-	do shell script "cat " & testFile
-end __readTextFile
-
-
-on __createTestFile()
-	do shell script "touch " & testFile
+(*
+	Battle ground here.  Added retry and delay to improve success rate.
+*)
+on __createTestFile() 
+	script WaitedCreate
+		do shell script "touch " & testFile 
+		delay 0.1    
+		if __existTestFile() then return true    
+	end script
+	retry's exec on result for 30 by 0.5
 end __createTestFile
 
 
 on __deleteTestFile()
-	do shell script "rm " & testFile
+	script WaitedDelete
+		do shell script "rm " & testFile
+		delay 0.1
+		if not __existTestFile() then return true
+	end script
+	retry's exec on result for 15 by 0.5
 end __deleteTestFile
+ 
+

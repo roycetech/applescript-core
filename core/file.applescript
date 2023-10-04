@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2023-10-03 17:36:50
+	@Last Modified: 2023-10-04 18:36:18
 *)
 
 use script "core/Text Utilities"
@@ -81,7 +81,16 @@ end spotCheck
 
 
 on insertBeforeEmptyLine(filePath, substring, textToInsert)
-	-- TODO:
+ 	try
+        -- Use sed to find the substring and insert textToInsert after it on the next empty line
+        set command to "sed -i '' '/" & substring & "/a \\'$'\n'" & textToInsert & "'\\'$'\\n' \"" & filePath & "\""
+        log command
+        do shell script command
+        return true -- Success
+    on error the errorMessage number the errorNumber
+		log errorMessage
+        return false -- Error occurred
+    end try
 end insertBeforeEmptyLine
 
 
@@ -235,10 +244,9 @@ end convertPathToTilde
 
 on containsText(filePath, substring)
 	try
-		set shellCommand to "grep " & substring & " " & quoteFilePath(filePath)
-		log shellCommand
-		"" is not equals (do shell script shellCommand)
-	on error errorMessage
-		log errorMessage
+		set shellCommand to "grep " & quoted form of substring & " " & quoteFilePath(filePath)
+		do shell script shellCommand
+		return true
 	end try
+	false
 end containsText
