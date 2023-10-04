@@ -100,22 +100,21 @@ on new()
 		
 		
 		on getCurrentProjectName()
-			if running of application "IntelliJ IDEA" is false then return missing value
+			set mainWindowName to _getMainWindowName()
+			if mainWindowName is missing value then return missing value
 			
-			tell application "System Events" to tell process "idea"
-				textUtil's split(name of front window, " " & unic's MAIL_SUBDASH & " ")
-			end tell
-			first item of result
+			first item of textUtil's split(mainWindowName, " " & unic's MAIL_SUBDASH & " ")
 		end getCurrentProjectName
 		
 		
 		on getCurrentDocumentName()
-			if running of application "IntelliJ IDEA" is false then return missing value
 			
-			tell application "System Events" to tell process "idea"
-				textUtil's split(name of front window, " " & unic's MAIL_SUBDASH & " ")
-			end tell
-			last item of result
+			set mainWindowName to _getMainWindowName()
+			if mainWindowName is missing value then return missing value
+			
+			last item of textUtil's split(mainWindowName, " " & unic's MAIL_SUBDASH & " ")
+			last item of textUtil's split(result, "/")
+			first item of textUtil's split(result, " [")
 		end getCurrentDocumentName
 		
 		
@@ -124,9 +123,12 @@ on new()
 		*)
 		on isProjectSelected()
 			if running of application "IntelliJ IDEA" is false then return missing value
-		
+			
+			set statusBarGroup to _getGroup("Status Bar")
+			if statusBarGroup is missing value then return false
+			
 			tell application "System Events" to tell process "IntelliJ IDEA"
-				(count of buttons of group 1 of scroll area 1 of group 6 of group 1 of front window) is 1
+				(count of buttons of group 1 of scroll area 1 of statusBarGroup) is 1
 			end tell
 		end isProjectSelected
 		
@@ -143,9 +145,28 @@ on new()
 				click (first button of window "Change IntelliJ IDEA Theme" whose description is "Yes")
 			end tell
 		end toggleScheme
+		
+		
+		on _getGroup(groupName)
+			tell application "System Events" to tell process "idea"
+				first group of group 1 of front window whose description is equal to the groupName
+			end tell
+		end _getGroup
+		
+		on _getMainWindowName()
+			if running of application "IntelliJ IDEA" is false then return missing value
+			
+			tell application "System Events" to tell process "idea"
+				set mainWindow to missing value
+				try
+					return the name of first window whose name is not ""
+				end try
+			end tell
+			
+			missing value
+		end _getMainWindowName
 	end script
 	
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
-
