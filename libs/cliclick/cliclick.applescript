@@ -29,6 +29,8 @@
 use script "core/Text Utilities"
 use scripting additions
 
+use std : script "core/std"
+
 use textUtil : script "core/string"
 use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
@@ -264,7 +266,12 @@ on new()
 				if theYPos is less than 0 then
 					set theYPos to "=" & theYPos
 				end if
-				set clickCommand to CLICLICK_CLI & " " & smoothingParam & "c:" & xPosition + relativexArg +  (xSize div 2) & "," & theYPos
+				set negativeX to relativexArg is less than 0
+				set cliParamX to std's ternary(negativeX, xPosition + xSize + relativexArg, xPosition + relativexArg +  (xSize div 2))
+				-- logger's debugf("xPosition: {}", xPosition)
+				-- logger's debugf("xSize: {}", xSize)
+				-- logger's debugf("cliParamX: {}", cliParamX)
+				set clickCommand to CLICLICK_CLI & " " & smoothingParam & "c:" & cliParamX & "," & theYPos
 				-- logger's debug(clickCommand)
 				do shell script clickCommand
 			end tell
