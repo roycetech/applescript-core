@@ -13,7 +13,7 @@
 	@Build:
 		make build-lib SOURCE=core/lov
 
-	@Last Modified: 2023-09-29 17:24:01
+	@Last Modified: 2023-10-04 17:51:31
 *)
 
 use scripting additions
@@ -28,6 +28,7 @@ use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
 property plutil : missing value
+property session : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -90,11 +91,16 @@ end spotCheck
 on new(lovName)
 	loggerFactory's injectBasic(me)
 	set plutil to plutilLib's new()
+	set session to plutil's new("session")
 
 	script LovInstance
 		property _lovName : lovName
 		property _lov : missing value
 		property _plistName : missing value
+
+		on getSavedValue()
+			session's getValue(_lovName & " - LOV Selected")
+		end getSavedValue
 
 		(*
 			@Deprecated: Use #hasElement.
