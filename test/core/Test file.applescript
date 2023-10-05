@@ -305,9 +305,13 @@ script |containsText tests|
 	end script
 end script
 
-
 script |insertBeforeEmptyLine tests|
 	property parent : TestSet(me)
+	property input : "Lorem Ipsum.
+Same paragraph
+
+2nd para.
+"
 
 	on setUp()
 		TopLevel's __createTestFile()
@@ -318,24 +322,22 @@ script |insertBeforeEmptyLine tests|
 
 	script |Substring not found|
 		property parent : UnitTest(me)
-		TopLevel's __writeTextFile("Lorem Ipsum.
-Same paragraph
-
-2nd para.
-")
-		notOk(sutScript's insertBeforeEmptyLine(testFile, "unicorn", "kindness"))
+		TopLevel's __writeTextFile(input) 
+		ok(sutScript's insertBeforeEmptyLine(testFile, "unicorn", "kindness"))
+		assertEqual(textUtil's multiline(input), TopLevel's __readTestFile())
 	end script
 
 	script |Substring found|
 		property parent : UnitTest(me)
-		TopLevel's __writeTextFile("Lorem Ipsum.
+		TopLevel's __writeTextFile(input)
+		ok(sutScript's insertBeforeEmptyLine(testFile, "Lorem", "kindness"))
+		assertEqual(textUtil's multiline("Lorem Ipsum.
 Same paragraph
+kindness
 
 2nd para.
-")
-		ok(sutScript's insertBeforeEmptyLine(testFile, "Lorem", "kindness"))
-		assertEqual(textUtil's multiline(""), TopLevel's __readTestFile())
-	end script
+"), TopLevel's __readTestFile())
+	end script  
 end script
 
 
@@ -344,7 +346,7 @@ on __writeTextFile(textToWrite)
 	do shell script "echo '" & textToWrite & "' >> " & testFile
 end __writeTextFile  
 
-
+ 
 on __existTestFile() 
 	"true" is equal to do shell script "test -f " & testFile & " && echo true || echo false" 
 end __writeTextFile
@@ -380,4 +382,3 @@ on __deleteTestFile()
 	retry's exec on result for 15 by 0.5
 end __deleteTestFile
  
-
