@@ -13,11 +13,11 @@
 		make build-lib SOURCE=libs/log4as/log4as
 
 	@Known Issues:
-		September 27, 2023 11:38 AM - Updating the log4as.plist does not reflect immediately.
-		July 3, 2023 2:07 PM - Default log prints multiple times for each
-		library that uses this. The main benefit is that we can update the
-		config and get the new values used. So we just hide the default level
-		log print out for now.
+		- September 27, 2023 11:38 AM - Updating the log4as.plist does not reflect immediately.
+		- July 3, 2023 2:07 PM - Default log prints multiple times for each
+			library that uses this. The main benefit is that we can update the
+			config and get the new values used. So we just hide the default level
+			log print out for now.
 *)
 
 use std : script "core/std"

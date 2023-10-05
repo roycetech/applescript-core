@@ -47,7 +47,7 @@ end spotCheck
 
 (* Instantiates a logger without overrides *)
 on newBase(pObjectName)
-	script LoggerInstance
+	script LoggerFinalInstance
 		property objectName : pObjectName
 		property logFilePath : (path to home folder as text) & "applescript-core:logs:" & filename
 		property level : 1
@@ -217,6 +217,9 @@ on newBase(pObjectName)
 end newBase
 
 
+(*
+	Instantiates an overridable logger instance.
+*)
 on new(pObjectName)
 	set basicInstance to newBase(pObjectName)
 	script LoggerOverridableInstance

@@ -553,7 +553,7 @@ build-log4as:
 
 install-log4as: build-log4as
 # 	plutil -replace 'LoggerSpeechAndTrackingInstance' -string 'dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
-	plutil -replace 'LoggerInstance' -string 'core/dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
+	plutil -replace 'LoggerOverridableInstance' -string 'core/dec-logger-log4as' ~/applescript-core/config-lib-factory.plist
 	cp -n libs/log4as/log4as.plist.template ~/applescript-core/log4as.plist || true
 	plutil -replace 'defaultLevel' -string 'DEBUG' ~/applescript-core/log4as.plist
 	plutil -replace 'printToConsole' -bool true ~/applescript-core/log4as.plist
