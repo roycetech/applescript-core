@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2023-10-05 10:34:23
+	@Last Modified: 2023-10-05 17:22:32
 *)
 
 use script "core/Text Utilities"
@@ -83,22 +83,22 @@ end spotCheck
 on insertBeforeEmptyLine(filePath, substring, textToInsert)
 	set quotedFilePath to quoteFilePath(filePath)
  	try
-        -- Use sed to find the substring and insert textToInsert after it on the next empty line
-        set command to "awk -v header=\"" & substring & "\" -v text=\"" & textToInsert & "\" '
-BEGIN {
-    in_target_block = 0;
-}
-$0 ~ header {
-    print $0;
-    in_target_block = 1;
-    next;
-}
-in_target_block == 1 && NF == 0 {
-    print text;
-    in_target_block = 0;
-}
-{ print $0}
-' " & quotedFilePath & " > /tmp/tmpfile && mv /tmp/tmpfile " & quotedFilePath
+	        -- Use sed to find the substring and insert textToInsert after it on the next empty line
+	        set command to "awk -v header=\"" & substring & "\" -v text='" & textToInsert & "' '
+	BEGIN {
+	    in_target_block = 0;
+	}
+	$0 ~ header {
+	    print $0;
+	    in_target_block = 1;
+	    next;
+	}
+	in_target_block == 1 && NF == 0 {
+	    print text;
+	    in_target_block = 0;
+	}
+	{ print $0}
+	' " & quotedFilePath & " > /tmp/tmpfile && mv /tmp/tmpfile " & quotedFilePath
         do shell script command
         return true -- Success
     on error the errorMessage number the errorNumber
