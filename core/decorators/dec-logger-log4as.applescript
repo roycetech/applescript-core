@@ -2,12 +2,14 @@
 	@Plists:
 		config-lib-factory - Add an override "LoggerSpeechAndTrackingInstance => dec-logger-speech-and-tracking" to use this as override.
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make build-lib SOURCE=core/decorators/dec-logger-log4as
 *)
 
 use log4asLib : script "core/log4as"
-use decoratorLib : script "core/decorator"
 
 property log4as : missing value
 
@@ -41,7 +43,5 @@ on decorate(baseScript)
 			continue fatal(logMessage)
 		end warn
 	end script
-
-	set decorator to decoratorLib's new(result)
-	decorator's decorate()
 end decorate
+
