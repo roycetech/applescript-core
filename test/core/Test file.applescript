@@ -338,6 +338,18 @@ kindness
 2nd para.
 "), TopLevel's __readTestFile())
 	end script  
+
+	script |Substring found - text to insert has dollar sign|
+		property parent : UnitTest(me)
+		TopLevel's __writeTextFile(input)
+		ok(sutScript's insertBeforeEmptyLine(testFile, "Lorem", "Train-$Course"))
+		assertEqual(textUtil's multiline("Lorem Ipsum.
+Same paragraph
+Train-$Course
+
+2nd para.
+"), TopLevel's __readTestFile())
+	end script
 end script
 
 
