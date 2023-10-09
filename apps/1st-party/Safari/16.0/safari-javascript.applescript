@@ -11,8 +11,11 @@
 			app-core Web Max Retry Count
 			app-core Web Retry Sleep
 
+	@Project:
+		applescript-core
+
 	@Build:
-		make install-safari
+		./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
 
 	@Change Logs:
 		September 6, 2023 9:30 AM - Added submitFirstForm.
@@ -120,7 +123,7 @@ on decorate(safariTab)
 
 		on getValue(selector)
 			set scriptText to format {"document.querySelector('{}').value", {selector}}
-			_runScript(scriptText)
+			runScript(scriptText)
 		end getValue
 
 		on getFirstValue(selector)

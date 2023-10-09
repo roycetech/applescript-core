@@ -9,7 +9,7 @@
 		applescript-core
 
 	@Build:
-		make install-safari
+		./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari
 
 	This library creates 2 instances:
 		SafariInstance - this library
@@ -31,7 +31,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2023-09-24 08:31:13
+	@Last Modified: 2023-10-09 22:16:24
 *)
 
 use script "core/Text Utilities"

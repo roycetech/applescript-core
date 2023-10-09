@@ -7,10 +7,10 @@
 		applescript-core
 
 	@Build:
-		make install-safari
+		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-09-24 10:53:21
+	@Last Modified: 2023-10-09 10:46:12
 	@Change Logs: .
 *)
 use listUtil : script "core/list"

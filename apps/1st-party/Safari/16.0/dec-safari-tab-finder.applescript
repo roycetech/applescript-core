@@ -7,10 +7,10 @@
 		applescript-core
 
 	@Build:
-		make install-safari
+		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-finder
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-09-24 10:53:30
+	@Last Modified: 2023-10-09 10:46:32
 	@Change Logs: .
 *)
 use listUtil : script "core/list"

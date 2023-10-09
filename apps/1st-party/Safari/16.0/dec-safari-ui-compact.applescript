@@ -8,10 +8,10 @@
 		applescript-core
 
 	@Build:
-		make install-safari
+		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-09-24 10:53:49
+	@Last Modified: 2023-10-09 10:47:02
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -89,14 +89,21 @@ on decorate(mainScript)
 			This handler grabs focus and send a keystroke.
 
 			This operation is VERY SLOW. Takes about 8s to complete.
+			Fails when there are too many tabs open
 		*)
 		on isLoading()
 			if isCompact() is false then return continue isLoading()
 
-			logger's warn("This implementation is very slow to be deemed reliable. ")
+			logger's warn("This isLoading() implementation is very slow to be deemed reliable. ")
 			set addressBarGroup to _getAddressBarGroup()
 			tell application "System Events" to tell process "Safari"
-				set targetTabRadio to the first radio button of UI element 1 of addressBarGroup whose value is true
+				try
+					set targetTabRadio to the first radio button of UI element 1 of addressBarGroup whose value is true
+				on error the errorMessage number the errorNumber
+					logger's warn(errorMessage)
+					return false
+				end try
+
 				set addressField to the text field 1 of targetTabRadio
 				set moreOptionsButton to button "More options" of targetTabRadio
 

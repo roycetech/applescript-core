@@ -3,10 +3,10 @@
 		applescript-core
 
 	@Build:
-		make install-safari
+		./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-tab
 
 	@Created: Wednesday, September 20, 2023 at 3:23:31 PM
-	@Last Modified: 2023-09-21 08:03:56
+	@Last Modified: 2023-10-09 10:47:51
 *)
 
 use scripting additions
@@ -77,7 +77,7 @@ end spotCheck
 			@windowId app window ID
 			@pTabIndex the Safari tab index
 		*)
-on new(windowId, pTabIndex, safari)
+on new(windowId, pTabIndex, pSafari)
 	loggerFactory's inject(me)
 
 	set retry to retryLib's new()
@@ -90,6 +90,7 @@ on new(windowId, pTabIndex, safari)
 		property sleepSec : 1
 		property closeOtherTabsOnFocus : false
 		property tabIndex : pTabIndex
+		property safari : pSafari
 
 		property _tab : missing value
 		property _url : missing value
@@ -137,7 +138,7 @@ on new(windowId, pTabIndex, safari)
 				set tabTotal to count of tabs of appWindow
 			end tell
 
-			set newInstance to _new(windowId, tabTotal)
+			set newInstance to new(windowId, tabTotal, safari)
 			set _url of newInstance to targetUrl
 			the newInstance
 		end newTab
