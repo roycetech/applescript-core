@@ -12,7 +12,7 @@
 		Test with Menu Pinned.  Cannot test the UI functionality because menu apps need to be deployed.
 
 	@Created: Saturday, September 30, 2023 at 5:50:31 PM
-	@Last Modified: 2023-10-01 09:35:12
+	@Last Modified: 2023-10-07 15:58:30
 *)
 
 use framework "Foundation"
@@ -21,6 +21,7 @@ use framework "AppKit"
 use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
+property isSpot : false
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -36,20 +37,23 @@ end spotCheck
 on new(pSourceApp, menuBarTitle)
 	loggerFactory's inject(me)
 
-	set bar to current application's NSStatusBar's systemStatusBar
-	set StatusItem to bar's statusItemWithLength:-1.0
+	if isSpot is false then
+		set bar to current application's NSStatusBar's systemStatusBar
+		set StatusItem to bar's statusItemWithLength:-1.0
 
-	StatusItem's setTitle:menuBarTitle
+		StatusItem's setTitle:menuBarTitle
 
-	set newMenu to current application's NSMenu's alloc()'s initWithTitle:menuBarTitle
-	newMenu's setDelegate:pSourceApp
-	StatusItem's setMenu:newMenu
+		set newMenu to current application's NSMenu's alloc()'s initWithTitle:menuBarTitle
+		newMenu's setDelegate:pSourceApp
+		StatusItem's setMenu:newMenu
+	else
+		set newMenu to missing value
+	end if
 
 	script MenuUtilInstance
 		property sourceApp : pSourceApp
 		-- property menuElement : pSourceApp's newMenu
 		property menuElement : newMenu
-		property isSpot : false
 
 		on addSeparator()
 			if isSpot then return missing value
@@ -99,6 +103,8 @@ on new(pSourceApp, menuBarTitle)
 
 
 		on createSubMenu(title, sourceMenuItems, action, selectedItem, submenuItemHandler)
+			if isSpot then return
+
 			set newSubMenu to (current application's NSMenu's alloc()'s initWithTitle:("title-unused"))
 			repeat with nextSourceMenuItem in sourceMenuItems
 				logger's debugf("nextSourceMenuItem: {}", nextSourceMenuItem)
@@ -126,3 +132,4 @@ on new(pSourceApp, menuBarTitle)
 		end createSubMenu
 	end script
 end new
+
