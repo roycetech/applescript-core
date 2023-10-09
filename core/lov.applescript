@@ -13,7 +13,7 @@
 	@Build:
 		make build-lib SOURCE=core/lov
 
-	@Last Modified: 2023-10-04 17:51:31
+	@Last Modified: 2023-10-07 15:53:59
 *)
 
 use scripting additions
@@ -102,6 +102,10 @@ on new(lovName)
 			session's getValue(_lovName & " - LOV Selected")
 		end getSavedValue
 
+		on setSavedValue(newValue)
+			session's setValue(_lovName & " - LOV Selected", newValue)
+		end getSavedValue
+
 		(*
 			@Deprecated: Use #hasElement.
 		*)
@@ -113,6 +117,10 @@ on new(lovName)
 			listUtil's listContains(_lov, targetElement)
 		end hasValue
 
+
+		on getElements()
+			_lov
+		end getElements
 
 		on getLov()
 			_lov
