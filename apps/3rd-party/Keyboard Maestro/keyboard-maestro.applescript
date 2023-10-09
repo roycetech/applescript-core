@@ -5,11 +5,13 @@
 		applescript-core
 	
 	@Build:
-		make install-keyboard-maestro
+		make build-keyboard-maestro
 		or (from the project root)
 		make build-lib SOURCE="apps/3rd-party/Keyboard Maestro/keyboard-maestro"
 
 	@Last Modified: September 9, 2023 2:43 PM
+	@Change Logs:
+		
 *)
 
 use script "core/Text Utilities"
@@ -37,16 +39,17 @@ on spotCheck()
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
-		Run Unit Tests
 		Safari
 		Manual: Run Macro
 		Set/Get Variable
-		Placeholder (So toggle action cases are in the same set)
-		
+		Placeholder (So toggle action cases are in the same set)		
 		Manual: Editor: Show Actions
+		
 		Manual: Editor: Hide Actions
 		Manual: Get Current Item Name
 		Manual: Click New Action Category
+		Manual: History Backward
+		Manual: History Forward
 	")
 	
 	set spotClass to spotScript's new()
@@ -59,32 +62,35 @@ on spotCheck()
 	
 	set sut to new()
 	if caseIndex is 1 then
-		
-	else if caseIndex is 2 then
 		sut's sendSafariText("KM Test")
 		
-	else if caseIndex is 3 then
+	else if caseIndex is 2 then
 		sut's runMacro("hello")
 		
-	else if caseIndex is 4 then
+	else if caseIndex is 3 then
 		sut's setVariable("from Script Editor Name", "from Script Editor Value 1")
 		assertThat of std given condition:sut's getVariable("from Script Editor Name") is equal to "from Script Editor Value 1", messageOnFail:"Failed spot check"
 		sut's setVariable("from Script Editor Name", "from Script Editor Value 2")
 		assertThat of std given condition:sut's getVariable("from Script Editor Name") is equal to "from Script Editor Value 2", messageOnFail:"Failed spot check"
 		logger's info("Passed")
 		
-	else if caseIndex is 6 then
+	else if caseIndex is 4 then
 		sut's showActions()
 		
-	else if caseIndex is 7 then
+	else if caseIndex is 6 then
 		sut's hideActions()
 		
-	else if caseIndex is 8 then
+	else if caseIndex is 7 then
 		logger's infof("Handler result: {}", sut's getCurrentItemName())
 		
-	else if caseIndex is 9 then
+	else if caseIndex is 8 then
 		sut's focusActionCategory("Favorites")
 		
+	else if caseIndex is 9 then
+		sut's previouslyEdited()
+		
+	else if caseIndex is 10 then
+		sut's nextEdited()
 	end if
 	
 	activate
@@ -97,6 +103,25 @@ on new()
 	loggerFactory's injectBasic(me)
 	
 	script KeyboardMaestroInstance
+		
+		(* Click on the next macro history button. *)
+		on nextEdited()
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					click (first button of group 3 of front window whose description is "go forward")
+				end try
+			end tell
+		end nextEdited
+		
+		
+		(* Click on the back macro history button. *)
+		on previouslyEdited()
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					click (first button of group 3 of front window whose description is "go back")
+				end try
+			end tell
+		end previouslyEdited
 		
 		(*
 			Returns the current focused macro or group name in the Keyboard Maestro Editor.
@@ -228,6 +253,7 @@ on new()
 		
 		(* 
 			WARN: Problematic, sends text to address bar.
+			@Deprecated - Do not use. Too usecase-specific.
 			@returns true on successful passing of command. 
 		*)
 		on sendSafariText(theText as text)
