@@ -15,6 +15,7 @@
 use AppleScript
 use scripting additions
 
+use textUtil : script "core/string"
 use listUtil : script "core/list"
 
 property parent : script "com.lifepillar/ASUnit"
@@ -478,7 +479,7 @@ script |keyExists tests|
 		xmlUtil's __createTestPlist()
 	end beforeClass
 	on afterClass()
-		-- xmlUtil's __deleteTestPlist()
+		xmlUtil's __deleteTestPlist()
 	end afterClass
 	
 	script |Missing value parameter|
@@ -526,3 +527,135 @@ script |keyExists tests|
 		xmlUtil's __deleteValue("nested-root")
 	end script
 end script
+
+
+script |setValue tests|
+	property parent : TestSet(me)
+	property executedTestCases : 0
+	property totalTestCases : 6
+	property sut : missing value
+
+	on setUp()
+		set executedTestCases to executedTestCases + 1
+		if executedTestCases is 1 then beforeClass()
+		set sut to sutScript's new(plist) 
+	end setUp
+	on tearDown() 
+		if executedTestCases is equal to the totalTestCases then afterClass()
+	end tearDown
+	on beforeClass() 
+		xmlUtil's __createTestPlist()
+	end beforeClass
+	on afterClass()
+		xmlUtil's __deleteTestPlist()
+	end afterClass
+	
+	script |New Value is missing - Single Key|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml("unit-test-root", "<dict>
+			<key>nested-key</key>
+			<integer>1</integer> 
+		</dict>")
+		ok(sut's setValue("unit-test-root", missing value)) 
+		assertEqual("", xmlUtil's __grepValueXml("unit-test-root"))
+	end script
+
+	script |New Value is missing - Double Key|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml("unit-test-root", "<dict>
+			<key>nested-key-1</key>
+			<integer>1</integer> 
+			<key>nested-key-2</key> 
+			<integer>2</integer> 
+		</dict>")
+		ok(sut's setValue({"unit-test-root", "nested-key-2"}, missing value)) 
+		assertEqual("<dict> <key>nested-key-1</key> <integer>1</integer> </dict>", xmlUtil's __grepValueXml("unit-test-root"))
+		xmlUtil's __deleteValue("unit-test-root")
+	end script
+
+	script |Single Key - Key not found|
+		property parent : UnitTest(me)
+		notOk(sut's setValue("unicorn", 1))
+	end script
+
+	script |Single Key - Key found|
+		property parent : UnitTest(me)
+		xmlUtil's __writeValue("root-key", "string", "string-value")
+		ok(sut's setValue("root-key", "updated-string"))
+		assertEqual("updated-string", xmlUtil's __readValue("root-key"))
+		xmlUtil's __deleteValue("root-key")
+	end script
+
+	script |Nested Key - Key not found|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml("root-key", "<dict>
+			<key>nested-key</key>
+			<integer>1</integer> 
+		</dict>")
+		notOk(sut's setValue({"root-key", "unicorn"}, 1))
+		xmlUtil's __deleteValue("root-key")
+	end script
+
+	script |Nested Key - Key found|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml("root-key", "<dict>
+			<key>nested-key</key>
+			<integer>1</integer> 
+		</dict>")
+		ok(sut's setValue({"root-key", "nested-key"}, 2))
+		assertEqual("<dict> <key>nested-key</key> <integer>2</integer> </dict>", xmlUtil's __grepValueXml("root-key"))
+		xmlUtil's __deleteValue("root-key")
+	end script
+end script
+
+
+script |addDictionaryKeyValue tests|
+	property parent : TestSet(me)
+	property executedTestCases : 0
+	property totalTestCases : 3
+	property sut : missing value
+
+	on setUp()
+		set executedTestCases to executedTestCases + 1
+		if executedTestCases is 1 then beforeClass()
+		set sut to sutScript's new(plist) 
+	end setUp
+	on tearDown() 
+		if executedTestCases is equal to the totalTestCases then afterClass()
+	end tearDown
+	on beforeClass() 
+		xmlUtil's __createTestPlist()
+	end beforeClass
+	on afterClass()
+		xmlUtil's __deleteTestPlist()
+	end afterClass
+	
+	script |Missing key|
+		property parent : UnitTest(me)
+		script Lambda
+			sut's addDictionaryKeyValue(missing value, missing value, 1)
+		end script
+		shouldRaise(sutScript's ERROR_PLIST_KEY_MISSING_VALUE, Lambda, "Missing value for key but no error raised")
+	end script
+
+	script |Existing Root Key|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml("root-key", "<dict>
+			<key>nested-key-1</key>
+			<integer>1</integer> 
+		</dict>")
+		ok(sut's addDictionaryKeyValue("root-key", "nested-key-2", 2))
+		assertEqual("<dict> <key>nested-key-1</key> <integer>1</integer> <key>nested-key-2</key> <integer>2</integer> </dict>", xmlUtil's __grepValueXml("root-key"))
+		xmlUtil's __deleteValue("root-key")
+	end script
+
+	script |Existing Sub Key|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml("root-key", "<dict>
+			<key>nested-key-1</key>
+			<integer>1</integer> 
+		</dict>")
+		notOk(sut's addDictionaryKeyValue("root-key", "nested-key-1", 2))
+		xmlUtil's __deleteValue("root-key")
+	end script
+end script 

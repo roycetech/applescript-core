@@ -1,9 +1,18 @@
 (*
+	This script works with plist files using PlistBuddy CLI.
+	NOTE: So far this library is good with reading dictionary keys of a plist
+	file. Further testing and development is required especially on the write
+	capability of this library.
+
 	@Project:
 		applescript-core
 
 	@Build:
 		make build-lib SOURCE=core/plist-buddy
+
+	TODO: Reduce the spot checks and move to Test plist-buddy.
+
+	@Last Modified: 2023-10-08 18:52:49
 *)
 
 use script "core/Text Utilities"
@@ -25,6 +34,11 @@ use spotScript : script "core/spot-test"
 property logger : missing value
 property CLI : "/usr/libexec/PlistBuddy"
 property TZ_OFFSET : (do shell script "date +'%z' | cut -c 2,3") as integer
+
+property ERROR_PLIST_KEY_MISSING_VALUE : 1000
+property ERROR_PLIST_KEY_EMPTY : 1001
+property ERROR_PLIST_KEY_INVALID_TYPE : 1002
+property ERROR_LIST_COUNT_INVALID : 1003
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -120,6 +134,7 @@ on new(pPlistName)
 		(* Unused here but present so it can be queried when debugging. *)
 		property plistName : pPlistName
 
+		(* Unit Tested *)
 		on getValue(keyNameOrList)
 			if keyNameOrList is missing value then return missing value
 
@@ -144,6 +159,7 @@ on new(pPlistName)
 			missing value
 		end getValue
 
+		(* Unit Tested *)
 		on hasValue(keyNameOrList)
 			getValue(keyNameOrList) is not missing value
 		end hasValue
@@ -159,6 +175,7 @@ on new(pPlistName)
 			is used in any of the keys.
 
 			@returns list of all keys including nested keys.
+			(* Unit Tested *)
 		*)
 		on getKeys()
 			set keysPattern to "^.*?="
@@ -179,7 +196,9 @@ on new(pPlistName)
 		end getKeys
 
 
-		(* TODO: Add proper tests. *)
+		(*
+			(* Unit Tested *)
+		*)
 		on getRootKeys()
 			set command to format {"{} -c \"Print\" {} \\
 				| grep '^    .* =' \\
@@ -214,6 +233,7 @@ on new(pPlistName)
 				dictionary
 
 			@WARNING: Not suitable for checking scalar data type.
+			(* Unit Tested *)
 		*)
 		on getElementType(keyNameOrList)
 			if keyNameOrList is missing value then return missing value
@@ -228,6 +248,7 @@ on new(pPlistName)
 
 		(*
 			@keyName - use the PListBuddy key format.
+			(* Unit Tested *)
 		*)
 		on getDictionaryKeys(keyName)
 			-- set keysPattern to "^\\s*[^[:space:]]+\\s*="
@@ -249,35 +270,66 @@ on new(pPlistName)
 		end getDictionaryKeys
 
 
+		(*
+			TODO: Unit Test.  Set's existing value into the plist. For new
+			values, use the #addDictionaryKeyValue.
+
+			@keyNameOrList - key name or list of keys.
+			@newValue - scalar value to set.
+
+			@returns true on success.
+
+			(* Partial Unit *)
+		*)
 		on setValue(keyNameOrList, newValue)
+			_validatePlistKey(keyNameOrList)
 			if class of keyNameOrList is text then
 				set keyNameList to {keyNameOrList}
 			else
 				set keyNameList to keyNameOrList
 			end if
 
-			set keyName to _buildKeyNameFromList(keyNameList)
+			if newValue is missing value then
+				if count of keyNameList is greater than 2 or count of keyNameList is 0 then
+					error "Unsupported nesting level" number ERROR_LIST_COUNT_INVALID
+				end if
+				if count of keyNameList is 1 then return deleteRootKey(keyNameOrList)
+				return deleteDictionaryKeyValue(item 1 of keyNameList, item 2 of keyNameList)
+			end if
+
+			set builtKeyName to _buildKeyNameFromList(keyNameList)
 			set settableValue to _quoteAsNeeded(newValue)
-			logger's debugf("settableValue: {}", settableValue)
-			set command to format {"{} -c \"Set ':{}'  {}\"  {}", {CLI, keyName, settableValue, quotedPlistPosixPath}}
+			-- logger's debugf("settableValue: {}", settableValue)
+			set command to format {"{} -c \"Set ':{}'  {}\"  {}", {CLI, builtKeyName, settableValue, quotedPlistPosixPath}}
 
 			try
-				return do shell script command
+				do shell script command
+				return true
+			on error the errorMessage number the errorNumber
+				log errorMessage
 			end try
 
-			missing value
+			false
 		end setValue
 
 
 		(*
 			@returns true if delete is successful, false if any errors encountered like:
-				- when the element was not found.
+				- when the root element was not found.
 				- when the entry already exists.
+
+			(* Unit Tested *)
 		*)
 		on addDictionaryKeyValue(rootKey, subKey, keyValue)
+			if rootKey is missing value or subKey is missing value then
+				error "Root key and sub key is not valued" number ERROR_PLIST_KEY_MISSING_VALUE
+			end if
+
+			set escapedRootKey to _escapeKey(rootKey)
+			set escapedSubKey to _escapeKey(subKey)
 			set settableValue to _quoteAsNeeded(keyValue)
 			set dataType to _getType(keyValue)
-			set command to format {"{} -c \"Add ':{}:{}' {} {}\" {}", {CLI, rootKey, subKey, dataType, settableValue, quotedPlistPosixPath}}
+			set command to format {"{} -c \"Add ':{}:{}' {} {}\" {}", {CLI, escapedRootKey, escapedSubKey, dataType, settableValue, quotedPlistPosixPath}}
 			logger's debugf("command: {}", command)
 
 			try
@@ -409,5 +461,19 @@ on new(pPlistName)
 
 			date parsableFormat
 		end _zuluToLocalDate
+
+		(*
+			Validates the the plist key parameter, no real purpose except to
+			validate input. Copied from plutil.applescript
+		*)
+		on _validatePlistKey(plistKeyOrKeyList)
+			if plistKeyOrKeyList is missing value then
+				error "Plist Key is missing" number ERROR_PLIST_KEY_MISSING_VALUE
+			else if class of plistKeyOrKeyList is text and textUtil's trim(plistKeyOrKeyList) is "" then
+				error "Plist Key is empty" number ERROR_PLIST_KEY_EMPTY
+			else if {text, list} does not contain the class of plistKeyOrKeyList then
+				error "Plist Key type is not supported: " & class of plistKeyOrKeyList number ERROR_PLIST_KEY_INVALID_TYPE
+			end if
+		end _validatePlistKey
 	end script
 end new
