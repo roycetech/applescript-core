@@ -5,8 +5,11 @@
 	This app is created for menu-type stay open apps because doing it via 
 	osacompile breaks the app.
 	
+	@Project:
+		applescript-core
+
 	@Build:
-		Run "Create Automator App" while this script is loaded in Script Editor.
+		echo 'Run "Create Automator App" while this script is loaded in Script Editor.'
 		Grant Accessibility permission to the generated app.
 	
 	@Testing Notes
@@ -18,8 +21,11 @@ use scripting additions
 
 use std : script "core/std"
 
-use switchLib : script "core/switch"
+use dateTimeLib : script "core/date-time"
+
 use loggerFactory : script "core/logger-factory"
+
+use switchLib : script "core/switch"
 use seLib : script "core/script-editor"
 use speechLib : script "core/speech"
 use retryLib : script "core/retry"
@@ -32,12 +38,13 @@ property se : missing value
 property retry : missing value
 property plutil : missing value
 property finder : missing value
-
+property dateTime : missing value
 property session : missing value
 property speech : missing value
 
 property scriptName : missing value
 property isSpot : false
+property backUpSwitch : missing value
 
 tell application "System Events" to set scriptName to get name of (path to me)
 if {"Script Editor", "Script Debugger"} contains the name of current application then set isSpot to true
@@ -52,6 +59,8 @@ set se to seLib's new()
 set retry to retryLib's new()
 set plutil to plutilLib's new()
 set finder to finderLib's new()
+set dateTime to dateTimeLib's new()
+set backUpSwitch to switchLib's new("Create Back Up Menu App")
 
 try
 	main()
@@ -93,15 +102,27 @@ on main()
 	end try
 	
 	tell application "Finder"
-		set targetFolderMon to folder "Stay Open" of folder "AppleScript" of finder's getUserApplicationsFolder() as text
+		set targetFolder to folder "Stay Open" of folder "AppleScript" of finder's getUserApplicationsFolder()
 	end tell
 	
-	logger's debugf("targetFolderMon: {}", targetFolderMon)
-	
+	logger's debugf("targetFolderMon: {}", targetFolder as text)
 	set newScriptName to seTab's getBaseScriptName() & ".app"
 	session's setValue("New Script Name", newScriptName)
-	
-	set savedScript to seTab's saveAsStayOpenApp(targetFolderMon)
+
+	if backUpSwitch's active() then
+		tell application "Finder"
+			set isReplacement to  exists of (file newScriptName of targetFolder)
+		end tell
+
+		if isReplacement then
+			logger's info("Creating backup...")
+			set backupScriptName to seTab's getBaseScriptName() & ".app-" & dateTime's formatYyyyMmDdHHmi(current date)
+			tell application "Finder" to set sourceFile to file newScriptName of targetFolder
+			finder's createFile(sourceFile, targetFolder, backupScriptName)
+		end if
+	end if
+
+	set savedScript to seTab's saveAsStayOpenApp(targetFolder as text)
 	
 	logger's debugf("savedScript: {}", savedScript)
 	
