@@ -1,13 +1,17 @@
 (*
-	@Last Modified: 2023-09-18 22:33:08
+	@Last Modified: 2023-10-09 22:14:57
 
 	@Version: 2.16.18
 
+	@Project:
+		applescript-core
+
 	@Build:
-		make compile-marked
+		make build-marked
 
 	@Known Issues:
-		July 2, 2023 8:39 PM - Application keeps reference to closed windows, we need to use System Events instead to check actual windows.
+		July 2, 2023 8:39 PM - Application keeps reference to closed windows,
+			we need to use System Events instead to check actual windows.
 *)
 
 use std : script "core/std"
@@ -51,6 +55,7 @@ on spotCheck()
 		Turn On Light Mode
 		Manual: Set Raise Window on Update ON
 		Manual: Set Raise Window on Update OFF
+		Manual: Scroll to Bottom
 	")
 
 	set examplesPath to configSystem's getValue("AppleScript Core Project Path") & "/apps/3rd-party/Marked"
@@ -149,6 +154,9 @@ on spotCheck()
 	else if caseIndex is 14 then
 		sut's setRaiseWindowOnUpdate(false)
 
+	else if caseIndex is 15 then
+		sut's scrollToBottom()
+
 	end if
 
 	spot's finish()
@@ -159,6 +167,15 @@ on new()
 	loggerFactory's injectBasic(me)
 
 	script MarkedInstance
+		on scrollToBottom()
+			if running of application "Marked" is false then return
+
+			tell application "System Events" to tell process "Marked"
+				set value of scroll bar 1 of scroll area 1 of group 1 of front window to 1
+			end tell
+		end scrollToBottom
+
+
 		on setRaiseWindowOnUpdate(newValue)
 			if running of application "Marked" is false then return
 
