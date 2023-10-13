@@ -9,10 +9,13 @@
 		Project Find Results
 		Welcome Guide
 
-	@Last Modified: 2023-09-18 22:33:40
-	@Tab: AC 🚧
+	@Last Modified: 2023-10-13 14:56:09
+
+	@Project:
+		applescript-core
+
 	@Build:
-		make compile-pulsar
+		make build-pulsar
 *)
 
 use script "core/Text Utilities"
@@ -50,7 +53,7 @@ on spotCheck()
 
 	set cases to listUtil's splitByLine("
 		Manual: Load File (App Open, Not Running, Already Loaded)
-		Manual: Document Info (sample.txt, no file, search result, nav bar focused, Settings)
+		Manual: Document Info (sample.txt, no file, search result, nav bar un/focused, Settings)
 		Manual: Close Front Tab
 		Manual: _extractDocPathByHotkey (Tree View, Editor)
 	")
@@ -70,12 +73,27 @@ on spotCheck()
 		sut's openFile(sampleNoteFilePath)
 
 	else if caseIndex is 2 then
+		set treeViewWasFocused to sut's isTreeViewFocused()
+		logger's infof("Is Tree View Focused: [{}]", treeViewWasFocused)
+		if treeViewWasFocused then
+			tell application "System Events" to tell process "Pulsar"
+				set frontmost to true
+				if the name of front window starts with "Project" & unic's SEPARATOR then
+					kb's pressKey("escape")
+				end if
+			end tell
+			delay 0.1
+		end if
+
 		logger's infof("Current Document Name: [{}]", sut's getCurrentDocumentName())
 		logger's infof("Current File Path: [{}]", sut's getCurrentFilePath())
 		logger's infof("Current File Directory: [{}]", sut's getCurrentFileDirectory())
 		logger's infof("Current File Extension: [{}]", sut's getCurrentFileExtension())
 		logger's infof("Current Resource Path: [{}]", sut's getCurrentResourcePath())
 		logger's infof("Current Base Filename: [{}]", sut's getCurrentBaseFilename())
+		if treeViewWasFocused and sut's isTreeViewFocused() is false then
+			kb's pressCommandShiftKey("\\")
+		end if
 
 	else if caseIndex is 3 then
 		sut's closeFrontTab()
@@ -101,6 +119,17 @@ on new()
 	set clip to clipLib's new()
 
 	script PulsarInstance
+		on isTreeViewFocused()
+			if running of application "Pulsar" is false then return missing value
+
+			tell application "System Events" to tell process "Pulsar"
+				if (count of windows) is 0 then return missing value
+
+				set windowTitle to name of window 1
+				windowTitle starts with "Project" & unic's SEPARATOR
+			end tell
+		end isTreeViewFocused
+
 		on openFile(posixPath)
 			set pathUrl to posixPath
 			-- URL Scheme for pulsar:// did not work, likely on future update.
@@ -118,13 +147,11 @@ on new()
 			end tell
 
 			set tokens to textUtil's split(windowTitle, unic's SEPARATOR)
-
 			set docNameFromTitle to first item of tokens
-
 			if docNameFromTitle is not "Project" then return docNameFromTitle
 
 			set docPath to _extractDocPathByHotkey()
-			fileUtil's getBaseFileName(docPath)
+			fileUtil's getBaseFilename(docPath)
 		end getCurrentDocumentName
 
 
@@ -243,17 +270,24 @@ on new()
 		-- Private Codes below =======================================================
 
 		(*
-			@Requires app focus.
-			Unreliable. Does not work when focus is on the Tree View, which is
-			the condition used to invoke this handler.
+			@Requires app focus and will send keystrokes.
 		*)
 		on _extractDocPathByHotkey()
+			set treeViewWasFocused to isTreeViewFocused()
 			script GetFromClipboard
-				activate application "Pulsar"
+				tell application "System Events" to tell process "Pulsar"
+					set frontmost to true
+					if the name of front window starts with "Project" & unic's SEPARATOR then
+						kb's pressKey("escape")
+					end if
+				end tell
 				delay 0.1
 				kb's pressControlShiftKey("c")
 			end script
 			set docPath to clip's extract(GetFromClipboard)
+			if treeViewWasFocused and isTreeViewFocused() is false then
+				kb's pressCommandShiftKey("\\")
+			end if
 			docPath
 		end _extractDocPathByHotkey
 	end script
