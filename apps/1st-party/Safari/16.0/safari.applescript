@@ -31,7 +31,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2023-10-09 22:16:24
+	@Last Modified: 2023-10-11 14:29:28
 *)
 
 use script "core/Text Utilities"
@@ -121,6 +121,7 @@ on spotCheck()
 		if frontTab is missing value then
 			logger's info("A front tab was not found")
 		else
+			logger's infof("Is Fullscreen: {}", sut's isFullScreen())
 			logger's infof("Keychain Form Visible: {}", sut's isKeychainFormVisible())
 			logger's infof("Is Compact: {}", sut's isCompact())
 			logger's infof("URL: {}", frontTab's getURL())
@@ -240,7 +241,6 @@ end spotCheck
 
 on new()
 	loggerFactory's inject(me)
-
 	set kb to kbLib's new()
 	set uiutil to uiutilLib's new()
 	set winUtil to winUtilLib's new()
@@ -248,6 +248,22 @@ on new()
 	set retry to retryLib's new()
 
 	script SafariInstance
+		on isMediaFullScreen()
+			if running of application "Safari" is false then return false
+
+			tell application "System Events" to tell process "Safari"
+				exists (window "")
+			end tell
+		end isMediaFullScreen
+
+		on isFullScreen()
+			if running of application "Safari" is false then return false
+
+			tell application "System Events" to tell process "Safari"
+				value of attribute "AXFullScreen" of front window
+			end tell
+		end isFullScreen
+
 		(* Slow operation, 3s. *)
 		on isAddressBarFocused()
 			if running of application "Safari" is false then return missing value
