@@ -12,7 +12,7 @@
 		Test with Menu Pinned.  Cannot test the UI functionality because menu apps need to be deployed.
 
 	@Created: Saturday, September 30, 2023 at 5:50:31 PM
-	@Last Modified: 2023-10-07 15:58:30
+	@Last Modified: 2023-10-12 23:17:13
 *)
 
 use framework "Foundation"
@@ -107,7 +107,7 @@ on new(pSourceApp, menuBarTitle)
 
 			set newSubMenu to (current application's NSMenu's alloc()'s initWithTitle:("title-unused"))
 			repeat with nextSourceMenuItem in sourceMenuItems
-				logger's debugf("nextSourceMenuItem: {}", nextSourceMenuItem)
+				-- logger's debugf("nextSourceMenuItem: {}", nextSourceMenuItem)
 				set nextProcessedMenuItemTitle to nextSourceMenuItem
 				try
 					if submenuItemHandler is not missing value then
