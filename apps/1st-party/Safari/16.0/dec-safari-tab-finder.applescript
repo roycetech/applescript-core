@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-finder
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-10-09 10:46:32
+	@Last Modified: 2023-10-23 11:53:34
 	@Change Logs: .
 *)
 use listUtil : script "core/list"
@@ -83,6 +83,14 @@ on decorate(mainScript)
 
 	script SafariFinderDecorator
 		property parent : mainScript
+
+		on getTabCount()
+			if running of application "Safari" is false then return 0
+
+			tell application "Safari"
+				count every tab of front window
+			end tell
+		end getTabCount
 
 		(*
 			@return  missing value of tab if not found, else a SafariTabInstance .
