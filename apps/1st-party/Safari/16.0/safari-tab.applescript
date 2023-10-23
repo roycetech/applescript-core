@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-tab
 
 	@Created: Wednesday, September 20, 2023 at 3:23:31 PM
-	@Last Modified: 2023-10-09 10:47:51
+	@Last Modified: 2023-10-21 18:27:33
 *)
 
 use scripting additions
@@ -31,6 +31,7 @@ on spotCheck()
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Closed Tab
+		Manual: Move tab to index
 	")
 
 	set spotClass to spotScript's new()
@@ -65,6 +66,7 @@ on spotCheck()
 		logger's infof("Window ID: {}", sut's getWindowID())
 
 	else if caseIndex is 2 then
+		sut's moveTabToIndex(5)
 
 	end if
 
@@ -95,6 +97,32 @@ on new(windowId, pTabIndex, pSafari)
 		property _tab : missing value
 		property _url : missing value
 
+
+		on moveTabToIndex(newIndex)
+			if running of application "Safari" is false then return
+
+			tell application "Safari"
+				set tabCount to (count of tabs in front window)
+				set sourceTabIndex to tabIndex -- the index of the tab you want to move
+				set targetTabIndex to newIndex -- the index where you want to move the tab
+
+				if (sourceTabIndex > tabCount) or (targetTabIndex > tabCount) then
+					display dialog "Invalid tab index."
+				else if targetTabIndex - sourceTabIndex is 1 then
+					move tab targetTabIndex of front window to before tab sourceTabIndex of front window
+				else
+					move tab sourceTabIndex of front window to before tab targetTabIndex of front window
+				end if
+				set my tabIndex to newIndex
+				set my _tab to tab newIndex of front window
+				set current tab of front window to my _tab
+			end tell
+		end moveTabToIndex
+
+
+		on getTabIndex()
+			tabIndex
+		end getTabIndex
 
 		on getTitle()
 			try
@@ -297,3 +325,4 @@ on new(windowId, pTabIndex, pSafari)
 
 	theInstance
 end new
+
