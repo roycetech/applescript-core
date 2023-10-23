@@ -11,7 +11,7 @@
 
 	@Last Modified: September 9, 2023 2:43 PM
 	@Change Logs:
-		
+		October 20, 2023 10:27 AM - Added focusSelectedMacroGroup().
 *)
 
 use script "core/Text Utilities"
@@ -23,11 +23,13 @@ use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
 
+use cliclickLib : script "core/cliclick"
 use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
 property logger : missing value
+property cliclick : missing value
 
 property GENERIC_RESULT_VAR : "km_result"
 
@@ -61,6 +63,8 @@ on spotCheck()
 	end if
 	
 	set sut to new()
+	logger's infof("Focused Type: {}", sut's getFocusedType())
+	
 	if caseIndex is 1 then
 		sut's sendSafariText("KM Test")
 		
@@ -101,11 +105,50 @@ end spotCheck
 
 on new()
 	loggerFactory's injectBasic(me)
+	set cliclick to cliclickLib's new()
 	
 	script KeyboardMaestroInstance
 		
+		(* 
+			@returns "group", "macro", or "action" depending on the state of the menus. 
+		*)
+		on getFocusedType()
+			if running of application "Keyboard Maestro" is false then return missing value
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				set viewMenu to menu 1 of menu bar item "View" of menu bar 1
+				if exists (first menu item of viewMenu whose title ends with "able Action") then
+					return "action"
+					
+				else if exists (first menu item of viewMenu whose title ends with "Macro Group") then
+					return "group"
+					
+				end if
+			end tell
+			
+			"macro"
+		end getFocusedType
+		
+		(*
+			Focus the currently selected macro group in the editor so it can be 
+			conveniently followed up by a keyboard navigation.
+		*)
+		on focusSelectedMacroGroup()
+			if running of application "Keyboard Maestro" is false then return
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				set frontmost to true
+				set selectedGroup to the first group of scroll area 1 of splitter group 1 of group 6 of front window whose selected is true
+			end tell
+			
+			lclick of cliclick at selectedGroup
+		end focusSelectedMacroGroup
+		
+		
 		(* Click on the next macro history button. *)
 		on nextEdited()
+			if running of application "Keyboard Maestro" is false then return
+			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				try
 					click (first button of group 3 of front window whose description is "go forward")
@@ -116,6 +159,8 @@ on new()
 		
 		(* Click on the back macro history button. *)
 		on previouslyEdited()
+			if running of application "Keyboard Maestro" is false then return
+			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				try
 					click (first button of group 3 of front window whose description is "go back")
@@ -311,16 +356,26 @@ on new()
 		end sendSlackText
 		*)
 		
-		on getVariable(varName)
-			tell application "Keyboard Maestro Engine" to getvariable varName
+		on getVariable(variableName)
+			tell application "Keyboard Maestro Engine" to getvariable variableName
 		end getVariable
 		
 		
+		on getLocalVariable(variableName)
+			set kmInst to system attribute "KMINSTANCE"
+			tell application "Keyboard Maestro Engine"
+				getvariable variableName instance kmInst
+			end tell
+		end getLocalVariable
+		
+		
 		(* This works only for KM global variables. *)
-		on setVariable(varName, newValue)
-			tell application "Keyboard Maestro Engine" to setvariable varName to newValue
+		on setVariable(variableName, newValue)
+			tell application "Keyboard Maestro Engine" to setvariable variableName to newValue
 		end setVariable
+		
 	end script
+	
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
