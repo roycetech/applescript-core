@@ -9,7 +9,7 @@
 		Project Find Results
 		Welcome Guide
 
-	@Last Modified: 2023-10-13 14:56:09
+	@Last Modified: 2023-10-20 10:00:56
 
 	@Project:
 		applescript-core
@@ -35,6 +35,7 @@ use spotScript : script "core/spot-test"
 use kbLib : script "core/keyboard"
 use syseveLib : script "core/system-events"
 use clipLib : script "core/clipboard"
+use decoratorLib : script "core/decorator"
 
 property logger : missing value
 property configSystem : missing value
@@ -291,4 +292,7 @@ on new()
 			docPath
 		end _extractDocPathByHotkey
 	end script
+
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new
