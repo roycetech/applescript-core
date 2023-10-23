@@ -1,6 +1,13 @@
 (*
 	@Purpose:
 		This script includes handlers that encompass the output functionality of the terminal.
+
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-output
+
 *)
 
 use listUtil : script "core/list"
@@ -22,6 +29,7 @@ property terminal : missing value
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 
 	set cases to listUtil's splitByLine("

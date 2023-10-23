@@ -22,7 +22,8 @@ use unic : script "core/unicodes"
 use extOutput : script "core/dec-terminal-output"
 use fileUtil : script "core/file"
 
-use loggerLib : script "core/logger"
+use loggerFactory : script "core/logger-factory"
+
 use retryLib : script "core/retry"
 use terminalLib : script "core/terminal"
 
@@ -35,6 +36,7 @@ property terminal  : missing value
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 
 	set cases to listUtil's splitByLine("

@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/terminal-tab
 
 	@Created: October 7, 2023 10:27 AM
-	@Last Modified: 2023-10-07 16:15:08
+	@Last Modified: 2023-10-23 21:15:14
 *)
 use script "Core Text Utilities"
 use scripting additions
@@ -22,6 +22,7 @@ use regex : script "core/regex"
 use loggerFactory : script "core/logger-factory"
 
 use kbLib : script "core/keyboard"
+use retryLib : script "core/retry"
 
 use decoratorLib : script "core/decorator"
 
@@ -34,6 +35,7 @@ use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
+property retry : missing value
 
 property SEPARATOR : unic's SEPARATOR
 
@@ -93,6 +95,7 @@ end spotCheck
 on new(pWindowId)
 	loggerFactory's inject(me)
 	set kb to kbLib's new()
+	set retry to retryLib's new()
 
 	tell application "Terminal"
 		if not (exists window id pWindowId) then return missing value

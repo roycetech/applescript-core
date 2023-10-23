@@ -86,7 +86,7 @@ on spotCheck()
 		Manual: Clear lingering command
 		Wait for Prompt
 		Find Tab - applescript logs
-		New Window
+		Manual: New Window (Not running, no window, has window)
 		Find Tab - BSS Bug
 
 		Find Tab with Title
@@ -145,6 +145,7 @@ on spotCheck()
 	else if caseIndex is 6 then
 
 	else if caseIndex is 9 then
+		sut's newWindow("echo 1", "spot")
 
 	else if caseIndex is 10 then
 
@@ -198,7 +199,14 @@ on new()
 
 	script TerminalInstance
 		on getFrontTab()
-			getFrontMostInstance()
+			if running of application "Terminal" is false then return missing value
+
+			tell application "Terminal"
+				if (count of windows) is 0 then return missing value
+
+				set frontWinID to id of first window
+			end tell
+			terminalTabLib's new(frontWinID)
 		end getFrontTab
 
 
@@ -211,11 +219,9 @@ on new()
 		end confirmTerminateActiveTab
 
 
+		(* @Deprecated use getFrontTab. *)
 		on getFrontMostInstance()
-			if running of application "Terminal" is false then return missing value
-
-			tell application "Terminal" to set frontWinID to id of first window
-			terminalTabLib's new(frontWinID)
+			getFrontTab()
 		end getFrontMostInstance
 
 
@@ -276,50 +282,89 @@ on new()
 		*)
 		on newWindow(bashCommand, tabName)
 			if running of application "Terminal" then
-				-- this tell script is required when you configure your System Preferences - General to always open in tabs.
-				tell application "System Events" to tell process "Terminal"
-					set currentWindowName to name of front window
-					set origPosition to position of front window
-					set origSize to size of front window
-
-					click menu item "New Tab" of menu 1 of menu bar item "Shell" of menu bar 1
-					delay 1.5 -- Does not work without the delay
-					click menu item "Move Tab to New Window" of menu 1 of menu bar item "Window" of menu bar 1
-
-					set newWindowName to name of front window
-					set windowMenu to first menu of menu bar item "Window" of first menu bar
-					click (first menu item of windowMenu whose title is equal to currentWindowName)
-					set orginatingWindow to window currentWindowName
-					set position of orginatingWindow to origPosition
-					set size of orginatingWindow to origSize
-					click (first menu item of windowMenu whose title is equal to newWindowName)
-				end tell
-
-				tell application "Terminal"
-					if (contents of selected tab of front window as text) contains "Would you like to update?" then
-						do script "Y" in front window
-
-						repeat until (contents of selected tab of front window as text) contains "has been updated"
-							delay 1
-						end repeat
-					end if
-
-					do script bashCommand in front window
-					set windowId to id of front window as integer
-				end tell
+				if (count of windows of application "Terminal") is 0 then
+					log 1
+					_newWindow_noWindow(bashCommand)
+				else
+					log 2
+					_newWindow_hasWindow(bashCommand)
+				end if
 			else
-				tell application "Terminal"
-					activate
-					set windowId to id of front window as integer
-					do script bashCommand in window id windowId
-				end tell
+				log 3
+				_newWindow_appNotRunning(bashCommand)
 			end if
 
-			set theTab to terminalTab's (windowId)
+			set theTab to terminalTabLib's new(result)
 			theTab's _setTabName(tabName)
 
 			theTab
 		end newWindow
+
+		(*
+			@returns windowId
+		*)
+		on _newWindow_appNotRunning(bashCommand)
+			tell application "Terminal"
+				activate
+				set windowId to id of front window as integer
+				do script bashCommand in window id windowId
+			end tell
+			windowId
+		end _newWindow_appNotRunning
+
+
+		on _newWindow_noWindow(bashCommand)
+			tell application "Terminal"
+				do script ""
+				delay 1.5 -- 1s isn't enough. Delay is required so that the command is not issued while the window is loading resullting in redundant display of the command.
+				do script bashCommand in front window
+				id of front window as integer
+			end tell
+		end _newWindow_noWindow
+
+
+		on _newWindow_hasWindow(bashCommand)
+			-- this tell script is required when you configure your System Preferences - General to always open in tabs.
+			tell application "System Events" to tell process "Terminal"
+				set currentWindowName to name of front window
+				set origPosition to position of front window
+				set origSize to size of front window
+
+				click menu item "New Tab" of menu 1 of menu bar item "Shell" of menu bar 1
+				delay 1.5 -- Does not work without the delay
+				click menu item "Move Tab to New Window" of menu 1 of menu bar item "Window" of menu bar 1
+
+				set newWindowName to name of front window
+				set windowMenu to first menu of menu bar item "Window" of first menu bar
+				click (first menu item of windowMenu whose title is equal to currentWindowName)
+				set orginatingWindow to window currentWindowName
+				set position of orginatingWindow to origPosition
+				set size of orginatingWindow to origSize
+				click (first menu item of windowMenu whose title is equal to newWindowName)
+			end tell
+
+			_autoUpdateFrontTab()
+			tell application "Terminal"
+				do script bashCommand in front window
+				id of front window as integer
+			end tell
+		end _newWindow_hasWindow
+
+
+		on _autoUpdateFrontTab()
+			tell application "Terminal"
+				if (contents of selected tab of front window as text) contains "Would you like to update?" then
+					do script "Y" in front window
+
+					set maxWait to 30
+					repeat until (contents of selected tab of front window as text) contains "has been updated" or maxWait is less than 0
+						delay 1
+						set maxWait to maxWait - 1
+					end repeat
+				end if
+			end tell
+
+		end _autoUpdateFrontTab
 	end script
 end new
 
