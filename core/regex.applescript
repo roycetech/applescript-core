@@ -5,19 +5,20 @@
 	Tried both sed and ruby.  Let's use ruby for more flexibility and familiarity.
 	WARNING: Do not use unicode characters, it does not work with the ruby commandline!
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make build-lib SOURCE=core/regex
 
 	@Known Issues:
 		July 29, 2023 9:37 PM - Removed in plutil validation because it fails intermittently on the "matches" handler.
 
-	@Last Modified: 2023-09-25 14:57:57
+	@Last Modified: 2023-10-19 15:06:23
 *)
 
 use framework "Foundation"
 use scripting additions
-
-use std : script "core/std"
 
 use textUtil : script "core/string"
 use listUtil : script "core/list"
