@@ -207,10 +207,11 @@ test-unit:
 # 	osascript "test/core/Test list.applescript"
 # 	osascript "test/core/Test lov.applescript"
 # 	osascript "test/core/Test map.applescript"
-	osascript "test/core/Test plist-buddy.applescript"
+# 	osascript "test/core/Test plist-buddy.applescript"
 # 	osascript "test/core/Test plutil.applescript"
 # 	osascript "test/core/Test property-list.applescript"
 # 	osascript "test/core/Test regex.applescript"
+	osascript "test/core/Test regex-pattern.applescript"
 # 	osascript "test/core/Test stack.applescript"
 # 	osascript "test/core/Test switch.applescript"
 # 	osascript "test/core/Test speech.applescript"
@@ -223,7 +224,6 @@ test-unit:
 
 watch: test
 	scripts/run-tests_on-change.sh
-
 
 
 build-macos-apps: \
