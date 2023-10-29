@@ -9,7 +9,7 @@
 		make build-console
 
 	@Created: Tuesday, September 26, 2023 at 1:16:23 PM
-	@Last Modified: 2023-09-26 13:26:56
+	@Last Modified: 2023-10-29 12:37:41
 *)
 
 use listUtil : script "core/list"
@@ -27,7 +27,7 @@ on spotCheck()
 
 	set cases to listUtil's splitByLine("
 		Manual: Toggle Now
-")
+	")
 
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
@@ -60,10 +60,12 @@ on new()
 			-- Let's toggle the "Now" here.
 			tell application "System Events" to tell process "Console"
 				-- set nowCheckbox to checkbox 1 of group 1 of toolbar 1 of front window  -- Monterey.
-				set nowCheckbox to checkbox 1 of toolbar 1 of front window
-				if value of nowCheckbox is 0 and flag or not flag and value of nowCheckbox is 1 then
-					click nowCheckbox
-				end if
+				try
+					set nowCheckbox to checkbox 1 of toolbar 1 of front window
+					if value of nowCheckbox is 0 and flag or not flag and value of nowCheckbox is 1 then
+						click nowCheckbox
+					end if
+				end try
 			end tell
 		end nowModeToggle
 	end script
