@@ -25,6 +25,7 @@ use retryLib : script "core/retry"
 use usrLib : script "core/user"
 
 use decoratorLib : script "core/decorator"
+use decPasswords : script "core/dec-system-settings-passwords"
 
 use spotScript : script "core/spot-test"
 
@@ -53,6 +54,7 @@ on spotCheck()
 		
 		Manual: Print Panes
 		Manual: revealKeyboardDictation
+		Manual: Reveal Passwords (decorator)
 	")
 	
 	set spotClass to spotScript's new()
@@ -114,6 +116,9 @@ on spotCheck()
 	else if caseIndex is 12 then
 		sut's revealKeyboardDictation()
 		
+	else if caseIndex is 13 then
+		sut's revealPasswords()
+		
 	end if
 	
 	spot's finish()
@@ -133,7 +138,7 @@ on new()
 				end try
 			end tell
 		end clickAddVoiceCommand
-
+		
 		on printPaneIds()
 			tell application "System Settings"
 				set panesList to id of panes
@@ -409,6 +414,7 @@ on new()
 		end quitApp
 	end script
 	
+	decPasswords's decorate(result)
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
