@@ -1,6 +1,4 @@
 (*
-	@Last Modified: 2023-10-09 22:14:57
-
 	@Version: 2.16.18
 
 	@Project:
@@ -8,6 +6,8 @@
 
 	@Build:
 		make build-marked
+Closing windows of people extra
+	@Last Modified: 2023-11-06 19:11:02
 
 	@Known Issues:
 		July 2, 2023 8:39 PM - Application keeps reference to closed windows,
@@ -18,10 +18,9 @@ use std : script "core/std"
 
 use listUtil : script "core/list"
 use fileUtil : script "core/file"
-use regex : script "core/regex"
+use regexPatternLib : script "core/regex-pattern"
 
 use loggerFactory : script "core/logger-factory"
-
 
 use loggerLib : script "core/logger"
 use configLib : script "core/config"
@@ -56,6 +55,8 @@ on spotCheck()
 		Manual: Set Raise Window on Update ON
 		Manual: Set Raise Window on Update OFF
 		Manual: Scroll to Bottom
+
+		Manual: Set Preprocess Arguments
 	")
 
 	set examplesPath to configSystem's getValue("AppleScript Core Project Path") & "/apps/3rd-party/Marked"
@@ -157,6 +158,9 @@ on spotCheck()
 	else if caseIndex is 15 then
 		sut's scrollToBottom()
 
+	else if caseIndex is 16 then
+		set markdownTab to sut's getFrontTab()
+		markdownTab's setPreprocessorArguments("1234")
 	end if
 
 	spot's finish()
@@ -167,6 +171,19 @@ on new()
 	loggerFactory's injectBasic(me)
 
 	script MarkedInstance
+		on startInspection()
+			if running of application "Marked" is false then return
+
+			tell application "System Events" to tell process "Marked"
+				set frontmost to true
+				set htmlContent to UI element 1 of scroll area 1 of group 1 of front window
+				perform action 1 of htmlContent
+				delay 0.1
+				click menu item "Inspect Element" of menu 1 of htmlContent
+			end tell
+		end startInspection
+
+
 		on scrollToBottom()
 			if running of application "Marked" is false then return
 
@@ -197,6 +214,8 @@ on new()
 
 
 		on turnOnDarkMode()
+			if running of application "Marked" is false then return
+
 			tell application "System Events" to tell process "Marked"
 				-- try
 				set isChecked to value of attribute "AXMenuItemMarkChar" of menu item "Dark Mode" of menu 1 of menu bar item "Preview" of menu bar 1 is not missing value
@@ -210,9 +229,8 @@ on new()
 
 
 		on turnOnLightMode()
-			activate application "Marked"
-
 			tell application "System Events" to tell process "Marked"
+				set frontmost to true
 				try
 					if value of attribute "AXMenuItemMarkChar" of menu item "Dark Mode" of menu 1 of menu bar item "Preview" of menu bar 1 is missing value then return
 				end try
@@ -223,9 +241,8 @@ on new()
 
 
 		on toggleDarkMode()
-			activate application "Marked"
-
 			tell application "System Events" to tell process "Marked"
+				set frontmost to true
 				try
 					click menu item "Dark Mode" of menu 1 of menu bar item "Preview" of menu bar 1
 				end try
@@ -344,20 +361,44 @@ on new()
 			script MarkedTabInstance
 				property appWindow : pAppWindow
 
+				on setPreprocessorArguments(arguments)
+					if running of application "Marked" is false then return
+
+					tell application "System Events" to tell process "Marked"
+						try
+							click (first menu item of menu 1 of menu bar item "Marked" of menu bar 1 whose title starts with "Settings")
+							delay 0.1
+							set moreItems to pop up button 1 of toolbar 1 of front window
+							click moreItems
+							delay 0.1
+							click menu item "Advanced" of menu 1 of moreItems
+							delay 0.1
+							click radio button "Preprocessor" of tab group 1 of window "Advanced"
+							delay 0.1
+							set the value of text field 2 of tab group 1 of window "Advanced" to arguments
+							delay 0.1
+							click (first button of front window whose description is "close button")
+						end try
+					end tell
+				end setPreprocessorArguments
+
 				(*
 					NOTE: Take into account when the document is zoomed, the percentage is displayed in the window title.
 				*)
 				on getDocumentName()
 					set windowName to name of appWindow
-					set zoomLessName to regex's firstMatchInString(".*(?=\\s\\(\\d{2}%\\))", windowName)
+					set regex to regexPatternLib's new(".*(?=\\s\\(\\d{2}%\\))")
+					set zoomLessName to regex's firstMatchInString(windowName)
 					if zoomLessName is not missing value then return zoomLessName
 
 					windowName
 				end getDocumentName
 
 				on hideEditor()
-					activate application "Marked"
+					if running of application "Marked" is false then return
+
 					tell application "System Events" to tell process "Marked"
+						set frontmost to true
 						try
 							click menu item "Hide Editor Pane" of menu 1 of menu bar item "View" of menu bar 1
 						end try -- ignore if it don't exist
@@ -365,6 +406,8 @@ on new()
 				end hideEditor
 
 				on focus()
+					if running of application "Marked" is false then return
+
 					try
 						tell application "System Events" to tell process "Marked"
 							click (first menu item of first menu of menu bar item "Window" of first menu bar whose title is equal to name of my appWindow)
@@ -386,6 +429,8 @@ on new()
 			@Requires app focus.
 		*)
 		on mergeWindows()
+			if running of application "Marked" is false then return
+
 			tell application "System Events" to tell process "Marked"
 				set frontmost to true
 
