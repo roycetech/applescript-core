@@ -9,6 +9,12 @@
 		zoom-actions.applescript - contains mic, video, hand raise, end meeting, sound source controls
 		zoom-participants - participant-related functions.
 
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom
+
 	@Testing:
 		@Plists
 			config-user.plist
@@ -47,11 +53,16 @@ use zoomActions : script "core/zoom-actions"
 use zoomParticipants : script "core/zoom-participants"
 use zoomWindow : script "core/zoom-window"
 
-use loggerLib : script "core/logger"
+use loggerFactory : script "core/logger-factory"
+
 use configLib : script "core/config"
 use plutilLib : script "core/plutil"
 use retryLib : script "core/retry"
 use kbLib : script "core/keyboard"
+use systemSettingLib : script "core/system-settings"
+use cliclickLib : script "core/cliclick"
+
+
 use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
@@ -66,6 +77,8 @@ use script "core/Text Utilities"
 use scripting additions
 
 property logger : missing value
+property systemSetting : missing value
+property cliclick : missing value
 
 if the name of current application is "Script Editor" then spotCheck()
 
@@ -74,9 +87,9 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
+		Login via Password
 		Start Personal Meeting - End to End
 		Decorated: End Meeting - Prefer to leave meeting vs end the meeting
-		Login
 		Is waiting for sign in
 		Show Participants
 
@@ -97,23 +110,27 @@ on spotCheck()
 
 	set sut to new()
 	if caseIndex is 1 then
-		set useSSO of sut to true
+		activate application "zoom.us"
+		sut's _loginViaPassword()
+
+	else if caseIndex is 2 then
+		-- set useSSO of sut to true
 		set meetingID to configZoom's getValue("User Meeting ID")
 		set username to configZoom's getValue("Username")
 		logger's infof("meetingID: {}", meetingID)
 		logger's infof("username: {}", username)
-		join of sut given id:meetingID, username:username, domain:configBusiness's getValue("Domain Key")
+		set domainKey to configBusiness's getValue("Domain Key")
+		logger's infof("domainKey: {}", domainKey)
+		tell me to error "abort" -- IS THIS PROMINENT ENOUGH?!!!
 
-	else if caseIndex is 2 then
-		sut's endMeeting()
+		join of sut given id:meetingID, username:username, domain:domainKey
 
-	else if caseIndex is 2 then
-		sut's login()
 
 	else if caseIndex is 3 then
-		log isWaitingForSignIn()
+		sut's endMeeting()
 
 	else if caseIndex is 4 then
+		log isWaitingForSignIn()
 
 	else if caseIndex is 5 then
 		showParticipants()
@@ -149,6 +166,8 @@ end spotCheck
 
 on new()
 	loggerFactory's inject(me)
+	set systemSetting to systemSettingLib's new()
+	set cliclick to cliclickLib's new()
 
 	set configBusiness to configLib's new("business")
 	set plutil to plutilLib's new()
@@ -188,6 +207,73 @@ on new()
 		end join
 
 
+		(*
+			App Needs to already be running. Will login via password when the Sign In window is detected.
+		*)
+		on _loginViaPassword()
+			script LoginWindowWaiter
+				tell application "System Events" to tell process "zoom.us"
+					if exists (window "Login") then return true
+				end tell
+			end script
+			set signinExists to exec of retry on result for 3
+			if not signinExists then
+				logger's info("The Login window was not found.")
+				return
+			end if
+
+			script SignInRetrier
+				tell application "System Events" to tell process "zoom.us"
+					click (first button of group 1 of window "Login" whose description is "Sign In")
+					true
+				end tell
+			end script
+			exec of retry on result for 2
+
+			systemSetting's revealPasswords()
+			systemSetting's filterCredentials("zoom")
+			systemSetting's clickCredentialInformation()
+			set username to systemSetting's getUsername()
+			set savedPassword to systemSetting's getPassword()
+			set mfaCode to systemSetting's getVerificationCode(2)
+			tell application "System Events" to tell process "zoom.us"
+				tell group 1 of window "Login"
+					set the value of text field 1 to username
+					set the value of text field 2 to savedPassword
+				end tell
+
+				-- Simulate User Interaction so the Sign In button gets properly enabled.
+				-- set frontmost to true  -- Unreliable.
+				-- delay 2
+			end tell
+
+			activate application "zoom.us"
+			delay 1
+			logger's debug("Simulating user actions...")
+			kb's pressKey("space")
+			kb's pressKey("delete")
+			delay 1
+
+			tell application "System Events" to tell process "zoom.us"
+				lclick of cliclick at first button of group 1 of window "Login" whose description is "Sign In"
+				-- click of first button of group 1 of window "Login" whose description is "Sign In"  -- Does not work, it triggers web login.
+			end tell
+
+			script VerifyWaiter
+				tell application "System Events" to tell process "zoom.us"
+					first button of group 1 of window "Login" whose description is "Verify"
+					true
+				end tell
+			end script
+			exec of retry on result for 5
+			kb's typeText(mfaCode)
+
+				tell application "System Events" to tell process "zoom.us"
+					click first button of group 1 of window "Login" whose description is "Verify"
+				end tell
+		end _loginViaPassword
+
+
 		on _loginViaSSO()
 			set retry to retryLib's new()
 			set signInDialog to missing value
@@ -218,11 +304,6 @@ on new()
 				end try
 			end tell
 		end _loginViaSSO
-
-
-		on _loginViaPassword()
-			error "Login via password is not implemented, it was but it needs redesign. Set useSSO flag to true"
-		end _loginViaPassword
 
 
 		on isWaitingForSignIn()
@@ -329,8 +410,8 @@ on new()
 
 	zoomActions's decorate(result)
 	zoomParticipants's decorate(result)
-	set lastResult to zoomWindow's decorate(result)
+	zoomWindow's decorate(result)
 
-	set decorator to decoratorLib's new(lastResult)
-	decorator's decorate()
+	-- set decorator to decoratorLib's new(result)
+	-- decorator's decorate()
 end new

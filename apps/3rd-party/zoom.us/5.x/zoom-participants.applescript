@@ -1,15 +1,11 @@
 (*
-	Update the following quite obvious if you read through the template code.:
-	spotCheck()
-		thisCaseId
-		base library instantiation
+	Provides handlers about the meeting participants
 
-		logger constructor parameter inside init handler
+	@Project:
+		applescript-core
 
-	decorate()
-		instance name
-		handler name
-
+	@Build:
+		./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-participants
 *)
 
 use regex : script "core/regex"
@@ -48,7 +44,7 @@ on spotCheck()
 		return
 	end if
 
-	set sut to zoomUtil
+	set sut to zoomUtilLib's new()
 	try
 		sut's isParticipantSidebarVisible
 	on error
@@ -96,7 +92,6 @@ on decorate(mainScript)
 	loggerFactory's inject(me)
 	set retry to retryLib's new()
 	set usr to usrLib's new()
-	set zoomUtil to zoomUtilLib's new()
 
 	(* Use the same name as the parent because this decorator is only meant to organize the handlers. *)
 	script ZoomInstance

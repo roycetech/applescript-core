@@ -4,10 +4,13 @@
 	@Related:
 		zoom.applescript
 
-	@Build:
-		make build-lib SOURCE=apps/3rd-party/zoom.us/5.x/zoom-actions
+	@Project:
+		applescript-core
 
-	@Last Modified: 2023-09-25 14:57:56
+	@Build:
+		./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
+
+	@Last Modified: 2023-11-09 20:08:46
 *)
 
 use listUtil : script "core/list"
@@ -16,7 +19,7 @@ use loggerFactory : script "core/logger-factory"
 use usrLib : script "core/user"
 use kbLib : script "core/keyboard"
 use processLib : script "core/process"
-use zoomLib : script "core/zoom"
+use zoomUtilLib : script "core/zoom"
 
 use spotScript : script "core/spot-test"
 
@@ -57,7 +60,7 @@ on spotCheck()
 		return
 	end if
 
-	set sut to zoomLib's new()
+	set sut to zoomUtilLib's new()
 	try
 		sut's unmute
 	on error

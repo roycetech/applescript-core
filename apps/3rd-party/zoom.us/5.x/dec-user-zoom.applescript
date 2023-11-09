@@ -1,7 +1,13 @@
 (*
-	Prerequisites:
+	@Prerequisites:
 		zoom.applescript installed.
 		zoom.us application installed.
+
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/dec-user-zoom
 
 	Install:
 		make build-lib SOURCE=libs/user/dec-user-zoom
@@ -11,7 +17,7 @@
 		make remove-lib SOURCE=libs/user/dec-user-zoom
 		plutil -remove 'UserInstance' ~/applescript-core/config-lib-factory.plist
 
-	@Last Modified: 2023-09-25 14:57:56
+	@Last Modified: 2023-11-09 20:01:01
 *)
 use std : script "core/std"
 use listUtil : script "core/list"
@@ -27,29 +33,21 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's inject(me)
-	set caseId to "dec-user-zoom-spotCheck"
 	logger's start()
 
 	-- All spot check cases are manual.
 	set cases to listUtil's splitByLine("
-		Manual: Is in meeting (yes, no)
-		Manual: Is screen sharing (yes, no)
+		Manual: Info (In meeting [yes, no], Screen Sharing [yes, no])
 	")
 
 	set spotLib to spotScript's new()
-	set spot to spotLib's new(caseId, cases)
+	set spot to spotLib's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 
 	set sut to usrLib's new()
 	set sut to decorate(sut)
-
-	if caseIndex is 1 then
-		logger's infof("In Meeting: {}", sut's isInMeeting())
-
-	else if caseIndex is 2 then
-		logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
-
-	end if
+	logger's infof("In Meeting: {}", sut's isInMeeting())
+	logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
 
 	spot's finish()
 	logger's finish()

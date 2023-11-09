@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2023-10-05 17:22:32
+	@Last Modified: 2023-11-07 10:55:44
 *)
 
 use script "core/Text Utilities"
@@ -146,6 +146,7 @@ on replaceText(filePath, substring, replacement)
 end replaceText
 
 
+(* @posixFilePath - need to pass "POSIX file c:/System32". For review later. *)
 on readFile(posixFilePath as string)
 	read file posixFilePath
 end readFile

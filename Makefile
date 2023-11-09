@@ -264,6 +264,7 @@ endif
 build-system-preferences:
 ifeq ($(OS), ventura)
 	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
+	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings-passwords"
 
 else ifeq ($(OS), monterey)
 	./scripts/build-lib.sh "apps/1st-party/System Preferences/15.0/system-preferences"

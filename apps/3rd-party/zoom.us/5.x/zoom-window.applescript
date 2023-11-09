@@ -1,14 +1,20 @@
 (*
 	Provides handlers about the meeting window.
 
-	@Last Modified: 2023-09-18 22:33:07
+	@Last Modified: 2023-11-09 20:02:50
+
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-window
 *)
 
 use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 use usrLib : script "core/user"
-use zoomLib : script "core/zoom"
+use zoomUtilLib : script "core/zoom"
 
 use spotScript : script "core/spot-test"
 
@@ -19,6 +25,7 @@ property zoomUtil : missing value
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 
 	set cases to listUtil's splitByLine("
@@ -36,7 +43,7 @@ on spotCheck()
 		return
 	end if
 
-	set sut to zoomUtil
+	set sut to zoomUtilLib's new()
 	try
 		sut's bringWindowToFront
 	on error
@@ -74,10 +81,7 @@ end newSpotBase
 (*  *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
-
 	set usr to usrLib's new()
-	set logger to loggerLib's new("zoom-window")
-	set zoomUtil to zoomLib's new()
 
 	script ZoomInstance
 		property parent : mainScript
