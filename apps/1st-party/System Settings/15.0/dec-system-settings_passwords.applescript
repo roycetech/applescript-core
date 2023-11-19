@@ -5,7 +5,7 @@
 		applescript-core
 		
 	@Build:
-		./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings-passwords"
+		./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_passwords"
 
 	@Created: Wednesday, November 8, 2023 at 10:41:03 PM
 	@Last Modified: Wednesday, November 8, 2023 at 10:41:03 PM
@@ -194,3 +194,4 @@ on decorate(mainScript)
 		end getVerificationCode
 	end script
 end decorate
+
