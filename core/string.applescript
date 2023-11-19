@@ -13,7 +13,7 @@
 	@Build:
 		make build-lib SOURCE=core/string
 
-	@Last Modified: 2023-10-03 10:21:33
+	@Last Modified: 2023-11-15 15:49:23
 *)
 use scripting additions
 
@@ -32,7 +32,6 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		Unit Test
 		Wing It!
 		Encode Multi Line Command
 	")
@@ -46,9 +45,6 @@ on spotCheck()
 	end if
 
 	if caseIndex is 1 then
-		unitTest()
-
-	else if caseIndex is 2 then
 		set sut to "1
 		2"
 		log urlEncode(sut)
@@ -56,16 +52,18 @@ on spotCheck()
 		log format("Body: {}", "She said: \"hello?\"")
 		log format("Body: \"{}\"", "She")
 
-	else if caseIndex is 3 then
-		log encodeUrl("docker container run
-    --name mysql_local
-    --rm
-    -it
-    -v ~/docker/mysql-data:/var/lib/mysql
-    -v \"`pwd`/init\":/docker-entrypoint-initdb.d
-    -e MYSQL_ROOT_PASSWORD=dev
-    -p 4306:3306
-    mysql:5")
+	else if caseIndex is 2 then
+		log encodeUrl("
+			docker container run \\
+			--name mysql_local \\
+			--rm \\
+			-it \\
+			-v ~/docker/mysql-data:/var/lib/mysql \\
+			-v \"`pwd`/init\":/docker-entrypoint-initdb.d \\
+			-e MYSQL_ROOT_PASSWORD=dev \\
+			-p 4306:3306 \\
+			mysql:5
+		")
 
 	else
 		-- log encodeUrl("hello kansas")
