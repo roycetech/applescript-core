@@ -22,11 +22,6 @@
 				Work Key (e.g. apple)
 				Work Email
 
-	@Known Issues:
-		Sign in Dialog always appear with a meeting window regardless if already authonticated. So we try to sign in again because closing the window stops the meeting.
-*)
-
-(*
 	Usage:
 		-- join given id:"12345678"
 		join given id:125678, domain:"apple" username:"john.appleseed.com" password:4321
@@ -43,7 +38,7 @@
 			config-business
 				Zoom User Meeting ID
 
-	@Last Modified
+	@Last Modified: 2023-11-10 09:57:06
 *)
 
 use listUtil : script "core/list"
@@ -87,7 +82,8 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		Login via Password
+		Manual: Login via Password
+		Manual: New Meeting
 		Start Personal Meeting - End to End
 		Decorated: End Meeting - Prefer to leave meeting vs end the meeting
 		Is waiting for sign in
@@ -112,6 +108,9 @@ on spotCheck()
 	if caseIndex is 1 then
 		activate application "zoom.us"
 		sut's _loginViaPassword()
+
+	else if caseIndex is 2 then
+		sut's newMeeting()
 
 	else if caseIndex is 2 then
 		-- set useSSO of sut to true
@@ -178,6 +177,34 @@ on new()
 	script ZoomInstance
 		property useSSO : false
 
+		on newMeeting()
+			if running of application "zoom.us" is false then
+				activate application "zoom.us"
+			end if
+
+			set signinState to _waitForSignInOrSignedIn()
+			if signinState is "signedin" then
+				tell application "System Events" to tell process "zoom.us"
+					click (first button of splitter group 1 of window "Zoom" whose description is "Start a new meeting with video on")
+				end tell
+			end if
+		end newMeeting
+
+
+		(*
+			@returns "signedin" When it detects the UI to be already signed in, or
+			"signin-main", "signin-input", "signin-mfa" if it detects any of the aforementioned UI states.
+		*)
+		on _waitForSignInOrSignedIn()
+			script Waiter
+				tell application "System Events" to tell process "zoom.us"
+					if exists (first button of splitter group 1 of window "Zoom" whose description is "Start a new meeting with video on") then return "signedin"
+				end tell
+			end script
+			return exec of retry on result for 10
+		end _waitForSignInOrSignedIn
+
+
 		(* Optional password. *)
 		on join given id:meetingID, domain:domain, username:username, password:password : missing value, passcode:passcode : missing value
 
@@ -217,7 +244,7 @@ on new()
 				end tell
 			end script
 			set signinExists to exec of retry on result for 3
-			if not signinExists then
+			if signinExists is missing value then
 				logger's info("The Login window was not found.")
 				return
 			end if
@@ -268,9 +295,9 @@ on new()
 			exec of retry on result for 5
 			kb's typeText(mfaCode)
 
-				tell application "System Events" to tell process "zoom.us"
-					click first button of group 1 of window "Login" whose description is "Verify"
-				end tell
+			tell application "System Events" to tell process "zoom.us"
+				click (first button of group 1 of window "Login" whose description is "Verify")
+			end tell
 		end _loginViaPassword
 
 
@@ -412,6 +439,6 @@ on new()
 	zoomParticipants's decorate(result)
 	zoomWindow's decorate(result)
 
-	-- set decorator to decoratorLib's new(result)
-	-- decorator's decorate()
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new

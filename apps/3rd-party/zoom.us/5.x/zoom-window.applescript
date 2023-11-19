@@ -1,7 +1,7 @@
 (*
 	Provides handlers about the meeting window.
 
-	@Last Modified: 2023-11-09 20:02:50
+	@Last Modified: 2023-11-10 10:16:24
 
 	@Project:
 		applescript-core
@@ -44,12 +44,7 @@ on spotCheck()
 	end if
 
 	set sut to zoomUtilLib's new()
-	try
-		sut's bringWindowToFront
-	on error
 		set sut to decorate(sut)
-	end try
-
 	if caseIndex is 1 then
 		sut's closeHomeWindow()
 
@@ -114,8 +109,8 @@ on decorate(mainScript)
 				repeat with nextWindow in (every window whose title is "Zoom")
 					try
 						set theSplitterGroup to first splitter group of nextWindow -- does not work
-						if exists (first button of first splitter group of nextWindow whose value starts with "Home") then
-							click (first button of first splitter group of nextWindow whose description is "close button")
+						if exists (first button of nextWindow whose value starts with "Home") then
+							click (first button of nextWindow whose description is "close button")
 							set found to true
 							exit repeat
 						end if
