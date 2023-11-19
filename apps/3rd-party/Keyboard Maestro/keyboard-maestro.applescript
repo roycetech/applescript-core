@@ -1,5 +1,6 @@
 (* 
-	WARNING: This script is still heavily user customised, TODO: to make it more generic and document required changes to Keyboard Maestro. 
+	WARNING: This script is still heavily user customized, 
+	TODO: to make it more generic and document required changes to Keyboard Maestro. 
 	
 	@Project:
 		applescript-core
@@ -24,6 +25,8 @@ use unic : script "core/unicodes"
 use loggerFactory : script "core/logger-factory"
 
 use cliclickLib : script "core/cliclick"
+use retryLib : script "core/retry"
+
 use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
@@ -52,6 +55,8 @@ on spotCheck()
 		Manual: Click New Action Category
 		Manual: History Backward
 		Manual: History Forward
+		
+		Manual: Select Macro Group
 	")
 	
 	set spotClass to spotScript's new()
@@ -64,6 +69,9 @@ on spotCheck()
 	
 	set sut to new()
 	logger's infof("Focused Type: {}", sut's getFocusedType())
+	logger's infof("Selected Group Name: {}", sut's getSelectedGroupName())
+	logger's infof("Macro with name exists (Unicorn): {}", sut's macroWithNameExists("Unicorn"))
+	logger's infof("Macro with name exists yes: {}", sut's macroWithNameExists("Script Editor: Text Expander: km's getFocusedType()"))
 	
 	if caseIndex is 1 then
 		sut's sendSafariText("KM Test")
@@ -78,7 +86,7 @@ on spotCheck()
 		assertThat of std given condition:sut's getVariable("from Script Editor Name") is equal to "from Script Editor Value 2", messageOnFail:"Failed spot check"
 		logger's info("Passed")
 		
-	else if caseIndex is 4 then
+	else if caseIndex is 5 then
 		sut's showActions()
 		
 	else if caseIndex is 6 then
@@ -95,6 +103,9 @@ on spotCheck()
 		
 	else if caseIndex is 10 then
 		sut's nextEdited()
+		
+	else if caseIndex is 11 then
+		sut's selectMacroGroup("App: Script Editor")
 	end if
 	
 	activate
@@ -108,6 +119,55 @@ on new()
 	set cliclick to cliclickLib's new()
 	
 	script KeyboardMaestroInstance
+		
+		(*
+			Text Expander concats the shortcut, that's why we are using the starts with to find the macro.
+		*)
+		on macroWithNameExists(macroName)
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					first group of scroll area 2 of splitter group 1 of group 6 of my _getMainWindow() whose title starts with the macroName
+					return true
+				end try
+			end tell
+			false
+		end macroWithNameExists
+		
+		
+		on selectMacro(macroName)
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					click (the first group of scroll area 2 of splitter group 1 of group 6 of my _getMainWindow() whose name starts with macroName)
+				end try
+			end tell
+		end selectMacro
+		
+		(*
+			Create a macro via the UI.
+		*)
+		on createMacro(macroName)
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					click (the first button of my _getMainWindow() whose description is "Add Macro")
+					delay 0.1
+					set value of text field 1 of scroll area 3 of splitter group 1 of group 6 of my _getMainWindow() to macroName
+				end try
+			end tell
+		end createMacro
+		
+		on selectMacroGroup(groupName)
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					click group "App: Script Editor" of scroll area 1 of splitter group 1 of group 6 of my _getMainWindow()
+				end try
+			end tell
+		end selectMacroGroup
+		
+		on getSelectedGroupName()
+			tell application "System Events" to tell process "Keyboard Maestro"
+				name of first group of scroll area 1 of splitter group 1 of group 6 of my _getMainWindow() whose selected is true
+			end tell
+		end getSelectedGroupName
 		
 		(* 
 			@returns "group", "macro", or "action" depending on the state of the menus. 
@@ -138,7 +198,7 @@ on new()
 			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				set frontmost to true
-				set selectedGroup to the first group of scroll area 1 of splitter group 1 of group 6 of front window whose selected is true
+				set selectedGroup to the first group of scroll area 1 of splitter group 1 of group 6 of my _getMainWindow() whose selected is true
 			end tell
 			
 			lclick of cliclick at selectedGroup
@@ -151,7 +211,7 @@ on new()
 			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				try
-					click (first button of group 3 of front window whose description is "go forward")
+					click (first button of group 3 of my _getMainWindow() whose description is "go forward")
 				end try
 			end tell
 		end nextEdited
@@ -163,7 +223,7 @@ on new()
 			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				try
-					click (first button of group 3 of front window whose description is "go back")
+					click (first button of group 3 of my _getMainWindow() whose description is "go back")
 				end try
 			end tell
 		end previouslyEdited
@@ -203,21 +263,29 @@ on new()
 		(* @Warning - Grabs app focus *)
 		on showActions()
 			if running of application "Keyboard Maestro" is false then return
-			
-			activate application "Keyboard Maestro"
 			tell application "System Events" to tell process "Keyboard Maestro"
-				try
-					click menu item "Show Actions" of menu 1 of menu bar item "Actions" of menu bar 1
-				end try
+				if exists (window "New Action") then return
 			end tell
+			
+			set retry to retryLib's new()
+			script NewActionWindowWaiter
+				tell application "System Events" to tell process "Keyboard Maestro"
+					set frontmost to true
+					try
+						click menu item "Show Actions" of menu 1 of menu bar item "Actions" of menu bar 1
+					end try
+					if exists (window "New Action") then return true
+				end tell
+			end script
+			exec of retry on result for 3
 		end showActions
 		
 		(* @Warning - Grabs app focus *)
 		on hideActions()
 			if running of application "Keyboard Maestro" is false then return
 			
-			activate application "Keyboard Maestro"
 			tell application "System Events" to tell process "Keyboard Maestro"
+				set frontmost to true
 				try
 					click menu item "Hide Actions" of menu 1 of menu bar item "Actions" of menu bar 1
 				end try
@@ -373,6 +441,13 @@ on new()
 		on setVariable(variableName, newValue)
 			tell application "Keyboard Maestro Engine" to setvariable variableName to newValue
 		end setVariable
+		
+		
+		on _getMainWindow()
+			tell application "System Events" to tell process "Keyboard Maestro"
+				first window whose title is not "New Action"
+			end tell
+		end _getMainWindow
 		
 	end script
 	
