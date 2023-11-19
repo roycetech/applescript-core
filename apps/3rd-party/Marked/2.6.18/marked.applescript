@@ -5,9 +5,9 @@
 		applescript-core
 
 	@Build:
-		make build-marked
-Closing windows of people extra
-	@Last Modified: 2023-11-06 19:11:02
+		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.18/marked
+
+	@Last Modified: 2023-11-19 09:33:40
 
 	@Known Issues:
 		July 2, 2023 8:39 PM - Application keeps reference to closed windows,
@@ -180,9 +180,20 @@ on new()
 				perform action 1 of htmlContent
 				delay 0.1
 				click menu item "Inspect Element" of menu 1 of htmlContent
+				delay 0.2
+				click (first button of UI element 1 of scroll area 1 of front window whose description starts with "Start element selection")
 			end tell
 		end startInspection
 
+		on stopInspection()
+			if running of application "Marked" is false then return
+
+			tell application "System Events" to tell process "Marked"
+				try
+					click (first button of (first window whose title starts with "Web Inspector") whose description is "close button")
+				end try
+			end tell
+		end stopInspection
 
 		on scrollToBottom()
 			if running of application "Marked" is false then return
@@ -191,6 +202,14 @@ on new()
 				set value of scroll bar 1 of scroll area 1 of group 1 of front window to 1
 			end tell
 		end scrollToBottom
+
+		on scrollToTop()
+			if running of application "Marked" is false then return
+
+			tell application "System Events" to tell process "Marked"
+				set value of scroll bar 1 of scroll area 1 of group 1 of front window to 0
+			end tell
+		end scrollToTop
 
 
 		on setRaiseWindowOnUpdate(newValue)
@@ -375,7 +394,10 @@ on new()
 							delay 0.1
 							click radio button "Preprocessor" of tab group 1 of window "Advanced"
 							delay 0.1
+
+							-- Value is not getting detected.
 							set the value of text field 2 of tab group 1 of window "Advanced" to arguments
+
 							delay 0.1
 							click (first button of front window whose description is "close button")
 						end try
