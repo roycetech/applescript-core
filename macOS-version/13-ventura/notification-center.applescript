@@ -15,7 +15,7 @@
 		applescript-core
 
 	@Build:
-		make build-notification-center
+		./scripts/build-lib.sh "macOS-version/13-ventura/notification-center"
 
 	@Known Issues
 		For grouped notifications, if you want to dismiss the first notification only, the client code should expand the notification first.
@@ -74,31 +74,29 @@ on spotCheck()
 	end if
 
 	set sut to new()
-	if caseIndex is 1 then
-		set hasNotice to false
-		tell application "System Events" to tell process "Notification Center"
-			set hasNotice to exists window "Notification Center"
+	set hasNotice to false
+	tell application "System Events" to tell process "Notification Center"
+		set hasNotice to exists window "Notification Center"
 
-			if hasNotice then set notice to sut's new(group 1 of UI element 1 of scroll area 1 of group 1 of window "Notification Center")
-		end tell
+		if hasNotice then set notice to sut's new(group 1 of UI element 1 of scroll area 1 of group 1 of window "Notification Center")
+	end tell
 
-		if hasNotice then
-			logger's infof("Notice: {}", notice's toString())
-			logger's infof("Is Stacked: {}", notice's isStacked())
-
-		end if
-
-	else if caseIndex is 2 then
+	if hasNotice then
+		logger's infof("Notice: {}", notice's toString())
+		logger's infof("Is Stacked: {}", notice's isStacked())
+		logger's info("Apps with notification/s")
 		set appNames to sut's getAppNames()
-		if appNames is missing value or the (count of appNames) is 0 then
-			logger's info("No notifications detected.")
+		repeat with nextAppName in appNames
+			logger's infof("Next App Name: {}", nextAppName)
+		end repeat
+	else
+		logger's info("No notifications detected.")
 
-		else
-			repeat with nextAppName in appNames
-				logger's infof("Next App Name: {}", nextAppName)
-			end repeat
-		end if
+	end if
 
+
+	if caseIndex is 1 then
+	else if caseIndex is 2 then
 	else if caseIndex is 3 then
 		script PrintTitle
 			on next(notice)
