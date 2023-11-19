@@ -268,18 +268,17 @@ on new()
 		end getVisibleWindows
 		
 		(*
-			@return false if exception encountered, likely the window was not found,
-			otherwise it returns true for success.
+			@return false if an error is encountered, when the window was not 
+			found for example. Otherwise, it returns true for success.
 		*)
 		on focusWindowContaining(titleSubstring as text)
 			tell application "System Events" to tell process "Sublime Text"
 				try
 					click (first menu item of menu 1 of menu bar item "Window" of menu bar 1 whose title contains titleSubstring)
-					true
-				on error
-					return false
+					return true
 				end try
 			end tell
+			false
 		end focusWindowContaining
 		
 		(*
