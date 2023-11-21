@@ -44,6 +44,7 @@ on spotCheck()
 		Manual Checks
 		Paste Text with Emoji
 		Manual: Modifier Pressed
+		Manual: Insert Text By Pasting
 	")
 
 
@@ -105,6 +106,9 @@ on spotCheck()
 			logger's infof("Option Pressed: {}", checkModifier("option"))
 			logger's infof("Shift Pressed: {}", checkModifier("shift"))
 			logger's infof("Command Pressed: {}", checkModifier("command"))
+
+		else if caseIndex is 4 then
+			insertTextByPasting("Spot Check")
 
 		end if
 
@@ -265,7 +269,7 @@ on new()
 					set the clipboard to theText
 					delay 0.2
 					if (the clipboard) is equal to theText then
-						logger's debugf("The clipboard now equal to text to paste: {}", the clipboard)
+						-- logger's debugf("The clipboard now equal to text to paste: {}", the clipboard)
 						exit repeat
 					end if
 				end repeat
