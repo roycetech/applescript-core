@@ -8,10 +8,13 @@
 	@Prerequisites:
 		keyboard.applescript - some handlers require key presses.
 
-	@Install:
-		make install-finder
+	@Project:
+		applescript-core
 
-	@Last Modified: 2023-09-20 19:12:59
+	@Build:
+		./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
+
+	@Last Modified: 2023-11-21 14:41:36
 *)
 
 use script "core/Text Utilities"
@@ -173,6 +176,14 @@ on new()
 	set kb to kbLib's new()
 
 	script FinderInstance
+		on putInTrash(posixPath)
+			set computedPosixPath to _untilde(posixPath)
+			logger's debugf("computedPosixPath: {}", computedPosixPath)
+			-- tell application "Finder" to delete POSIX file computedPosixPath
+			do shell script "osascript -e 'tell application \"Finder\" to delete POSIX file \"" & computedPosixPath & "\"'"
+		end putInTrash
+
+
 		on findTab(tabName)
 			tell application "Finder"
 				try
@@ -193,14 +204,8 @@ on new()
 				end tell
 			end if
 
-			if posixPath is "~" then
-				set posixPath to format {"/Users/{}/", std's getUsername()}
-			else if posixPath starts with "~" then
-				set posixPath to format {"/Users/{}/{}", {std's getUsername(), text 3 thru -1 of posixPath}}
-			end if
-			logger's debugf("posixPath: {}", posixPath)
-
-			set posixFileTarget to POSIX file posixPath
+			set computedPosixPath to _untilde(posixPath)
+			set posixFileTarget to POSIX file computedPosixPath
 
 			tell application "Finder"
 				activate
@@ -211,6 +216,18 @@ on new()
 				my _newInstance(id of front window)
 			end tell
 		end newTab
+
+
+		on _untilde(tildePath)
+			set posixPath to tildePath
+			if tildePath is "~" then
+				set posixPath to format {"/Users/{}/", std's getUsername()}
+			else if tildePath starts with "~" then
+				set posixPath to format {"/Users/{}/{}", {std's getUsername(), text 3 thru -1 of posixPath}}
+			end if
+			logger's debugf("posixPath: {}", posixPath)
+			posixPath
+		end _untilde
 
 
 		on getFrontTab()
