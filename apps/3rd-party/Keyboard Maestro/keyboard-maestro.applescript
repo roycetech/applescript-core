@@ -34,8 +34,6 @@ use spotScript : script "core/spot-test"
 property logger : missing value
 property cliclick : missing value
 
-property GENERIC_RESULT_VAR : "km_result"
-
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 if name of current application is "osascript" then unitTest()
 
@@ -57,6 +55,8 @@ on spotCheck()
 		Manual: History Forward
 		
 		Manual: Select Macro Group
+		Manual: Select Macro
+		Manual: Scroll Macros/Actions Pane
 	")
 	
 	set spotClass to spotScript's new()
@@ -74,7 +74,7 @@ on spotCheck()
 	logger's infof("Macro with name exists yes: {}", sut's macroWithNameExists("Script Editor: Text Expander: km's getFocusedType()"))
 	
 	if caseIndex is 1 then
-		sut's sendSafariText("KM Test")
+		-- sut's sendSafariText("KM Test")
 		
 	else if caseIndex is 2 then
 		sut's runMacro("hello")
@@ -106,6 +106,15 @@ on spotCheck()
 		
 	else if caseIndex is 11 then
 		sut's selectMacroGroup("App: Script Editor")
+		
+	else if caseIndex is 12 then
+		sut's selectMacro("_Script Editor: Text Expander: Temp Template")
+		
+	else if caseIndex is 13 then
+		set zeroToOne to 0
+		sut's scrollMacrosPane(zeroToOne)
+		sut's scrollActionsPane(zeroToOne)
+		
 	end if
 	
 	activate
@@ -119,6 +128,20 @@ on new()
 	set cliclick to cliclickLib's new()
 	
 	script KeyboardMaestroInstance
+		
+		on scrollMacrosPane(zeroToOne)
+			tell application "System Events" to tell process "Keyboard Maestro"
+				set value of value indicator 1 of scroll bar 1 of scroll area 2 of splitter group 1 of group 6 of my _getMainWindow() to zeroToOne
+			end tell
+			delay 0.1
+		end scrollMacrosPane
+		
+		on scrollActionsPane(zeroToOne)
+			tell application "System Events" to tell process "Keyboard Maestro"
+				set value of value indicator 1 of scroll bar 1 of scroll area 3 of splitter group 1 of group 6 of my _getMainWindow() to zeroToOne
+			end tell
+			delay 0.1
+		end scrollActionsPane
 		
 		(*
 			Text Expander concats the shortcut, that's why we are using the starts with to find the macro.
@@ -303,23 +326,6 @@ on new()
 		end createTriggerLink
 		
 		
-		(*
-			TODO: move out.
-		*)
-		on createReadableTriggerLink(scriptName, params)
-			set plusName to textUtil's replace(scriptName, " ", "+")
-			set plusParams to textUtil's replace(params, " ", "+")
-			if scriptName contains "Open in QuickNote" then
-				return format {"note://{}", {plusParams}}
-				
-			else if scriptName contains "Open in Sublime Text" then
-				return format {"st://{}", {plusParams}}
-				
-			end if
-			format {"kmt://m={}&value={}", {plusName, plusParams}}
-		end createReadableTriggerLink
-		
-		
 		(* Runs a keyboard maestro macro plainly, no extras. *)
 		on runMacro(macroName)
 			tell application "Keyboard Maestro Engine"
@@ -334,95 +340,6 @@ on new()
 			end tell
 		end runMacroWithParameter
 		
-		
-		(* 
-			Runs a keyboard maestro macro with result tracking. 
-
-			@returns true on successful run.
-		*)
-		on runScript(scriptName as text)
-			-- logger's debugf("Script Name: [{}]", scriptName)
-			tell application "Keyboard Maestro Engine"
-				setvariable "km_result" to "false"
-				do script scriptName
-				set runResult to (getvariable "km_result") is equal to "true"
-			end tell
-			delay 0.1
-			runResult
-		end runScript
-		
-		
-		(**)
-		on fetchValue(scriptName)
-			tell application "Keyboard Maestro Engine"
-				setvariable "km_result" to "false"
-				do script scriptName
-				set run_result to (getvariable "km_result")
-			end tell
-			delay 0.1
-			run_result
-		end fetchValue
-		
-		
-		(* 
-			WARN: Problematic, sends text to address bar.
-			@Deprecated - Do not use. Too usecase-specific.
-			@returns true on successful passing of command. 
-		*)
-		on sendSafariText(theText as text)
-			setVariable("TypeText", theText)
-			runScript("App Safari Send Text")
-		end sendSafariText
-		
-		(*
-		(*
-			Note: Still fails silently, retry mitigates the issue.
-			@returns true on successful passing of command.
-		*)
-		on sendSlackText(theText as text)
-			if runScript("App Slack Prepare For Automation") is false then -- reduce the macro to simply check if input box is ready.
-				set cq to std's importx("command-queue")
-				
-				logger's info("Slack seems unready, registering command...")
-				cq's add("slack-command", theText)
-				return false
-			end if
-			
-			setVariable("TypeText", theText)
-			if runScript("App Slack Send Text") is false then
-				logger's warnf("Failed to send text: '{}', Slack may have a draft message", theText)
-				return false
-			end if
-			
-			if runScript("App Slack Click Send") is false then
-				logger's debug("Failed to click the Slack send button")
-				return false
-			end if
-			
-			return true
-			
-			tell application "Keyboard Maestro Engine"
-				do script "App Slack Prepare For Automation"
-				delay 0.1
-				if (getvariable "automation_status" as text) is not "ready" then
-				end if
-				
-				setvariable "TypeText" to theText
-				do script "App Slack Send Text"
-				delay 0.5 -- 0.2 fails intermittently. 0.3 failed on first morning run 0.4 failed TTW meeting.
-				set hasEmoji to theText contains ":"
-				if hasEmoji then delay 0.4 -- increment by 0.1 until it becomes more reliable.
-				
-				setvariable "TypeText" to return
-				do script "App Slack Send Text"
-				delay 0.5 -- Fix attempt.
-				logger's debugf("Invoking: '{}'", "App Slack Click Send")
-				do script "App Slack Click Send" -- To ensure send in case the above fails. Silently fails.
-				
-				true
-			end tell
-		end sendSlackText
-		*)
 		
 		on getVariable(variableName)
 			tell application "Keyboard Maestro Engine" to getvariable variableName
