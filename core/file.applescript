@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2023-11-07 10:55:44
+	@Last Modified: 2023-11-21 18:46:48
 *)
 
 use script "core/Text Utilities"
@@ -34,11 +34,9 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		Unit Test
-		POSIX File Exist
-		POSIX File Don't Exist
 		Read Text File
-		Manual: POSIX Folder Exist
+		Manual: Modification Date
+		Manual: Creation Date
 	")
 
 	set spotClass to spotScript's new()
@@ -50,28 +48,32 @@ on spotCheck()
 	end if
 
 	set userPath to format {"/Users/{}", std's getUsername()}
+	set existingFilePath to format {"{}/.zprofile", userPath}
+	logger's infof("Existing file exists: {}", posixFilePathExists(existingFilePath))
+
+	set nonExistingFilePath to format {"{}/virus.txt", userPath}
+	logger's infof("Non-Existing file does not exist: {}", posixFilePathExists(nonExistingFilePath))
+
+	set posixPath to "/Users/" & std's getUsername() & "/Desktop"
+	logger's infof("Existing Posix Folder Path exists: {}", posixFolderPathExists(posixPath))
+	set posixPath to "/Users/" & std's getUsername() & "/Unicorn"
+	logger's infof("Non-existing Posix Folder Path does not exists: {}", posixFolderPathExists(posixPath))
 
 	if caseIndex is 1 then
-		unitTest()
-
-	else if caseIndex is 2 then
-		set existingFilePath to format {"{}/.zprofile", userPath}
-		log posixFilePathExists(existingFilePath)
-
-	else if caseIndex is 3 then
-		set existingFilePath to format {"{}/virus.txt", userPath}
-		log posixFilePathExists(existingFilePath)
-
-	else if caseIndex is 4 then
 		set posixPath to "/etc/hosts"
 		logger's debugf("posixPath: {}", posixPath)
-		log readFile(POSIX file posixPath)
+		logger's infof("File contents: {}", readFile(POSIX file posixPath))
+
+	else if caseIndex is 2 then
+		getModificationDate("/Users/" & std's getUsername() & "/wordlist.txt")
+		logger's infof("Modification Date: {}", getModificationDate("/Users/" & std's getUsername() & "/wordlist.txt"))
+
+	else if caseIndex is 3 then
+		logger's infof("Creation Date: {}", getCreationDate("/Users/" & std's getUsername() & "/wordlist.txt"))
+
+	else if caseIndex is 4 then
 
 	else if caseIndex is 5 then
-		set posixPath to "/Users/" & std's getUsername() & "/Desktop"
-		logger's debugf("posix Folder Path exists: {}", posixFolderPathExists(posixPath))
-		set posixPath to "/Users/" & std's getUsername() & "/Unicorn"
-		logger's debugf("posix Folder Path exists: {}", posixFolderPathExists(posixPath))
 
 	end if
 
@@ -82,9 +84,9 @@ end spotCheck
 
 on insertBeforeEmptyLine(filePath, substring, textToInsert)
 	set quotedFilePath to quoteFilePath(filePath)
- 	try
-	        -- Use sed to find the substring and insert textToInsert after it on the next empty line
-	        set command to "awk -v header=\"" & substring & "\" -v text='" & textToInsert & "' '
+	try
+		-- Use sed to find the substring and insert textToInsert after it on the next empty line
+		set command to "awk -v header=\"" & substring & "\" -v text='" & textToInsert & "' '
 	BEGIN {
 	    in_target_block = 0;
 	}
@@ -99,31 +101,31 @@ on insertBeforeEmptyLine(filePath, substring, textToInsert)
 	}
 	{ print $0}
 	' " & quotedFilePath & " > /tmp/tmpfile && mv /tmp/tmpfile " & quotedFilePath
-        do shell script command
-        return true -- Success
-    on error the errorMessage number the errorNumber
+		do shell script command
+		return true -- Success
+	on error the errorMessage number the errorNumber
 		log errorMessage
-        return false -- Error occurred
-    end try
+		return false -- Error occurred
+	end try
 end insertBeforeEmptyLine
 
 
 on deleteLineWithSubstring(filePath, substring)
 	do shell script "filePath=" & _quotePath(filePath) & " && grep -v '" & substring & "' \"$filePath\" > /tmp/tmpfile && mv /tmp/tmpfile \"$filePath\"
 "
-end deleteText
+end deleteLineWithSubstring
 
 
 (* @returns true if the file is successfully deleted. *)
 on deleteFile(filePath)
-	set command to  "rm " & _quotePath(filePath)
+	set command to "rm " & _quotePath(filePath)
 	try
 		do shell script command
 		return true
 	end try
 
 	false
-end deleteText
+end deleteFile
 
 
 on _quotePath(filePath)
@@ -265,3 +267,35 @@ on containsText(filePath, substring)
 	end try
 	false
 end containsText
+
+
+on getModificationDate(filePath)
+	if filePath is missing value then return missing value
+
+	set modificationDateStr to do shell script "stat -f %Sm -t \"%Y %m %d %H:%M:%S\" " & quoted form of filePath
+	set {ye, mo, da, Ho, mi, se} to words of modificationDateStr
+
+	set t to Ho * hours + mi * minutes + se
+	set modificationDate to current date
+	set modificationDate's year to ye
+	set modificationDate's month to mo
+	set modificationDate's day to da
+	set modificationDate's time to t
+	modificationDate
+end getModificationDate
+
+
+on getCreationDate(filePath)
+	if filePath is missing value then return missing value
+
+	set creationDateStr to do shell script "stat -f %Sc -t \"%Y %m %d %H:%M:%S\" " & quoted form of filePath
+	set {ye, mo, da, Ho, mi, se} to words of creationDateStr
+
+	set t to Ho * hours + mi * minutes + se
+	set creationDate to current date
+	set creationDate's year to ye
+	set creationDate's month to mo
+	set creationDate's day to da
+	set creationDate's time to t
+	creationDate
+end getCreationDate
