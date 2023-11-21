@@ -7,7 +7,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.18/marked
 
-	@Last Modified: 2023-11-19 09:33:40
+	@Last Modified: 2023-11-21 18:47:26
 
 	@Known Issues:
 		July 2, 2023 8:39 PM - Application keeps reference to closed windows,
@@ -349,7 +349,8 @@ on new()
 			if running of application "Marked" is false then return missing value
 
 			tell application "System Events" to tell process "Marked"
-				if (count of (windows whose name contains documentName)) is 0 then return missing value
+				-- if (count of (windows whose name contains documentName)) is 0 then return missing value
+				if (count of windows) is 0 then return missing value
 			end tell
 
 			try
