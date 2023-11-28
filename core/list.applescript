@@ -2,8 +2,11 @@
 	@Usage:
 		use listUtil : script "core/list"
 
+	@Project:
+		applescript-core
+
 	@Build:
-		make build-lib SOURCE=core/list
+		./scripts/build-lib.sh core/list
 *)
 
 use scripting additions
@@ -146,6 +149,9 @@ end splitString
 on splitByLine(theString)
 	if theString is missing value then return missing value
 
+	if theString contains (ASCII character 10) and (theString contains (ASCII character 13)) then
+		set theString to textUtil's replace(theString, ASCII character 13, ASCII character 10)
+	end if
 	if theString contains (ASCII character 13) then return _split(theString, ASCII character 13) -- assuming this is shell command result, we have to split by CR.
 
 	-- Only printable ASCII characters below 127 works. tab character don't work.
@@ -290,7 +296,7 @@ on listsEqual(list1, list2)
 	end repeat
 
 	true
-end listEquals
+end listsEqual
 
 
 (*
@@ -397,4 +403,3 @@ on _replaceAll(sourceText, substring, replacement)
 	set theList to split(sourceText, substring)
 	join(theList, replacement)
 end _replaceAll
-

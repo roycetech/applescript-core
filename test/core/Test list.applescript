@@ -206,6 +206,7 @@ end script
 
 script |splitByLine tests|
 	property parent : TestSet(me)
+
 	script |Missing Value|
 		property parent : UnitTest(me)
 		assertMissing(sutScript's splitByLine(missing value))
@@ -243,6 +244,16 @@ one
 three	
 "))
 	end script
+
+	script |Combination of ASCII 10 and 13|
+		property parent : UnitTest(me)
+		property LF : ASCII Character 10
+		property CR : ASCII Character 13
+
+		set stringInput to LF & tab & tab & "one" & CR & tab & tab & "two" & CR & tab & tab & "three" & LF & tab
+		assertEqual({"one", "two", "three"}, sutScript's splitByLine(stringInput))
+	end script
+
 end script
 
 
