@@ -9,7 +9,7 @@
 		Project Find Results
 		Welcome Guide
 
-	@Last Modified: 2023-10-20 10:00:56
+	@Last Modified: 2023-11-24 19:49:26
 
 	@Project:
 		applescript-core
@@ -57,6 +57,8 @@ on spotCheck()
 		Manual: Document Info (sample.txt, no file, search result, nav bar un/focused, Settings)
 		Manual: Close Front Tab
 		Manual: _extractDocPathByHotkey (Tree View, Editor)
+
+		Manual: Execute Command
 	")
 
 	set spotClass to spotScript's new()
@@ -98,12 +100,13 @@ on spotCheck()
 
 	else if caseIndex is 3 then
 		sut's closeFrontTab()
-
 		activate
 
 	else if caseIndex is 4 then
 		logger's infof("File path from hotkey: [{}]", sut's _extractDocPathByHotkey())
 
+	else if caseIndex is 5 then
+		sut's executeCommand("Tabs: Close Other Tabs")
 	end if
 
 	spot's finish()
@@ -120,6 +123,19 @@ on new()
 	set clip to clipLib's new()
 
 	script PulsarInstance
+		on executeCommand(commandKey)
+			if running of application "Pulsar" is false then return missing value
+
+			tell application "System Events" to tell process "Pulsar"
+				set frontmost to true
+			end tell
+			kb's pressCommandShiftKey("p")
+			delay 0.1
+			kb's insertTextByPasting(commandKey)
+			delay 0.1
+			kb's pressKey("enter")
+		end executeCommand
+
 		on isTreeViewFocused()
 			if running of application "Pulsar" is false then return missing value
 
@@ -296,3 +312,4 @@ on new()
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
+
