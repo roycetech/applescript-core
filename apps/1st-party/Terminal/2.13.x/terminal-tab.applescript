@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/terminal-tab
 
 	@Created: October 7, 2023 10:27 AM
-	@Last Modified: 2023-10-23 21:15:14
+	@Last Modified: 2023-11-25 10:44:18
 *)
 use script "Core Text Utilities"
 use scripting additions
@@ -324,19 +324,6 @@ on new(pWindowId)
 			set nameTokens to textUtil's split(name of appWindow, SEPARATOR)
 			last item of nameTokens
 		end getTabName
-
-
-		on hasTabBar()
-			set windowName to name of appWindow
-
-			tell application "System Events" to tell process "Terminal"
-				try
-					tab group 1 of window windowName
-					return true
-				end try
-			end tell
-			false
-		end hasTabBar
 
 
 		on _setTabName(tabName as text)

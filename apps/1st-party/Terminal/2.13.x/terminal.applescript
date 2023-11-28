@@ -34,7 +34,7 @@
 		applescript-core
 
 	@Build:
-		make build-terminal
+		./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/terminal
 
 	@Known Issues:
 		Breaks on macOS Ventura, when there is no existing Terminal window to launch from.
@@ -275,6 +275,18 @@ on new()
 			missing value
 		end findTabEndingWith
 
+
+		on hasTabBar()
+			if winUtil's hasWindow("Terminal") is false then return false
+
+			tell application "System Events" to tell process "Terminal"
+				try
+					tab group 1 of front window
+					return true
+				end try
+			end tell
+			false
+		end hasTabBar
 
 		(*
 			You are expected to be running a bash command on the terminal, so it is required you provide the first command.
