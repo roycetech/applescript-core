@@ -7,7 +7,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.18/marked
 
-	@Last Modified: 2023-11-21 18:47:26
+	@Last Modified: 2023-11-21 22:05:37
 
 	@Known Issues:
 		July 2, 2023 8:39 PM - Application keeps reference to closed windows,
@@ -180,7 +180,7 @@ on new()
 				perform action 1 of htmlContent
 				delay 0.1
 				click menu item "Inspect Element" of menu 1 of htmlContent
-				delay 0.2
+				delay 0.4  -- 0.2 failed last time.
 				click (first button of UI element 1 of scroll area 1 of front window whose description starts with "Start element selection")
 			end tell
 		end startInspection
@@ -474,3 +474,4 @@ on new()
 		end _getSysEveWindowCount
 	end script
 end new
+
