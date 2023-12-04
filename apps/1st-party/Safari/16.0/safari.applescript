@@ -31,7 +31,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2023-10-11 14:29:28
+	@Last Modified: 2023-11-29 17:31:55
 *)
 
 use script "core/Text Utilities"
@@ -412,7 +412,7 @@ on new()
 		*)
 			end tell
 
-			safariTabLib's new(id of appWindow, tabTotal)
+			safariTabLib's new(id of appWindow, tabTotal, me)
 		end newTab
 
 		on newCognito(targetUrl)
