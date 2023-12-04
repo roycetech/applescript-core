@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-noncompact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-10-09 10:47:16
+	@Last Modified: 2023-11-29 20:54:37
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -140,6 +140,17 @@ on decorate(mainScript)
 			false
 		end isPlaying
 
+
+		on focusAddressBar()
+			if running of application "Safari" is false then return missing value
+
+			tell application "System Events" to tell process "Safari"
+				try
+	click the first menu item  of menu 1 of menu bar item "File" of menu bar 1 whose title starts with "Open Location"
+end try
+			end tell
+
+		end focusAddressBar
 
 		(*
 			Finds the address bar group by iterating from last to first, returning the first group with a text field.
