@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-keychain
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-10-09 11:58:08
+	@Last Modified: 2023-11-30 16:02:40
 	@Change Logs: .
 *)
 use listUtil : script "core/list"
@@ -168,7 +168,7 @@ on decorate(mainScript)
 
 		on isKeychainFormVisible()
 			tell application "System Events" to tell process "Safari"
-				exists (scroll area 1)
+				exists (table 1 of scroll area 1)
 			end tell
 		end isKeychainFormVisible
 	end script
