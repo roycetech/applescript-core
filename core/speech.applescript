@@ -22,6 +22,9 @@
 
 	@Build:
 		make build-lib SOURCE=core/speech
+
+	@References:
+		https://www.macscripter.net/t/talkin-the-talk-with-apples-speech-tools/49630
 *)
 
 
@@ -119,6 +122,72 @@ on new(pLocalizationConfigName)
 		property _translationsDictionary : missing value
 		property _userInMeetingStub : missing value
 
+		(*
+			Speak text without checking the custom pronunciations.
+		*)
+		on speakFreely(rawText)
+			if my waitNextWords then
+				say rawText
+				set my waitNextWords to false
+
+			else if my synchronous then
+				say rawText
+
+			else
+				say rawText without waiting until completion
+			end if
+		end speakFreely
+
+
+		(* @returns the translated text if present, otherwise the original text to passed. *)
+		on speak(rawText)
+			if not _translationsLoaded then _loadTranslations()
+
+			(*
+				User library has multiple dependencies that may conflict during spot checking so let's skip this during spot checks.
+			*)
+			if not isSpot then
+				try
+					if std's nvl(_userInMeetingStub, false) or usr's isInMeeting() then
+						-- logger's info("SILENCED: " & rawText) -- Dangerous to have access logger instance here.
+						log "SILENCED: " & rawText
+						return rawText
+					end if
+				on error the errorMessage number the errorNumber -- ignore if user script is not installed.
+					-- logger's warn(errorMessage)
+					log "WARN: " & errorMessage
+					return rawText
+				end try
+			end if
+
+			set textToSpeak to _localizeMessage(rawText)
+			if my quiet then return textToSpeak
+
+			if my waitNextWords then
+				say textToSpeak
+				set my waitNextWords to false
+
+			else if my synchronous then
+				log "synchronous"
+				say textToSpeak
+
+			else
+				log "asynchronous"
+				say textToSpeak without waiting until completion
+			end if
+
+			textToSpeak
+		end speak
+
+
+		on speakSynchronously(rawText)
+			set origState to synchronous
+			set synchronous to true
+			speak(rawText)
+			set synchronous to origState
+		end speakSynchronously
+
+
 		on _loadTranslations()
 			set _translationsLoaded to true
 			if not plutil's plistExists(_localizationConfigName) then
@@ -186,70 +255,6 @@ on new(pLocalizationConfigName)
 
 			localizedMessage
 		end _localizeMessage
-
-
-		on speakFreely(rawText)
-			if my waitNextWords then
-				say rawText
-				set my waitNextWords to false
-
-			else if my synchronous then
-				say rawText
-
-			else
-				say rawText without waiting until completion
-			end if
-		end speakFreely
-
-
-		(* @returns the translated text if present, otherwise the original text to passed. *)
-		on speak(rawText)
-			if not _translationsLoaded then _loadTranslations()
-
-			(*
-				User library has multiple dependencies that may conflict during spot checking so let's skip this during spot checks.
-			*)
-			if not isSpot then
-				try
-					if std's nvl(_userInMeetingStub, false) or usr's isInMeeting() then
-						-- logger's info("SILENCED: " & rawText) -- Dangerous to have access logger instance here.
-						log "SILENCED: " & rawText
-						return rawText
-					end if
-				on error the errorMessage number the errorNumber -- ignore if user script is not installed.
-					-- logger's warn(errorMessage)
-					log "WARN: " & errorMessage
-					return rawText
-				end try
-			end if
-
-			set textToSpeak to _localizeMessage(rawText)
-			if my quiet then return textToSpeak
-
-			if my waitNextWords then
-				say textToSpeak
-				set my waitNextWords to false
-
-			else if my synchronous then
-				log "synchronous"
-				say textToSpeak
-
-			else
-				log "asynchronous"
-				say textToSpeak without waiting until completion
-			end if
-
-			textToSpeak
-		end speak
-
-
-		on speakSynchronously(rawText)
-			set origState to synchronous
-			set synchronous to true
-			speak(rawText)
-			set synchronous to origState
-		end speakSynchronously
-
 	end script
 
 
