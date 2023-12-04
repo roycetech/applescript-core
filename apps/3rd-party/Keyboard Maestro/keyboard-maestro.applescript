@@ -1,16 +1,11 @@
 (* 
-	WARNING: This script is still heavily user customized, 
-	TODO: to make it more generic and document required changes to Keyboard Maestro. 
-	
 	@Project:
 		applescript-core
 	
 	@Build:
-		make build-keyboard-maestro
-		or (from the project root)
-		make build-lib SOURCE="apps/3rd-party/Keyboard Maestro/keyboard-maestro"
+		./scripts/build-lib.sh "apps/3rd-party/Keyboard Maestro/keyboard-maestro"
 
-	@Last Modified: September 9, 2023 2:43 PM
+	@Last Modified: November 28, 2023 11:05 PM
 	@Change Logs:
 		October 20, 2023 10:27 AM - Added focusSelectedMacroGroup().
 *)
@@ -33,6 +28,7 @@ use spotScript : script "core/spot-test"
 
 property logger : missing value
 property cliclick : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 if name of current application is "osascript" then unitTest()
@@ -126,19 +122,25 @@ end spotCheck
 on new()
 	loggerFactory's injectBasic(me)
 	set cliclick to cliclickLib's new()
+	set retry to retryLib's new()
 	
 	script KeyboardMaestroInstance
+		property variable_update_retry_count : 3
 		
 		on scrollMacrosPane(zeroToOne)
-			tell application "System Events" to tell process "Keyboard Maestro"
-				set value of value indicator 1 of scroll bar 1 of scroll area 2 of splitter group 1 of group 6 of my _getMainWindow() to zeroToOne
+			tell application "System Events" to tell process "Keyboard Maestro"			
+				try
+					set value of value indicator 1 of scroll bar 1 of scroll area 2 of splitter group 1 of group 6 of my _getMainWindow() to zeroToOne
+				end try  -- Ignore if the scroll bar does not exist.
 			end tell
 			delay 0.1
 		end scrollMacrosPane
 		
 		on scrollActionsPane(zeroToOne)
-			tell application "System Events" to tell process "Keyboard Maestro"
-				set value of value indicator 1 of scroll bar 1 of scroll area 3 of splitter group 1 of group 6 of my _getMainWindow() to zeroToOne
+			tell application "System Events" to tell process "Keyboard Maestro"			
+				try
+					set value of value indicator 1 of scroll bar 1 of scroll area 3 of splitter group 1 of group 6 of my _getMainWindow() to zeroToOne
+				end try  -- Ignore if the scroll bar does not exist.
 			end tell
 			delay 0.1
 		end scrollActionsPane
@@ -290,7 +292,6 @@ on new()
 				if exists (window "New Action") then return
 			end tell
 			
-			set retry to retryLib's new()
 			script NewActionWindowWaiter
 				tell application "System Events" to tell process "Keyboard Maestro"
 					set frontmost to true
@@ -300,7 +301,7 @@ on new()
 					if exists (window "New Action") then return true
 				end tell
 			end script
-			exec of retry on result for 3
+			exec of retry on result for variable_update_retry_count
 		end showActions
 		
 		(* @Warning - Grabs app focus *)
@@ -342,21 +343,31 @@ on new()
 		
 		
 		on getVariable(variableName)
-			tell application "Keyboard Maestro Engine" to getvariable variableName
+			script RetrieveRetry
+				tell application "Keyboard Maestro Engine" to getvariable variableName
+			end script
+			exec of retry on result for variable_update_retry_count
 		end getVariable
-		
+
 		
 		on getLocalVariable(variableName)
 			set kmInst to system attribute "KMINSTANCE"
-			tell application "Keyboard Maestro Engine"
-				getvariable variableName instance kmInst
-			end tell
+			script RetrieveRetry
+				tell application "Keyboard Maestro Engine"
+					return getvariable variableName instance kmInst
+				end tell
+			end script
+			exec of retry on result for variable_update_retry_count
 		end getLocalVariable
 		
 		
 		(* This works only for KM global variables. *)
 		on setVariable(variableName, newValue)
-			tell application "Keyboard Maestro Engine" to setvariable variableName to newValue
+			script SetRetry
+				tell application "Keyboard Maestro Engine" to setvariable variableName to newValue
+				true
+			end script
+			exec of retry on result for variable_update_retry_count
 		end setVariable
 		
 		
@@ -371,4 +382,3 @@ on new()
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
-
