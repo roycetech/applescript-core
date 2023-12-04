@@ -3,6 +3,9 @@
 		use kbLib : script "core/keyboard"
 	Or type (Text Expander): uuse kb
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make build-lib SOURCE=core/keyboard
 *)
@@ -126,7 +129,7 @@ on new()
 	loggerFactory's inject(me)
 
 	script KeyboardInstance
-		property delayAfterKeySeconds : 0.01
+		property delayAfterKeySeconds : 0.04  -- 0.02 Fails when used with Keyboard Maestro.
 		property delayAfterTypingSeconds : 0.1
 
 		on checkModifier(keyName)
@@ -223,6 +226,13 @@ on new()
 			delay delayAfterKeySeconds
 		end pressCommandOptionShiftKey
 
+		on pressOptionShiftKey(keyToPress)
+			tell application "System Events"
+				key code my _charToKeycode(keyToPress) using {option down, shift down}
+			end tell
+			delay delayAfterKeySeconds
+		end pressCommandOptionShiftKey
+
 		on pressControlKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {control down}
@@ -256,7 +266,10 @@ on new()
 			delay delayAfterTypingSeconds
 		end typeText
 
-		(* To test. *)
+		(*
+			Looks to still have failed as of December 3, 2023 10:38 AM. May
+			still be failing intermittently still.
+		*)
 		on insertTextByPasting(theText)
 			try
 				set origClipboard to the clipboard
@@ -372,3 +385,4 @@ on _charToKeycode(key)
 	-1
 end _charToKeycode
 -- EOS
+
