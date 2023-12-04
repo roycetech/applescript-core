@@ -21,9 +21,10 @@
 		September 6, 2023 9:30 AM - Added submitFirstForm.
  *)
 
-use script "core/Text Utilities"
 use scripting additions
 
+use script "core/Text Utilities"
+use std : script "core/std"
 use listUtil : script "core/list"
 
 use configLib : script "core/config"
@@ -48,6 +49,7 @@ on spotCheck()
 
 	(* Tests are based on current apple.com website, very likely to change in the future. *)
 	set cases to listUtil's splitByLine("
+		Manual: AWS Login, IAM Radio Option
 		Manual: Link Text Visible
 		Manual: Selector Exists
 		Checked By ID
@@ -62,40 +64,42 @@ on spotCheck()
 		return
 	end if
 
-	set sutTab to safari's newTab("https://www.apple.com")
+	set safari to safariLib's new()
+	-- set safariTab to safari's newTab("https://www.apple.com")
+	safari's getFrontTab()
+	set safariTab to decorate(result)
 
-	try
-		sutTab's _runScript
-	on error
-		set sutTab to decorate(sutTab)
-	end try
-
-	tell sutTab
+	tell safariTab
 		set its findRunMax to 3
 		set its findRetrySleep to 1
 	end tell
-	sutTab's focus()
-	sutTab's waitForPageLoad()
+	safariTab's focus()
+	safariTab's waitForPageLoad()
 
 	if caseIndex is 1 then
-		set jsResult to sutTab's linkTextVisible("Learn more")
+		-- logger's infof("Selector Exists: {}",
+		log safariTab's selectorExists("#iam_user_radio_button")
+		log safariTab's selectorExists("#account")
+		-- )
+
+	else if caseIndex is 2 then
+		set jsResult to safariTab's linkTextVisible("Learn more")
 		assertThat of std given condition:jsResult is true, messageOnFail:"Failed spot check"
-		set jsFalseResult to sutTab's linkTextVisible("Learn nothing")
+		set jsFalseResult to safariTab's linkTextVisible("Learn nothing")
 		assertThat of std given condition:jsFalseResult is false, messageOnFail:"Failed spot check"
 		logger's info("Passed")
 
-	else if caseIndex is 2 then
-		assertThat of std given condition:sutTab's selectorExists(".alert-danger") is false, messageOnFail:"Failed spot check"
+	else if caseIndex is 3 then
+		assertThat of std given condition:safariTab's selectorExists(".alert-danger") is false, messageOnFail:"Failed spot check"
 
-		assertThat of std given condition:sutTab's selectorExists(".unit-wrapper") is true, messageOnFail:"Failed spot check"
+		assertThat of std given condition:safariTab's selectorExists(".unit-wrapper") is true, messageOnFail:"Failed spot check"
 		logger's info("Passed.")
 
-	else if caseIndex is 3 then
+	else if caseIndex is 4 then
 		log sutTab's getCheckedById("activate_account_choice")
 
-	else if caseIndex is 4 then
+	else if caseIndex is 5 then
 		log sutTab's getValue(".version-dd") -- cffiddle.org
-
 	end if
 
 	(*
@@ -330,7 +334,7 @@ on decorate(safariTab)
 		(* *)
 		on namedElementExists(elementName)
 			set scriptText to format {"document.getElementsByName('{}').length > 0", elementName}
-			_runScript(scriptText)
+			runScript(scriptText)
 		end namedElementExists
 
 		on textContent(selector)
@@ -436,12 +440,18 @@ on decorate(safariTab)
 			don't want to break the other uses. TODO: Unit Tests.
 		*)
 		on runScript(scriptText)
-			tell application "Safari" to do JavaScript ("try { " & scriptText & "} catch(e) { e.message; }") in _tab of safariTab
+			tell application "Safari"
+				do JavaScript ("
+					try {
+						" & scriptText & "+ ''
+					} catch(e) {
+						e.message;
+					}
+				") in _tab of safariTab
+			end tell
 		end runScript
 
 		(*
-			TOFIX: Should not always return a boolean.
-
 			@returns result of the javascript.
 		*)
 		on _runScript(scriptText)
@@ -456,7 +466,7 @@ on decorate(safariTab)
 		on runScriptPlain(scriptText)
 			-- tell application "Safari" to do JavaScript scriptText in _tab of safariTab
 			if scriptText does not end with ";" then set scriptText to scriptText & ";"
-			tell application "Safari" to return do JavaScript ("try {" & scriptText & "'true';} catch(e) { e.message; }") in _tab of safariTab
+			tell application "Safari" to return do JavaScript ("try {" & scriptText & "} catch(e) { e.message; }") in _tab of safariTab
 		end runScriptPlain
 
 
