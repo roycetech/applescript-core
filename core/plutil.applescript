@@ -27,6 +27,7 @@
 		spot-plist - temporary plist used for testing.
 
 	@Known Issues
+		December 5, 2023 9:50 PM - Breaks when there is a dollar and an ampersand character in the value.
 		Cannot have a colon in the key name for arrays.
 		Keys are case-sensitive.
 		Script Debugger - Unit test fails when debugger is ON.
@@ -40,7 +41,7 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2023-09-25 14:57:57
+	@Last Modified: 2023-12-05 21:52:09
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
