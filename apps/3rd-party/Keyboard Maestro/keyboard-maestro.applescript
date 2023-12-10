@@ -372,9 +372,12 @@ on new()
 		
 		
 		on _getMainWindow()
-			tell application "System Events" to tell process "Keyboard Maestro"
-				first window whose title is not "New Action"
-			end tell
+			script RetryMainWindow
+				tell application "System Events" to tell process "Keyboard Maestro"
+					first window whose title is not "New Action"
+				end tell
+			end script
+			retry's exec on result for 3
 		end _getMainWindow
 		
 	end script
