@@ -18,6 +18,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
 
 	@Change Logs:
+		December 6, 2023 9:08 PM - In the runScript handler, removed the + '' causing the '.href' to return 0.0 instead of the actual URL.
 		September 6, 2023 9:30 AM - Added submitFirstForm.
  *)
 
@@ -443,7 +444,7 @@ on decorate(safariTab)
 			tell application "Safari"
 				do JavaScript ("
 					try {
-						" & scriptText & "+ ''
+						" & scriptText & "
 					} catch(e) {
 						e.message;
 					}
