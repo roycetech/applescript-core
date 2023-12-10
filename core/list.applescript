@@ -403,3 +403,15 @@ on _replaceAll(sourceText, substring, replacement)
 	set theList to split(sourceText, substring)
 	join(theList, replacement)
 end _replaceAll
+
+
+(* Tested on text types only for now. *)
+on unique(inputList)
+	set uniqueList to {}
+	repeat with nextElement in inputList
+		if class of nextElement is text and not listContains(uniqueList, nextElement as text) then
+			set end of uniqueList to nextElement as text
+		end if
+	end repeat
+	uniqueList
+end unique
