@@ -204,14 +204,15 @@ test-unit:
 # 	osascript "test/core/Test date-time.applescript"
 # 	osascript "test/core/Test decorator.applescript"
 # 	osascript "test/core/Test file.applescript"
-	osascript "test/core/Test list.applescript"
+# 	osascript "test/core/Test list.applescript"
 # 	osascript "test/core/Test lov.applescript"
 # 	osascript "test/core/Test map.applescript"
 # 	osascript "test/core/Test plist-buddy.applescript"
-# 	osascript "test/core/Test plutil.applescript"
+	osascript "test/core/Test plutil.applescript"
 # 	osascript "test/core/Test property-list.applescript"
 # 	osascript "test/core/Test regex.applescript"
 # 	osascript "test/core/Test regex-pattern.applescript"
+# 	osascript "test/core/Test safari-javascript.applescript"
 # 	osascript "test/core/Test stack.applescript"
 # 	osascript "test/core/Test switch.applescript"
 # 	osascript "test/core/Test speech.applescript"
@@ -335,6 +336,10 @@ install-automator: build-automator
 uninstall-automator:
 	@echo "TODO"
 	# TODO:
+
+
+build-home:
+	./scripts/build-lib.sh apps/1st-party/Home/7.0/home
 
 
 build-terminal:
@@ -573,3 +578,4 @@ install-timed-cache:
 	./scripts/build-lib.sh libs/timed-cache-plist/timed-cache-plist
 
 # 	osacompile -o ~/Library/Script\ Libraries/redis.scpt redis.applescript
+
