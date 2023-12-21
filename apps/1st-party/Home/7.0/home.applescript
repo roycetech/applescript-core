@@ -10,17 +10,21 @@
 		./scripts/build-lib.sh apps/1st-party/Home/7.0/home
 
 	@Created: December 8, 2023 9:40 PM
-	@Last Modified: 2023-12-10 11:15:52
+	@Last Modified: 2023-12-21 09:25:12
 *)
+use scripting additions
 
+use textUtil : script "core/string"
 use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 use systemEventLib : script "core/system-events"
+use retryLib : script "core/retry"
 
 use spotScript : script "core/spot-test"
 
 property logger : missing value
 property systemEvent : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -50,8 +54,14 @@ on spotCheck()
 		-- sut's printUIElements(front window, "")
 	end tell
 
-	logger's infof("Has Sidebar: {}", sut's hasSideBar())
-	-- tell me to error "abort" -- IS THIS PROMINENT ENOUGH?!!!
+	set sideBarVisible to sut's hasSideBar()
+	logger's infof("Has Sidebar: {}", sideBarVisible)
+	if sideBarVisible then
+		logger's infof("Selected Sidebar Item: {}", sut's getSelectedSidebarItem())
+	end if
+	-- logger's infof("Status: {}", sut's getAccessoryStatus("Table"))
+	logger's infof("Status: {}", sut's getAccessoryStatus("YLBulbColor1s"))
+
 
 	if caseIndex is 1 then
 		-- logger's infof("Switch result: {}", sut's switchSidbarItem("Unicorn"))
@@ -74,7 +84,7 @@ on spotCheck()
 	else if caseIndex is 5 then
 		sut's showSidebar()
 		sut's switchSidebarItem("Bedroom")
-		logger's infof("Status: {}", sut's getStatus("Table"))
+		logger's infof("Status: {}", sut's getAccessoryStatus("Table"))
 
 	end if
 
@@ -87,11 +97,12 @@ end spotCheck
 on new()
 	loggerFactory's inject(me)
 	set systemEvent to systemEventLib's new()
+	set retry to retryLib's new()
 
 	script HomeInstance
 		(* @returns true on success. *)
 		on switchSidebarItem(itemName)
-			logger's debugf("itemName: {}", itemName)
+			-- logger's debugf("itemName: {}", itemName)
 			set sideBarItem to findUiElementWithDescription(missing value, itemName)
 			if sideBarItem is missing value then return false
 			-- log class of sideBarItem
@@ -139,13 +150,59 @@ on new()
 		end showSidebar
 
 
+		on getSelectedSidebarItem()
+			tell application "System Events"
+				try
+					return description of my findSelectedStaticText(missing value)
+				end try
+			end tell
+			missing value
+		end getSelectedSidebarItem
+
+
+		on findSelectedStaticText(targetGroup)
+			if targetGroup is missing value then
+				tell application "System Events" to tell process "Home"
+					try
+						set targetGroup to group 1 of front window
+					end try
+				end tell
+			end if
+			if targetGroup is missing value then return missing value
+
+			set selectedUIElement to missing value
+			try
+
+				tell application "System Events" to tell process "Home"
+					set selectedUIElement to the first UI element of targetGroup whose selected is true
+				end tell
+			end try
+			if selectedUIElement is not missing value then
+				tell application "System Events" to tell process "Home"
+					return selectedUIElement
+				end tell
+			end if
+
+			tell application "System Events" to tell process "Home"
+				set subgroups to groups of targetGroup
+			end tell
+
+			repeat with nextGroup in subgroups
+				set nextStaticText to findSelectedStaticText(nextGroup)
+				if nextStaticText is not missing value then return nextStaticText
+			end repeat
+
+			missing value
+		end findSelectedStaticText
+
+
 		on clickTile(tileName)
 			set accessoryTile to findButtonWithDescription(missing value, tileName)
 			if accessoryTile is missing value then return false
 
 			tell application "System Events"
 				try
-					entire contents of accessoryTile
+					click of accessoryTile
 					return true
 				end try
 			end tell
@@ -153,15 +210,36 @@ on new()
 		end clickTile
 
 
-		(* @returns missing value if the tile was not found, true if ON, false if OFF. *)
-		on getStatus(tileName)
+		on openDetails(tileName)
 			set accessoryTile to findButtonWithDescription(missing value, tileName)
+			if accessoryTile is missing value then return false
+
+			tell application "System Events"
+				try
+					perform last action of accessoryTile
+					return true
+				end try
+			end tell
+			false
+		end openDetails
+
+
+		(*
+			There was an issue with a lost reference to the window when this handler in invoked immediately after switching side bar item, so a retry was used to mitigate.
+
+			@returns the text after the comma in the desccription.
+		*)
+		on getAccessoryStatus(tileName)
+			script RetryScript
+				findButtonWithDescription(missing value, tileName)
+			end script
+			set accessoryTile to exec of retry on result for 3
 			if accessoryTile is missing value then return missing value
 
 			tell application "System Events" to tell process "Home"
-				description of accessoryTile ends with "On"
+				last item of textUtil's split(description of accessoryTile, ", ")
 			end tell
-		end getStatus
+		end getAccessoryStatus
 
 
 		on findUiElementWithDescription(targetGroup, textDescription)
