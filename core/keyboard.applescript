@@ -56,6 +56,8 @@ on spotCheck()
 	set {caseIndex, caseDesc} to spot's start()
 
 	set sut to new()
+	logger's infof("Capslock is ON: {}", sut's isCapslockOn())
+
 	tell sut
 		if caseIndex is 1 then
 			pressKey(0)
@@ -129,7 +131,7 @@ on new()
 	loggerFactory's inject(me)
 
 	script KeyboardInstance
-		property delayAfterKeySeconds : 0.04  -- 0.02 Fails when used with Keyboard Maestro.
+		property delayAfterKeySeconds : 0.08 -- 0.04 Fails when used with Keyboard Maestro.
 		property delayAfterTypingSeconds : 0.1
 
 		on checkModifier(keyName)
@@ -144,6 +146,7 @@ on new()
 			else
 				return false
 			end if
+
 			set theFlag to NSEvent's modifierFlags() as integer
 			if ((theFlag div theMask) mod 2) = 0 then
 				return false
@@ -151,6 +154,17 @@ on new()
 				return true
 			end if
 		end checkModifier
+
+
+		(*
+			Tested on macOS 13.
+
+			@returns true if capslock is ON.
+		*)
+		on isCapslockOn()
+			current application's NSEvent's modifierFlags() as integer is not equal to 0
+		end isCapslockOn
+
 
 		on modifiersDown()
 			set theKeys to {}
@@ -231,7 +245,7 @@ on new()
 				key code my _charToKeycode(keyToPress) using {option down, shift down}
 			end tell
 			delay delayAfterKeySeconds
-		end pressCommandOptionShiftKey
+		end pressOptionShiftKey
 
 		on pressControlKey(keyToPress)
 			tell application "System Events"
