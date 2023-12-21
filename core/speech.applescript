@@ -20,8 +20,11 @@
 	@Testing:
 		Difficult to unit test. Better to test this manually.
 
+	@Project:
+		applescript-core
+
 	@Build:
-		make build-lib SOURCE=core/speech
+		./scripts/build-lib.sh core/speech
 
 	@References:
 		https://www.macscripter.net/t/talkin-the-talk-with-apples-speech-tools/49630
@@ -168,11 +171,11 @@ on new(pLocalizationConfigName)
 				set my waitNextWords to false
 
 			else if my synchronous then
-				log "synchronous"
+				-- log "synchronous"
 				say textToSpeak
 
 			else
-				log "asynchronous"
+				-- log "asynchronous"
 				say textToSpeak without waiting until completion
 			end if
 
