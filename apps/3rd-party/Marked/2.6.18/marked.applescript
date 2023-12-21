@@ -7,7 +7,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.18/marked
 
-	@Last Modified: 2023-11-21 22:05:37
+	@Last Modified: 2023-12-20 15:15:02
 
 	@Known Issues:
 		July 2, 2023 8:39 PM - Application keeps reference to closed windows,
@@ -24,6 +24,8 @@ use loggerFactory : script "core/logger-factory"
 
 use loggerLib : script "core/logger"
 use configLib : script "core/config"
+
+use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
@@ -262,6 +264,7 @@ on new()
 		on toggleDarkMode()
 			tell application "System Events" to tell process "Marked"
 				set frontmost to true
+				delay 0.01
 				try
 					click menu item "Dark Mode" of menu 1 of menu bar item "Preview" of menu bar 1
 				end try
@@ -473,5 +476,9 @@ on new()
 			end tell
 		end _getSysEveWindowCount
 	end script
+
+		set decorator to decoratorLib's new(result)
+	decorator's decorate()
 end new
+
 
