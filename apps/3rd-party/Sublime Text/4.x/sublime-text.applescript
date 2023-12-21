@@ -68,7 +68,7 @@ on spotCheck()
 	
 	set sut to new()
 	if caseIndex is 1 then
-		logger's infof("Current File Path: {}", sut's getCurrentFilePath()) 
+		logger's infof("Current File Path: {}", sut's getCurrentFilePath())
 		logger's infof("Current Filename: {}", sut's getCurrentFilename())
 		logger's infof("Current Directory: {}", sut's getCurrentFileDirectory())
 		logger's infof("Current Base Filename: {}", sut's getCurrentBaseFilename())
@@ -156,7 +156,7 @@ on new()
 			first item of windowNameTokens
 		end getCurrentDocumentName
 		
-
+		
 		on getCurrentProjectDirectory()
 			getCurrentProjectPath()
 		end getCurrentProjectDirectory
@@ -421,15 +421,35 @@ on new()
 		end closeTab
 		
 		
+		(* NOTE:  *)
 		on focusGroup1()
-			kb's pressCommandKey("k")
-			kb's pressCommandKey("left")
+			(*
+				-- Toggle's the focus group.
+				kb's pressCommandKey("k")
+				kb's pressCommandKey("left")
+			*)
+			tell application "System Events" to tell process "Sublime Text"
+				set frontmost to true
+				try
+					click (first menu item of menu 1 of menu item "Focus Group" of menu 1 of menu bar item "View" of menu bar 1 whose title starts with "Group 1")
+				end try
+			end tell
 		end focusGroup1
 		
 		
+		(* NOTE: Toggle's the focus group. *)
 		on focusGroup2()
-			kb's pressCommandKey("k")
-			kb's pressCommandKey("right")
+			(*
+				-- Toggle's the focus group.
+				kb's pressCommandKey("k")
+				kb's pressCommandKey("right")
+			*)
+			tell application "System Events" to tell process "Sublime Text"
+				set frontmost to true
+				try
+					click (first menu item of menu 1 of menu item "Focus Group" of menu 1 of menu bar item "View" of menu bar 1 whose title starts with "Group 2")
+				end try
+			end tell
 		end focusGroup2
 		
 		
