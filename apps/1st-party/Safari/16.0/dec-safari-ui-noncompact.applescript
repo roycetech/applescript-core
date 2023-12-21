@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-noncompact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-11-29 20:54:37
+	@Last Modified: 2023-12-12 10:41:46
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -146,11 +146,49 @@ on decorate(mainScript)
 
 			tell application "System Events" to tell process "Safari"
 				try
-	click the first menu item  of menu 1 of menu bar item "File" of menu bar 1 whose title starts with "Open Location"
-end try
+					click the first menu item  of menu 1 of menu bar item "File" of menu bar 1 whose title starts with "Open Location"
+				end try
+			end tell
+		end focusAddressBar
+
+
+		(* Took 8s on the first run, 0-1s on subsequent runs. *)
+		on getHtmlUI()
+			if running of application "Safari" is false then return missing value
+
+			_getHtmlUI(missing value)
+		end getHtmlUI
+
+		on _getHtmlUI(targetUI)
+			if targetUI is missing value then
+				tell application "System Events" to tell process "Safari"
+					try
+						set targetUI to splitter group 1 of front window
+					end try
+				end tell
+			end if
+			if targetUI is missing value then return missing value
+
+			set matchingUiElement to missing value
+			try
+
+				tell application "System Events" to tell process "Safari"
+					set matchingUiElement to the first UI element of targetUI whose role description is equal to "HTML Content"
+				end tell
+			end try
+			if matchingUiElement is not missing value then return matchingUiElement
+
+			tell application "System Events" to tell process "Safari"
+				set subuis to entire contents of targetUI
 			end tell
 
-		end focusAddressBar
+			repeat with nextSubUi in subuis
+				set nextUiElement to _getHtmlUI(nextSubUi)
+				if nextUiElement is not missing value then return nextUiElement
+			end repeat
+
+			missing value
+		end _getHtmlUI
 
 		(*
 			Finds the address bar group by iterating from last to first, returning the first group with a text field.
@@ -174,6 +212,5 @@ end try
 				group addressBarGroupIndex of toolbar 1 of front window
 			end tell
 		end _getAddressBarGroup
-
 	end script
 end decorate
