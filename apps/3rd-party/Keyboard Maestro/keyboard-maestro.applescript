@@ -65,6 +65,7 @@ on spotCheck()
 	
 	set sut to new()
 	logger's infof("Focused Type: {}", sut's getFocusedType())
+	logger's infof("Actions Window Present: {}", sut's isActionsWindowPresent())
 	logger's infof("Selected Group Name: {}", sut's getSelectedGroupName())
 	logger's infof("Macro with name exists (Unicorn): {}", sut's macroWithNameExists("Unicorn"))
 	logger's infof("Macro with name exists yes: {}", sut's macroWithNameExists("Script Editor: Text Expander: km's getFocusedType()"))
@@ -128,19 +129,19 @@ on new()
 		property variable_update_retry_count : 3
 		
 		on scrollMacrosPane(zeroToOne)
-			tell application "System Events" to tell process "Keyboard Maestro"			
+			tell application "System Events" to tell process "Keyboard Maestro"
 				try
 					set value of value indicator 1 of scroll bar 1 of scroll area 2 of splitter group 1 of group 6 of my _getMainWindow() to zeroToOne
-				end try  -- Ignore if the scroll bar does not exist.
+				end try -- Ignore if the scroll bar does not exist.
 			end tell
 			delay 0.1
 		end scrollMacrosPane
 		
 		on scrollActionsPane(zeroToOne)
-			tell application "System Events" to tell process "Keyboard Maestro"			
+			tell application "System Events" to tell process "Keyboard Maestro"
 				try
 					set value of value indicator 1 of scroll bar 1 of scroll area 3 of splitter group 1 of group 6 of my _getMainWindow() to zeroToOne
-				end try  -- Ignore if the scroll bar does not exist.
+				end try -- Ignore if the scroll bar does not exist.
 			end tell
 			delay 0.1
 		end scrollActionsPane
@@ -316,6 +317,17 @@ on new()
 			end tell
 		end hideActions
 		
+		on isActionsWindowPresent()
+			if running of application "Keyboard Maestro" is false then return false
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					return exists (window "New Action")
+				end try
+			end tell
+			false
+		end isActionsWindowPresent
+		
 		on createTriggerLink(scriptName, params)
 			set paramPart to ""
 			if params is not missing value then
@@ -327,18 +339,24 @@ on new()
 		end createTriggerLink
 		
 		
-		(* Runs a keyboard maestro macro plainly, no extras. *)
+		(* Runs a keyboard maestro macro asynchronously and plainly, no extras. *)
 		on runMacro(macroName)
-			tell application "Keyboard Maestro Engine"
-				do script macroName
-			end tell
+			script RunRetry
+				tell application "Keyboard Maestro Engine" to do script macroName
+				true
+			end script
+			exec of retry on result for 3
 		end runMacro
 		
-		(* Runs a keyboard maestro macro plainly, no extras. *)
+		(* 
+			Runs a keyboard maestro macro asynchronously and plainly, no extras. *)
 		on runMacroWithParameter(macroName, macroParameter)
-			tell application "Keyboard Maestro Engine"
-				do script macroName with parameter macroParameter
-			end tell
+			script RunRetry
+				tell application "Keyboard Maestro Engine"
+					do script macroName with parameter macroParameter
+				end tell
+			end script
+			exec of retry on result for 3
 		end runMacroWithParameter
 		
 		
@@ -348,17 +366,28 @@ on new()
 			end script
 			exec of retry on result for variable_update_retry_count
 		end getVariable
-
+		
 		
 		on getLocalVariable(variableName)
-			set kmInst to system attribute "KMINSTANCE"
 			script RetrieveRetry
+				set kmInst to system attribute "KMINSTANCE"
 				tell application "Keyboard Maestro Engine"
 					return getvariable variableName instance kmInst
 				end tell
 			end script
 			exec of retry on result for variable_update_retry_count
 		end getLocalVariable
+
+
+		on setLocalVariable(localVariableName, textValue)
+			script RetrieveRetry
+				set kmInst to system attribute "KMINSTANCE"
+				tell application "Keyboard Maestro Engine"
+					setvariable variableName to textValue instance kmInst
+				end tell
+			end script
+			exec of retry on result for variable_update_retry_count
+		end setLocalVariable
 		
 		
 		(* This works only for KM global variables. *)
@@ -377,7 +406,7 @@ on new()
 					first window whose title is not "New Action"
 				end tell
 			end script
-			retry's exec on result for 3
+			exec of retry on result for 3
 		end _getMainWindow
 		
 	end script
