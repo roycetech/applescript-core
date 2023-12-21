@@ -1,11 +1,24 @@
 (*
 	Passwords handlers for System Settings.
 	
+	@Plists:
+		config-user
+			Username 2: Used for testing only.
+	
 	@Project:
 		applescript-core
 		
 	@Build:
 		./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_passwords"
+
+	@Usage:
+		set systemSettingLib to script "core/system-settings"
+		set systemSetting to systemSettingLib's new()
+		systemSetting's revealPasswords()
+		systemSetting's filterCredentials("zoom")
+		systemSetting's clickCredentialInformation()
+		systemSetting's getVerificationCode(2)
+
 
 	@Created: Wednesday, November 8, 2023 at 10:41:03 PM
 	@Last Modified: Wednesday, November 8, 2023 at 10:41:03 PM
@@ -14,8 +27,11 @@
 
 use scripting additions
 
+use textUtil : script "core/string"
 use listUtil : script "core/list"
+
 use loggerFactory : script "core/logger-factory"
+
 use usrLib : script "core/user"
 use clipLib : script "core/clipboard"
 use retryLib : script "core/retry"
@@ -25,6 +41,7 @@ use spotScript : script "core/spot-test"
 property logger : missing value
 property usr : missing value
 property clip : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -51,16 +68,21 @@ on spotCheck()
 	set sutLib to script "core/system-settings"
 	set sut to sutLib's new()
 	set sut to decorate(sut)
+	set configLib to script "core/config"
+	set configUser to configLib's new("user")
 	
 	if caseIndex is 1 then
 		-- sut's printPaneIds()
 		sut's revealPasswords()
 		
 	else if caseIndex is 2 then
-		sut's filterCredentials("zoom")
+		sut's filterCredentials("signin.aws.amazon.com")
 		
 	else if caseIndex is 3 then
-		sut's clickCredentialInformation()
+		-- sut's clickFirstCredentialInformation()
+		set secondaryEmail to configUser's getValue("Username 2")
+		logger's debugf("secondaryEmail: {}", secondaryEmail)
+		sut's clickCredentialInformationWithUsername(secondaryEmail)
 		
 	else if caseIndex is 4 then
 		logger's infof("Username: {}", sut's getUsername())
@@ -87,6 +109,7 @@ on decorate(mainScript)
 	loggerFactory's inject(me)
 	set usr to usrLib's new()
 	set clip to clipLib's new()
+	set retry to retryLib's new()
 	
 	script SystemSettingsPasswordsDecorator
 		property parent : mainScript
@@ -118,7 +141,7 @@ on decorate(mainScript)
 		on revealPasswords()
 			tell application "System Settings"
 				activate
-				delay 0.1  -- Intermittent failure without this.
+				delay 0.4 -- Intermittent failure  with 0.2.
 				set current pane to pane id "com.apple.Passwords-Settings.extension"
 				delay 1
 				usr's cueForTouchId()
@@ -126,21 +149,51 @@ on decorate(mainScript)
 		end revealPasswords
 		
 		
+		on _getCommonGroup()
+			script RetryScript
+				tell application "System Events" to tell process "System Settings"
+					group 3 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of window "Passwords"
+				end tell
+			end script
+			exec of retry on result for 3
+		end _getCommonGroup
+		
+		
 		on filterCredentials(keyword)
-			tell application "System Events" to tell process "System Settings"
-				set value of text field 1 of group 3 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of window "Passwords" to keyword
+			tell application "System Events"
+				set value of text field 1 of my _getCommonGroup() to keyword
 				delay 0.1
 			end tell
-			
 		end filterCredentials
 		
 		
-		on clickCredentialInformation()
+		on clickFirstCredentialInformation()
 			tell application "System Events" to tell process "System Settings"
-				click button 1 of UI element 1 of row 1 of table 1 of scroll area 1 of group 3 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of window "Passwords"
+				click button 1 of UI element 1 of row 1 of table 1 of scroll area 1 of my _getCommonGroup()
 				delay 0.1
 			end tell
-		end clickCredentialInformation
+		end clickFirstCredentialInformation
+		
+		
+		on clickCredentialInformationWithUsername(username)
+			set credentialRows to missing value
+			tell application "System Events"
+				try
+					set credentialRows to rows of table 1 of scroll area 1 of my _getCommonGroup()
+				end try
+				if credentialRows is missing value then return missing value
+				
+				repeat with nextRow in credentialRows
+					if value of static text 2 of UI element 1 of nextRow is equal to the username then
+						click button 1 of UI element 1 of nextRow
+					end if
+				end repeat
+				delay 0.1
+				
+			end tell
+			
+			
+		end clickCredentialInformationWithUsername
 		
 		
 		on getUsername()
@@ -189,7 +242,7 @@ on decorate(mainScript)
 			end if
 			
 			tell application "System Events" to tell process "System Settings"
-				get value of static text 3 of group 2 of scroll area 1 of group 1 of sheet 1 of window "Passwords"
+				textUtil's replace(value of static text 3 of group 2 of scroll area 1 of group 1 of sheet 1 of window "Passwords", " ", "")
 			end tell
 		end getVerificationCode
 	end script
