@@ -70,7 +70,7 @@ CORE_LIBS :=  \
 APPS_PATH=/Applications/AppleScript
 
 _init:
-	mkdir -p ~/Library/Script\ Libraries
+	mkdir -p ~/Library/Script\ Libraries/core
 	mkdir -p ~/applescript-core/sounds/
 	mkdir -p ~/applescript-core/logs/
 	mkdir -p ~/Applications/AppleScript/Stay\ Open/
@@ -137,8 +137,11 @@ compile: \
 	build-control-center \
 	build-user
 
-build-extras: install-terminal \
-	build-redis
+build-extras: \
+	build-counter \
+	build-redis \
+	build-terminal
+
 build-extras: install-timed-cache
 	./scripts/build-lib.sh "libs/zsh/oh-my-zsh"
 
@@ -238,7 +241,7 @@ build-macos-apps: \
 	build-preview \
 	install-safari \
 	build-system-preferences \
-	install-terminal
+	build-terminal
 
 
 # Extra Libraries ================================
@@ -322,7 +325,7 @@ install-safari-technology-preview: build-safari-technology-preview
 build-script-editor:
 	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
 
-install-finder:
+build-finder:
 	./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
 
 build-automator:
