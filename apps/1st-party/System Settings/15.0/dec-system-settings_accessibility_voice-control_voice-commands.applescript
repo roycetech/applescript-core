@@ -126,6 +126,8 @@ on decorate(mainScript)
 		end setWhenISay
 
 		on setWhileUsing(appName)
+			if appName is "" or appName is missing value then return
+			
 			tell application "System Events" to tell process "System Settings"
 				set the whileUsingPopup to the pop up button 1 of group 1 of sheet 1 of window "Voice Control"
 				click the whileUsingPopup
