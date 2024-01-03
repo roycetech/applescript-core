@@ -33,6 +33,8 @@ use spotScript : script "core/spot-test"
 use decoratorLib : script "core/decorator"
 
 property logger : missing value
+property LF : ASCII Character 10
+property CR : ASCII Character 13
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
