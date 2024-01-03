@@ -9,13 +9,13 @@
 		Project Find Results
 		Welcome Guide
 
-	@Last Modified: 2023-11-24 19:49:26
+	@Last Modified: 2024-01-02 16:45:13
 
 	@Project:
 		applescript-core
 
 	@Build:
-		make build-pulsar
+		./scripts/build-lib.sh apps/3rd-party/Pulsar/1.102.x/pulsar
 *)
 
 use script "core/Text Utilities"
@@ -43,8 +43,6 @@ property retry : missing value
 property kb : missing value
 property syseve : missing value
 property clip : missing value
-
-property RESERVED_DOC_NAMES : {"Settings", "Project", "Project Find Results", "Welcome Guide"}
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -123,6 +121,8 @@ on new()
 	set clip to clipLib's new()
 
 	script PulsarInstance
+property RESERVED_DOC_NAMES : {"Settings", "Project", "Project Find Results", "Welcome Guide"}
+
 		on executeCommand(commandKey)
 			if running of application "Pulsar" is false then return missing value
 
@@ -197,7 +197,7 @@ on new()
 
 			set firstItemInTitle to first item of titleTokens
 			if firstItemInTitle is "Project" then return _extractDocPathByHotkey()
-			if RESERVED_DOC_NAMES contains firstItemInTitle then return missing value
+			if my RESERVED_DOC_NAMES contains firstItemInTitle then return missing value
 
 			tell application "System Events" to tell process "Pulsar"
 				set filePath to get value of attribute "AXDocument" of front window
@@ -237,7 +237,7 @@ on new()
 
 			set filenameTokens to textUtil's split(docName, ".")
 			set firstToken to first item of filenameTokens
-			if firstToken is "" or RESERVED_DOC_NAMES contains firstToken then return missing value
+			if firstToken is "" or my RESERVED_DOC_NAMES contains firstToken then return missing value
 
 			firstToken
 		end getCurrentBaseFilename
@@ -298,8 +298,8 @@ on new()
 						kb's pressKey("escape")
 					end if
 				end tell
-				delay 0.1
 				kb's pressControlShiftKey("c")
+				delay 0.2
 			end script
 			set docPath to clip's extract(GetFromClipboard)
 			if treeViewWasFocused and isTreeViewFocused() is false then
