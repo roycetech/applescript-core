@@ -127,6 +127,7 @@ on new()
 	
 	script KeyboardMaestroInstance
 		property variable_update_retry_count : 3
+		property delayAfterRun : 0
 		
 		on scrollMacrosPane(zeroToOne)
 			tell application "System Events" to tell process "Keyboard Maestro"
@@ -200,6 +201,13 @@ on new()
 		*)
 		on getFocusedType()
 			if running of application "Keyboard Maestro" is false then return missing value
+			
+			tell application "Keyboard Maestro"	
+				set selection_list to selection
+				return class of first item of selection_list as text
+			end tell
+			
+			
 			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				set viewMenu to menu 1 of menu bar item "View" of menu bar 1
@@ -346,6 +354,7 @@ on new()
 				true
 			end script
 			exec of retry on result for 3
+			delay delayAfterRun
 		end runMacro
 		
 		(* 
@@ -357,6 +366,7 @@ on new()
 				end tell
 			end script
 			exec of retry on result for 3
+			delay delayAfterRun
 		end runMacroWithParameter
 		
 		
@@ -377,8 +387,8 @@ on new()
 			end script
 			exec of retry on result for variable_update_retry_count
 		end getLocalVariable
-
-
+		
+		
 		on setLocalVariable(localVariableName, textValue)
 			script RetrieveRetry
 				set kmInst to system attribute "KMINSTANCE"
