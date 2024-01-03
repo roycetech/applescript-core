@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2023-11-21 18:46:48
+	@Last Modified: 2024-01-02 12:21:42
 *)
 
 use script "core/Text Utilities"
@@ -257,6 +257,11 @@ on convertPathToTilde(filePath)
 
 	filePath
 end convertPathToTilde
+
+
+on expandTildePath(tildePath)
+	textUtil's replace(tildePath, "~", "/Users/" & std's getUsername())
+end expandTildePath
 
 
 on containsText(filePath, substring)
