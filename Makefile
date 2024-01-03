@@ -280,14 +280,6 @@ endif
 build-system-settings:
 	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 
-build-chrome:
-	./scripts/build-lib.sh apps/1st-party/Chrome/110.0/chrome.applescript
-
-install-chrome:
-	osascript scripts/allow-apple-events-in-chrome.applescript
-	./scripts/build-lib.sh apps/1st-party/Chrome/110.0/chrome
-
-
 build-mail:
 	./scripts/build-lib.sh apps/1st-party/Mail/16.0/mail
 
@@ -426,6 +418,19 @@ install-eclipse:
 
 install-git-kraken:
 	./scripts/build-lib.sh apps/3rd-party/GitKraken/v9.8.2/git-kraken
+
+
+build-chrome:
+	osacompile -o "$(HOME)/Library/Script Libraries/core/chrome.scpt" "scripts/stub.applescript"
+	./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/chrome-javascript
+	./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/chrome-tab
+	./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/chrome
+
+build-ms-edge:
+	osacompile -o "$(HOME)/Library/Script Libraries/core/microsoft-edge.scpt" "scripts/stub.applescript"
+	./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge-javascript
+	./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge-tab
+	./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge
 
 
 build-intellij:
