@@ -19,7 +19,6 @@ use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
 
-use cliclickLib : script "core/cliclick"
 use retryLib : script "core/retry"
 
 use decoratorLib : script "core/decorator"
@@ -27,7 +26,6 @@ use decoratorLib : script "core/decorator"
 use spotScript : script "core/spot-test"
 
 property logger : missing value
-property cliclick : missing value
 property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -53,6 +51,7 @@ on spotCheck()
 		Manual: Select Macro Group
 		Manual: Select Macro
 		Manual: Scroll Macros/Actions Pane
+		Manual: Focus MacroGroup Pane
 	")
 	
 	set spotClass to spotScript's new()
@@ -112,6 +111,9 @@ on spotCheck()
 		sut's scrollMacrosPane(zeroToOne)
 		sut's scrollActionsPane(zeroToOne)
 		
+	else if caseIndex is 14 then
+		sut's focusSelectedMacroGroup()
+		
 	end if
 	
 	activate
@@ -122,7 +124,6 @@ end spotCheck
 
 on new()
 	loggerFactory's injectBasic(me)
-	set cliclick to cliclickLib's new()
 	set retry to retryLib's new()
 	
 	script KeyboardMaestroInstance
@@ -202,7 +203,7 @@ on new()
 		on getFocusedType()
 			if running of application "Keyboard Maestro" is false then return missing value
 			
-			tell application "Keyboard Maestro"	
+			tell application "Keyboard Maestro"
 				set selection_list to selection
 				return class of first item of selection_list as text
 			end tell
@@ -232,10 +233,11 @@ on new()
 			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				set frontmost to true
-				set selectedGroup to the first group of scroll area 1 of splitter group 1 of group 6 of my _getMainWindow() whose selected is true
+				
+				try
+					click menu item "Select Groups Column" of menu 1 of menu bar item "View" of menu bar 1
+				end try
 			end tell
-			
-			lclick of cliclick at selectedGroup
 		end focusSelectedMacroGroup
 		
 		
