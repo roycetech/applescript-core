@@ -48,6 +48,7 @@ use std : script "core/std"
 use textUtil : script "core/string"
 use listUtil : script "core/list"
 use emoji : script "core/emoji"
+use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -241,15 +242,25 @@ on new()
 			-- 	end try
 			-- end tell
 
-			set targetName to textUtil's join({folderName, SEPARATOR, theName}, "")
+			set targetName to textUtil's join({folderName, unic's SEPARATOR, theName}, "")
 			logger's debugf("targetName: {}", targetName)
 			tell application "Terminal"
 				try
-					-- if jada's isWorkMac() then
-					-- 	set appWindow to first window whose name is equal to theName
-					-- else
 					set appWindow to first window whose name is equal to targetName
-					-- end if
+					return terminalTabLib's new(id of appWindow)
+				end try
+			end tell
+
+			missing value
+		end findTabWithName
+
+		(* @return  missing value of tab is not found. TabInstance *)
+		on findTabWithNameContaining(nameKeyword)
+			if winUtil's hasWindow("Terminal") is false then return missing value
+
+			tell application "Terminal"
+				try
+					set appWindow to first window whose name contains the nameKeyword
 					return terminalTabLib's new(id of appWindow)
 				end try
 			end tell
