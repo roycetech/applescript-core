@@ -155,7 +155,7 @@ on splitByLine(theString)
 	if theString contains (ASCII character 13) then return _split(theString, ASCII character 13) -- assuming this is shell command result, we have to split by CR.
 
 	-- Only printable ASCII characters below 127 works. tab character don't work.
-	set SEP to "@" -- #%+= are probably worth considering.
+	set SEP to "@" -- #%= are probably worth considering.
 
 	if theString contains linesDelimiter or theString contains "\"" then error "Sorry but you can't have " & linesDelimiter & " or double quote in the text :("
 	if theString contains "$" and theString contains "'" then error "Sorry, but you can't have a dollar sign and a single quote in your string"
