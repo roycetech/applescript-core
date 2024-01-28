@@ -115,10 +115,10 @@ on new()
 
 			run of scriptObj
 
-			set maxWait to 50 -- 5 seconds
+			set maxWait to 10 -- 5 seconds
 			repeat until (the clipboard) is not "" or maxWait is less than 0
 				set maxWait to maxWait - 1
-				delay 0.1
+				delay 0.5
 			end repeat
 
 			set theResult to the clipboard
