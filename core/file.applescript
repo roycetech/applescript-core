@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2024-01-02 12:21:42
+	@Last Modified: 2024-01-18 16:01:13
 *)
 
 use script "core/Text Utilities"
@@ -143,7 +143,7 @@ on replaceText(filePath, substring, replacement)
 	if replacement contains "&" then set escapedReplacement to textUtil's replace(replacement, "&", "\\&")
 	if replacement contains "|" then set escapedReplacement to textUtil's replace(replacement, "|", "\\|")
 
-	set command to "sed -i '' 's/" & substring & "/" & escapedReplacement & "/' " & quotedFilePath
+	set command to "sed -i '' \"s/" & substring & "/" & escapedReplacement & "/\" " & quotedFilePath
 	do shell script command
 end replaceText
 
@@ -211,10 +211,12 @@ end writeTextToTempFile
 	@filePath file path in POSIX or Mac OS Notation (colon-separated)
 *)
 on getBaseFilename(filePath)
-	if (offset of ":" in filePath) is greater than 0 then -- Mac OS Notation
-		set theDelimiter to ":"
-	else -- assume POSIX format
+	-- if (offset of ":" in filePath) is greater than 0 then  -- Mac OS Notation
+	if (offset of "/" in filePath) is greater than 0 then -- POSIX Notation
 		set theDelimiter to "/"
+
+	else if (offset of ":" in filePath) is greater than 0 then  -- assume Mac OS Notation
+		set theDelimiter to ":"
 	end if
 
 	set theList to textUtil's split(filePath, theDelimiter)
