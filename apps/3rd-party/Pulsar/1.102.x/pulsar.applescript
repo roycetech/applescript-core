@@ -9,7 +9,7 @@
 		Project Find Results
 		Welcome Guide
 
-	@Last Modified: 2024-01-02 16:45:13
+	@Last Modified: 2024-01-12 15:48:49
 
 	@Project:
 		applescript-core
@@ -57,6 +57,7 @@ on spotCheck()
 		Manual: _extractDocPathByHotkey (Tree View, Editor)
 
 		Manual: Execute Command
+		Manual: _extractDocPathByLowerLeftButton
 	")
 
 	set spotClass to spotScript's new()
@@ -105,6 +106,10 @@ on spotCheck()
 
 	else if caseIndex is 5 then
 		sut's executeCommand("Tabs: Close Other Tabs")
+
+	else if caseIndex is 6 then
+		logger's infof("File path from button: [{}]", sut's _extractDocPathByLowerLeftButton())
+
 	end if
 
 	spot's finish()
@@ -121,7 +126,7 @@ on new()
 	set clip to clipLib's new()
 
 	script PulsarInstance
-property RESERVED_DOC_NAMES : {"Settings", "Project", "Project Find Results", "Welcome Guide"}
+		property RESERVED_DOC_NAMES : {"Settings", "Project", "Project Find Results", "Welcome Guide"}
 
 		on executeCommand(commandKey)
 			if running of application "Pulsar" is false then return missing value
@@ -167,7 +172,9 @@ property RESERVED_DOC_NAMES : {"Settings", "Project", "Project Find Results", "W
 			set docNameFromTitle to first item of tokens
 			if docNameFromTitle is not "Project" then return docNameFromTitle
 
-			set docPath to _extractDocPathByHotkey()
+			-- set docPath to _extractDocPathByHotkey()
+			set docPath to _extractDocPathByLowerLeftButton()
+
 			fileUtil's getBaseFilename(docPath)
 		end getCurrentDocumentName
 
@@ -196,7 +203,9 @@ property RESERVED_DOC_NAMES : {"Settings", "Project", "Project Find Results", "W
 			if the number of titleTokens is 1 then return missing value
 
 			set firstItemInTitle to first item of titleTokens
-			if firstItemInTitle is "Project" then return _extractDocPathByHotkey()
+			-- if firstItemInTitle is "Project" then return _extractDocPathByHotkey()
+			if firstItemInTitle is "Project" then return _extractDocPathByLowerLeftButton()
+
 			if my RESERVED_DOC_NAMES contains firstItemInTitle then return missing value
 
 			tell application "System Events" to tell process "Pulsar"
@@ -286,8 +295,18 @@ property RESERVED_DOC_NAMES : {"Settings", "Project", "Project Find Results", "W
 
 		-- Private Codes below =======================================================
 
+		on _extractDocPathByLowerLeftButton()
+			script GetFromClipboard2
+				tell application "System Events" to tell process "Pulsar"
+					click of static text 1 of group 1 of group 1 of group 1 of group 1 of group 2 of group 1 of group 1 of UI element 1 of front window
+				end tell
+			end script
+			clip's extract(GetFromClipboard2)
+		end _extractDocPathByLowerLeftButton
+
 		(*
 			@Requires app focus and will send keystrokes.
+			@Deprecated: Flaky.
 		*)
 		on _extractDocPathByHotkey()
 			set treeViewWasFocused to isTreeViewFocused()
@@ -299,7 +318,7 @@ property RESERVED_DOC_NAMES : {"Settings", "Project", "Project Find Results", "W
 					end if
 				end tell
 				kb's pressControlShiftKey("c")
-				delay 0.2
+				delay 1
 			end script
 			set docPath to clip's extract(GetFromClipboard)
 			if treeViewWasFocused and isTreeViewFocused() is false then
