@@ -47,6 +47,8 @@ on spotCheck()
 	end if
 	
 	set sut to new()
+	
+	logger's infof("ChatGPT is active: {}", sut's isChatActive())
 	if caseIndex is 1 then
 		sut's newWindow("https://www.example.com")
 		
@@ -65,6 +67,8 @@ on spotCheck()
 		end if
 		
 	end if
+	
+	activate
 	
 	spot's finish()
 	logger's finish()
@@ -114,5 +118,16 @@ on new()
 				end tell
 			end tell
 		end openDeveloperTools
+		
+		on isChatActive()
+			tell application "System Events" to tell process "Microsoft Edge"
+				try
+					return "Chat" is equal to the description of button 1 of group 1 of group 4 of group 1 of group 1 of group 1 of group 1 of front window
+				end try
+				
+			end tell
+			
+			false
+		end isChatActive
 	end script
 end new
