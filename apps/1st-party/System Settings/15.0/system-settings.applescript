@@ -4,19 +4,19 @@
 	info.
 
 	@Version:
-		macOS Ventura 13.x.
+		macOS Ventura 13.x. 
 
 	@Project:
 		applescript-core
-
+ 
 	@Build:
 		make build-lib SOURCE="apps/1st-party/System Settings/15.0/system-settings"
-		
+		 
 	@References:
 		https://derflounder.wordpress.com/2022/10/25/opening-macos-venturas-system-settings-to-desired-locations-via-the-command-line/
 *)
 
-use scripting additions
+use scripting additions 
 
 use listUtil : script "core/list"
 
@@ -132,7 +132,7 @@ on new()
 	set retry to retryLib's new()
 	set usr to usrLib's new()
 	
-	script SystemSettings
+	script SystemSettingsInstance
 		on printPaneIds()
 			tell application "System Settings"
 				set panesList to id of panes
@@ -149,12 +149,12 @@ on new()
 				set current pane to pane id "com.apple.Keyboard-Settings.extension"
 			end tell
 		end revealKeyboard
-
+		
 		
 		on revealPrivacyAndSecurity_Accessibility()
 			tell application "System Settings"
 				activate
-				delay 0.1 -- Fails without this delay.
+				delay 0.2 -- Fails without this delay.
 				set current pane to pane id "com.apple.settings.PrivacySecurity.extension"
 			end tell
 			
@@ -167,7 +167,7 @@ on new()
 			end script
 			exec of retry on result for 50 by 0.1
 		end revealPrivacyAndSecurity_Accessibility
-
+		
 		(* 
 			Invoke this script before doing anything with System Preferences so that you 
 			have a clean slate as you start. 
@@ -187,10 +187,11 @@ on new()
 		end quitApp
 	end script
 	
+	set decorator to decoratorLib's new(result)
+	decorator's decorate()
+	
 	decPasswords's decorate(result)
 	decVoiceControl's decorate(result)
 	decVoiceCommand's decorate(result)
-	set decorator to decoratorLib's new(result)
-	decorator's decorate()
 end new
 
