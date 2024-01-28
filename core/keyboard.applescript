@@ -360,15 +360,17 @@ on _charToKeycode(key)
 	if key as text is "8" then return 28
 	if key as text is "9" then return 25
 
-	if key is space then return 49
+	if key is "=" then return 24
+	if key is "-" then return 27
 	if key is "[" then return 33
 	if key is "]" then return 30
-	if key is "/" then return 44
-	if key is "\\" then return 42
-	if key is "-" then return 27
-	if key is "=" then return 24
-	if key is "`" then return 50
 	if key is "\"" then return 39
+	if key is "\\" then return 42
+	if key is "," then return 43
+	if key is "/" then return 44
+	if key is "." then return 47
+	if key is space then return 49
+	if key is "`" then return 50
 
 	if key is tab or key is "tab" then return 48
 	if (ASCII number key) is 10 or key is "enter" then return 76
