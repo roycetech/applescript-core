@@ -365,6 +365,7 @@ on new()
 			script RunRetry
 				tell application "Keyboard Maestro Engine"
 					do script macroName with parameter macroParameter
+					true
 				end tell
 			end script
 			exec of retry on result for 3
