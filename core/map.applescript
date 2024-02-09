@@ -7,8 +7,11 @@
 		- Map of Maps!
 		- Saving to plist.
 
+	@Project:
+		applescript-core
+
 	@Build:
-		make build-lib SOURCE=core/map
+		./scripts/build-lib.sh core/map
 *)
 
 use framework "Foundation"
@@ -63,8 +66,10 @@ on spotCheck()
 	end if
 
 	if caseIndex is 1 then
-		set plistMap to config's getValue("test map")
-		set sut to fromRecord(plistMap)
+		-- TOFIX:
+		-- set plistMap to config's getValue("test map")
+		-- set sut to fromRecord(plistMap)
+		set sut to fromRecord({adhoc: 1})
 		repeat with nextKey in sut's getKeys()
 			log nextKey & " - " & sut's getValue(nextKey)
 		end repeat
@@ -182,7 +187,7 @@ on newFromString(theText)
 
 	repeat with nextLine in mapLines
 		set lineTokens to listUtil's _split(nextLine, ": ")
-		if the count of lineTokens is not 2 then error "Unrecognized pattern detected: " & nextLine number ERROR_INVALID_SOURCE_TEXT
+		if the (count of lineTokens) is not 2 then error "Unrecognized pattern detected: " & nextLine number ERROR_INVALID_SOURCE_TEXT
 
 		set nextKey to first item of lineTokens
 		set nextValue to second item of lineTokens
@@ -204,6 +209,7 @@ end fromRecord
 (* Major flaw is that all the values will be converted into text. Couldn't find
 a way to convert the value into AppleScript data type. *)
 on newFromRecord(sourceRecord)
+	say 1
 	if sourceRecord is missing value then return missing value
 
 	set userDictionary to new()
@@ -229,8 +235,8 @@ end newFromRecord
 
 
 on hasJsonSupport()
-	if not std's appWithIdExists("com.vidblishen.jsonhelper") then return false
-	-- if not std's appExists("JSON Helper") then return false
+	-- 	if not std's appWithIdExists("com.vidblishen.jsonhelper") then return false
+	if not std's appExists("JSON Helper") then return false
 
 	try
 		set jsonScriptName to "json"

@@ -1,8 +1,11 @@
 (*
+	@Project:
+		applescript-core
+
 	@Build:
 		make build-lib SOURCE=core/stack
 
-	@Last Modified: 2023-09-25 14:57:57
+	@Last Modified: 2024-02-09 12:19:23
 *)
 on new()
 	set localEmptyStack to {}

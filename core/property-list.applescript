@@ -7,7 +7,7 @@
 		applescript-core
 
 	@Build:
-		make build-lib SOURCE=core/property-list
+		./scripts/build-lib.sh core/property-list
  *)
 
 use script "core/Text Utilities"
@@ -50,7 +50,7 @@ on spotCheck()
 		set plistName to "spot-plist"
 		if not plistExists(plistName) then createNewPList(plistName)
 
-		set spotPList to newInstance(plistName)
+		set spotPList to new(plistName)
 		set plistKey to "spot1"
 
 		spotPList's setValue(plistKey, 1)
@@ -61,12 +61,12 @@ on spotCheck()
 
 	else if caseIndex is 2 then
 		try
-			newInstance("godly")
+			new("godly")
 			tell me to error "Error expected!"
 		end try
 
 	else if caseIndex is 3 then
-		set sut to newInstance("app-menu-links")
+		set sut to new("app-menu-links")
 		log sut's getValue("Sublime Text")'s toString()
 
 	end if

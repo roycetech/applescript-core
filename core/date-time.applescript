@@ -1,8 +1,11 @@
 (*
-	@Build:
-		make build-lib SOURCE=core/date-time
+	@Project:
+		applescript-core
 
-	@Last Modified: 2023-09-25 14:57:56
+	@Build:
+		./scripts/build-lib.sh core/date-time
+
+	@Last Modified: 2024-02-08 16:54:36
 *)
 use framework "Foundation"
 
@@ -92,15 +95,23 @@ on new()
 			@appleScriptDateTimeString - locale-specific AppleScript representation of
 			the date and time string.
 
+			@Known Issues:
+				macOS Sonoma introduced a unicode space before the AM/PM.
+
 			@returns time in the format: HH:mm:mi [AP]M
 		*)
 		on extractTimeFromDateTimeText(appleScriptDateTimeString)
 			set passedDate to date appleScriptDateTimeString
 			time string of passedDate
+			_cleanTimeString(result)
 		end extractTimeFromDateTimeText
 
 
-
+		on _cleanTimeString(timeString)
+			textUtil's removeUnicode(timeString as text)
+			textUtil's replace(result, "PM", " PM")
+			textUtil's replace(result, "AM", " AM")
+		end _cleanTimeString
 
 		on isWeekday()
 			not isWeekend()
@@ -114,9 +125,10 @@ on new()
 
 		on isMorning()
 			set sutTime to time string of today()
-			set timeTokens to textUtil's split(sutTime, ":")
-			if {"AM", "PM"} contains the last word of sutTime then
-				last word of sutTime is "AM"
+			set timeTokens to textUtil's split(_cleanTimeString(sutTime), ":")
+			set apPmValue to last word of last item of timeTokens
+			if {"AM", "PM"} contains the apPmValue then
+				apPmValue is "AM"
 			else -- 24H
 				first item of timeTokens is less than 12
 			end if
