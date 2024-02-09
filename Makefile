@@ -2,7 +2,7 @@
 
 OS := $(shell osascript -e "system version of (system info)" \
 | cut -d '.' -f 1 \
-| awk '{if ($$1 ~ /^13/) print "ventura"; else if ($$1 ~ /^12/) print "monterey"; else print "unknown"}')
+| awk '{if ($$1 ~ /^14/) print "sonoma"; else if ($$1 ~ /^13/) print "ventura"; else if ($$1 ~ /^12/) print "monterey"; else print "unknown"}')
 
 help:
 	@echo "make install - Create config files, assets, and install essential
@@ -206,12 +206,12 @@ test-unit:
 # 	osascript "test/core/Test redis.applescript"
 # 	osascript "test/core/Test date-time.applescript"
 # 	osascript "test/core/Test decorator.applescript"
-# 	osascript "test/core/Test file.applescript"
+	osascript "test/core/Test file.applescript"
 # 	osascript "test/core/Test list.applescript"
 # 	osascript "test/core/Test lov.applescript"
 # 	osascript "test/core/Test map.applescript"
 # 	osascript "test/core/Test plist-buddy.applescript"
-	osascript "test/core/Test plutil.applescript"
+# 	osascript "test/core/Test plutil.applescript"
 # 	osascript "test/core/Test property-list.applescript"
 # 	osascript "test/core/Test regex.applescript"
 # 	osascript "test/core/Test regex-pattern.applescript"
@@ -266,9 +266,17 @@ else
 endif
 
 build-system-preferences:
-ifeq ($(OS), ventura)
+ifeq ($(OS), sonoma)
+	@echo "Sonoma"
 	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
-	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings-passwords"
+	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_passwords"
+	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/macOS Sonoma/dec-system-settings-sonoma"
+	./scripts/factory-insert.sh SystemSettingsInstance core/dec-system-settings-sonoma
+
+else ifeq ($(OS), ventura)
+	@echo "Ventura"
+	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
+	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_passwords"
 
 else ifeq ($(OS), monterey)
 	./scripts/build-lib.sh "apps/1st-party/System Preferences/15.0/system-preferences"
@@ -276,6 +284,7 @@ else ifeq ($(OS), monterey)
 else
 	@echo "Unsupported"
 endif
+
 
 build-system-settings:
 	./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
@@ -339,7 +348,15 @@ build-home:
 
 build-terminal:
 	osacompile -o "$(HOME)/Library/Script Libraries/core/terminal.scpt" "scripts/stub.applescript"
-ifeq ($(OS), ventura)
+
+ifeq ($(OS), sonoma)
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-output
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-path
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-run
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal
+
+else ifeq ($(OS), ventura)
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-output
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-path
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-prompt
@@ -352,6 +369,7 @@ else ifeq ($(OS), monterey)
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-run
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/terminal
+
 
 else
 	@echo "Hello Something Else"
@@ -445,7 +463,7 @@ build-pulsar:
 install-pulsar: build-pulsar
 
 
-build-keyboard-maestro:
+build-keyboard-maestro: build-cliclick
 	./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro
 	./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro
 	./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro-group
