@@ -4,7 +4,7 @@
 	application response to prevent this script from blocking.
 	
 	@Version:
-		<6.5
+		6.5
 	
 	@Usage:
 		use streamDeckLib : script "core/stream-deck"
@@ -18,7 +18,7 @@
 		applescript-core
 
 	@Build:
-		make install-stream-deck
+		./scripts/build-lib.sh 'apps/3rd-party/Stream Deck/6.5/stream-deck'
 		
 	@Last Modified: July 25, 2023 9:02 PM
 *)
@@ -60,20 +60,23 @@ on spotCheck()
 	
 	set sut to new()
 	logger's infof("USB Connected: {}", sut's isUsbConnected())
+	(*
 	if caseDesc starts with "Manual: Switch Profile:" then
 		set caseProfile to textUtil's stringAfter(caseDesc, "Switch Profile: ")
 		logger's debugf("caseProfile: {}", caseProfile)
-		sut's switchProfile(caseProfile)
+		sut's switchProfile("Stream Deck XL", caseProfile)
 		
 	end if
+*)
+	
 	if caseIndex is 1 then
-		logger's infof("Switch Profile: Found: {}", sut's switchProfile("Work - Default"))
+		logger's infof("Switch Profile: Found: {}", sut's switchProfile("Stream Deck XL", "Work - Default"))
 		
 	else if caseIndex is 2 then
-		logger's infof("Switch Profile: Not Found: {}", sut's switchProfile("Unicorn"))
+		logger's infof("Switch Profile: Not Found: {}", sut's switchProfile("Stream Deck XL", "Unicorn"))
 		
 	else if caseIndex is 3 then
-		logger's infof("Switch Profile: Percipio: {}", sut's switchProfile("Percipio"))
+		logger's infof("Switch Profile: Percipio: {}", sut's switchProfile("Stream Deck XL", "Percipio"))
 		
 	end if
 	
@@ -97,29 +100,17 @@ on new()
 		end isUsbConnected
 		
 		(* 
-			Very slow without the ignoring block.
-			
-			@returns true if the profile was found, else false. (Not implemented due to performance issue)
+			@returns true if the profile was found.
 		*)
-		on switchProfile(profileName)
-			ignoring application responses
-				tell application "System Events" to tell process "Stream Deck"
-					try
-						click menu bar item 1 of menu bar 2
-					end try
-				end tell
-			end ignoring
+		on switchProfile(deviceName, profileName)
 			
-			delay 0.1
+			tell application "System Events" to tell process "Stream Deck"
+				try
+					click menu item profileName of menu 1 of menu item deviceName of menu 1 of menu bar 2
+					return true
+				end try
+			end tell
 			
-			ignoring application responses
-				tell application "System Events" to tell process "Stream Deck"
-					try
-						click menu item profileName of menu 1 of menu bar item 1 of menu bar 2
-						return true
-					end try
-				end tell
-			end ignoring
 			false
 		end switchProfile
 	end script
