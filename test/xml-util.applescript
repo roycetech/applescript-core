@@ -5,7 +5,10 @@
 	for example.
 
 	@Created: July 22, 2023 10:58 PM
-	@Last Modified: 2023-09-18 22:33:05
+	@Last Modified: 2024-02-09 23:19:05
+
+	@Project:
+		applescript-core
 
 	@Build:
 		/usr/bin/osacompile -o "$HOME/Library/Script Libraries/core/test/xml-util.scpt" test/xml-util.applescript
