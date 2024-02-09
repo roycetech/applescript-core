@@ -8,9 +8,9 @@
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/terminal-tab
 
 	@Created: October 7, 2023 10:27 AM
-	@Last Modified: 2023-11-25 10:44:18
+	@Last Modified: 2024-02-08 13:29:52
 *)
-use script "Core Text Utilities"
+use script "core/Text Utilities"
 use scripting additions
 
 use std : script "core/std"
