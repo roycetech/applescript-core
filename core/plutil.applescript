@@ -41,7 +41,7 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2023-12-05 21:52:09
+	@Last Modified: 2024-02-08 22:16:34
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
@@ -53,6 +53,7 @@ use std : script "core/std"
 use textUtil : script "core/string"
 use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
+use dateLib : script "core/date-time"
 
 use decoratorLib : script "core/decorator"
 
@@ -65,6 +66,7 @@ property homeFolderPath : missing value
 property linesDelimiter : "~"
 property isSpot : false
 property regex : missing value
+property dt : missing value
 
 property TZ_OFFSET : (do shell script "date +'%z' | cut -c 2,3") as integer
 
@@ -124,6 +126,7 @@ on spotCheck()
 	set spotPList to plutil's new("spot-plist")
 
 	if caseIndex is 1 then
+		spotPList's setValue("spot-key", current date)
 
 	else if caseIndex is 2 then
 		try
@@ -206,6 +209,7 @@ end spotCheck
 on new()
 	loggerFactory's injectBasic(me)
 	set regex to script "core/regex"
+	set dt to dateLib's new()
 
 	script PlutilInstance
 		(*
@@ -309,10 +313,10 @@ on new()
 						end if
 
 						if isTextParam then
-							set setValueShellCommand to _shellEscape(plistKeyOrKeyList) &  format {"plutil -replace \"$TMP\" -{} {} {}; \\
+							set setValueShellCommand to _shellEscape(plistKeyOrKeyList) & (format {"plutil -replace \"$TMP\" -{} {} {}; \\
 								else \\
 									plutil -replace {} -{} {} {}; \\
-								fi", {plUtilType, shellValue, quotedPlistPosixPath, quotedPlistKey, plUtilType, shellValue, quotedPlistPosixPath}}
+								fi", {plUtilType, shellValue, quotedPlistPosixPath, quotedPlistKey, plUtilType, shellValue, quotedPlistPosixPath}})
 						else
 							set setValueShellCommand to format {"plutil -replace {} -{} {} {}", {quotedPlistKey, plUtilType, shellValue, quotedPlistPosixPath}}
 
@@ -432,11 +436,11 @@ on new()
 					set quotedPlistKey to _quotePlistKey(plistKeyOrKeyList)
 					set isTextParam to class of plistKeyOrKeyList is text
 					if isTextParam then
-						set plutilCommand to _shellEscape(plistKeyOrKeyList) & format {"\\
+						set plutilCommand to _shellEscape(plistKeyOrKeyList) & (format {"\\
 								XML=$(plutil -extract \"$TMP\" xml1 {} -o - ); \\
 							else \\
 								XML=$(plutil -extract {} xml1 {} -o -); \\
-							fi && echo \"$XML\"", {quotedPlistPosixPath, quotedPlistKey, quotedPlistPosixPath}}
+							fi && echo \"$XML\"", {quotedPlistPosixPath, quotedPlistKey, quotedPlistPosixPath}})
 
 					else
 						set plutilCommand to format {"plutil -extract {} xml1 {} -o - ", {quotedPlistKey, quotedPlistPosixPath}}
@@ -795,13 +799,16 @@ on new()
 
 				(* Keep this handler here despite being date-specific because this library is considered essential and we don't want to make the date library an essential library by putting a depnedency from an essential library. *)
 				on _formatPlistDate(theDate)
+					if theDate is missing value then return missing value
+
 					set dateString to short date string of theDate
+					logger's debugf("dateString: {}", dateString)
 
 					set myMonth to (first word of dateString) as integer
 					if myMonth is less than 10 then set myMonth to "0" & myMonth
 					set myDom to (second word of dateString) as integer
 
-					set timeString to time string of theDate
+					set timeString to dt's _cleanTimeString(time string of theDate)
 
 					set myHour to ((first word of timeString) as integer)
 					if timeString contains "PM" and myHour is not equal to 12 then set myHour to myHour + 12
