@@ -1,4 +1,7 @@
 (*
+	@Version:
+		macOS Sonoma
+		
 	@Project:
 		applescript-core
 		
@@ -6,7 +9,8 @@
 		./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control_voice-commands"
 
 	@Created: Tuesday, November 14, 2023 at 10:29:06 PM
-	@Last Modified: Tuesday, November 14, 2023 at 10:29:06 PM
+	@Last Modified: Friday, February 2, 2024 at 11:47:51 AM
+	
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -26,13 +30,14 @@ on spotCheck()
 	
 	set cases to listUtil's splitByLine("
 		Manual: Reveal the Voice Control Panel
-		Manual: Manual Trigger the Voice Commands
+		Manual: Trigger the Commands... button
 		Manual: Click Add Voice Commands
 		Manual: Set When I say
 		Manual: Set While using
 		
 		Manual: Set Perform Action
 		Manual: Set Perform Action Text
+		Manual: Flip Voice Control switch
 	")
 	
 	set spotClass to spotScript's new()
@@ -70,6 +75,10 @@ on spotCheck()
 	else if caseIndex is 7 then
 		sut's setPerformActionText("Perform Text")
 		
+	else if caseIndex is 8 then
+		logger's infof("Voice Control Status: {}", sut's getVoiceControlStatus())
+		logger's infof("Voice Control Toggled ON: {}", sut's flipVoiceControlSwitch())
+		
 	else
 		
 	end if
@@ -95,10 +104,43 @@ on decorate(mainScript)
 	
 	script SystemSettingsVoiceCommandsDecorator
 		property parent : mainScript
-
+		
+		
+		on getVoiceControlStatus()
+			tell application "System Events"
+				try
+					return value of my _getVoiceControlToggleUI()
+				end try
+				0
+			end tell
+		end getVoiceControlStatus
+		
+		(*
+			@returns true if the switch was turned on.
+			@NOTE: 
+				UI Types dynamically changes from list to group and vice versa for undetermined reason. 
+				This was observed after toggling the UI to ON.
+		*)
+		on flipVoiceControlSwitch()
+			set toggleUI to _getVoiceControlToggleUI()
+			if toggleUI is missing value then return false
+			
+			tell application "System Events"
+				click toggleUI
+				delay 0.4 -- Fails intermittently, 
+				set toggleUI to my _getVoiceControlToggleUI()
+				if toggleUI is missing value then return false
+				
+				try
+					the value of toggleUI is 1
+				end try
+			end tell
+		end flipVoiceControlSwitch
+		
 		on revealAccessibilityVoiceControl()
 			tell application "System Settings" to activate
 			
+			set motorGroup to missing value
 			script PanelWaiter
 				tell application "System Settings"
 					set current pane to pane id "com.apple.Accessibility-Settings.extension"
@@ -106,29 +148,34 @@ on decorate(mainScript)
 				end tell
 				
 				tell application "System Events" to tell process "System Settings"
-					if exists static text "Accessibility" of window "Accessibility" then return true
+					-- if exists static text "Accessibility" of window "Accessibility" then return true
+					-- if exists (group 3 of scroll area 1 of group 1 of list 2 of splitter group 1 of UI element 1 of window "Accessibility") then return true
+					set motorGroup to group 3 of scroll area 1 of group 1 of last UI element of splitter group 1 of UI element 1 of window "Accessibility"
 				end tell
 			end script
-			exec of retry on result for 50 by 0.1
+			set retryResult to exec of retry on result for 20 by 0.5
+			if retryResult is missing value then return
 			
-			tell application "System Events" to tell process "System Settings"
+			tell application "System Events"
 				try
-					click button 1 of group 3 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of window "Accessibility"
+					click button 1 of motorGroup
 				end try
 			end tell
 			delay 0.1
 		end revealAccessibilityVoiceControl
-
+		
 		on setWhenISay(triggerPhrase)
 			tell application "System Events" to tell process "System Settings"
 				set value of text field 1 of group 1 of sheet 1 of window "Voice Control" to triggerPhrase
 			end tell
 		end setWhenISay
-
+		
 		on setWhileUsing(appName)
 			if appName is "" or appName is missing value then return
 			
 			tell application "System Events" to tell process "System Settings"
+				if not (exists (window "Voice Control")) then return
+				
 				set the whileUsingPopup to the pop up button 1 of group 1 of sheet 1 of window "Voice Control"
 				click the whileUsingPopup
 				delay 0.2
@@ -140,6 +187,8 @@ on decorate(mainScript)
 		
 		on setPerformAction(actionTitle)
 			tell application "System Events" to tell process "System Settings"
+				if not (exists (window "Voice Control")) then return
+				
 				set the performPopup to the pop up button 2 of group 1 of sheet 1 of window "Voice Control"
 				click the performPopup
 				delay 0.2
@@ -154,7 +203,7 @@ on decorate(mainScript)
 					set the value of text area 1 of scroll area 1 of group 1 of sheet 1 of window "Voice Control" to the performText
 				end try
 			end tell
-		end setPerformText
+		end setPerformActionText
 		
 		on clickAddVoiceCommand()
 			tell application "System Events" to tell process "System Settings"
@@ -163,8 +212,8 @@ on decorate(mainScript)
 				end try
 			end tell
 		end clickAddVoiceCommand
-
-
+		
+		
 		(* 
 			After clicking the Commands... button under Accessibility, type in a to filter the list of check boxes.
 			
@@ -230,6 +279,16 @@ on decorate(mainScript)
 			end try
 			
 			false
-		end enableTurnOffVoiceControl		
+		end enableTurnOffVoiceControl
+		
+		
+		on _getVoiceControlToggleUI()
+			tell application "System Events" to tell process "System Settings"
+				try
+					return checkbox 1 of group 1 of scroll area 1 of group 1 of last UI element of splitter group 1 of UI element 1 of window "Voice Control"
+				end try
+			end tell
+			missing value
+		end _getVoiceControlToggleUI
 	end script
 end decorate
