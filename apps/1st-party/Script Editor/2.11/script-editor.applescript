@@ -11,12 +11,12 @@
 
 	@Project:
 		applescript-core
-
-	@Build:
-		make build-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
-				
+	
+	 @Build:
+		./scripts/build-lib.sh 'apps/1st-party/Script Editor/2.11/script-editor'
+													
 	@Usage:
-		use seLib : script "core/script-editor"
+		use seLib : script "core/script-editor" 
 		property se : seLib's new()
 		set frontTab to se's getFrontTab()
 		or
@@ -125,12 +125,13 @@ end spotCheck
 
 
 on new()
+	loggerFactory's injectBasic(me)
+	
+	set configSystem to configLib's new("system")
+	set retry to retryLib's new()
+	
 	script ScriptEditorInstance
-		loggerFactory's injectBasic(me)
-
-		set configSystem to configLib's new("system")
-		set retry to retryLib's new()
-
+		
 		(* @return  missing value of tab is not found. ScriptEditorInstance *)
 		on findTabWithName(theName as text)
 			if running of application "Script Editor" is false then return missing value
@@ -436,7 +437,7 @@ on new()
 				(* @returns the mac os notation folder of this script *)
 				on getScriptLocation()
 					if running of application "Script Editor" is false then return
-
+					
 					tell application "Script Editor" -- Wrapped due to error, was fine before.
 						set sut to path of document of appWindow
 						set scriptName to name of document of appWindow
@@ -446,24 +447,24 @@ on new()
 					set location to text 1 thru reducedLength of sut
 					(POSIX file location) as text
 				end getScriptLocation
-
+				
 				on mergeAllWindows()
 					if running of application "Script Editor" is false then return
-
+					
 					focus()
-
+					
 					tell application "System Events" to tell process "Script Editor"
 						click menu item "Merge All Windows" of menu 1 of menu bar item "Window" of menu bar 1
 					end tell
 				end mergeAllWindows
 			end script
-
+			
 			tell application "Script Editor" to set appWindow of ScriptEditorInstance to window id windowId
-
+			
 			ScriptEditorInstance
 		end _new
 	end script
-
+	
 	contentDecorator's decorate(result)
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
