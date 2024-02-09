@@ -250,6 +250,7 @@ on new()
 			-- Seems  it's no longer a problem February 19, 2021
 			-- log reset
 			-- log smoothing
+			if theUi is missing value then return
 
 			saveCurrentPosition()
 
