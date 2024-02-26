@@ -14,7 +14,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
 
-	@Last Modified: 2023-11-21 14:41:36
+	@Last Modified: 2024-02-15 13:41:34
 *)
 
 use script "core/Text Utilities"
@@ -56,6 +56,8 @@ on spotCheck()
 
 		Manual: Posix to Folder (View in Replies: User Path, Non-User Path)
 		Manual: Copy File
+		Manual: Rename File
+		Manual: Delete File
 	")
 
 	set spotClass to spotScript's new()
@@ -156,6 +158,24 @@ on spotCheck()
 				reveal copyResult
 			end tell
 		end if
+
+	else if caseIndex is 13 then
+		-- Below code results in freeze when put inside the tell block.
+		set homePath to path to home folder
+		tell application "Finder"
+			set fileReference to file "poc.txt" of folder "Delete Daily" of homePath
+		end tell
+
+		set renameResult to sut's renameFile(fileReference, "renamed.txt")
+		tell application "Finder" to reveal renameResult
+
+	else if caseIndex is 14 then
+		do shell script "touch ~/Delete\\ Daily/spot-delete.txt"
+		delay 1
+		tell application "Finder"
+			set fileReference to file "spot-delete.txt" of folder "Delete Daily" of (path to home folder)
+		end tell
+		sut's deleteFile(fileReference)
 	end if
 
 	spot's finish()
@@ -176,10 +196,19 @@ on new()
 	set kb to kbLib's new()
 
 	script FinderInstance
+
+		(*
+			@returns true if delete is successful.
+		*)
+		on deleteFile(fileReference)
+			tell application "Finder" to delete fileReference
+		end deleteFile
+
 		on putInTrash(posixPath)
 			set computedPosixPath to _untilde(posixPath)
 			logger's debugf("computedPosixPath: {}", computedPosixPath)
 			-- tell application "Finder" to delete POSIX file computedPosixPath
+			-- Why did I use do shell script instead of running the code directly?
 			do shell script "osascript -e 'tell application \"Finder\" to delete POSIX file \"" & computedPosixPath & "\"'"
 		end putInTrash
 
@@ -308,6 +337,22 @@ on new()
 				move sourceFile to destFolder
 			end tell
 		end moveFile
+
+		(*
+			@sourceMonPath - e.g. "Macintosh HD:Users:john:poc.txt"
+			@newName - "joseph"
+			@returns the file reference if successful, otherwise missing value
+
+			WARNING: When testing, I renamed the file back to test again. This will result in Finder app freezing if the operation is not properly completed. To make sure it is completed, click on the empty space in the Finder after renaming the file manually. Leaving the selection on the file after renaming, causes the Finder app to freeze when you invoke this handler.
+		*)
+		on renameFile(fileReference, newName)
+			if not (exists fileReference) then return missing value
+
+			tell application "Finder" to set containerFolder to container of fileReference
+			set name of fileReference to newName
+
+			file newName of containerFolder
+		end renameFile
 
 
 		on _new(windowId)
