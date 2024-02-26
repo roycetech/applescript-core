@@ -131,9 +131,9 @@ on decorate(mainScript)
 				set toggleUI to my _getVoiceControlToggleUI()
 				if toggleUI is missing value then return false
 				
-				try
+				-- try
 					the value of toggleUI is 1
-				end try
+				-- end try
 			end tell
 		end flipVoiceControlSwitch
 		
@@ -166,7 +166,8 @@ on decorate(mainScript)
 		
 		on setWhenISay(triggerPhrase)
 			tell application "System Events" to tell process "System Settings"
-				set value of text field 1 of group 1 of sheet 1 of window "Voice Control" to triggerPhrase
+				-- set value of text field 1 of group 1 of sheet 1 of window "Voice Control" to triggerPhrase
+				set value of text field 1 of group 1 of scroll area 1 of group 2 of splitter group 1 of group 1 of sheet 1 of window "Voice Control" to triggerPhrase
 			end tell
 		end setWhenISay
 		
@@ -176,7 +177,8 @@ on decorate(mainScript)
 			tell application "System Events" to tell process "System Settings"
 				if not (exists (window "Voice Control")) then return
 				
-				set the whileUsingPopup to the pop up button 1 of group 1 of sheet 1 of window "Voice Control"
+				-- set the whileUsingPopup to the pop up button 1 of group 1 of sheet 1 of window "Voice Control"
+				set the whileUsingPopup to the pop up button 1 of group 1 of scroll area 1 of group 2 of splitter group 1 of group 1 of sheet 1 of window "Voice Control"
 				click the whileUsingPopup
 				delay 0.2
 				try
@@ -189,7 +191,8 @@ on decorate(mainScript)
 			tell application "System Events" to tell process "System Settings"
 				if not (exists (window "Voice Control")) then return
 				
-				set the performPopup to the pop up button 2 of group 1 of sheet 1 of window "Voice Control"
+				-- set the performPopup to the pop up button 2 of group 1 of sheet 1 of window "Voice Control"
+				set the performPopup to the pop up button 2 of group 1 of scroll area 1 of group 2 of splitter group 1 of group 1 of sheet 1 of window "Voice Control"
 				click the performPopup
 				delay 0.2
 				click the menu item actionTitle of menu 1 of the performPopup
@@ -200,7 +203,8 @@ on decorate(mainScript)
 		on setPerformActionText(performText)
 			tell application "System Events" to tell process "System Settings"
 				try
-					set the value of text area 1 of scroll area 1 of group 1 of sheet 1 of window "Voice Control" to the performText
+					-- set the value of text area 1 of scroll area 1 of group 1 of sheet 1 of window "Voice Control" to the performText
+					set the value of text field 2 of group 1 of scroll area 1 of group 2 of splitter group 1 of group 1 of sheet 1 of window "Voice Control" to the performText
 				end try
 			end tell
 		end setPerformActionText
@@ -208,7 +212,8 @@ on decorate(mainScript)
 		on clickAddVoiceCommand()
 			tell application "System Events" to tell process "System Settings"
 				try
-					click (first button of group 2 of sheet 1 of window "Voice Control" whose description is "add")
+					-- click (first button of group 2 of sheet 1 of window "Voice Control" whose description is "add")  -- They're slowly killing accessibility.
+					click (first button of group 1 of splitter group 1 of group 1 of sheet 1 of front window whose value of attribute "AXAttributedDescription" is "Add")
 				end try
 			end tell
 		end clickAddVoiceCommand
