@@ -1,6 +1,8 @@
 (*
 	How to determine coordinates:
-		Use Keyboard Maestro > Window > Mouse Display (Cmd + 5)
+
+		Using the default macOS Screen Capture, press command + control + shift + 4.
+
 		1. Verify dimension by trying out the screenshot before integrating with
 			your main script.
 
@@ -8,6 +10,9 @@
 
 	@Project:
 		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh core/screenshot
 
 	@Script Menu
 		View Image From Clipboard - to view the clipboard contents during testing.
@@ -80,12 +85,15 @@ on spotCheck()
 		logger's debugf("generatedFilePath: {}", generatedFilePath)
 
 		(* The app script needs to complete before the file is actually revealable in the finder that's why we created the Delayed AppleScript app. *)
-		tell application "Delayed Applescript"
-			activate
-			set theScript to "tell application \"Finder\" to reveal POSIX file \"" & generatedFilePath & "\""
-			logger's debugf("theScript: {}", theScript)
-			runScript(theScript, 1)
-		end tell
+		set optionalAppName to "Delayed Applescript"
+		if std's appExists(optionalAppName) then
+			tell application optionalAppName
+				activate
+				set theScript to "tell application \"Finder\" to reveal POSIX file \"" & generatedFilePath & "\""
+				logger's debugf("theScript: {}", theScript)
+				runScript(theScript, 1)
+			end tell
+		end if
 	end if
 
 	spot's finish()
