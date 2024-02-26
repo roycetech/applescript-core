@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-keychain
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-11-30 16:02:40
+	@Last Modified: 2024-02-21 14:38:24
 	@Change Logs: .
 *)
 use listUtil : script "core/list"
@@ -44,7 +44,7 @@ on spotCheck()
 	end if
 
 	activate application "Safari"
-	set sutLib to script "safari"
+	set sutLib to script "core/safari"
 	set sut to sutLib's new()
 	set sut to decorate(sut)
 

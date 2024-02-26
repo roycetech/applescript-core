@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-group
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-10-09 10:46:47
+	@Last Modified: 2024-02-21 14:38:55
 	@Change Logs: .
 *)
 use listUtil : script "core/list"
@@ -44,7 +44,7 @@ on spotCheck()
 	end if
 
 	-- activate application ""
-	set sutLib to script "safari"
+	set sutLib to script "core/safari"
 	set sut to sutLib's new()
 	set sut to decorate(sut)
 

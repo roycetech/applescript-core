@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-finder
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-10-23 11:53:34
+	@Last Modified: 2024-02-21 15:27:44
 	@Change Logs: .
 *)
 use listUtil : script "core/list"
@@ -31,7 +31,7 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		Manual:
+		Manual: findTabStartingWithUrl
 	")
 
 	set spotClass to spotScript's new()
@@ -43,19 +43,25 @@ on spotCheck()
 	end if
 
 	-- activate application ""
-	set sutLib to script "safari"
+	set sutLib to script "core/safari"
 	set sut to sutLib's new()
 	set sut to decorate(sut)
 
 	-- 	logger's infof("Is Loading: {}", sut's isLoading())
 
 	if caseIndex is 1 then
+		sut's findTabStartingWithUrl("app.pluralsight.com/ilx/video-courses")
+		if result is missing value then
+			logger's info("Not found")
+		else
+			logger's info("Tab was found")
+		end if
+
+	else if caseIndex is 2 then
 		activate application "Safari"
 		kb's pressCommandKey("r")
 		delay 1
 		logger's infof("Is Loading: {}", sut's isLoading())
-
-	else if caseIndex is 2 then
 
 	else if caseIndex is 3 then
 
@@ -88,7 +94,7 @@ on decorate(mainScript)
 			if running of application "Safari" is false then return 0
 
 			tell application "Safari"
-				count every tab of front window
+				count every tab of (first window whose title does not start with "Web Inspector")
 			end tell
 		end getTabCount
 
@@ -101,6 +107,10 @@ on decorate(mainScript)
 			tell application "Safari"
 				repeat with nextWindow in windows
 					try
+						if name of current tab of nextWindow is equal to targetName then
+							return safariTabLib's new(id of nextWindow, index of current tab of nextWindow, me)
+						end if
+
 						set matchedTab to (first tab of nextWindow whose name is equal to targetName)
 						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
 					end try
@@ -117,6 +127,10 @@ on decorate(mainScript)
 			tell application "Safari"
 				repeat with nextWindow in windows
 					try
+						if name of current tab of nextWindow starts with targetName then
+							return safariTabLib's new(id of nextWindow, index of current tab of nextWindow, me)
+						end if
+
 						set matchedTab to (first tab of nextWindow whose name starts with targetName)
 						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
 					end try
@@ -133,6 +147,10 @@ on decorate(mainScript)
 			tell application "Safari"
 				repeat with nextWindow in windows
 					try
+						if name of current tab of nextWindow contains nameSubstring then
+							return safariTabLib's new(id of nextWindow, index of current tab of nextWindow, me)
+						end if
+
 						set matchedTab to (first tab of nextWindow whose name contains nameSubstring)
 						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
 					end try
@@ -149,6 +167,10 @@ on decorate(mainScript)
 			tell application "Safari"
 				repeat with nextWindow in windows
 					try
+						if name of current tab of nextWindow ends with targetName then
+							return safariTabLib's new(id of nextWindow, index of current tab of nextWindow, me)
+						end if
+
 						set matchedTab to (first tab of nextWindow whose name ends with targetName)
 						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
 					end try
@@ -165,6 +187,10 @@ on decorate(mainScript)
 			tell application "Safari"
 				repeat with nextWindow in windows
 					try
+						if URL of current tab of nextWindow is equal to targetUrl then
+							return safariTabLib's new(id of nextWindow, index of current tab of nextWindow, me)
+						end if
+
 						set matchedTab to (first tab of nextWindow whose URL is equal to the targetUrl)
 						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
 					end try
@@ -183,8 +209,15 @@ on decorate(mainScript)
 			tell application "Safari"
 				repeat with nextWindow in windows
 					try
+						if URL of current tab of nextWindow starts with urlPrefix then
+							return safariTabLib's new(id of nextWindow, index of current tab of nextWindow, me)
+						end if
+
 						set matchedTab to (first tab of nextWindow whose URL starts with urlPrefix)
 						return safariTabLib's new(id of nextWindow, index of matchedTab as integer, me)
+					on error the errorMessage number the errorNumber
+						log errorMessage
+
 					end try
 				end repeat
 			end tell

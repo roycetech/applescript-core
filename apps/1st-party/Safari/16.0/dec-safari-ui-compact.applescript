@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2023-10-09 10:47:02
+	@Last Modified: 2024-02-23 16:11:13
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -30,6 +30,7 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
+		General
 		Manual: Loading State
 	")
 
@@ -42,19 +43,19 @@ on spotCheck()
 	end if
 
 	-- activate application ""
-	set sutLib to script "safari"
+	set sutLib to script "core/safari"
 	set sut to sutLib's new()
 	set sut to decorate(sut)
 
-	-- 	logger's infof("Is Loading: {}", sut's isLoading())
+	logger's infof("Is Playing: {}", sut's isPlaying())
 
 	if caseIndex is 1 then
+
+	else if caseIndex is 2 then
 		activate application "Safari"
 		kb's pressCommandKey("r")
 		delay 1
 		logger's infof("Is Loading: {}", sut's isLoading())
-
-	else if caseIndex is 2 then
 
 	else if caseIndex is 3 then
 
@@ -145,8 +146,12 @@ on decorate(mainScript)
 			if isCompact() is false then return continue _getAddressBarGroup()
 
 			tell application "System Events" to tell process "Safari"
-				last group of toolbar 1 of front window
+				try
+					return last group of toolbar 1 of (first window whose (name does not start with "Web Inspector" and name is not ""))
+				end try
 			end tell
+
+			missing value
 		end _getAddressBarGroup
 	end script
 end decorate
