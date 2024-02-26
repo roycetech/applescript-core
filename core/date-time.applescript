@@ -5,7 +5,7 @@
 	@Build:
 		./scripts/build-lib.sh core/date-time
 
-	@Last Modified: 2024-02-08 16:54:36
+	@Last Modified: 2024-02-10 17:10:57
 *)
 use framework "Foundation"
 
@@ -106,11 +106,20 @@ on new()
 			_cleanTimeString(result)
 		end extractTimeFromDateTimeText
 
-
-		on _cleanTimeString(timeString)
+		(*
+			This is a workaround on macOS Sonoma introduced a unicode space before the AM/PM.
+		*)
+		on cleanTimeString(timeString)
 			textUtil's removeUnicode(timeString as text)
 			textUtil's replace(result, "PM", " PM")
 			textUtil's replace(result, "AM", " AM")
+		end cleanTimeString
+
+		(*
+			@Deprecated: Use cleanTimeString
+		*)
+		on _cleanTimeString(timeString)
+			cleanTimeString(timeString)
 		end _cleanTimeString
 
 		on isWeekday()
