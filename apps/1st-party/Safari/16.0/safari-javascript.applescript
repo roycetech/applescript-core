@@ -214,7 +214,14 @@ on decorate(safariTab)
 		end click
 
 		on clickByIndex(selector, idx)
-			runScriptPlain(format {"document.querySelectorAll('{}')[{}].click();", {selector, idx}})
+			if idx is less than 0 then  -- -1 for the last element.
+				runScriptPlain(format {"
+					var elements = document.querySelectorAll('{}');
+					var elCount = elements.length;
+					elements[elCount {}].click();", {selector, idx}})
+			else
+				runScriptPlain(format {"document.querySelectorAll('{}')[{}].click();", {selector, idx}})
+			end if
 		end clickByIndex
 
 		on clickById(elementId)
