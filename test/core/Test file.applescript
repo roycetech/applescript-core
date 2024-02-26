@@ -64,7 +64,7 @@ script |Load script|
 end script
 
 
-script |getBaseFilename tests|
+script |getBaseFilename tests| 
 	property parent : TestSet(me)
 	property sut : missing value 
 

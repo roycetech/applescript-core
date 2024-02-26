@@ -26,7 +26,7 @@ global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
 use xmlUtilLib : script "core/test/xml-util"
-
+ 
 property TopLevel : me
 property suite : makeTestSuite(suitename)
 property plistKey : "plist-test"

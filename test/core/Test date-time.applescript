@@ -146,7 +146,7 @@ end script
 
 
 script |extractTimeFromDateTimeText tests|
-	property parent : TestSet(me)
+	property parent : TestSet(me) 
 	property sut : missing value
 
 	property DateTime12HExampleAM : "Thursday, August 31, 2023 at 11:49:39 AM"
@@ -157,13 +157,13 @@ script |extractTimeFromDateTimeText tests|
 	on setUp()
 		set sut to sutScript's new()
 	end setUp
-	on tearDown()
+	on tearDown() 
 	end tearDown 
 
 	script |12 hour, morning|
 		property parent : UnitTest(me)
 		set actual to sut's extractTimeFromDateTimeText(DateTime12HExampleAM)
-		ok(actual starts with "11:49:39 AM")
+		ok(actual starts with "11:49:39 AM") 
 	end script
 
 	script |12 hour, afternoon|
@@ -314,17 +314,17 @@ script |Morning tests|
 		set _today of sut to adate
 	end setUp
 	on tearDown()
-		set _today of sut to missing value
-	end tearDown
+		set _today of sut to missing value 
+	end tearDown  
 
-	script |isMorning|
-		property parent : UnitTest(me)
+	script |isMorning| 
+		property parent : UnitTest(me) 
 		ok(sut's isMorning())
 	end script
 
 	script |isArvo|
-		property parent : UnitTest(me)
-		notOk(sut's isArvo())
+		property parent : UnitTest(me) 
+		notOk(sut's isArvo()) 
 	end script
 end script
 

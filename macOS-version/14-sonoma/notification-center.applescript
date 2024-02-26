@@ -2,7 +2,7 @@
 	User/client facing library.
 
 	@Version:
-		macOS Ventura
+		macOS Sonoma
 
 	@Changes:
 		scroll area is now moved under a group
@@ -15,7 +15,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh "macOS-version/13-ventura/notification-center"
+		./scripts/build-lib.sh macOS-version/14-sonoma/notification-center
 
 	@Known Issues
 		For grouped notifications, if you want to dismiss the first notification only, the client code should expand the notification first.
@@ -403,7 +403,13 @@ on new()
 				on deleteMail()
 					if appName is not "Mail" then tell me to error "Invalid action for app " & appName
 
-					tell application "System Events" to perform action 3 of item 1 of theNotification -- Trigger the delete button. Improve, don't use the number.
+					tell application "System Events"
+						try
+							perform (first action of theNotification whose description is "Delete")
+						end try
+					end tell
+
+					-- tell application "System Events" to perform action 3 of item 1 of theNotification -- Trigger the delete button. Improve, don't use the number.
 				end deleteMail
 
 				(*
@@ -445,8 +451,19 @@ Is Stacked: {}
 			set mappedAppName to appNameMap's getValue(appId)
 			-- logger's debugf("mappedAppName: {}", mappedAppName)
 
-			if mappedAppName is missing value then set mappedAppName to appId
+			if mappedAppName is missing value then
+				set mappedAppName to appId
+			end if
 			tell NotificationInstance to set its appName to mappedAppName
+			tell application "System Events" to tell process "Notification Center"
+				if exists (first action of theNotification whose description is "Delete") then
+					-- Let's assume it is mail if there's a delete action. I don't know another notification with that action, iMessage perhaps?
+					set appName of NotificationInstance to "Mail"
+				end if
+
+				-- Below attribute while it shows "Mail" in UI Browser, is not readable by AppleScript.
+				-- value of attribute "AXAttributedDescription" of group 1 of UI element 1 of scroll area 1 of group 1 of front window
+			end tell
 
 			tell application "System Events"
 				repeat with nextStaticText in static texts of theNotification
