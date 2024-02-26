@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2024-01-18 16:01:13
+	@Last Modified: 2024-02-15 12:50:18
 *)
 
 use script "core/Text Utilities"
@@ -209,6 +209,7 @@ end writeTextToTempFile
 
 (*
 	@filePath file path in POSIX or Mac OS Notation (colon-separated)
+	@returns the name of the file with its extension/s.
 *)
 on getBaseFilename(filePath)
 	-- if (offset of ":" in filePath) is greater than 0 then  -- Mac OS Notation
