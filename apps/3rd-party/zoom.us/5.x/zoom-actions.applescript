@@ -10,7 +10,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
 
-	@Last Modified: 2023-11-09 20:08:46
+	@Last Modified: 2024-02-27 10:53:29
 *)
 
 use listUtil : script "core/list"
@@ -20,6 +20,7 @@ use usrLib : script "core/user"
 use kbLib : script "core/keyboard"
 use processLib : script "core/process"
 use zoomUtilLib : script "core/zoom"
+use cliclickLib : script "core/cliclick"
 
 use spotScript : script "core/spot-test"
 
@@ -27,6 +28,7 @@ property logger : missing value
 
 property usr : missing value
 property kb : missing value
+property cliclick : missing value
 
 property SHARING_WIN_NAME : "zoom share toolbar window"
 property SELECT_SHARE_WIN_NAME : "Select a window or an application that you want to share"
@@ -39,8 +41,8 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		Manual: Unmute
 		Manual Mute
+		Manual: Unmute
 		Manual: Start Video
 		Manual: Stop Video
 		Manual: Raise Hand
@@ -50,6 +52,9 @@ on spotCheck()
 		Manual: Stop Screen Sharing
 		Manual: End Meeting
 		Manual: Cycle Camera
+
+		Manual: Switch to iPhone Camera
+
 	")
 
 	set spotClass to spotScript's new()
@@ -61,17 +66,13 @@ on spotCheck()
 	end if
 
 	set sut to zoomUtilLib's new()
-	try
-		sut's unmute
-	on error
-		set sut to decorate(sut)
-	end try
+	set sut to decorate(sut)
 
 	if caseIndex is 1 then
-		sut's unmute()
+		sut's mute()
 
 	else if caseIndex is 2 then
-		sut's mute()
+		sut's unmute()
 
 	else if caseIndex is 3 then
 		sut's cameraOn()
@@ -97,6 +98,9 @@ on spotCheck()
 	else if caseIndex is 10 then
 		sut's cycleCamera()
 
+	else if caseIndex is 11 then
+		sut's switchCamera("iPhone Camera")
+
 	else
 
 	end if
@@ -119,11 +123,18 @@ on decorate(mainScript)
 
 	set usr to usrLib's new()
 	set kb to kbLib's new()
+	set cliclick to cliclickLib's new()
 
 	(* Use the same name as the parent because this decorator is only meant to organize the handlers. *)
 	script ZoomInstance
 		property parent : mainScript
 		property currentCamera : missing value
+
+
+		(**)
+		on switchCamera(cameraKeyword)
+			_clickVideoSubMenu(cameraKeyword)
+		end switchCamera
 
 		(**)
 		on cycleCamera(listOfCamera)
@@ -286,14 +297,30 @@ on decorate(mainScript)
 				if not (window "Zoom Meeting" exists) then return
 
 				click (first button of window "Zoom Meeting" whose description is "Audio sub menu")
-				delay 0.1
+				set targetRow to (first row of table 1 of scroll area 1 of window "Menu window" whose value of static text 1 of UI element 1 of UI element 1 contains buttonKey)
+
 				try
-					click (first button of window "" whose description is buttonDescription)
+					-- click (first button of window "Menu window" whose description is buttonDescription)
 				on error the errorMessage number the errorNumber
-					logger's warn(errorMessage)
+					-- logger's warn(errorMessage)
 				end try
 			end tell
+			lclick of cliclick at targetRow
 		end _clickAudioSubMenu
+
+
+		on _clickVideoSubMenu(buttonKey)
+			logger's debugf("buttonKey: {}", buttonKey)
+			if running of application "zoom.us" is false then return
+
+			tell application "System Events" to tell process "zoom.us"
+				if not (window "Zoom Meeting" exists) then return
+
+				click (first button of window "Zoom Meeting" whose description is "Video sub menu")
+				set targetRow to (first row of table 1 of scroll area 1 of window "Menu window" whose value of static text 1 of UI element 1 of UI element 1 contains buttonKey)
+			end tell
+			lclick of cliclick at targetRow without smoothing
+		end _clickVideoSubMenu
 
 
 		on _clickMenuAction(menuItemName)
