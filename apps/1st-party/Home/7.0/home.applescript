@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Home/7.0/home
 
 	@Created: December 8, 2023 9:40 PM
-	@Last Modified: 2023-12-21 09:25:12
+	@Last Modified: 2024-02-29 12:16:59
 *)
 use scripting additions
 
@@ -38,6 +38,8 @@ on spotCheck()
 		Manual: Hide Sidebar
 		Manual: Show Sidebar
 		Manual: Accessory Status
+
+		Manual: Camera
 	")
 
 	set spotClass to spotScript's new()
@@ -85,6 +87,11 @@ on spotCheck()
 		sut's showSidebar()
 		sut's switchSidebarItem("Bedroom")
 		logger's infof("Status: {}", sut's getAccessoryStatus("Table"))
+
+	else if caseIndex is 6 then
+		logger's infof("Click result: {}", sut's clickTile("Cameras"))
+		delay 1
+		logger's infof("Click result: {}", sut's clickTile("Camera-"))
 
 	end if
 
