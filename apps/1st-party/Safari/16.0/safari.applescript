@@ -31,7 +31,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2023-11-29 17:31:55
+	@Last Modified: 2024-02-28 10:23:46
 *)
 
 use script "core/Text Utilities"
@@ -122,6 +122,7 @@ on spotCheck()
 			logger's info("A front tab was not found")
 		else
 			logger's infof("Is Fullscreen: {}", sut's isFullScreen())
+			logger's infof("Is MediaFullscreen: {}", sut's isMediaFullScreen())
 			logger's infof("Keychain Form Visible: {}", sut's isKeychainFormVisible())
 			logger's infof("Is Compact: {}", sut's isCompact())
 			logger's infof("URL: {}", frontTab's getURL())
@@ -252,7 +253,7 @@ on new()
 			if running of application "Safari" is false then return false
 
 			tell application "System Events" to tell process "Safari"
-				exists (window "")
+				exists (first window whose description is "dialog")
 			end tell
 		end isMediaFullScreen
 
