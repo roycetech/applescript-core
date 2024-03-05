@@ -5,7 +5,7 @@
 	@Build:
 		./scripts/build-lib.sh core/date-time
 
-	@Last Modified: 2024-02-10 17:10:57
+	@Last Modified: 2024-03-04 11:16:03
 *)
 use framework "Foundation"
 
@@ -55,7 +55,7 @@ on spotCheck()
 		log formatYyyyMmDd(current date)
 
 	else if caseIndex is 3 then
-		log nowForScreenShot()
+		-- log nowForScreenShot()
 
 	else if caseIndex is 4 then
 		log formatDateSQL(yesterday())

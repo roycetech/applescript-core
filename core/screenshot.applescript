@@ -21,10 +21,11 @@
 *)
 
 use script "core/Text Utilities"
+
 use scripting additions
 
 use std : script "core/std"
-
+use textUtil : script "core/string"
 use Math : script "core/math"
 use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
@@ -59,6 +60,7 @@ on spotCheck()
 		return
 	end if
 
+	set generatedFilePath to missing value
 	set sut to new()
 	if caseIndex is 1 then
 		sut's captureFrontAppToClipboard("Script Editor")
@@ -67,7 +69,8 @@ on spotCheck()
 		sut's captureDimensionsToClipboard(100, 100, 200, 100)
 
 	else if caseIndex is 3 then
-		sut's capturePointsToClipboard(1000, 900, 1400, 1100)
+		-- sut's capturePointsToClipboard(1000, 900, 1400, 1100)
+		sut's capturePointsToClipboard(0, 93, 950, 535, "Spot.png")
 
 	else if caseIndex is 4 then
 		sut's captureFrontAppToFile("Script Editor", "Spot.png")
@@ -76,15 +79,20 @@ on spotCheck()
 		sut's captureDimensionsToFile(100, 100, 200, 100, "Spot.png")
 
 	else if caseIndex is 6 then
-		sut's capturePointsToFile(1000, 900, 1400, 1100, "Spot.png")
+		-- sut's capturePointsToFile(1000, 900, 1400, 1100, "Spot.png")
 
 	end if
 
-	set generatedFilePath to result
+	try
+		set generatedFilePath to result
+	end try
 	if generatedFilePath is not missing value then
 		logger's debugf("generatedFilePath: {}", generatedFilePath)
 
-		(* The app script needs to complete before the file is actually revealable in the finder that's why we created the Delayed AppleScript app. *)
+		(*
+			The app script needs to complete before the file is actually revealable in the finder that's why I
+			created an optional Delayed AppleScript app for testing only.
+		*)
 		set optionalAppName to "Delayed Applescript"
 		if std's appExists(optionalAppName) then
 			tell application optionalAppName
@@ -114,12 +122,13 @@ on new()
 			if baseFilename is missing value then
 				set filePathParam to ""
 			else
-				set filePathParam to format {"{}/{}-{}", {savePath, dateTime's nowForScreenShot(), baseFilename}}
+				set filePathParam to format {"{}/{}-{}", {savePath, my _nowForScreenShot(), baseFilename}}
 			end if
 
 			set clipboardParam to std's ternary(baseFilename is missing value, " -c", "")
-			set command to format {"screencapture{} -R{},{},{},{} {}", {clipboardParam, x, y, w, h, filePathParam}}
-			-- logger's debugf("command: {}", command)
+			set command to textUtil's rtrim(format {"screencapture{} -R{},{},{},{} {}", {clipboardParam, x, y, w, h, filePathParam}})
+			logger's debugf("command: {}", command)
+
 			do shell script command
 			std's ternary(baseFilename is missing value, missing value, filePathParam)
 		end captureDimensionsToFile
@@ -162,7 +171,12 @@ on new()
 
 
 		on capturePointsToClipboard(x1, y1, x2, y2)
-			captureDimensionsToFile(x1, y1, x2, y2, missing value)
+			capturePointsToFile(x1, y1, x2, y2, missing value)
 		end capturePointsToClipboard
+
+
+		on _nowForScreenShot()
+			do shell script "date '+%m%d-%H%M'"
+		end _nowForScreenShot
 	end script
 end new
