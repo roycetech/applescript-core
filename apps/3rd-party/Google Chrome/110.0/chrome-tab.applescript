@@ -5,7 +5,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Chrome/110.0/chrome-tab
+		./scripts/build-lib.sh 'apps/3rd-party/Google Chrome/110.0/chrome-tab'
 
 	@Created: December 25, 2023 3:30 PM
 	@Last Modified: 2023-12-27 10:41:51
@@ -29,7 +29,7 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-
+	
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Open Google Translate
@@ -37,7 +37,7 @@ on spotCheck()
 		Manual: Move tab to index
 		Manual: Run a Script
 	")
-
+	
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -45,42 +45,42 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-
+	
 	tell application "Google Chrome"
 		tell front window
 			set sut to my new(its id, active tab index)
-
+			
 		end tell
 	end tell
-
+	
 	logger's infof("Title: {}", sut's getTitle())
 	logger's infof("Name: {}", sut's getWindowName())
 	logger's infof("Window ID: {}", sut's getWindowID())
 	logger's infof("Has alert: {}", sut's hasAlert())
-
+	
 	if caseIndex is 1 then
 		sut's newTab("https://www.google.com/search?q=translate+german+to+english")
-
+		
 	else if caseIndex is 2 then
 		(* Prepare a test tab, then close it.*)
 		logger's info("Close the test tab.")
 		delay 8
-
+		
 		logger's infof("Title after closing: {}", sut's getTitle())
 		logger's infof("Has alert: {}", sut's hasAlert())
 		logger's infof("Name: {}", sut's getWindowName())
 		logger's infof("Window ID: {}", sut's getWindowID())
-
+		
 	else if caseIndex is 3 then
 		sut's moveTabToIndex(5)
-
+		
 	else if caseIndex is 4 then
 		sut's runScript("alert('Hello')")
-
+		
 	end if
-
+	
 	activate
-
+	
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -93,11 +93,11 @@ end spotCheck
 on new(windowId, pTabIndex)
 	-- on new(windowId, pTabIndex, pSafari)
 	loggerFactory's inject(me)
-
+	
 	set retry to retryLib's new()
-
+	
 	-- logger's debugf("Window ID: {}, TabIndex: {}", {windowId, pTabIndex}) -- wished the name or the url can be included in the log, not easy to do.
-
+	
 	script ChromeTabInstance
 		property appWindow : missing value -- app window, not syseve window.
 		property maxTryTimes : 60
@@ -105,19 +105,19 @@ on new(windowId, pTabIndex)
 		property closeOtherTabsOnFocus : false
 		property tabIndex : pTabIndex
 		-- property safari : pSafari
-
+		
 		property _tab : missing value
 		property _url : missing value
-
-
+		
+		
 		on moveTabToIndex(newIndex)
 			if running of application "Google Chrome" is false then return
-
+			
 			tell application "Google Chrome"
 				set tabCount to (count of tabs in front window)
 				set sourceTabIndex to tabIndex -- the index of the tab you want to move
 				set targetTabIndex to newIndex -- the index where you want to move the tab
-
+				
 				if (sourceTabIndex > tabCount) or (targetTabIndex > tabCount) then
 					display dialog "Invalid tab index."
 				else if targetTabIndex - sourceTabIndex is 1 then
@@ -130,19 +130,19 @@ on new(windowId, pTabIndex)
 				set active tab of front window to my _tab
 			end tell
 		end moveTabToIndex
-
-
+		
+		
 		on getTabIndex()
 			tabIndex
 		end getTabIndex
-
+		
 		on getTitle()
 			try
 				return name of _tab -- This returns the title of the front tab.
 			end try -- When the tab is closed.
 			missing value
 		end getTitle
-
+		
 		on hasAlert()
 			tell application "System Events" to tell process "Google Chrome" to tell my getSystemEventsWindow()
 				try
@@ -152,7 +152,7 @@ on new(windowId, pTabIndex)
 				end try
 			end tell
 		end hasAlert
-
+		
 		on dismissAlert()
 			tell application "System Events" to tell process "Google Chrome" to tell my getSystemEventsWindow()
 				try
@@ -160,7 +160,7 @@ on new(windowId, pTabIndex)
 				end try
 			end tell
 		end dismissAlert
-
+		
 		(* Creates a new tab at the end of the window (not next to the tab) *)
 		on newTab(targetUrl)
 			tell application "Google Chrome"
@@ -170,33 +170,33 @@ on new(windowId, pTabIndex)
 					set activeTabIndex to the active tab index of appWindow
 				end tell
 			end tell
-
+			
 			tell application "Google Chrome"
 				-- tell my appWindow to set active tab to (make new tab with properties {URL:targetUrl})
 				-- set miniaturized of appWindow to false
 				-- set tabTotal to count of tabs of appWindow
 			end tell
-
+			
 			-- set newInstance to new(windowId, tabTotal, safari)
 			set newInstance to new(windowId, activeTabIndex)
 			set _url of newInstance to targetUrl
 			the newInstance
 		end newTab
-
-
+		
+		
 		(* It checks the starting characters to match because Safari trims it in the menu when then name is more than 30 characters. *)
 		on focus()
 			tell application "Google Chrome" to set active tab of my appWindow to _tab
 		end focus
-
+		
 		on closeTab()
 			tell application "Google Chrome" to close _tab
 		end closeTab
-
+		
 		on closeWindow()
 			tell application "Google Chrome" to close my appWindow()
 		end closeWindow
-
+		
 		on reload()
 			focus()
 			tell application "Google Chrome"
@@ -205,11 +205,11 @@ on new(windowId, pTabIndex)
 			end tell
 			delay 0.01
 		end reload
-
+		
 		on waitForPageToLoad()
 			waitForPageLoad()
 		end waitForPageToLoad
-
+		
 		on waitForPageLoad()
 			script LoadingWaiter
 				tell application "Google Chrome"
@@ -219,8 +219,8 @@ on new(windowId, pTabIndex)
 			end script
 			exec of retry on result for maxTryTimes by sleepSec
 		end waitForPageLoad
-
-
+		
+		
 		on isDocumentLoading()
 			tell application "Google Chrome"
 				if my getWindowName() is equal to "Failed to open page" then return false
@@ -228,38 +228,38 @@ on new(windowId, pTabIndex)
 			end tell
 			false
 		end isDocumentLoading
-
-
+		
+		
 		on waitInSource(substring)
 			script SubstringWaiter
 				if getSource() contains substring then return true
 			end script
 			exec of retry on result for maxTryTimes by sleepSec
 		end waitInSource
-
+		
 		on getSource()
 			tell application "Google Chrome"
 				try
 					return (source of my getDocument()) as text
 				end try
 			end tell
-
+			
 			missing value
 		end getSource
-
+		
 		on getURL()
 			tell application "Google Chrome"
 				try
 					return URL of my getDocument()
 				end try
 			end tell
-
+			
 			missing value
 		end getURL
-
+		
 		on getAddressBarValue()
 			if hasToolBar() is false then return missing value
-
+			
 			tell application "System Events" to tell process "Google Chrome"
 				try
 					set addressBarValue to value of text field 1 of last group of toolbar 1 of my getSysEveWindow()
@@ -269,10 +269,10 @@ on new(windowId, pTabIndex)
 			end tell
 			missing value
 		end getAddressBarValue
-
+		
 		on goto(targetUrl)
 			script PageWaiter
-
+				
 				-- tell application "Google Chrome" to set URL of document (name of my appWindow) to targetUrl
 				tell application "Google Chrome" to set URL of my getDocument() to targetUrl
 				true
@@ -280,8 +280,8 @@ on new(windowId, pTabIndex)
 			exec of retry on result for 2
 			delay 0.1 -- to give waitForPageLoad ample time to enter a loading state.
 		end goto
-
-
+		
+		
 		(* Note: Will dismiss the prompt of the*)
 		on dismissPasswordSavePrompt()
 			focus()
@@ -294,23 +294,23 @@ on new(windowId, pTabIndex)
 			end script
 			exec of retry on result for 5 -- let's try click it 5 times, ignoring outcomes.
 		end dismissPasswordSavePrompt
-
-
+		
+		
 		on getWindowID()
 			try
 				return id of appWindow
 			end try
 			0
 		end getWindowID
-
+		
 		on getWindowName()
 			try
 				return name of appWindow
 			end try
 			missing value
 		end getWindowName
-
-
+		
+		
 		on getSystemEventsWindow()
 			tell application "System Events" to tell process "Google Chrome"
 				try
@@ -319,13 +319,19 @@ on new(windowId, pTabIndex)
 			end tell
 			missing value
 		end getSystemEventsWindow
+		
+		on getHtmlUI()
+			tell application "System Events" to tell process "Google Chrome"
+					first UI element of group 1 of group 1 of group 1 of group 1 of front window whose role description is "HTML Content"
+			end tell
+		end getHtmlUI
 	end script
-
+	
 	tell application "Google Chrome"
 		set appWindow of ChromeTabInstance to window id windowId
 		set _url of ChromeTabInstance to URL of active tab of window id windowId
 		set _tab of ChromeTabInstance to item pTabIndex of tabs of appWindow of ChromeTabInstance
 	end tell
-
+	
 	chromeJavaScript's decorate(ChromeTabInstance)
 end new
