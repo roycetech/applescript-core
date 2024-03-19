@@ -209,7 +209,6 @@ end fromRecord
 (* Major flaw is that all the values will be converted into text. Couldn't find
 a way to convert the value into AppleScript data type. *)
 on newFromRecord(sourceRecord)
-	say 1
 	if sourceRecord is missing value then return missing value
 
 	set userDictionary to new()
