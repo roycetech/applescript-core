@@ -3,7 +3,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Chrome/110.0/chrome
+		./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/chrome
 *)
 use scripting additions
 
@@ -15,43 +15,48 @@ use listUtil : script "core/list"
 
 use winUtilLib : script "core/window"
 use chromeTabLib : script "core/chrome-tab"
+use decChromeTabFinder : script "core/dec-chrome-tab-finder"
+
+use retryLib : script "core/retry"
 
 use spotScript : script "core/spot-test"
 
 property winUtil : missing value
 property logger : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-
+	
 	set cases to listUtil's splitByLine("
-	    	Manual: New Window
-    		Manual: New Tab
-    		Manual: Open the Developer tools
-    		Manual: JavaScript
-  	")
-
+			Manual: New Window
+			Manual: New Tab
+			Manual: Open the Developer tools
+			Manual: JavaScript
+	")
+	
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
-
+	
 	if caseIndex is 0 then
 		return
 	end if
-
+	
 	set sut to new()
 	if caseIndex is 1 then
 		sut's newWindow("https://www.example.com")
-
+		
 	else if caseIndex is 2 then
-		sut's newTab("https://www.example.com")
-
+		set chromeTab to sut's newTab("https://www.example.com")
+		chromeTab's waitForPageLoad()
+		
 	else if caseIndex is 3 then
 		sut's openDeveloperTools()
-
+		
 	else if caseIndex is 4 then
 		set chromeTab to sut's getFrontTab()
 		if chromeTab is missing value then
@@ -59,48 +64,55 @@ on spotCheck()
 		else
 			chromeTab's runScript("alert('Hello Chrome AppleScript')")
 		end if
-
+		
 	end if
-
+	
 	spot's finish()
 	logger's finish()
 end spotCheck
 
 on new()
+	loggerFactory's inject(me)
+	
 	set winUtil to winUtilLib's new()
-
+	set retry to retryLib's new()
+	
 	script ChromeInstance
 		on newWindow(targetUrl)
 			tell application "Google Chrome"
 				activate
 				set newWindow to make new window
 				set URL of active tab of newWindow to targetUrl
-
+				
 				tell front window
 					chromeTabLib's new(its id, active tab index)
 				end tell
 			end tell
 		end newWindow
-
+		
 		on newTab(targetUrl)
-			tell application "Google Chrome"
-				activate
-				tell front window
-					set newTab to make new tab at end of tabs
-					set URL of newTab to targetUrl
-				end tell
+			tell application "Google Chrome" to activate
+			script WindowWaiter
+				if exists (front window of application "Google Chrome") then return true
+			end script
+			exec of retry on result for 10 by 0.5
+			
+			tell application "Google Chrome" to tell front window
+				set newTab to make new tab at end of tabs
+				set URL of newTab to targetUrl
+				chromeTabLib's new(its id, active tab index)
 			end tell
 		end newTab
-
+		
 		on getFrontTab()
 			if not winUtil's hasWindow("Google Chrome") then return missing value
-
+			
 			tell application "Google Chrome" to tell first window
 				chromeTabLib's new(its id, active tab index)
 			end tell
 		end getFrontTab
-
-
+		
+		
 		on openDeveloperTools()
 			tell application "Google Chrome"
 				activate
@@ -111,4 +123,6 @@ on new()
 			end tell
 		end openDeveloperTools
 	end script
+	
+	decChromeTabFinder's decorate(result)
 end new
