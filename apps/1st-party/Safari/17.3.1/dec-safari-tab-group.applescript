@@ -7,14 +7,16 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-group
+		./scripts/build-lib.sh apps/1st-party/Safari/17.3.1/dec-safari-tab-group
 
-	@Created: Sunday, March 17, 2024 at 8:23:05 PM
-	@Last Modified: 2024-03-17 20:23:15
+	@Created: Sunday, March 17, 2024 at 8:23:55 PM
+	@Last Modified: 2024-03-17 20:25:55
 	@Change Logs:
 *)
 use listUtil : script "core/list"
 use textUtil : script "core/string"
+use unic : script "core/unicodes"
+
 use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
