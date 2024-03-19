@@ -1,7 +1,7 @@
 (*
 	For consistency:
-		Posix directories should never end with "/", it's up to the client to append it along with the file.
-		Posix Sub-directories must not start with "/", to make it obvious that it is not relative to root.
+		POSIX directories should never end with "/", it's up to the client to append it along with the file.
+		POSIX Sub-directories must not start with "/", to make it obvious that it is not relative to root.
 
 	WARNING: Finder is slow in general (not just this script). Avoid using the app Finder as much as possible.
 
@@ -14,7 +14,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
 
-	@Last Modified: 2024-02-15 13:41:34
+	@Last Modified: 2024-03-11 10:39:45
 *)
 
 use script "core/Text Utilities"
