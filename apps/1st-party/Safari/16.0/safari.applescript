@@ -31,7 +31,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2024-02-28 10:23:46
+	@Last Modified: 2024-03-18 14:22:48
 *)
 
 use script "core/Text Utilities"
@@ -285,6 +285,8 @@ on new()
 			if not winUtil's hasWindow("Safari") then return missing value
 
 			tell application "Safari" to tell first window
+				if current tab is missing value then return missing value -- When on full screen.
+
 				safariTabLib's new(its id, index of current tab, me)
 			end tell
 		end getFrontTab
@@ -298,6 +300,8 @@ on new()
 				if (count of windows) is 0 then return missing value
 
 				tell first window
+					if current tab is missing value then return missing value -- When on full screen.
+
 					safariTabLib's new(its id, index of current tab, me)
 				end tell
 			end tell
