@@ -19,15 +19,18 @@
 		make build-lib SOURCE=libs/redis/redis
 
 	@Troubleshooting:
-		When you do an update, make sure to re-run the setup-redis-cli.applescript
+		When you do an update,
+			1.  make sure to re-run the setup-redis-cli.applescript
 		to update the cli location.
+			2.  Re-compile this script so that the new CLI will be reloaded from the config.
+
 		Run "brew services restart redis" to fix the issue with "MISCONF Redis
 		is configured to save RDB snapshots, but it's currently unable to persist to disk"
 
 	@Known Issues:
 		September 2, 2023 9:53 AM - Records are not currently supported.
 
-	@Last Modified: 2023-09-25 14:57:57
+	@Last Modified: 2024-03-08 11:46:33
  *)
 
 use script "core/Text Utilities"
