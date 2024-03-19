@@ -2,13 +2,13 @@
 	Library wrapper for Preview app.
 
 		@Created: July 14, 2023 6:57 PM
-		@Last Modified: 2023-09-05 12:05:52
+		@Last Modified: 2024-03-13 13:36:50
 
 	@Project:
 		applescript-core
 
 	@Build:
-		install-preview
+		./scripts/build-lib.sh apps/1st-party/Preview/v11/preview
 *)
 use scripting additions
 
@@ -123,14 +123,11 @@ on new()
 				if enabled of menu item "New from Clipboard" of menu 1 of menu bar item "File" of menu bar 1 is false then
 					error "New from Clipboard menu item is disabled, check that you can copy the item properly before triggering this"
 				end if
-			end tell
 
-			activate application "Preview"
-			delay 0.1
-			tell application "System Events" to tell process "Preview"
-				try
+				set frontmost to true
+				delay 0.1
+
 					click menu item "New from Clipboard" of menu 1 of menu bar item "File" of menu bar 1
-				end try
 			end tell
 		end newFromClipboard
 
@@ -149,7 +146,13 @@ on new()
 					click (first menu item of menu 1 of menu bar item "File" of menu bar 1 whose title starts with "Save")
 				end try
 			end tell
-			delay 1 -- convert to wait later.
+
+			script WaitSaveDialog
+				tell application "System Events" to tell process "Preview"
+					if exists (button "Save" of sheet 1 of front window) then return true
+				end tell
+			end script
+			exec of retry on result for 6 by 0.5
 		end triggerFileSave
 
 		(*
