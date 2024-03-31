@@ -3,10 +3,13 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-tab
+		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/safari-tab
 
-	@Created: Wednesday, September 20, 2023 at 3:23:31 PM
-	@Last Modified: 2024-02-28 22:52:03
+	@Created: Sunday, March 31, 2024 at 9:31:30 AM
+	@Last Modified: 2024-03-31 09:31:34
+
+	@Change Logs:
+		Sunday, March 31, 2024 at 9:28:23 AM - After Sonoma 14.4.1, document reference could no longer be passed from intermediary reference, it needs to be directly accessed to work.
 *)
 
 use scripting additions
@@ -54,6 +57,8 @@ on spotCheck()
 	logger's infof("Window ID: {}", sut's getWindowID())
 	logger's infof("Has toolbar: {}", sut's hasToolBar())
 	logger's infof("Has alert: {}", sut's hasAlert())
+	logger's infof("Current URL: {}", sut's getURL())
+
 	if caseIndex is 1 then
 		(* Prepare a test tab, then close it.*)
 		logger's info("Close the test tab.")
@@ -80,7 +85,7 @@ end spotCheck
 			@pTabIndex the Safari tab index
 		*)
 on new(windowId, pTabIndex)
--- on new(windowId, pTabIndex, pSafari)
+	-- on new(windowId, pTabIndex, pSafari)
 	loggerFactory's inject(me)
 
 	set retry to retryLib's new()
@@ -178,7 +183,7 @@ on new(windowId, pTabIndex)
 		on focus()
 			try
 				tell application "Safari" to set current tab of my appWindow to _tab
-			end try  -- When tab is manually closed
+			end try -- When tab is manually closed
 		end focus
 
 		on closeTab()
@@ -192,8 +197,8 @@ on new(windowId, pTabIndex)
 		on reload()
 			focus()
 			tell application "Safari"
-				set currentUrl to URL of my getDocument()
-				set URL of my getDocument() to currentUrl
+				set currentUrl to URL of front document
+				set URL of front document to currentUrl
 			end tell
 			delay 0.01
 		end reload
@@ -206,7 +211,7 @@ on new(windowId, pTabIndex)
 			script SourceWaiter
 				tell application "Safari"
 					if my getWindowName() is equal to "Failed to open page" then return "failed"
-					if source of my getDocument() is not "" then return true
+					if source of front document is not "" then return true
 				end tell
 			end script
 			exec of retry on result for maxTryTimes by sleepSec
@@ -216,7 +221,7 @@ on new(windowId, pTabIndex)
 		on isDocumentLoading()
 			tell application "Safari"
 				if my getWindowName() is equal to "Failed to open page" then return false
-				if source of my getDocument() is not "" then return true
+				if source of front document is not "" then return true
 			end tell
 			false
 		end isDocumentLoading
@@ -232,7 +237,7 @@ on new(windowId, pTabIndex)
 		on getSource()
 			tell application "Safari"
 				try
-					return (source of my getDocument()) as text
+					return (source of front document) as text
 				end try
 			end tell
 
@@ -242,7 +247,7 @@ on new(windowId, pTabIndex)
 		on getURL()
 			tell application "Safari"
 				try
-					return URL of my getDocument()
+					return URL of front document
 				end try
 			end tell
 
@@ -266,7 +271,7 @@ on new(windowId, pTabIndex)
 			script PageWaiter
 
 				-- tell application "Safari" to set URL of document (name of my appWindow) to targetUrl
-				tell application "Safari" to set URL of my getDocument() to targetUrl
+				tell application "Safari" to set URL of front document to targetUrl
 				true
 			end script
 			exec of retry on result for 2
@@ -305,13 +310,6 @@ on new(windowId, pTabIndex)
 		on getWindowName()
 			name of appWindow
 		end getWindowName
-
-		on getDocument()
-			tell application "Safari"
-				document (my getWindowName())
-			end tell
-		end getDocument
-
 
 		on getSysEveWindow()
 			tell application "System Events" to tell process "Safari"

@@ -448,15 +448,17 @@ on decorate(safariTab)
 			don't want to break the other uses. TODO: Unit Tests.
 		*)
 		on runScript(scriptText)
-			tell application "Safari"
-				do JavaScript ("
-					try {
-						" & scriptText & "
-					} catch(e) {
-						e.message;
-					}
-				") in _tab of safariTab
-			end tell
+			try
+				tell application "Safari"
+					do JavaScript ("
+						try {
+							" & scriptText & "
+						} catch(e) {
+							e.message;
+						}
+					") in _tab of safariTab
+				end tell
+			end try  -- Ignore when _tab is de-referenced.
 		end runScript
 
 		(*
@@ -474,7 +476,9 @@ on decorate(safariTab)
 		on runScriptPlain(scriptText)
 			-- tell application "Safari" to do JavaScript scriptText in _tab of safariTab
 			if scriptText does not end with ";" then set scriptText to scriptText & ";"
-			tell application "Safari" to return do JavaScript ("try {" & scriptText & "} catch(e) { e.message; }") in _tab of safariTab
+			try
+				tell application "Safari" to return do JavaScript ("try {" & scriptText & "} catch(e) { e.message; }") in _tab of safariTab
+			end try  -- WHen _tab is de-referenced.
 		end runScriptPlain
 
 
