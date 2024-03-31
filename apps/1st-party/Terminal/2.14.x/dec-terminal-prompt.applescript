@@ -6,7 +6,7 @@
 		applescript-core
 
 	@Build:
-		make build-terminal
+		./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt
 
 	@Migrated:
 		September 25, 2023 12:19 PM
@@ -29,9 +29,9 @@ use terminalLib : script "core/terminal"
 
 use spotScript : script "core/spot-test"
 
-property logger  : missing value
-property retry  : missing value
-property terminal  : missing value
+property logger : missing value
+property retry : missing value
+property terminal : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -40,14 +40,17 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		Manual: Is Shell Prompt - zsh, bash, docker with/out command, redis, sftp, EC2 ssh
+		Manual: INFO
+		Manual: Wait for Shell Prompt
+	")
+
+	(*
 		Manual: Wait for Prompt
 		Manual: Prompt With Command (Git/Non Git, Parens, Lingering Command)
-		Manual: Prompt (Git/Non Git, With/out Parens, With/out Lingering Command)
 		Manual: Is Git Directory (yes, no)
 
 		Manual: Last Command (Git/Non, With/out, Waiting for MFA)
-	")
+	*)
 
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
@@ -57,32 +60,29 @@ on spotCheck()
 		return
 	end if
 
+	set terminal to terminalLib's new()
 	terminal's getFrontTab()
 	set frontTab to decorate(result)
 	set sut to extOutput's decorate(result)
 
-	if caseIndex is 1 then
-		logger's infof("Is Shell Prompt: {}", frontTab's isShellPrompt())
-		logger's infof("Is SSH: {}", frontTab's isSSH())
-		logger's infof("Is zsh: {}", frontTab's isZSH())
-		logger's infof("Is bash: {}", frontTab's isBash())
+	-- Check (Git/Non Git, With/out Parens, With/out Lingering Command)
+	logger's infof("Prompt: [{}]", sut's getPrompt())
+	logger's infof("Prompt With Command (if command is present): {}", sut's getPromptText())
 
-	else if caseIndex is 2 then
+	-- Check: zsh, bash, docker with/out command, redis, sftp, EC2 ssh
+	logger's infof("Is Shell Prompt: {}", frontTab's isShellPrompt())
+
+	logger's infof("Is SSH: {}", frontTab's isSSH())
+	logger's infof("Is zsh: {}", frontTab's isZsh())
+	logger's infof("Is bash: {}", frontTab's isBash())
+
+	logger's infof("Git directory?: [{}]", sut's isGitDirectory())
+
+	logger's infof("Last Command: [{}]", sut's getLastCommand())
+
+	if caseIndex is 2 then
 		(* Can use "sleep 5" to test. *)
 		sut's waitForPrompt()
-
-	else if caseIndex is 3 then
-		logger's infof("Prompt With Command (if command is present): {}", sut's getPromptText())
-
-	else if caseIndex is 4 then
-		logger's infof("Prompt: [{}]", sut's getPrompt())
-
-	else if caseIndex is 5 then
-		logger's infof("Git directory?: [{}]", sut's isGitDirectory())
-
-	else if caseIndex is 6 then
-		logger's infof("Last Command: [{}]", sut's getLastCommand())
-		logger's infof("Prompt: [{}]", sut's getPrompt())
 
 	end if
 
@@ -106,7 +106,7 @@ on decorate(termTabScript)
 		*)
 		on gitPromptPattern()
 			set tokens to {unic's OMZ_ARROW, unic's OMZ_GIT_X}
-			format {"{}  [0-9a-zA-Z_\\s-]+\\sgit:\\([a-zA-Z0-9/_\\.()-]+\\)(?: {})?\\s?", tokens}
+			format {"{}  [0-9a-zA-Z_\\s-\\.]+\\sgit:\\([a-zA-Z0-9/_\\.()-]+\\)(?: {})?\\s?", tokens}
 		end gitPromptPattern
 
 
@@ -186,7 +186,7 @@ on decorate(termTabScript)
 			if isSSH() then
 				return true
 
-			else if isZSH() then
+			else if isZsh() then
 				-- logger's debug("zsh...")
 				set promptText to getPromptText()
 				-- logger's debugf("promptText: {}", promptText)
@@ -228,7 +228,7 @@ on decorate(termTabScript)
 		*)
 		on getPromptText()
 			-- logger's debug("getPromptText...")
-			if not isZSH() then
+			if not isZsh() then
 				logger's warn("Bash is not yet implemented.")
 				return missing value
 			end if
@@ -315,7 +315,7 @@ on decorate(termTabScript)
 
 			set aShellPrompt to isShellPrompt()
 			-- logger's debugf("isShellPrompt(): {}", aShellPrompt)
-			if isShellPrompt() then
+			if aShellPrompt then
 				set subject to item (tokenCount - 1) of outputTokens
 				set subjectLines to textUtil's split(subject, ASCII character 10)
 				try

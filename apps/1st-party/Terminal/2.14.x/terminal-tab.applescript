@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
 
 	@Created: Sunday, January 28, 2024 at 2:35:54 PM
-	@Last Modified: 2024-02-08 13:30:08
+	@Last Modified: 2024-03-21 08:59:50
 *)
 use script "core/Text Utilities"
 use scripting additions
@@ -69,10 +69,10 @@ on spotCheck()
 
 	set sut to new(frontWinID)
 	logger's infof("Name: {}", name of sut)
-	logger's infof("Has Tab Bar: {}", sut's hasTabBar())
-	logger's infof("Tab Name: {}", sut's getTabName())
-	logger's infof("Posix Path: {}", sut's getPosixPath())
 	logger's infof("Lingering Command: {}", sut's getLingeringCommand())
+	-- logger's infof("Has Tab Bar: {}", sut's hasTabBar())
+	logger's infof("Tab Name: {}", sut's getTabName())
+	logger's infof("POSIX Path: {}", sut's getPosixPath())
 
 	(* Manually test: zsh, bash, docker, sftp, redis-cli. *)
 	logger's infof("Is Shell Prompt: {}", sut's isShellPrompt())
@@ -80,6 +80,7 @@ on spotCheck()
 	logger's infof("Is Zsh: {}", sut's isZsh())
 	logger's infof("Is SSH: {}", sut's isSSH())
 	logger's infof("Prompt Text: {}", sut's getPromptText())
+
 	logger's infof("Prompt: {}", sut's getPrompt())
 	logger's infof("Last Output: {}", sut's getLastOutput()) -- BROKEN on @rt
 
@@ -264,7 +265,7 @@ on new(pWindowId)
 
 			-- zsh
 			set tokens to {unic's OMZ_ARROW, unic's OMZ_GIT_X}
-			set gitPromptPattern to format {"{}  [0-9a-zA-Z_\\s-]+\\sgit:\\([a-zA-Z0-9/_\\.()-]+\\)(?: {})?\\s?", tokens}
+			set gitPromptPattern to format {"{}  [0-9a-zA-Z_\\s-\\.]+\\sgit:\\([a-zA-Z0-9/_\\.()-]+\\)(?: {})?\\s?", tokens}
 			set gitPattern to gitPromptPattern & ".+$" -- with a typed command
 
 			set promptGit to regex's matchesInString(gitPattern, recentBuffer)
