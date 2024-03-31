@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.31/marked
 
 	@Created: January 13, 2024 1:29:36 PM
-	@Last Modified: 2024-01-13 13:30:11
+	@Last Modified: 2024-03-21 10:46:17
 *)
 
 use std : script "core/std"
@@ -57,6 +57,10 @@ on spotCheck()
 		Manual: Scroll to Bottom
 
 		Manual: Set Preprocess Arguments
+		Manual: Scroll Down a Step
+		Manual: Scroll Up a Step
+		Manual: Scroll Page Down
+		Manual: Scroll Page Up
 	")
 
 	set examplesPath to configSystem's getValue("AppleScript Core Project Path") & "/apps/3rd-party/Marked"
@@ -161,6 +165,23 @@ on spotCheck()
 	else if caseIndex is 16 then
 		set markdownTab to sut's getFrontTab()
 		markdownTab's setPreprocessorArguments("1234")
+
+	else if caseIndex is 17 then
+		set markdownTab to sut's getFrontTab()
+		markdownTab's scrollStepDown()
+
+	else if caseIndex is 18 then
+		set markdownTab to sut's getFrontTab()
+		markdownTab's scrollStepUp()
+
+	else if caseIndex is 19 then
+		set markdownTab to sut's getFrontTab()
+		markdownTab's scrollPageDown()
+
+	else if caseIndex is 20 then
+		set markdownTab to sut's getFrontTab()
+		markdownTab's scrollPageUp()
+
 	end if
 
 	spot's finish()
@@ -180,7 +201,7 @@ on new()
 				perform action 1 of htmlContent
 				delay 0.1
 				click menu item "Inspect Element" of menu 1 of htmlContent
-				delay 0.4  -- 0.2 failed last time.
+				delay 0.4 -- 0.2 failed last time.
 				click (first button of UI element 1 of scroll area 1 of front window whose description starts with "Start element selection")
 			end tell
 		end startInspection
@@ -445,6 +466,37 @@ on new()
 				on closeTab()
 					tell appWindow to close
 				end closeTab
+
+
+				on scrollStepDown()
+					tell application "System Events" to tell process "Marked 2"
+						repeat 2 times
+							click (first button of scroll bar 1 of scroll area 1 of group 1 of front window whose description is "increment arrow button")
+						end repeat
+					end tell
+				end scrollStepDown
+
+				on scrollStepUp()
+
+					tell application "System Events" to tell process "Marked 2"
+						repeat 2 times
+							click (first button of scroll bar 1 of scroll area 1 of group 1 of front window whose description is "decrement arrow button")
+						end repeat
+					end tell
+				end scrollStepUp
+
+				on scrollPageDown()
+					tell application "System Events" to tell process "Marked 2"
+						click (first button of scroll bar 1 of scroll area 1 of group 1 of front window whose description is "decrement page button")
+					end tell
+				end scrollPageDown
+
+				on scrollPageUp()
+					tell application "System Events" to tell process "Marked 2"
+						click (first button of scroll bar 1 of scroll area 1 of group 1 of front window whose description is "increment page button")
+					end tell
+				end scrollPageUp
+
 			end script
 		end _new
 
@@ -475,7 +527,7 @@ on new()
 		end _getSysEveWindowCount
 	end script
 
-		set decorator to decoratorLib's new(result)
+	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
 
