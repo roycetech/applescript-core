@@ -8,9 +8,11 @@
 		Debug in logging must be on to see spot check object introspection.
 		Have 3 Script Editor windows, this window plus 2 Untitled windows.
 
-	@Build:
-		make build-lib SOURCE=core/process
+	@Project:
+		applescript-core
 
+	@Build:
+		./scripts/build-lib.sh core/process
 *)
 
 use script "core/Text Utilities"
@@ -156,6 +158,7 @@ on new(pProcessName)
 		end raiseWindows
 
 
+		(* Shares the same state as when minimized. *)
 		on isHidden()
 			tell application "System Events" to tell process processName
 				visible
@@ -174,7 +177,7 @@ on new(pProcessName)
 			tell application "System Events" to tell process processName
 				set visible to true
 			end tell
-		end hide
+		end unhide
 
 
 		on minimize()
@@ -314,6 +317,16 @@ on new(pProcessName)
 				end try
 			end tell
 		end moveWindow
+
+		on resizeWindow(w, h)
+			if running of application processName is false then return
+
+			tell application "System Events" to tell process processName
+				try
+					set size of first window to {w, h}
+				end try
+			end tell
+		end resizeWindow
 
 		(*  *)
 		on terminate()
