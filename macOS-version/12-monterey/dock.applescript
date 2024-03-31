@@ -1,6 +1,12 @@
 (*
 	For the Assign to Desktop menu item to appear, there has to be more than one
 	Desktop "Spaces" available.
+
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh macOS-version/12-monterey/dock
 *)
 
 use listUtil : script "core/list"
@@ -184,17 +190,21 @@ on new()
 		end isAutoHide
 
 
-		on triggerAppMenu(appName, menuItemName)
+		(*
+			@appName -
+			@menuItemKey - the exact menu item name or the index.
+		*)
+		on triggerAppMenu(appName, menuItemKey)
 			tell application "System Events" to tell process "Dock"
 				if not (exists UI element appName of list 1) then return false
 
-				perform action "AXShowMenu" of UI element appName of list 1
+				perform action "AXShowMenu" of UI element appName of list 1  -- This is required.
 			end tell
 
 			set retry to retryLib's new()
 			script MenuWaiter
 				tell application "System Events" to tell process "Dock"
-					click menu item menuItemName of menu 1 of UI element appName of list 1
+					click menu item menuItemKey of menu 1 of UI element appName of list 1
 					true
 				end tell
 			end script
