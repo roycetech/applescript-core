@@ -91,14 +91,26 @@ on new()
 		end newWindow
 		
 		on newTab(targetUrl)
-			tell application "Google Chrome" to activate
+			tell application "Google Chrome"
+				-- activate
+				
+				if (count of windows) is 0 then
+					do shell script "open -a 'Google Chrome'"
+				end if
+			end tell
+			
 			script WindowWaiter
 				if exists (front window of application "Google Chrome") then return true
 			end script
 			exec of retry on result for 10 by 0.5
 			
 			tell application "Google Chrome" to tell front window
-				set newTab to make new tab at end of tabs
+				if title of active tab is "New Tab" then
+					logger's info("Re-using existing New Tab")
+					set newTab to active tab
+				else
+					set newTab to make new tab at end of tabs
+				end if
 				set URL of newTab to targetUrl
 				chromeTabLib's new(its id, active tab index)
 			end tell
