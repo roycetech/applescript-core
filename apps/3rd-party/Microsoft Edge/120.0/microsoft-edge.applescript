@@ -32,11 +32,15 @@ on spotCheck()
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
-	    	Manual: New Window
-    		Manual: New Tab
-    		Manual: Open the Developer tools
-    		Manual: JavaScript
-  	")
+			Manual: New Window
+			Manual: New Tab
+			Manual: Open the Developer tools
+			Manual: JavaScript
+			Placeholder - keep chat cases together
+			
+			Activate Chat
+			Deactivate Chat
+	")
 	
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
@@ -65,6 +69,14 @@ on spotCheck()
 		else
 			msedgeTab's runScript("alert('Hello MS Edge AppleScript')")
 		end if
+		
+	else if caseIndex is 5 then
+		
+	else if caseIndex is 6 then
+		sut's activateChat()
+		
+	else if caseIndex is 7 then
+		sut's deactivateChat()
 		
 	end if
 	
@@ -122,12 +134,29 @@ on new()
 		on isChatActive()
 			tell application "System Events" to tell process "Microsoft Edge"
 				try
-					return "Chat" is equal to the description of button 1 of group 1 of group 4 of group 1 of group 1 of group 1 of group 1 of front window
+					-- return "Chat" is equal to the description of button 1 of group 1 of group 4 of group 1 of group 1 of group 1 of group 1 of front window
+					return exists (radio button 1 of group 1 of last group of group 1 of group 1 of group 1 of group 1 of front window whose description is "Chat")
+					
 				end try
-				
 			end tell
 			
 			false
 		end isChatActive
+		
+		on activateChat()
+			if isChatActive() then return
+			
+			tell application "System Events" to tell process "Microsoft Edge"
+				click (first button of toolbar 1 of group 1 of group 1 of group 1 of group 1 of front window whose description starts with "Copilot")
+			end tell
+		end activateChat
+		
+		on deactivateChat()
+			if not isChatActive() then return
+			
+			tell application "System Events" to tell process "Microsoft Edge"
+				click (first button of toolbar 1 of group 1 of group 1 of group 1 of group 1 of front window whose description starts with "Copilot")
+			end tell
+		end deactivateChat
 	end script
 end new
