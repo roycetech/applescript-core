@@ -203,12 +203,13 @@ on new()
 		on getFocusedType()
 			if running of application "Keyboard Maestro" is false then return missing value
 			
+			(*
+			-- Below fails to work from Keyboard Maestro AppleScript
 			tell application "Keyboard Maestro"
 				set selection_list to selection
 				return class of first item of selection_list as text
 			end tell
-			
-			
+			*)
 			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				set viewMenu to menu 1 of menu bar item "View" of menu bar 1
@@ -411,7 +412,6 @@ on new()
 			end script
 			exec of retry on result for variable_update_retry_count
 		end setVariable
-		
 		
 		on _getMainWindow()
 			script RetryMainWindow
