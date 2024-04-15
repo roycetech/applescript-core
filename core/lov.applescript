@@ -13,7 +13,7 @@
 	@Build:
 		make build-lib SOURCE=core/lov
 
-	@Last Modified: 2023-10-07 15:53:59
+	@Last Modified: 2024-03-30 11:37:27
 *)
 
 use scripting additions
@@ -137,6 +137,17 @@ on new(lovName)
 
 			item 1 of _lov
 		end getNextValue
+
+
+		on getFirstValue()
+			item 1 of _lov
+		end getFirstValue
+
+
+		on getLastValue()
+			last item of _lov
+		end getLastValue
+
 
 		on isBinary()
 			(count of my _lov) is 2
