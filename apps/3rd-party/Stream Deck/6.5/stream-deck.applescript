@@ -71,6 +71,7 @@ on spotCheck()
 	
 	if caseIndex is 1 then
 		logger's infof("Switch Profile: Found: {}", sut's switchProfile("Stream Deck XL", "Work - Default"))
+		-- logger's infof("Switch Profile: Found: {}", sut's switchProfile("Stream Deck XL", "Safari"))
 		
 	else if caseIndex is 2 then
 		logger's infof("Switch Profile: Not Found: {}", sut's switchProfile("Stream Deck XL", "Unicorn"))
