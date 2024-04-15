@@ -9,7 +9,7 @@
 		Project Find Results
 		Welcome Guide
 
-	@Last Modified: 2024-01-12 15:48:49
+	@Last Modified: 2024-04-15 11:25:13
 
 	@Project:
 		applescript-core
@@ -169,6 +169,8 @@ on new()
 			end tell
 
 			set tokens to textUtil's split(windowTitle, unic's SEPARATOR)
+			if (count of tokens) is 0 then return missing value
+
 			set docNameFromTitle to first item of tokens
 			if docNameFromTitle is not "Project" then return docNameFromTitle
 
@@ -200,7 +202,7 @@ on new()
 			end tell
 
 			set titleTokens to textUtil's split(windowTitle, unic's SEPARATOR)
-			if the number of titleTokens is 1 then return missing value
+			if the number of titleTokens is less than 2 then return missing value
 
 			set firstItemInTitle to first item of titleTokens
 			-- if firstItemInTitle is "Project" then return _extractDocPathByHotkey()
@@ -245,6 +247,8 @@ on new()
 			if docName is missing value then return missing value
 
 			set filenameTokens to textUtil's split(docName, ".")
+			if (count of filenameTokens) is 0 then return missing value
+
 			set firstToken to first item of filenameTokens
 			if firstToken is "" or my RESERVED_DOC_NAMES contains firstToken then return missing value
 
@@ -291,7 +295,6 @@ on new()
 				delay 0.1
 			end repeat
 		end cleanUp
-
 
 		-- Private Codes below =======================================================
 
