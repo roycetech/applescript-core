@@ -10,7 +10,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
 
-	@Last Modified: 2024-02-27 10:53:29
+	@Last Modified: 2024-04-15 11:04:46
 *)
 
 use listUtil : script "core/list"
@@ -317,9 +317,20 @@ on decorate(mainScript)
 				if not (window "Zoom Meeting" exists) then return
 
 				click (first button of window "Zoom Meeting" whose description is "Video sub menu")
-				set targetRow to (first row of table 1 of scroll area 1 of window "Menu window" whose value of static text 1 of UI element 1 of UI element 1 contains buttonKey)
+				set targetRow to missing value
+				try
+					set targetRow to (first row of table 1 of scroll area 1 of window "Menu window" whose value of static text 1 of UI element 1 of UI element 1 contains buttonKey)
+				end try
 			end tell
-			lclick of cliclick at targetRow without smoothing
+
+			if targetRow is not missing value then
+				lclick of cliclick at targetRow without smoothing
+			else
+				tell application "System Events" to tell process "zoom.us"
+					-- Click again to dismiss.
+					click (first button of window "Zoom Meeting" whose description is "Video sub menu")
+				end tell
+			end if
 		end _clickVideoSubMenu
 
 
