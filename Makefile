@@ -306,7 +306,7 @@ build-safari: build-dock
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
 	./scripts/build-lib.sh apps/1st-party/Safari/17.3.1/dec-safari-tab-group
-	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-keychain
+	./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari
 
 install-safari: build-safari

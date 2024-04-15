@@ -7,11 +7,12 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-keychain
+		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
 
-	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2024-03-31 15:02:30
+	@Created: Sunday, March 31, 2024 at 10:20:13 PM
+	@Last Modified: 2024-03-31 22:21:48
 	@Change Logs:
+		Sunday, March 31, 2024 at 10:20:18 PM - Keychain UI layout has changed.
 *)
 use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
@@ -109,13 +110,13 @@ on decorate(mainScript)
 		on selectKeychainItem(itemName)
 			if running of application "Safari" is false then return
 
-			set itemIndex to 0
 			tell application "System Events" to tell process "Safari"
 				set frontmost to true
 				try
+					set itemIndex to 0
 					repeat with nextRow in rows of table 1 of scroll area 1
 						set itemIndex to itemIndex + 1
-						if value of static text 1 of UI element 1 of nextRow is equal to itemName then
+						if value of static text 2 of UI element 1 of nextRow is equal to itemName then
 							repeat itemIndex times
 								kb's pressKey("down")
 							end repeat
