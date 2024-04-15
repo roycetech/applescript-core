@@ -309,7 +309,7 @@ on new(pProcessName)
 
 
 		on moveWindow(x, y)
-			if running of application processName is false then return
+			if processName is not "java" and running of application processName is false then return
 
 			tell application "System Events" to tell process processName
 				try
@@ -319,7 +319,7 @@ on new(pProcessName)
 		end moveWindow
 
 		on resizeWindow(w, h)
-			if running of application processName is false then return
+			if processName is not "java" and running of application processName is false then return
 
 			tell application "System Events" to tell process processName
 				try
