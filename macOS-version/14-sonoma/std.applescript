@@ -11,7 +11,7 @@
 		applescript-core
 
 	@Build:
-		make build-standard
+		./scripts/build-lib.sh macOS-version/14-sonoma/std
 *)
 
 use scripting additions
@@ -92,6 +92,12 @@ on appExists(appName)
 	try
 		do shell script "osascript -e 'id of application \"" & appName & "\"'"
 		return true
+	on error
+		tell application "System Events"
+			try
+				return exists (first process whose name is appName)
+			end try
+		end tell
 	end try
 	false
 end appExists
