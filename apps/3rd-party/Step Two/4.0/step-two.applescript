@@ -6,7 +6,7 @@
 		applescript-core
 		
 	@Build:
-		./scripts/build-lib.sh 'apps/3rd-party/Step Two/3.1/step-two'
+		./scripts/build-lib.sh 'apps/3rd-party/Step Two/4.0/step-two'
 
 	@Usage:
 		if running of application "Step Two" is false then 
@@ -82,8 +82,10 @@ on spotCheck()
 		logger's info("Passed.")
 		
 	else if caseIndex is 4 then
-		set otpRetriever to sut's newRetriever("VPN")
-		assertThat of std given condition:otpRetriever's getOTP() is not missing value, messageOnFail:"Failed spot check"
+		set otpRetriever to sut's newRetriever(spotUsername)
+		set otp to otpRetriever's getOTP()
+		logger's debugf("otp: {}", otp)
+		assertThat of std given condition:otp is not missing value, messageOnFail:"Failed spot check"
 		logger's info("Passed.")
 		
 	else if caseIndex is 5 then
