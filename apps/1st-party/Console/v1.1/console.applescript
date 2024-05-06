@@ -6,10 +6,10 @@
 		applescript-core
 
 	@Build:
-		make build-console
+		./scripts/build-lib.sh apps/1st-party/Console/v1.1/console
 
 	@Created: Tuesday, September 26, 2023 at 1:16:23 PM
-	@Last Modified: 2023-10-29 12:37:41
+	@Last Modified: 2024-04-24 12:57:40
 *)
 
 use listUtil : script "core/list"
@@ -27,6 +27,7 @@ on spotCheck()
 
 	set cases to listUtil's splitByLine("
 		Manual: Toggle Now
+		Manual: Clear Console
 	")
 
 	set spotClass to spotScript's new()
@@ -43,6 +44,7 @@ on spotCheck()
 		sut's nowModeToggle(true)
 
 	else if caseIndex is 2 then
+		sut's clearConsole()
 
 	end if
 
@@ -55,7 +57,7 @@ end spotCheck
 on new()
 	loggerFactory's inject(me)
 
-	script LibraryInstance
+	script ConsoleInstance
 		on nowModeToggle(flag)
 			-- Let's toggle the "Now" here.
 			tell application "System Events" to tell process "Console"
@@ -68,5 +70,13 @@ on new()
 				end try
 			end tell
 		end nowModeToggle
+
+		on clearConsole()
+			tell application "System Events" to tell process "Console"
+				try
+					click button "Clear" of toolbar 1 of front window
+				end try
+			end tell
+		end clearConsole
 	end script
 end new
