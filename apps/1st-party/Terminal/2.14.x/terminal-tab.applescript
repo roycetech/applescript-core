@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
 
 	@Created: Sunday, January 28, 2024 at 2:35:54 PM
-	@Last Modified: 2024-03-21 08:59:50
+	@Last Modified: 2024-04-29 10:54:02
 *)
 use script "core/Text Utilities"
 use scripting additions
@@ -293,7 +293,7 @@ on new(pWindowId)
 				if recentBuffer ends with dirName then return missing value
 			end ignoring
 
-			regex's firstMatchInStringNoCase("(?<=" & dirName & "\\s)[\\w\\s]+$", recentBuffer)
+			regex's firstMatchInStringNoCase("(?<=" & dirName & "\\s)[\\w\\s-]+$", recentBuffer)
 		end getLingeringCommand
 
 
