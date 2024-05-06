@@ -12,15 +12,22 @@
 	@Last Modified: Friday, February 2, 2024 at 11:47:51 AM
 	
 	@Change Logs:
+		Saturday, April 27, 2024 at 5:44:50 PM - set when I say need to be user typed.
 *)
 use listUtil : script "core/list"
+
 use loggerFactory : script "core/logger-factory"
+
 use retryLib : script "core/retry"
+use cliclickLib : script "core/cliclick"
+use kbLib : script "core/keyboard"
 
 use spotScript : script "core/spot-test"
 
 property logger : missing value
 property retry : missing value
+property cliclick : missing value
+property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -101,6 +108,8 @@ end newSpotBase
 on decorate(mainScript)
 	loggerFactory's inject(me)
 	set retry to retryLib's new()
+	set cliclick to cliclickLib's new()
+	set kb to kbLib's new()
 	
 	script SystemSettingsVoiceCommandsDecorator
 		property parent : mainScript
@@ -132,7 +141,7 @@ on decorate(mainScript)
 				if toggleUI is missing value then return false
 				
 				-- try
-					the value of toggleUI is 1
+				the value of toggleUI is 1
 				-- end try
 			end tell
 		end flipVoiceControlSwitch
@@ -167,7 +176,12 @@ on decorate(mainScript)
 		on setWhenISay(triggerPhrase)
 			tell application "System Events" to tell process "System Settings"
 				-- set value of text field 1 of group 1 of sheet 1 of window "Voice Control" to triggerPhrase
-				set value of text field 1 of group 1 of scroll area 1 of group 2 of splitter group 1 of group 1 of sheet 1 of window "Voice Control" to triggerPhrase
+				set targetTextField to text field 1 of group 1 of scroll area 1 of group 2 of splitter group 1 of group 1 of sheet 1 of window "Voice Control"
+				
+				lclick of cliclick at targetTextField
+				kb's pressKey(space)
+				kb's pressKey("delete")
+				set value of targetTextField to triggerPhrase
 			end tell
 		end setWhenISay
 		
@@ -183,6 +197,10 @@ on decorate(mainScript)
 				delay 0.2
 				try
 					click the menu item appName of menu 1 of the whileUsingPopup
+				on error
+					try
+						click (the first menu item of menu 1 of the whileUsingPopup whose title starts with appName)
+					end try
 				end try
 			end tell
 		end setWhileUsing
