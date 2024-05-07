@@ -11,9 +11,9 @@
 		applescript-core
 
 	@Build:
-		make build-lib SOURCE=core/string
+		./scripts/build-lib.sh core/string
 
-	@Last Modified: 2023-11-15 15:49:23
+	@Last Modified: 2024-05-06 17:25:05
 *)
 use scripting additions
 
@@ -292,12 +292,12 @@ end title
 
 
 on lower(theText)
-	do shell script "echo '" & theText & "' | tr '[:upper:]' '[:lower:]'"
+	do shell script "echo " & quoted form of theText & " | tr '[:upper:]' '[:lower:]'"
 end lower
 
 
 on upper(theText)
-	do shell script "echo '" & theText & "' | tr '[:lower:]' '[:upper:]'"
+	do shell script "echo " & quoted form of theText & " | tr '[:lower:]' '[:upper:]'"
 end upper
 
 on ucase(theText)
