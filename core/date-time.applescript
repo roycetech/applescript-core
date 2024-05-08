@@ -5,7 +5,7 @@
 	@Build:
 		./scripts/build-lib.sh core/date-time
 
-	@Last Modified: 2024-03-04 11:16:03
+	@Last Modified: 2024-05-08 17:52:57
 *)
 use framework "Foundation"
 
@@ -16,14 +16,12 @@ use std : script "core/std"
 
 use textUtil : script "core/string"
 use listUtil : script "core/list"
-use regex : script "core/regex"
 
 use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
 
 property logger : missing value
-property timeBufferMin : 2
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 

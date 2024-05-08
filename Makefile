@@ -43,12 +43,12 @@ CORE_LIBS :=  \
 	string \
 	regex \
 	map \
+	date-time \
 	plutil \
 	config \
 	emoji \
 	switch \
 	clipboard \
-	date-time \
 	speech \
 	dialog \
 	file \
