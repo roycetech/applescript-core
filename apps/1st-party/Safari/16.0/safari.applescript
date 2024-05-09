@@ -31,7 +31,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2024-03-18 14:22:48
+	@Last Modified: 2024-05-08 22:20:13
 *)
 
 use script "core/Text Utilities"
@@ -230,7 +230,7 @@ on spotCheck()
 
 	else if caseIndex is 13 then
 		activate application "Safari"
-		set adhocCredKey to "core.keychain" -- DO NOT COMMIT!
+		set adhocCredKey to "core.keychain"  -- dummy cred key.
 		sut's selectKeychainItem(adhocCredKey)
 
 	end if

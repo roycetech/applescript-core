@@ -219,7 +219,7 @@ on spotCheck()
 		
 	else if caseIndex is 13 then
 		activate application "Safari Technology Preview"
-		set adhocCredKey to "core.keychain" -- DO NOT COMMIT!
+		set adhocCredKey to "core.keychain"  -- dummy cred key.
 		sut's selectKeychainItem(adhocCredKey)
 		
 	end if
