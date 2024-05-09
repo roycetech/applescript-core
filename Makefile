@@ -597,6 +597,8 @@ install-log4as: build-log4as
 build-redis:
 	osascript ./scripts/setup-redis-cli.applescript
 	./scripts/build-lib.sh libs/redis/redis
+
+build-redis-terminal:
 	./scripts/build-lib.sh libs/redis/dec-terminal-prompt-redis
 
 install-redis: build-redis
