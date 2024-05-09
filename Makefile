@@ -41,7 +41,7 @@ CORE_LIBS :=  \
 	unit-test \
 	list \
 	string \
-	regex \
+	regex-pattern \
 	map \
 	date-time \
 	plutil \
