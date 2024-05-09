@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/safari-tab
 
 	@Created: Sunday, March 31, 2024 at 9:31:30 AM
-	@Last Modified: 2024-03-31 09:31:34
+	@Last Modified: 2024-05-07 19:45:05
 
 	@Change Logs:
 		Sunday, March 31, 2024 at 9:28:23 AM - After Sonoma 14.4.1, document reference could no longer be passed from intermediary reference, it needs to be directly accessed to work.
@@ -72,6 +72,7 @@ on spotCheck()
 
 	else if caseIndex is 2 then
 		sut's moveTabToIndex(5)
+		logger's infof("Current Title: {}", sut's getTitle())
 
 	end if
 
@@ -104,18 +105,25 @@ on new(windowId, pTabIndex)
 		property _url : missing value
 
 
+		(*
+			@returns void
+		*)
 		on moveTabToIndex(newIndex)
 			if running of application "Safari" is false then return
 
 			tell application "Safari"
 				set tabCount to (count of tabs in front window)
-				set sourceTabIndex to tabIndex -- the index of the tab you want to move
+				set sourceTabIndex to my tabIndex -- the index of the tab you want to move
 				set targetTabIndex to newIndex -- the index where you want to move the tab
+				if sourceTabIndex is equal to targetTabIndex then return
 
+				set nextToTarget to targetTabIndex - sourceTabIndex is 1
 				if (sourceTabIndex > tabCount) or (targetTabIndex > tabCount) then
 					display dialog "Invalid tab index."
-				else if targetTabIndex - sourceTabIndex is 1 then
+
+				else if nextToTarget then
 					move tab targetTabIndex of front window to before tab sourceTabIndex of front window
+
 				else
 					move tab sourceTabIndex of front window to before tab targetTabIndex of front window
 				end if
@@ -123,6 +131,10 @@ on new(windowId, pTabIndex)
 				set my _tab to tab newIndex of front window
 				set current tab of front window to my _tab
 			end tell
+			script NameWaiter
+				if name of my _tab is not "Untitled" then return true
+			end
+			retry's exec on result for 20 by 0.2
 		end moveTabToIndex
 
 
@@ -132,7 +144,7 @@ on new(windowId, pTabIndex)
 
 		on getTitle()
 			try
-				return name of _tab -- This returns the title of the front tab.
+				return name of my _tab -- This returns the title of the front tab.
 			end try -- When the tab is closed.
 			missing value
 		end getTitle
@@ -247,7 +259,8 @@ on new(windowId, pTabIndex)
 		on getURL()
 			tell application "Safari"
 				try
-					return URL of front document
+					-- return URL of front document
+					return URL of my _tab
 				end try
 			end tell
 
