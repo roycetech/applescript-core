@@ -7,6 +7,9 @@
 
 	@Build:
 		./scripts/build-lib.sh macOS-version/14-sonoma/dock
+
+	@Change Logs:
+		Wednesday, May 8, 2024 at 12:45:19 PM - Allow trigger of a single nest menu.
 *)
 
 use listUtil : script "core/list"
@@ -32,7 +35,7 @@ on spotCheck()
 		Assign to Desktop 2
 		Assign to All
 		Assign to None
-		New Safari Window
+		Manual: Trigger Menu: (Basic, Nested)
 
 		Position
 		Vertical?
@@ -73,8 +76,8 @@ on spotCheck()
 		set assignResult to lib's assignToDesktop(appName, "none")
 
 	else if caseIndex is 5 then
-		activate application "Safari"
-		log lib's newSafariWindow()
+		lib's triggerAppMenu("Safari", "New Private Window")
+		-- lib's triggerAppMenu("Safari", {"New Window", "New Personal Window"})
 
 	else if caseIndex is 6 then
 		logger's infof("Dock Position: {}", lib's getPosition())
@@ -136,9 +139,9 @@ on new()
 		on clickApp(appName)
 			tell application "System Events" to tell process "Dock"
 				try
-				repeat 2 times  -- does not work if clicked for one time only.
-					click UI element appName of list 1
-					end
+					repeat 2 times -- does not work if clicked for one time only.
+						click UI element appName of list 1
+					end repeat
 				end try
 			end tell
 		end clickApp
@@ -193,39 +196,67 @@ on new()
 
 
 		(*
-			@appName -
-			@menuItemKey - the exact menu item name or the index.
+			NOTE: Up to single nesting only.
+
+			@appName - Application name in the dock.
+			@menuItemKey - the exact menu item name, index, or the list of either.
 		*)
 		on triggerAppMenu(appName, menuItemKey)
+			if class of menuItemKey is not list then
+				set menuItemNames to {menuItemKey}
+			else
+				set menuItemNames to menuItemKey
+			end if
+			if the number of items in menuItemNames is greater than 2 then
+				logger's warn("Deeply nested menu items are not yet supported. ")
+				return
+			end if
+
 			tell application "System Events" to tell process "Dock"
 				if not (exists UI element appName of list 1) then return false
 
 				perform action "AXShowMenu" of UI element appName of list 1 -- This is required.
 			end tell
 
+			tell application "System Events" to tell process "Dock"
+				set dockAppMenu to menu 1 of UI element appName of list 1
+			end tell
+
+			set isNestedMenu to the number of items in menuItemNames is 2
+			set menuItemMain to item 1 of menuItemNames
+
+			-- Verify if the menu keys provided are valid.
+			tell application "System Events" to tell process "Dock"
+				if isNestedMenu then
+					set menuItemSub to item 2 of menuItemNames
+					if not (exists (menu item menuItemSub of menu 1 of menu item menuItemMain of dockAppMenu)) then
+						logger's fatalf("Menu key {} was not found.", menuItemNames as text)
+						return false
+					end if
+				else
+					if not (exists (menu item menuItemMain of dockAppMenu)) then
+						logger's fatalf("Menu key {} was not found.", menuItemNames)
+						return false
+					end if
+
+				end if
+			end tell
+
 			set retry to retryLib's new()
 			script MenuWaiter
 				tell application "System Events" to tell process "Dock"
-					click menu item menuItemKey of menu 1 of UI element appName of list 1
+					if isNestedMenu then
+						click menu item menuItemSub of menu 1 of menu item menuItemMain of dockAppMenu
+
+					else
+						click menu item menuItemMain of dockAppMenu
+					end if
 					true
 				end tell
 			end script
 			set clickResult to exec of retry on result for waitMax by waitSeconds
 			if clickResult is missing value then kb's pressKey("escape")
 		end triggerAppMenu
-
-
-		(* This handler probably doesn't belong here. *)
-		on newSafariWindow()
-			triggerAppMenu("Safari", "New Window")
-
-			script BlankDocumentWaiter
-				tell application "Safari"
-					if (source of front document) is "" then return true
-				end tell
-			end script
-			exec of retry on result for 3
-		end newSafariWindow
 
 
 		(* @deprecated. No longer available as of December 10, 2022
