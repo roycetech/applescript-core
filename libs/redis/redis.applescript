@@ -7,7 +7,7 @@
 		redis-cli 7.0.5+. Run `redis-cli --version` to check your current version.
 		Server must be running, start with: `redis-server`
 
-	Compile:
+	@Install:
 		make install-redis
 
 	@Usage:
@@ -15,8 +15,11 @@
 
 		property redis : redisLib's new(0) -- 0 for no timeout
 
+	@Project:
+		applescript-core
+
 	@Build:
-		make build-lib SOURCE=libs/redis/redis
+		./scripts/build-lib.sh libs/redis/redis
 
 	@Troubleshooting:
 		When you do an update,
@@ -30,21 +33,20 @@
 	@Known Issues:
 		September 2, 2023 9:53 AM - Records are not currently supported.
 
-	@Last Modified: 2024-03-08 11:46:33
+	@Last Modified: 2024-05-09 13:46:04
  *)
 
-use script "core/Text Utilities"
 use scripting additions
+use script "core/Text Utilities"
 
--- PROPERTIES =================================================================
-
+use textUtil : script "core/string"
 use listUtil : script "core/list"
-use dt : script "core/date-time"
-
 use loggerFactory : script "core/logger-factory"
+use dateTimeLib : script "core/date-time"
 use spotScript : script "core/spot-test"
 
 property logger : missing value
+property dateTime : missing value
 
 property CR : ASCII character 13
 property REDIS_CLI : do shell script "plutil -extract \"Redis CLI\" raw ~/applescript-core/config-system.plist"
@@ -66,6 +68,7 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
+		Manual: Read Value
 		Manual: Zulu Date
 	")
 
@@ -78,6 +81,10 @@ on spotCheck()
 	end if
 
 	if caseIndex is 1 then
+		set sut to new(0)
+		logger's infof("Handler result: {}", sut's getValue("inspector-app_name_previous"))
+
+	else if caseIndex is 2 then
 		set sut to new(2)
 		set keyName to "spot-zulu-date"
 		sut's setValue(keyName, current date)
@@ -95,6 +102,8 @@ end spotCheck
 *)
 on new(pTimeoutSeconds)
 	loggerFactory's inject(me)
+
+	set dateTime to dateTimeLib's new()
 
 	script RedisInstance
 		-- 0 for no expiration.
@@ -123,7 +132,12 @@ on new(pTimeoutSeconds)
 				end if
 
 				set setValueShellCommand to format {"{} SET {} {} {}", {REDIS_CLI, quotedPlistKey, shellValue, timeoutParam}}
-				do shell script setValueShellCommand
+				try
+					do shell script setValueShellCommand
+				on error the errorMessage number the errorNumber
+					logger's warn(errorMessage)
+				end try
+
 				return
 
 			else if dataType is list then
@@ -201,9 +215,13 @@ on new(pTimeoutSeconds)
 					if dataType is "none" then return missing value
 				end if
 			on error the errorMessage number the errorNumber
+				if errorMessage contains "Could not connect to Redis" then
+					logger's info("Connection refused, will attempt to launch redis")
+					set redisServerCli to textUtil's replace(REDIS_CLI, "redis-cli", "redis-server --daemonize yes")
+					do shell script redisServerCli
+				end if
 				return missing value
 			end try
-
 
 			if dataType is "list" then
 				return _getList(quotedPlistKey)
@@ -310,7 +328,7 @@ on new(pTimeoutSeconds)
 			set plistValue to getValue(plistKey)
 
 			try
-				return dt's fromZuluDateText(plistValue)
+				return dateTime's fromZuluDateText(plistValue)
 			on error the errorMessage number the errorNumber
 				logger's warn(errorMessage)
 			end try
@@ -380,8 +398,7 @@ on new(pTimeoutSeconds)
 			set myMonth to (first word of dateString) as integer
 			if myMonth is less than 10 then set myMonth to "0" & myMonth
 			set myDom to (second word of dateString) as integer
-
-			set timeString to time string of theDate
+			set timeString to dateTime's cleanTimeString(time string of theDate)
 
 			set myHour to ((first word of timeString) as integer)
 			if timeString contains "PM" and myHour is not equal to 12 then set myHour to myHour + 12
