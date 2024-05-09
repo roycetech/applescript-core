@@ -32,7 +32,7 @@
 		end tell
 
 	@Created: Wednesday, April 24, 2024 at 1:03:10 PM
-	@Last Modified: 2024-04-24 13:07:49
+	@Last Modified: 2024-05-08 22:19:25
 *)
 
 use script "core/Text Utilities"
@@ -174,12 +174,13 @@ on spotCheck()
 		sut's switchGroup(newSutGroup)
 
 	else if caseIndex is 7 then
-		sut's newWindow("https://www.example.com")
-		log name of appWindow of result as text
+		-- sut's newWindow("https://www.example.com")
+		-- sut's newWindowWithProfile("https://www.example.com", "Business")
+		sut's newWindowWithProfile("https://www.example.com", "Unicorn")
 
-		-- BELOW FOR REVIEW.
+		logger's infof("Window name: {}", name of appWindow of result)
 
-	else if caseIndex is 3 then
+		-- BELOW case handling FOR REVIEW.
 
 
 	else if caseIndex is 3 then
@@ -208,12 +209,8 @@ on spotCheck()
 		sut's newTab("https://www.example.com")
 
 
-
 	else if caseIndex is 7 then
 		newCognito("https://www.example.com")
-
-	else if caseIndex is 8 then
-		sut's newWindow("https://www.example.com")
 
 
 	else if caseIndex is 7 then
@@ -231,7 +228,7 @@ on spotCheck()
 
 	else if caseIndex is 13 then
 		activate application "Safari"
-		set adhocCredKey to "core.keychain" -- DO NOT COMMIT!
+		set adhocCredKey to "core.keychain"
 		sut's selectKeychainItem(adhocCredKey)
 
 	end if
@@ -308,6 +305,7 @@ on new()
 			end tell
 		end getFirstTab
 
+
 		on isCompact()
 			tell application "System Events" to tell process "Safari"
 				not (exists group 1 of front window)
@@ -319,22 +317,34 @@ on new()
 			This is dependent on the user setting for new window/tabs, currently it is tested against when new window is on a "Start Page"
 		*)
 		on newWindow(targetUrl)
+			newWindowWithProfile(targetUrl, missing value)
+		end newWindow
+
+
+		(*
+			TODO: Test for when Safari is not running.
+			This is dependent on the user setting for new window/tabs, currently it is tested against when new window is on a "Start Page"
+		*)
+		on newWindowWithProfile(targetUrl, profileName)
+			set normalProfileName to normalizeProfileName(profileName)
+			set startPageTitleWithProfile to normalProfileName & unic's SEPARATOR & "Start Page"
+
 			set safariAppRunning to running of application "Safari"
 			tell application "System Events" to tell process "Safari"
-				if (not safariAppRunning) or not (exists window "Start Page") then
-					dock's newSafariWindow()
+				if (not safariAppRunning) or not (exists window startPageTitleWithProfile) then
+					my _newSafariWindow(profileName)
 				end if
 			end tell
 
 			script StartPageWaiter
-				tell application "Safari" to set windowId to id of window "Start Page" -- New window will not always start with "Start Page"
+				tell application "Safari" to set windowId to id of window startPageTitleWithProfile -- New window will not always start with "Start Page"
 				windowId
 			end script
 			set windowId to exec of retry on result for 3
 			assertThat of std given condition:windowId is not missing value, messageOnFail:"Failed to initialize safari window to a valid state"
 
 			tell application "Safari"
-				set newSafariTabInstance to safariTabLib's new(windowId, count of tabs of window "Start Page", me)
+				set newSafariTabInstance to safariTabLib's new(windowId, count of tabs of window startPageTitleWithProfile, me)
 			end tell
 			newSafariTabInstance's focus()
 			if targetUrl is not missing value then
@@ -342,7 +352,28 @@ on new()
 			end if
 
 			newSafariTabInstance
-		end newWindow
+		end newWindowWithProfile
+
+
+		(* @returns "Personal" as the default profile name if passed a missing value. *)
+		on normalizeProfileName(profileName)
+			if profileName is missing value then return "Personal"
+
+			profileName
+		end normalizeProfileName
+
+		on _newSafariWindow(profileName)
+			set windowProfileName to normalizeProfileName(profileName)
+			dock's triggerAppMenu("Safari", {"New Window", "New " & windowProfileName & " Window"})
+
+			script BlankDocumentWaiter
+				tell application "Safari"
+					if (source of front document) is "" then return true
+				end tell
+			end script
+			exec of retry on result for 3
+		end _newSafariWindow
+
 
 		(*
 			Note: On Safari 15, you have to configure General > New tabs open with blank
