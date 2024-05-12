@@ -326,6 +326,7 @@ install-safari-technology-preview: build-safari-technology-preview
 
 
 build-script-editor:
+	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-content"
 	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
 
 build-finder:
