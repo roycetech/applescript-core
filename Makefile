@@ -356,6 +356,7 @@ ifeq ($(OS), sonoma)
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-path
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-run
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal
 
 else ifeq ($(OS), ventura)
@@ -511,16 +512,14 @@ install-stream-deck: build-stream-deck
 		~/applescript-core/config-lib-factory.plist
 
 
-build-sublime-text:
-	./scripts/build-lib.sh apps/3rd-party/Sublime Text/4.x/sublime-text
-	./scripts/build-lib.sh apps/3rd-party/Sublime Text/4.x/dec-system-events-with-sublime-text
-
-install-sublime-text: build-sublime-text
+install-sublime-text:
 	osascript ./scripts/setup-sublime-text-cli.applescript
 	plutil \
 		-replace 'SystemEventsInstance' \
 		-string 'core/dec-system-events-with-sublime-text' \
 		~/applescript-core/config-lib-factory.plist
+	./scripts/build-lib.sh apps/3rd-party/Sublime Text/4.x/sublime-text
+	./scripts/build-lib.sh apps/3rd-party/Sublime Text/4.x/dec-system-events-with-sublime-text
 
 install-text-mate:
 	./scripts/build-lib.sh apps/3rd-party/TextMate/2.0.x/text-mate
