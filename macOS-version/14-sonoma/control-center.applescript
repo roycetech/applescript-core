@@ -1,8 +1,13 @@
 (*
 	NOTE: This script requires accessibility access, grant when prompted.
 
-	Depends on the position of the focus checkbox to be the 2nd one.
+	The position of the Focus checkbox in the control center pane important.  It must be the 2nd one. (To improve to make it more robust.)
 
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh macOS-version/14-sonoma/control-center
 *)
 
 use unic : script "core/unicodes"
@@ -26,16 +31,14 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
+		INFO
 		Manual: Show Widgets
-
 		DND On
 		Manual: DND On - From Work Focus
 		DND Off
-		Get DND Status - Manually check 3 cases: none, DND On, Other Focus
 
 		Manual: Switch to AirPods (N/A, Happy, Already Selected)
 		Manual: Is Mic In Use
-
 		Manual: List of Hotspot (Maybe used to identify your hotpot key, mind the Unicode apostrophe, test no hotspot available)
 		Manual: Join Hotspot (Not Joined, Already Joined, Not Found)
 		Manual: Join WIFI (Not Joined, Already Joined, Not Found)
@@ -50,20 +53,27 @@ on spotCheck()
 	end if
 
 	set sut to new()
+	logger's infof("Voice Control is active: {}", sut's isVoiceControlActive())
+
+	(* Manually check 3 cases: none, DND On, Other Focus *)
+	logger's infof("DND Status: {}", sut's getDNDStatus())
+
 	if caseIndex is 1 then
-		sut's showWidgets()
 
 	else if caseIndex is 2 then
-		sut's setDoNotDisturbOn()
+		sut's showWidgets()
 
 	else if caseIndex is 3 then
 		sut's setDoNotDisturbOn()
+		logger's infof("New DND Status: {}", sut's getDNDStatus())
 
 	else if caseIndex is 4 then
-		sut's setDoNotDisturbOff()
+		sut's setDoNotDisturbOn()
+		logger's infof("New DND Status: {}", sut's getDNDStatus())
 
 	else if caseIndex is 5 then
-		logger's infof("DND Status: {}", sut's getDNDStatus())
+		sut's setDoNotDisturbOff()
+		logger's infof("New DND Status: {}", sut's getDNDStatus())
 
 	else if caseIndex is 6 then
 		set switchResult to sut's switchAudioOutput("AirPods Pro")
@@ -101,7 +111,7 @@ end spotCheck
 
 on new()
 	loggerFactory's inject(me)
-		set kb to kbLib's new()
+	set kb to kbLib's new()
 
 	script ControlCenterInstance
 		(* Accomplished by clicking on the time in the menu bar items *)
@@ -112,6 +122,15 @@ on new()
 				end try
 			end tell
 		end showWidgets
+
+		(*
+			@returns true if Voice Control is active (regardless if listening or not.)
+		*)
+		on isVoiceControlActive()
+			tell application "System Events" to tell process "Control Center"
+				exists (first menu bar item of menu bar 1 whose value of attribute "AXAttributedDescription" starts with "Voice Control")
+			end tell
+		end isVoiceControlActive
 
 
 		-- Private Codes below =======================================================
