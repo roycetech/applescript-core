@@ -1,4 +1,8 @@
 (*
+	Wrapper library for the macOS Mail app.
+
+	The 3rd party library cliclick is required by this library.
+
 	@Project:
 		applescript-core
 
@@ -48,8 +52,8 @@ on spotCheck()
 
 	end if
 
-	if caseIndex is 1 then
-		-- sut's gotoFolder("04 Updates")
+	if caseIndex is 1 and not isMessageWindow then
+		sut's gotoFolder("04 Updates")
 
 	else if caseIndex is 2 then
 
@@ -99,6 +103,8 @@ on new()
 					logger's warn(errorMessage)
 					return missing value
 				end try
+
+				(* Native click doesn't work so we rely on 3rd party cliclick. *)
 				lclick of cliclick at static text 1 of subjectContainer given relativex:-10
 				set email to the name of menu item 1 of menu 1 of subjectContainer
 				lclick of cliclick at static text 1 of subjectContainer
@@ -111,7 +117,7 @@ on new()
 		on gotoFolder(folderName)
 
 			tell application "System Events" to tell process "Mail"
-				repeat with nextRow in rows of outline 1 of scroll area 1 of splitter group 1 of front window
+				repeat with nextRow in rows of outline 1 of scroll area 1 of splitter group 1 of (first window whose title contains "messages" or title contains "drafts")
 					if get description of UI element 1 of nextRow contains folderName then
 						set selected of nextRow to true
 						exit repeat

@@ -1,4 +1,6 @@
 (*
+	This decorator contains handlers for when the Voice Control pane is active from the Accessibility settings.
+
 	@Project:
 		applescript-core
 		
@@ -27,7 +29,10 @@ on spotCheck()
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
+		INFO
 		Manual: Set Microphone
+		Manual: Trigger Commands...
+		Manual: Trigger Vocabulary...
 	")
 	
 	set spotClass to spotScript's new()
@@ -45,14 +50,20 @@ on spotCheck()
 	sut's quitApp()
 	sut's revealAccessibilityVoiceControl()
 	
+	logger's infof("Voice Control State: {}", sut's isVoiceControlActive())
 	if caseIndex is 1 then
-		sut's setMicrophone("MacBook")
 		
 	else if caseIndex is 2 then
+		sut's setMicrophone("MacBook")
 		
 	else if caseIndex is 3 then
+		sut's clickAccessibilityCommands()
+		
+	else if caseIndex is 4 then
+		logger's infof("Handler result: {}", sut's clickVocabulary())
 		
 	else
+		
 		
 	end if
 	
@@ -73,12 +84,24 @@ on decorate(mainScript)
 	loggerFactory's inject(me)
 	set retry to retryLib's new()
 	
-	script SystemSettingsAccessibilityDecorator
+	script SystemSettingsAccessibilityVoiceControlDecorator
 		property parent : mainScript
+		
+		(*
+			@returns true of Voice control is active.
+		*)
+		on isVoiceControlActive()
+			tell application "System Events"
+				try
+					return value of my _getVoiceControlToggleUI() is 1
+				end try
+			end tell
+			false
+		end isVoiceControlActive
 		
 		on setMicrophone(micKeyword)
 			tell application "System Events" to tell process "System Settings"
-				set micPopup to pop up button 2 of group 1 of scroll area 1 of group 1 of last UI element of splitter group 1 of ui element 1 of front window
+				set micPopup to pop up button 2 of group 1 of scroll area 1 of group 1 of last UI element of splitter group 1 of UI element 1 of front window
 				click micPopup
 				click (first menu item of menu 1 of micPopup whose title contains micKeyword)
 				
@@ -144,21 +167,29 @@ on decorate(mainScript)
 			logger's debug("Not already showing target sheet")
 			
 			script ClickRetrier
-				tell application "System Events" to tell process "System Settings" to tell window "Accessibility" to tell first group
+				tell application "System Events" to tell process "System Settings" to tell window "Voice Control" to tell first UI element
 					try
-						click (first button whose name starts with "Vocabulary")
+						-- click (first button of scroll area 1 of group 1 of last list of splitter group 1 whose name starts with "Vocabulary")
+						click (button 2 of scroll area 1 of group 1 of last list of splitter group 1) -- button by name is absent in Sonoma.
 					end try
 				end tell
 			end script
-			if (exec of retry on result for 50 by 0.1) is false then return false
+			if (exec of retry on result for 50 by 0.1) is false then
+				logger's fatal("Button Vocabulary was not found")
+				return false
+			end if
 			
 			script FilterWaiter
-				tell application "System Events" to tell process "System Settings" to tell window "Accessibility"
-					if exists (first button of group 1 of sheet 1 of window "Accessibility" whose description is "add") then return true
+				tell application "System Events" to tell process "System Settings" to tell window "Voice Control"
+					-- if exists (first button of group 1 of sheet 1 of window "Accessibility" whose description is "add") then return true  -- Killed by Apple.
+					if exists (first button of group 1 of scroll area 1 of group 1 of sheet 1 whose value of attribute "AXIdentifier" is "AX_VOCAB_PHRASE_ADD") then return true
 				end tell
 			end script
 			set waitResult to exec of retry on result for 50 by 0.1
-			if waitResult is missing value then return false
+			if waitResult is missing value then
+				logger's fatal("Add button was not detected")
+				return false
+			end if
 			
 			true
 		end clickVocabulary
@@ -188,5 +219,15 @@ on decorate(mainScript)
 			
 			true
 		end toggleVoiceControl
+		
+		
+		on _getVoiceControlToggleUI()
+			tell application "System Events" to tell process "System Settings"
+				try
+					return checkbox 1 of group 1 of scroll area 1 of group 1 of last UI element of splitter group 1 of UI element 1 of window "Voice Control"
+				end try
+			end tell
+			missing value
+		end _getVoiceControlToggleUI
 	end script
 end decorate

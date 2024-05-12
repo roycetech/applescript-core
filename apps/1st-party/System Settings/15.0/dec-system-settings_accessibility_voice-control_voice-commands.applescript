@@ -1,4 +1,7 @@
 (*
+	This decorator contains handlers for when the Commands button was clicked 
+	from the Voice Control pane.
+
 	@Version:
 		macOS Sonoma
 		
@@ -83,8 +86,7 @@ on spotCheck()
 		sut's setPerformActionText("Perform Text")
 		
 	else if caseIndex is 8 then
-		logger's infof("Voice Control Status: {}", sut's getVoiceControlStatus())
-		logger's infof("Voice Control Toggled ON: {}", sut's flipVoiceControlSwitch())
+		logger's infof("Voice Control Flip result: {}", sut's flipVoiceControlSwitch())
 		
 	else
 		
@@ -113,16 +115,6 @@ on decorate(mainScript)
 	
 	script SystemSettingsVoiceCommandsDecorator
 		property parent : mainScript
-		
-		
-		on getVoiceControlStatus()
-			tell application "System Events"
-				try
-					return value of my _getVoiceControlToggleUI()
-				end try
-				0
-			end tell
-		end getVoiceControlStatus
 		
 		(*
 			@returns true if the switch was turned on.
@@ -303,15 +295,5 @@ on decorate(mainScript)
 			
 			false
 		end enableTurnOffVoiceControl
-		
-		
-		on _getVoiceControlToggleUI()
-			tell application "System Events" to tell process "System Settings"
-				try
-					return checkbox 1 of group 1 of scroll area 1 of group 1 of last UI element of splitter group 1 of UI element 1 of window "Voice Control"
-				end try
-			end tell
-			missing value
-		end _getVoiceControlToggleUI
 	end script
 end decorate

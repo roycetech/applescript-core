@@ -23,12 +23,8 @@ This project uses a monorepo-like approach for the project structure.
 
 Demo(Images, Video Links, Live Demo Links)
 
-The quality of a README description often differentiates a good project from a bad project. A good one takes advantage of the opportunity to explain and showcase:
-
-*   [ ] What your application does
 * Provides basic unit testing
 * Quick spot checking
-* Essential
 
 ### Configuration Files
 
@@ -43,18 +39,18 @@ The quality of a README description often differentiates a good project from a b
 * JSON Helper - Freely available JSON-AppleScript library.  https://apps.apple.com/us/app/json-helper-for-applescript/id453114608?mt=12.
 
 
-## Special Gotchas of your projects (Problems you faced, unique elements of your project)
+## Special Gotchas
 
-* The built-in property list file handling may cause blocking so an alternative approach to use the plutil command line is used.
+*   The built-in property list file handling may cause blocking so an alternative approach to use the plutil command line is used.
+
+### 3rd Party Libraries.
+While I try to limit dependency to 3rd party tools because I wanted to use vanilla AppleScript for simplicity sake, there are some functions that are very hard to do if not impossible at all without them. Below is the list of 3rd party tools that are required to be installed on your machine for some application interactions.
+
+*   [CliClick](https://www.bluem.net/) - Used for UI interactions where a "user" action is simulated when programmatic interaction is inadequate. For example on some websites or apps like in Mail or Safari.
 
 ### Limitations
 
 * I have not worked out automating apps across desktop spaces. While some may work coincidentally, deliberate testing is required to improve their reliability.
-
-## Table of Contents (Optional)
-
-If your README is very long, you might want to add a table of contents to make it easy for users to navigate to different sections easily. It will make it easier for readers to move around the project with ease.
-
 
 ## How to Install and Run the Project
 
@@ -90,7 +86,7 @@ Some tests require libraries outside of the core libraries. Some tests would fai
 
 MIT License
 
-Copyright (c) [2023] [Royce Remulla]
+Copyright (c) [2024] [Royce Remulla]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -139,27 +135,3 @@ The libraries where tested mainly on macOS Monterey. I have tried some scripts o
 
 This project includes a system for doing spot checking by utilizing a stay open app menu to manage the case number to be tested.
 This project also includes its own unit testing functionality to ensure code quality. I plan to migrate the unit tests into ASUnit which I believe is a great library, having tried it out very recently.
-
-## License
-
-MIT License
-
-Copyright (c) 2023 Royce Remulla
-
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
-
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
-
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
