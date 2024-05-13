@@ -299,7 +299,6 @@ build-mail:
 build-preview:
 	./scripts/build-lib.sh apps/1st-party/Preview/v11/preview
 
-
 build-safari: build-dock
 	osacompile -o "$(HOME)/Library/Script Libraries/core/safari.scpt" "scripts/stub.applescript"
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
@@ -308,10 +307,15 @@ build-safari: build-dock
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-noncompact
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
+
+ifeq (, $(shell which cliclick))
+	$(warning "cliclick was not found in PATH.")
+else
+	$(MAKE) build-cliclick
 	./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-tab-group
+endif
 	./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari
-
 
 #3rd-party cliclick is required because some Safari actions no longer work without simulated user interactions.
 install-safari: install-cliclick build-safari

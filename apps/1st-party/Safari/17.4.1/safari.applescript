@@ -32,7 +32,7 @@
 		end tell
 
 	@Created: Wednesday, April 24, 2024 at 1:03:10 PM
-	@Last Modified: 2024-05-08 22:19:25
+	@Last Modified: 2024-05-13 18:02:07
 *)
 
 use script "core/Text Utilities"
@@ -50,7 +50,6 @@ use decSafariTabFinder : script "core/dec-safari-tab-finder"
 use decSafariUiNoncompact : script "core/dec-safari-ui-noncompact"
 use decSafariUiCompact : script "core/dec-safari-ui-compact"
 use decSafariSideBar : script "core/dec-safari-side-bar"
-use decSafariTabGroup : script "core/dec-safari-tab-group"
 use decSafariKeychain : script "core/dec-safari-keychain"
 use decSafariInspector : script "core/dec-safari-inspector"
 
@@ -245,6 +244,12 @@ on new()
 	set winUtil to winUtilLib's new()
 	set dock to dockLib's new()
 	set retry to retryLib's new()
+
+	try
+		set decSafariTabGroup to script "core/dec-safari-tab-group"
+	on error
+		set decSafariTabGroup to missing value
+	end try
 
 	script SafariInstance
 		on isMediaFullScreen()
@@ -466,7 +471,13 @@ on new()
 	decSafariUiNoncompact's decorate(result)
 	decSafariUiCompact's decorate(result)
 	decSafariSideBar's decorate(result)
-	decSafariTabGroup's decorate(result)
 	decSafariKeychain's decorate(result)
-	decSafariInspector's decorate(result)
+	set baseInstance to decSafariInspector's decorate(result)
+
+	(* Optionally add tabgroup handlers if the decorator is available. *)
+	if decSafariTabGroup is not missing value then
+		decSafariTabGroup's decorate(result)
+	else
+	baseInstance
+	end if
 end new
