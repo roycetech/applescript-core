@@ -4,8 +4,6 @@ AppleScript Core Framework
 
 A framework and collection of libraries for for writing AppleScripts that utilizes re-usability of components.
 
-This README is a work in progress and I'm planning on creating a simpler shorter version in the near future.
-
 ## Project Description
 
 AppleScript Core is a collection of valuable and simple custom AppleScripts that allows you to write automation AppleScripts faster and more efficiently than ever. It provides a variety of ready-to-use script libraries, libraries that provide essential functionalities that you can use in your scripts. It provides application wrapper scripts that can be used to interact with the supported applications.
