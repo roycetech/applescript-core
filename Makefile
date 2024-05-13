@@ -109,7 +109,10 @@ uninstall:
 
 
 build-standard:
-ifeq ($(OS), ventura)
+ifeq ($(OS), sonoma)
+	./scripts/build-lib.sh macOS-version/14-sonoma/std
+
+else ifeq ($(OS), ventura)
 	./scripts/build-lib.sh macOS-version/13-ventura/std
 
 else ifeq ($(OS), monterey)
@@ -386,7 +389,14 @@ endif
 
 
 build-control-center:
-ifeq ($(OS), ventura)
+ifeq ($(OS), sonoma)
+	osacompile -o "$(HOME)/Library/Script Libraries/core/control-center.scpt" "scripts/stub.applescript"
+	./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_network"
+	./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_sound"
+	./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_focus"
+	./scripts/build-lib.sh "macOS-version/14-sonoma/control-center"
+
+else ifeq ($(OS), ventura)
 	osacompile -o "$(HOME)/Library/Script Libraries/core/control-center.scpt" "scripts/stub.applescript"
 	./scripts/build-lib.sh "macOS-version/13-ventura/control-center_network"
 	./scripts/build-lib.sh "macOS-version/13-ventura/control-center_sound"

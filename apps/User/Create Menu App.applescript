@@ -8,6 +8,9 @@
 	@Project:
 		applescript-core
 
+	@Prerequisites:
+		make install-script-editor
+
 	@Build:
 		echo 'Run "Create Automator App" while this script is loaded in Script Editor.'
 		Grant Accessibility permission to the generated app.
@@ -108,12 +111,12 @@ on main()
 	logger's debugf("targetFolderMon: {}", targetFolder as text)
 	set newScriptName to seTab's getBaseScriptName() & ".app"
 	session's setValue("New Script Name", newScriptName)
-
+	
 	if backUpSwitch's active() then
 		tell application "Finder"
-			set isReplacement to  exists of (file newScriptName of targetFolder)
+			set isReplacement to exists of (file newScriptName of targetFolder)
 		end tell
-
+		
 		if isReplacement then
 			logger's info("Creating backup...")
 			set backupScriptName to seTab's getBaseScriptName() & ".app-" & dateTime's formatYyyyMmDdHHmi(current date)
@@ -121,7 +124,7 @@ on main()
 			finder's createFile(sourceFile, targetFolder, backupScriptName)
 		end if
 	end if
-
+	
 	set savedScript to seTab's saveAsStayOpenApp(targetFolder as text)
 	
 	logger's debugf("savedScript: {}", savedScript)
