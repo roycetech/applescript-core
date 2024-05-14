@@ -6,7 +6,7 @@
 	@Requires:
 		automator.applescript
 		script-editor.applescript
-		
+		 
 	@Build:
 		1. Run this code, if the app is not yet installed, it will be created.
 		2. Grant accessibility permission to the resulting app.
@@ -31,32 +31,34 @@ use std : script "core/std"
 use fileUtil : script "core/file"
 use textUtil : script "core/string"
 
-use loggerLib : script "core/logger"
-use systemEventsLib : script "core/system-events"
-use retryLib : script "core/retry"
+use loggerFactory : script "core/logger-factory"
+
 use plutilLib : script "core/plutil"
 use seLib : script "core/script-editor"
 use configLib : script "core/config"
 use automatorLib : script "core/automator"
+use dockLib : script "core/dock"
 
-property logger : loggerLib's new("Create Automator App")
-property systemEvents : systemEventsLib's new()
-property retry : retryLib's new()
-property plutil : plutilLib's new()
-property se : seLib's new()
-property configUser : configLib's new("user")
-property automator : automatorLib's new()
+property logger : missing value
+property plutil : missing value
+property se : missing value
+property configUser : missing value
+property automator : missing value
+property dock : missing value
+property session : missing value
 
-property scriptName : missing value
 property isSpot : false
-
-property session : plutil's new("session")
-
-tell application "System Events" to set scriptName to get name of (path to me)
-
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then set my isSpot to true
 
+set dock to dockLib's new()
+set plutil to plutilLib's new()
+set session to plutil's new("session")
+set se to seLib's new()
+set configUser to configLib's new("user")
+set automator to automatorLib's new()
+
+loggerFactory's inject(me)
 logger's start()
 
 -- = Start of Code below =====================================================
@@ -74,11 +76,14 @@ logger's finish()
 
 
 on main()
+	textUtil's trim("This fixes strange plutil core/string error")
+	
 	if running of application "Script Editor" is false then
 		logger's info("This app was designed to create an app for the currently opened document in Script Editor")
 		return
 	end if
 	
+	tell application "System Events" to set scriptName to get name of (path to me)
 	set thisAppName to text 1 thru ((offset of "." in scriptName) - 1) of scriptName
 	logger's debugf("thisAppName: {}", thisAppName)
 	
@@ -155,6 +160,8 @@ on main()
 	
 	tell automator
 		launchAndWaitReady()
+		dock's clickApp("Automator") -- Mitigate previous step fails to launch the app.
+		
 		createNewDocument()
 		selectApplicationType()
 		addAppleScriptAction()
