@@ -10,7 +10,7 @@
 	@Build:
 		1. Run this code, if the app is not yet installed, it will be created.
 		2. Grant accessibility permission to the resulting app.
-		Re-install this app by deleting the Create Automator App.app and redo deployment steps.
+		This app may be Re-installed by deleting the Create Automator App.app and repeating the deployment steps.
 		
 	@Session:
 		Sets the new app name into "New Script Name", for easy fetching when you set the permission after creation.
@@ -140,7 +140,6 @@ on main()
 		end if
 	end repeat
 	assertThat of std given condition:computedProjectKey is not missing value, messageOnFail:"Error: Make sure you have registered the project containing \"" & scriptPosixPath & "\". See its README.md for more details."
-	
 	
 	(*		
 	if selectedProjectKey is false then
