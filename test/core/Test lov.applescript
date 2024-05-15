@@ -68,7 +68,7 @@ end script
 script |hasValue tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
-    property totalTestCases : 2
+	property totalTestCases : 2
 	property sut : missing value
  
 	on setUp()
@@ -107,7 +107,7 @@ end script
 script |isBinary tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
-    property totalTestCases : 2
+	property totalTestCases : 2
 	property sut : missing value
  
 	on setUp()
@@ -153,7 +153,7 @@ end script
 script |getNextValue tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
-    property totalTestCases : 4
+	property totalTestCases : 4
 	property sut : missing value
  
 	on setUp()
