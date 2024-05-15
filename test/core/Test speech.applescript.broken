@@ -97,6 +97,7 @@ script |speak tests|
 		-- set sut to sutScript's new(plist)
 		-- set _userInMeetingStub of sut to true
 		assertEqual("12-34", sut's speak("1234"))
+
 		xmlUtil's __deleteValue("_1234")
 	end script
 	
@@ -199,6 +200,8 @@ end script
 
 on __newSut(Lambda)
 	if Lambda is not missing value then run script Lambda
+
+	log plist
 	set sut to sutScript's new(plist)
 	-- set _userInMeetingStub of sut to true -- Can't use this, because translation happens only when UNSILENCED.
 	sut

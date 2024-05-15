@@ -21,6 +21,7 @@ use spotScript : script "core/spot-test"
 property logger : missing value
 
 property ERROR_LIST_COUNT_INVALID : 1000
+property ERROR_OUT_OF_BOUNDS : 1001
 
 -- #%+= are probably worth considering.
 property linesDelimiter : "@"
@@ -229,6 +230,7 @@ on _indexOf(aList, targetElement, asText)
 end _indexOf
 
 
+(* It is actually a selection sort. *)
 on simpleSort(myList)
 	if myList is missing value then return missing value
 
@@ -378,6 +380,72 @@ on lastMatchingIndexOf(theList, searchString)
 
 	lastMatchIndex
 end lastMatchingIndexOf
+
+
+on swap(theList, index1, index2)
+	if theList is missing value then return
+	if index1 is greater than the (count of theList) then
+		error "Out of bounds error. " & index1 & " is not a valid start index" number ERROR_OUT_OF_BOUNDS
+	end if
+	if index2 is greater than the (count of theList) then
+		error "Out of bounds error. " & index2 & " is not a valid end index" number ERROR_OUT_OF_BOUNDS
+	end if
+
+	set tmp to item index1 of theList
+	set item index1 of theList to item index2 of theList
+	set item index2 of theList to tmp
+end swap
+
+(*
+	@returns the updated list.
+*)
+on moveElement(theList, fromIndex, toIndex)
+	if theList is missing value then return missing value
+	if fromIndex is greater than the (count of theList) then
+		error "Out of bounds error. " & fromIndex & " is not a valid from index" number ERROR_OUT_OF_BOUNDS
+	end if
+	-- if toIndex is greater than the (count of theList) then return missing value
+	if toIndex is greater than the (count of theList) then
+		error "Out of bounds error. " & toIndex & " is not a valid target index" number ERROR_OUT_OF_BOUNDS
+	end if
+	if toIndex is equal to fromIndex then return theList
+
+	set moveForward to fromIndex is less than toIndex
+	set cutOut to item fromIndex of theList
+	set newList to {}
+
+	(*
+	if move forward
+		if at source index then do nothing
+		else
+			insert current element
+			if at target index then insert cutout
+	else backward
+		if at to index then insert cutout.
+		if not at from index then insert current element.
+	*)
+
+
+	repeat with i from 1 to the number of items in theList
+		if moveForward then
+			if i is not equal to the fromIndex then
+				set end of newList to item i of theList
+				if i is equal to toIndex then
+					set end of newList to the cutOut
+				end if
+			end if
+		else
+			if i is equal to the toIndex then
+				set end of newList to the cutOut
+			end if
+			if i is not equal to the fromIndex then
+				set end of newList to item i of theList
+			end if
+		end if
+	end repeat
+
+	newList
+end moveElement
 
 
 (*

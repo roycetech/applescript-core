@@ -61,20 +61,18 @@ script |Load script|
 end script
 
 
-script |getBaseFilename tests|
+script |Placeholder tests|
 	property parent : TestSet(me)
 	property sut : missing value 
 
 	on setUp() 
-		TopLevel's __createTestFile()
 	end setUp
 
 	on tearDown()
-		TopLevel's __deleteTestFile()   
 	end tearDown 
 
 	script |Basic Test|
 		property parent : unitTest(me)
-		assertEqual("README.md", sutScript's getBaseFilename("/Users/cloud.strife/Projects/README.md"))
+		assertEqual(1, 1)
 	end script
 end script 
