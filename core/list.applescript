@@ -57,7 +57,6 @@ on spotCheck()
 		return
 	end if
 
-	log 4
 	if caseIndex is 1 then
 		unitTest()
 
@@ -425,7 +424,6 @@ on moveElement(theList, fromIndex, toIndex)
 		if not at from index then insert current element.
 	*)
 
-
 	repeat with i from 1 to the number of items in theList
 		if moveForward then
 			if i is not equal to the fromIndex then
@@ -443,7 +441,6 @@ on moveElement(theList, fromIndex, toIndex)
 			end if
 		end if
 	end repeat
-
 	newList
 end moveElement
 
