@@ -13,4 +13,4 @@ on error the errorMessage number the errorNumber
 end try
 
 do shell script "plutil -replace 'IntelliJ CLI' -string \"" & (POSIX path of chosenCli) & "\" ~/applescript-core/config-system.plist"
-
+log "CLI Set to: " & chosenCli
