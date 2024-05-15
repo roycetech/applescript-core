@@ -739,7 +739,7 @@ script |plutil setValue tests|
 
 	property executedTestCases : 0
 	(* Manually Set *)
-	property totalTestCases : 13
+	property totalTestCases : 14
 
 	on setUp()
 		set executedTestCases to executedTestCases + 1
@@ -805,11 +805,11 @@ script |plutil setValue tests|
 
 	script |String Array Values|
 		property parent : unitTest(me)
-		sut's setValue("Array", {"a", "b", "c"})
+		sut's setValue("Array", {"a", "b", "$Dollar and c & d"})
 		assertEqual(textUtil's multiline("	<array>
 		<string>a</string>
 		<string>b</string>
-		<string>c</string>
+		<string>\\$Dollar and c &amp; d</string>
 	</array>"), TopLevel's __grepMultiLineValueXml("Array", "array"))
 	end script
 
@@ -1080,4 +1080,3 @@ on __deleteTestPlist()
 		do shell script "rm " & plist & " || true"
 	end try
 end __deleteTestPlist
-

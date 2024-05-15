@@ -41,12 +41,13 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2024-02-08 22:16:34
+	@Last Modified: 2024-05-15 12:34:52
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
-use script "core/Text Utilities"
 use scripting additions
+
+use script "core/Text Utilities"
 
 use std : script "core/std"
 
@@ -779,7 +780,9 @@ on new()
 						set elementType to _getPlUtilType(first item of listToPersist)
 						repeat with nextElement in listToPersist
 							set nextElementValue to nextElement
-							if (offset of "$" in nextElement) is 0 then
+							if nextElement contains "$" and nextElement does not contain "\\$" and nextElement contains "&" then
+								set nextElementValue to _escapeDollarAndAmpersand(nextElement)
+							else if (offset of "$" in nextElement) is 0 then
 								set nextElementValue to _escapeSpecialCharacters(nextElement)
 							end if
 
@@ -795,6 +798,13 @@ on new()
 				on _escapeSpecialCharacters(xmlValue)
 					do shell script "echo \"" & xmlValue & "\" | sed \"s/\\&/\\&amp;/;s/>/\\&gt;/;s/</\\&lt;/;s/'/\\&apos;/\""
 				end _escapeSpecialCharacters
+
+				on _escapeDollarAndAmpersand(xmlValue)
+					log xmlValue
+					set transformed to do shell script "echo '" & xmlValue & "' | sed \"s/\\&/\\&amp;/\" | sed 's/\\$/\\\\$/'"
+					log transformed
+					transformed
+				end _escapeDollarAndAmpersand
 
 
 				(* Keep this handler here despite being date-specific because this library is considered essential and we don't want to make the date library an essential library by putting a depnedency from an essential library. *)
