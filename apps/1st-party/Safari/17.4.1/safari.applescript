@@ -32,7 +32,7 @@
 		end tell
 
 	@Created: Wednesday, April 24, 2024 at 1:03:10 PM
-	@Last Modified: 2024-05-13 18:02:07
+	@Last Modified: 2024-05-15 12:25:19
 *)
 
 use script "core/Text Utilities"
@@ -474,7 +474,7 @@ on new()
 	decSafariKeychain's decorate(result)
 	set baseInstance to decSafariInspector's decorate(result)
 
-	(* Optionally add tabgroup handlers if the decorator is available. *)
+	(* Optionally add tab group handlers if the decorator is available. *)
 	if decSafariTabGroup is not missing value then
 		decSafariTabGroup's decorate(result)
 	else

@@ -392,7 +392,7 @@ script |Switch static.inactive tests|
 		xmlUtil's __deleteValue(TopLevel's commonSwitchName)
 	end script
 
-	script |Registered inactive|
+	script |Registered active|
 		property parent : UnitTest(me)
 		xmlUtil's __writeValue(TopLevel's commonSwitchName, "bool", true)
 		set switchesPlistName of sutScript to TopLevel's plistKey

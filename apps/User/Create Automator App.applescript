@@ -10,7 +10,7 @@
 	@Build:
 		1. Run this code, if the app is not yet installed, it will be created.
 		2. Grant accessibility permission to the resulting app.
-		This app may be Re-installed by deleting the Create Automator App.app and repeating the deployment steps.
+		This app may be re-installed by deleting the Create Automator App.app and repeating the deployment steps.
 		
 	@Session:
 		Sets the new app name into "New Script Name", for easy fetching when you set the permission after creation.

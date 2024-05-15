@@ -1,4 +1,9 @@
 (*
+	Wrapper script for IntelliJ IDEA application. Can handle the regular or the community edition.
+
+	@Prerequisite:
+		Run the script setup-intellij-cli.applescript to pick the correct CLI.
+
 	@Project:
 		applescript-core
 		
@@ -6,13 +11,13 @@
 		make build-intellij
 		
 	@Created: September 9, 2023 3:06 PM
-	@Last Modified: July 24, 2023 10:56 AM
+	@Last Modified: 
 	@Change Logs:
 		September 28, 2023 5:31 PM - Added openProject and openFile
-		
 *)
 
 use scripting additions
+
 use std : script "core/std"
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
@@ -22,6 +27,7 @@ use loggerFactory : script "core/logger-factory"
 use kbLib : script "core/keyboard"
 use configLib : script "core/config"
 use decoratorLib : script "core/decorator"
+use retryLib : script "core/retry"
 
 use spotScript : script "core/spot-test"
 
@@ -29,6 +35,7 @@ property logger : missing value
 property kb : missing value
 property config : missing value
 property IDEA_CLI : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -55,10 +62,12 @@ on spotCheck()
 	set sut to new()
 	set sutProjectPath to "/Users/" & std's getUsername() & "/Projects/@rt-playground/spring-boot-3-tickets"
 	set sutProjectFilePath to sutProjectPath & "/pom.xml"
+	
 	logger's infof("Current Project Name: {}", sut's getCurrentProjectName())
 	logger's infof("Current Document Name: {}", sut's getCurrentDocumentName())
 	logger's infof("Is Project Selected: {}", sut's isProjectSelected())
 	logger's debugf("sutProjectFilePath: {}", sutProjectFilePath)
+	
 	if caseIndex is 1 then
 		
 	else if caseIndex is 2 then
@@ -68,7 +77,8 @@ on spotCheck()
 		sut's openFile(sutProjectFilePath)
 		
 	else if caseIndex is 4 then
-		sut's toggleScheme()
+		-- This is not working
+		-- sut's toggleScheme()
 		
 	end if
 	
@@ -83,8 +93,19 @@ on new()
 	set kb to kbLib's new()
 	set configSystem to configLib's new("system")
 	set IDEA_CLI to configSystem's getValue("IntelliJ CLI")
+	set retry to retryLib's new()
+	
+	if std's appExists("IntelliJ IDEA") then
+		set localAppName to "IntelliJ IDEA"
+	else if std's appExists("IntelliJ IDEA CE") then
+		set localAppName to "IntelliJ IDEA CE"
+	else
+		error "IntelliJ app was not found."
+	end if
 	
 	script IntelliJIDEAInstance
+		property intellijAppName : localAppName
+		
 		on openProject(projectPath)
 			logger's debugf("projectPath: {}", projectPath)
 			
@@ -117,25 +138,32 @@ on new()
 			first item of textUtil's split(result, " [")
 		end getCurrentDocumentName
 		
-		
 		(*
 			@returns true of the project is selected from the Tree View, when the buttons at the status bar is single.
 		*)
 		on isProjectSelected()
-			if running of application "IntelliJ IDEA" is false then return missing value
+			if running of application intellijAppName is false then return missing value
 			
 			set statusBarGroup to _getGroup("Status Bar")
 			if statusBarGroup is missing value then return false
 			
-			tell application "System Events" to tell process "IntelliJ IDEA"
-				(count of buttons of group 1 of scroll area 1 of statusBarGroup) is 1
+			-- tell application "System Events" to tell process "IntelliJ IDEA"
+			tell application "System Events" to tell process "idea"
+				try
+					return (count of buttons of group 1 of scroll area 1 of statusBarGroup) is 1
+				end try -- Fails when only a file is open instead of a project.
 			end tell
+			false
 		end isProjectSelected
 		
 		
-		(* Change to the next scheme (called theme on most other editors) *)
+		(* 
+			NOT WORKING.
+			
+			Change to the next scheme (called theme on most other editors) 
+		*)
 		on toggleScheme()
-			activate application "IntelliJ IDEA"
+			activate application intellijAppName
 			delay 0.1
 			kb's pressControlKey("`")
 			kb's pressKey("enter") -- Choose the "Edit Color Scheme"
@@ -148,13 +176,16 @@ on new()
 		
 		
 		on _getGroup(groupName)
-			tell application "System Events" to tell process "idea"
-				first group of group 1 of front window whose description is equal to the groupName
-			end tell
+			script Failable
+				tell application "System Events" to tell process "idea"
+					first group of group 1 of front window whose description is equal to the groupName
+				end tell
+			end script
+			exec of retry on result for 5
 		end _getGroup
 		
 		on _getMainWindowName()
-			if running of application "IntelliJ IDEA" is false then return missing value
+			if running of application intellijAppName is false then return missing value
 			
 			tell application "System Events" to tell process "idea"
 				set mainWindow to missing value
