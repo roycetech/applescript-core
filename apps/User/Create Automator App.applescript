@@ -4,8 +4,8 @@
 	NOTE: This app requires exclusive focus without user interruption of app focus. 
 	
 	@Requires:
-		automator.applescript
-		script-editor.applescript
+		automator.applescript (Install with make install-automator)
+		script-editor.applescript (Install with make build-script-editor)
 		 
 	@Build:
 		1. Run this code, if the app is not yet installed, it will be created.

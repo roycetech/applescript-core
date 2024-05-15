@@ -4,9 +4,13 @@ AppleScript Core Framework
 
 A framework and collection of libraries for for writing AppleScripts that utilizes re-usability of components.
 
+
 ## Project Description
 
+AppleScript Core is a collection of wrapper AppleScripts that allows you to write automation AppleScripts faster and more efficiently.
+
 For the more comprehensive documentation, see [README-Full.md](./README-full.md)
+
 
 ## Installation
 
@@ -15,12 +19,13 @@ Install into the user's Script Libraries: `make install`
 
 ### Recommended 3rd party dependency
 
-Install [CliClick]() to allow simulating user mouse interactions.
+*   Install [CliClick](https://github.com/BlueM/cliclick) to allow simulating user mouse interactions.
+
+### Recommended AppleScript applications
+*   [Create Automator App](apps/User/Create%20Automator%20App.applescript) - For easily creating AppleScript app wrapped by Automator that can be invoked via Spotlight.
+*   [Create Menu App](apps/User/Create%20Menu%20App.applescript) - For easily creating stay-open app that can sit in the menu bar.
 
 ### Individual Libraries may be installed as needed
-
-
-
 
 ## License
 
