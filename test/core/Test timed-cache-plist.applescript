@@ -102,11 +102,11 @@ script |_getRegisteredSeconds tests|
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 	on beforeClass()
-		xmlUtil's __createTestPlist()  
+		TopLevel's xmlUtil's __createTestPlist()  
 		set cacheName of sutScript to TopLevel's plist
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass 
 
 	script |Missing Value key|
@@ -124,12 +124,12 @@ script |_getRegisteredSeconds tests|
 	script |Found|
 		property parent : UnitTest(me)
 		set sut to sutScript's new(0)
-		xmlUtil's __writeValue("string", "string", "string-value") 
+		TopLevel's xmlUtil's __writeValue("string", "string", "string-value") 
 		set storedSeconds to do shell script "date +%s"
-		xmlUtil's __writeValue("string-ets", "integer", storedSeconds)
+		TopLevel's xmlUtil's __writeValue("string-ets", "integer", storedSeconds)
 		assertEqual(0, storedSeconds - sut's _getRegisteredSeconds("string")) 
-		xmlUtil's __deleteValue("string") 
-		xmlUtil's __deleteValue("string-ets") 
+		TopLevel's xmlUtil's __deleteValue("string") 
+		TopLevel's xmlUtil's __deleteValue("string-ets") 
 	end script
 end script
 
@@ -147,11 +147,11 @@ script |getValue tests|
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 	on beforeClass()
-		xmlUtil's __createTestPlist()  
+		TopLevel's xmlUtil's __createTestPlist()  
 		set cacheName of sutScript to TopLevel's plist
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass 
 	 
 	script |Retrieve non-existent| 
@@ -163,25 +163,25 @@ script |getValue tests|
 	script |Retrieve existing|
 		property parent : UnitTest(me) 
 		set sut to sutScript's new(1000)
-		xmlUtil's __writeValue("string", "string", "string-value") 
-		xmlUtil's __writeValue("string-ets", "integer", do shell script "date +%s")
+		TopLevel's xmlUtil's __writeValue("string", "string", "string-value") 
+		TopLevel's xmlUtil's __writeValue("string-ets", "integer", do shell script "date +%s")
 		assertEqual("string-value", sut's getValue("string")) 
-		xmlUtil's __deleteValue("string") 
-		xmlUtil's __deleteValue("string-ets") 
+		TopLevel's xmlUtil's __deleteValue("string") 
+		TopLevel's xmlUtil's __deleteValue("string-ets") 
 	end script
 
 	script |Retrieve existing but expired|
 		property parent : UnitTest(me) 
 		set sut to sutScript's new(1)
-		xmlUtil's __writeValue("string", "string", "string-value") 
-		xmlUtil's __writeValue("string-ets", "integer", do shell script "date +%s")
+		TopLevel's xmlUtil's __writeValue("string", "string", "string-value") 
+		TopLevel's xmlUtil's __writeValue("string-ets", "integer", do shell script "date +%s")
 		delay 2
 		assertMissing(sut's getValue("string")) 
-		assertEqual("", xmlUtil's __grepValueXml("string")) 
-		assertEqual("", xmlUtil's __grepValueXml("string-ts")) 
-		assertEqual("", xmlUtil's __grepValueXml("string-ets")) 
-		xmlUtil's __deleteValue("string") 
-		xmlUtil's __deleteValue("string-ets") 
+		assertEqual("", TopLevel's xmlUtil's __grepValueXml("string")) 
+		assertEqual("", TopLevel's xmlUtil's __grepValueXml("string-ts")) 
+		assertEqual("", TopLevel's xmlUtil's __grepValueXml("string-ets")) 
+		TopLevel's xmlUtil's __deleteValue("string") 
+		TopLevel's xmlUtil's __deleteValue("string-ets") 
 	end script
 end script
 
@@ -199,11 +199,11 @@ script |setValue tests|
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 	on beforeClass()
-		xmlUtil's __createTestPlist()  
+		TopLevel's xmlUtil's __createTestPlist()  
 		set cacheName of sutScript to TopLevel's plist
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass 
 	 
 	script |Basic| 
@@ -212,9 +212,9 @@ script |setValue tests|
 		set currentShellIsoDate to do shell script "date -u +'%Y-%m-%dT%H:%M:%SZ'"
 		set currentShellSeconds to do shell script "date +%s"
 		sut's setValue("string", "string-value")
-		assertEqual("<string>string-value</string>" , xmlUtil's __grepValueXml("string"))
-		assertEqual("<date>" & currentShellIsoDate & "</date>" , xmlUtil's __grepValueXml("string-ts"))
-		assertEqual("<real>" & currentShellSeconds & "</real>" , xmlUtil's __grepValueXml("string-ets"))
+		assertEqual("<string>string-value</string>" , TopLevel's xmlUtil's __grepValueXml("string"))
+		assertEqual("<date>" & currentShellIsoDate & "</date>" , TopLevel's xmlUtil's __grepValueXml("string-ts"))
+		assertEqual("<real>" & currentShellSeconds & "</real>" , TopLevel's xmlUtil's __grepValueXml("string-ets"))
 	end script
 end script
 
@@ -232,34 +232,34 @@ script |deleteKey tests|
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 	on beforeClass()
-		xmlUtil's __createTestPlist()  
+		TopLevel's xmlUtil's __createTestPlist()  
 		set cacheName of sutScript to TopLevel's plist
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass 
 	 
 	script |Missing Value does nothing| 
 		property parent : UnitTest(me)
 		set sut to sutScript's new(0) 
-		xmlUtil's __writeValue("string", "string", "string-value") 
-		xmlUtil's __writeValue("string-ets", "integer", do shell script "date +%s")
+		TopLevel's xmlUtil's __writeValue("string", "string", "string-value") 
+		TopLevel's xmlUtil's __writeValue("string-ets", "integer", do shell script "date +%s")
 		set currentShellIsoDate to do shell script "date -u +'%Y-%m-%dT%H:%M:%SZ'"
-		xmlUtil's __writeValue("string-ts", "string", currentShellIsoDate)
+		TopLevel's xmlUtil's __writeValue("string-ts", "string", currentShellIsoDate)
 		sut's deleteKey(missing value)
 		assertEqual(textUtil's multiline("string
 string-ets
-string-ts"), xmlUtil's __readAllKeys())
+string-ts"), TopLevel's xmlUtil's __readAllKeys())
 	end script
 
 	script |Basic| 
 		property parent : UnitTest(me)
 		set sut to sutScript's new(0)
-		xmlUtil's __writeValue("string", "string", "string-value") 
-		xmlUtil's __writeValue("string-ets", "integer", do shell script "date +%s")
+		TopLevel's xmlUtil's __writeValue("string", "string", "string-value") 
+		TopLevel's xmlUtil's __writeValue("string-ets", "integer", do shell script "date +%s")
 		set currentShellIsoDate to do shell script "date -u +'%Y-%m-%dT%H:%M:%SZ'"
-		xmlUtil's __writeValue("string-ts", "string", currentShellIsoDate)
+		TopLevel's xmlUtil's __writeValue("string-ts", "string", currentShellIsoDate)
 		sut's deleteKey("string")
-		assertEqual("", xmlUtil's __readAllKeys())
+		assertEqual("", TopLevel's xmlUtil's __readAllKeys())
 	end script
 end script

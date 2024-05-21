@@ -173,7 +173,7 @@ end makeMenus
 
 
 on idle
-	try		
+	try
 		set currentCases to cases
 		set retrievedCases to session's getList("Case Labels")
 		if retrievedCases is missing value then set retrievedCases to {}

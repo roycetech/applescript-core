@@ -51,9 +51,9 @@ script |Load script - property-list|
 			tell application "Finder"
 				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:core:"
 			end tell
-			
+
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
-			set TopLevel's xmlUtil to xmlUtilLib's newPlist(plistKey)
+			set xmlUtil to xmlUtilLib's newPlist(plistKey)
 		end try
 		assertInstanceOf(script, sutScript)
 	end script
@@ -73,10 +73,10 @@ script |property-list.new tests|
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 	on beforeClass()
-		xmlUtil's __createTestPlist()
+		TopLevel's xmlUtil's __createTestPlist()
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass
 	
 	script |Plist not found|
@@ -108,76 +108,76 @@ script |property-list.setValue tests|
 		set sut to sutScript's new(TopLevel's plistKey)
 	end setUp
 	on tearDown()
-		xmlUtil's __deleteValue(TopLevel's commonKeyName)
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 	on beforeClass()
-		xmlUtil's __createTestPlist()
+		TopLevel's xmlUtil's __createTestPlist()
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass
 	
 	script |String|
 		property parent : UnitTest(me)
 		sut's setValue(TopLevel's commonKeyName, "string-value")
-		assertEqual("<string>string-value</string>", xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+		assertEqual("<string>string-value</string>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
 	end script
 
 	script |String - Update to another type|
 		property parent : UnitTest(me)
-		xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "string-existing")
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "string-existing")
 		sut's setValue(TopLevel's commonKeyName, true)
-		assertEqual("<true/>", xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+		assertEqual("<true/>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
 	end script
 
 	script |Int|
 		property parent : UnitTest(me)
 		sut's setValue(TopLevel's commonKeyName, 1)
-		assertEqual("<integer>1</integer>", xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+		assertEqual("<integer>1</integer>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
 	end script
 
 	script |Float|
 		property parent : UnitTest(me)
 		sut's setValue(TopLevel's commonKeyName, 1.5)
-		assertEqual("<real>1.5</real>", xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+		assertEqual("<real>1.5</real>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
 	end script
 
 	script |Boolean|
 		property parent : UnitTest(me)
 		sut's setValue(TopLevel's commonKeyName, false)
-		assertEqual("<false/>", xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+		assertEqual("<false/>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
 	end script
 
 	script |Date|
 		property parent : UnitTest(me)
 		sut's setValue(TopLevel's commonKeyName, current date)
-		ok(xmlUtil's __grepValueXml(TopLevel's commonKeyName) starts with "<date>")
+		ok(TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName) starts with "<date>")
 	end script
 
 	script |Array|
 		property parent : UnitTest(me)
 		sut's setValue(TopLevel's commonKeyName, {1, "text"})
-		assertEqual("<array><integer>1</integer><string>text</string></array>", textUtil's replace(xmlUtil's __grepValueXml(TopLevel's commonKeyName), " ", ""))
+		assertEqual("<array><integer>1</integer><string>text</string></array>", textUtil's replace(TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName), " ", ""))
 	end script
 
 	script |Array - Empty|
 		property parent : UnitTest(me)
 		sut's setValue(TopLevel's commonKeyName, {})
-		assertEqual("<array/>", xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+		assertEqual("<array/>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
 	end script
 
 	script |Record|
 		property parent : UnitTest(me)
 		sut's setValue(TopLevel's commonKeyName, {a: 1})
-		assertEqual("<dict><key>a</key><integer>1</integer></dict>", textUtil's replace(xmlUtil's __grepValueXml(TopLevel's commonKeyName), " ", ""))
+		assertEqual("<dict><key>a</key><integer>1</integer></dict>", textUtil's replace(TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName), " ", ""))
 	end script
 
 	script |Number Key| 
 		property parent : UnitTest(me)
 		sut's setValue(1, 2)
-		assertEqual("<integer>2</integer>", xmlUtil's __grepValueXml(1))
-		xmlUtil's __deleteValue(1)
+		assertEqual("<integer>2</integer>", TopLevel's xmlUtil's __grepValueXml(1))
+		TopLevel's xmlUtil's __deleteValue(1)
 	end script
 end script
 
@@ -194,64 +194,64 @@ script |property-list.getValue tests|
 		set sut to sutScript's new(TopLevel's plistKey)
 	end setUp
 	on tearDown()
-		xmlUtil's __deleteValue(TopLevel's commonKeyName)
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 	on beforeClass()
-		xmlUtil's __createTestPlist()
+		TopLevel's xmlUtil's __createTestPlist()
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass
 	
 	script |String|
 		property parent : UnitTest(me)
-		xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "string-value")
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "string-value")
 		assertEqual("string-value", sut's getValue(TopLevel's commonKeyName))
 	end script
 
 	script |Int|
 		property parent : UnitTest(me)
-		xmlUtil's __writeValue(TopLevel's commonKeyName, "integer", 1)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "integer", 1)
 		assertEqual(1, sut's getValue(TopLevel's commonKeyName))
 	end script 
 
 	script |Float|
 		property parent : UnitTest(me)
-		xmlUtil's __writeValue(TopLevel's commonKeyName, "float", 1.5)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "float", 1.5)
 		assertEqual(1.5, sut's getValue(TopLevel's commonKeyName))
 	end script
 
 	script |Boolean|
 		property parent : UnitTest(me)
-		xmlUtil's __writeValue(TopLevel's commonKeyName, "bool", true)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "bool", true)
 		ok(sut's getValue(TopLevel's commonKeyName))
 	end script
 
 	script |Array|
 		property parent : UnitTest(me)
-		xmlUtil's __insertXml(TopLevel's commonKeyName, "<array><integer>1</integer><string>text</string></array>")
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array><integer>1</integer><string>text</string></array>")
 		assertEqual({1, "text"}, sut's getValue(TopLevel's commonKeyName))
 	end script
 
 	script |Empty Array|
 		property parent : UnitTest(me)
-		xmlUtil's __insertXml(TopLevel's commonKeyName, "<array/>")
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array/>")
 		assertEqual({}, sut's getValue(TopLevel's commonKeyName))
 	end script
 
 	script |Record|
 		property parent : UnitTest(me)
-		xmlUtil's __insertXml(TopLevel's commonKeyName, "<dict><key>a</key><integer>1</integer></dict>")		
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<dict><key>a</key><integer>1</integer></dict>")		
 		assertEqual({a: 1}, sut's getValue(TopLevel's commonKeyName))
 	end script
 
 	script |Number Key| 
 		property parent : UnitTest(me)
-		-- xmlUtil's __writeValue(1, "integer", 2) -- Breaks because plutil can't have number as key.
+		-- TopLevel's xmlUtil's __writeValue(1, "integer", 2) -- Breaks because plutil can't have number as key.
 		sut's setValue(1, 2)
 		assertEqual(2, sut's getValue(1))
-		xmlUtil's __deleteValue(1)
+		TopLevel's xmlUtil's __deleteValue(1)
 	end script
 end script
 
@@ -268,14 +268,14 @@ script |property-list.hasValue tests|
 		set sut to sutScript's new(TopLevel's plistKey)
 	end setUp
 	on tearDown()
-		xmlUtil's __deleteValue(TopLevel's commonKeyName)
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 	on beforeClass()
-		xmlUtil's __createTestPlist()
+		TopLevel's xmlUtil's __createTestPlist()
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass
 	
 	script |Not found|
@@ -285,7 +285,7 @@ script |property-list.hasValue tests|
 
 	script |Found|
 		property parent : UnitTest(me)
-		xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "string-value")
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "string-value")
 		ok(sut's hasValue(TopLevel's commonKeyName))
 	end script
 end script
@@ -303,27 +303,27 @@ script |property-list.appendElement tests|
 		set sut to sutScript's new(TopLevel's plistKey)
 	end setUp
 	on tearDown()
-		xmlUtil's __deleteValue(TopLevel's commonKeyName)
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 	on beforeClass()
-		xmlUtil's __createTestPlist()
+		TopLevel's xmlUtil's __createTestPlist()
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass
 	
 	script |Empty array|
 		property parent : UnitTest(me)
 		sut's appendElement(TopLevel's commonKeyName, "first-element")
-		assertEqual("<array><string>first-element</string></array>", textUtil's replace(xmlUtil's __grepValueXml(TopLevel's commonKeyName), " ", ""))
+		assertEqual("<array><string>first-element</string></array>", textUtil's replace(TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName), " ", ""))
 	end script
 
 	script |Non-empty array|
 		property parent : UnitTest(me)
-		xmlUtil's __insertXml(TopLevel's commonKeyName, "<array><string>first-element</string></array>")
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array><string>first-element</string></array>")
 		sut's appendElement(TopLevel's commonKeyName, 2)
-		assertEqual("<array><string>first-element</string><integer>2</integer></array>", textUtil's replace(xmlUtil's __grepValueXml(TopLevel's commonKeyName), " ", ""))
+		assertEqual("<array><string>first-element</string><integer>2</integer></array>", textUtil's replace(TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName), " ", ""))
 	end script
 end script
 
@@ -340,14 +340,14 @@ script |property-list.deleteKey tests|
 		set sut to sutScript's new(TopLevel's plistKey)
 	end setUp
 	on tearDown()
-		xmlUtil's __deleteValue(TopLevel's commonKeyName)
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 	on beforeClass()
-		xmlUtil's __createTestPlist()
+		TopLevel's xmlUtil's __createTestPlist()
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass
 	
 	script |Not found|
@@ -357,18 +357,18 @@ script |property-list.deleteKey tests|
 
 	script |Found - scalar|
 		property parent : UnitTest(me)
-		xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "for-deletion")
-		assertEqual("<string>for-deletion</string>", xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "for-deletion")
+		assertEqual("<string>for-deletion</string>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
 		ok(sut's deleteKey(TopLevel's commonKeyName))
-		refuteEqual("<string>for-deletion</string>", xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+		refuteEqual("<string>for-deletion</string>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
 	end script
 
 	script |Found - composite|
 		property parent : UnitTest(me)
-		xmlUtil's __insertXml(TopLevel's commonKeyName, "<array/>")
-		assertEqual("<array/>", xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array/>")
+		assertEqual("<array/>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
 		ok(sut's deleteKey(TopLevel's commonKeyName))
-		refuteEqual("<array/>", xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+		refuteEqual("<array/>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
 	end script
 end script
 
@@ -385,14 +385,14 @@ script |property-list.plistExists tests|
 		set sut to sutScript's new(TopLevel's plistKey)
 	end setUp
 	on tearDown()
-		xmlUtil's __deleteValue(TopLevel's commonKeyName)
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 	on beforeClass()
-		xmlUtil's __createTestPlist()
+		TopLevel's xmlUtil's __createTestPlist()
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass
 	
 	script |Not found|
@@ -419,14 +419,14 @@ script |property-list.createNewPlist tests|
 		set sut to sutScript's new(TopLevel's plistKey)
 	end setUp
 	on tearDown()
-		xmlUtil's __deleteValue(TopLevel's commonKeyName)
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
 		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
 	on beforeClass()
-		xmlUtil's __createTestPlist()
+		TopLevel's xmlUtil's __createTestPlist()
 	end beforeClass
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass
 	
 	script |Found|
@@ -439,7 +439,7 @@ script |property-list.createNewPlist tests|
 
 	script |Not found|
 		property parent : UnitTest(me)
-		xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 		ok(sutScript's createNewPList(TopLevel's plistKey))
 	end script
 end script

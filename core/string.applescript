@@ -444,20 +444,24 @@ end substringFrom
 
 
 on rtrim(theText)
-	set trimOffset to count of theText
-	repeat until (character trimOffset of theText) is not in {" ", "
-"}
-		set trimOffset to trimOffset - 1
-		if trimOffset is 0 then
-			return ""
-		end if
-	end repeat
+	if theText is missing value then return missing value
+	if theText is "" then return theText
+	
+	set counter to 0
+	repeat with nextCharacter in reverse of characters of theText
+		if {tab, "
+", " "} does not contain the nextCharacter then exit repeat
+		set counter to counter + 1
+	end repeat	
 
-	text 1 thru trimOffset of theText
+	if counter is equal to the length of theText then return ""
+	
+	text 1 thru ((the length of theText) - counter) of theText
 end rtrim
 
 
-on ltrim(theText as text)
+on ltrim(theText)
+	if theText is missing value then return missing value
 	if theText is "" then return ""
 
 	set trimOffset to 1
@@ -470,8 +474,6 @@ on ltrim(theText as text)
 	end repeat
 
 	text trimOffset thru (count of theText) of theText
-
-	-- return do shell script "echo '" & theText & "' | sed 's/^[[:space:]]*//' | tr "  -- does not support newlines
 end ltrim
 
 

@@ -37,7 +37,5 @@ property SEPARATOR : " — "
 property MAIL_SUBDASH : "–"
 property ARROW_LEFT : "←"
 property ARROW_RIGHT : "→"
-property OMZ_ARROW : "➜"
-property OMZ_GIT_X : "✗"
 
 property APP_STORE_SPACE : ASCII character 202

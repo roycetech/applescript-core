@@ -218,6 +218,10 @@ on getBaseFilename(filePath)
 
 	else if (offset of ":" in filePath) is greater than 0 then  -- assume Mac OS Notation
 		set theDelimiter to ":"
+
+	else
+		error "Could not determine the file separator"
+		
 	end if
 
 	set theList to textUtil's split(filePath, theDelimiter)

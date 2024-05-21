@@ -4,6 +4,12 @@ OS := $(shell osascript -e "system version of (system info)" \
 | cut -d '.' -f 1 \
 | awk '{if ($$1 ~ /^14/) print "sonoma"; else if ($$1 ~ /^13/) print "ventura"; else if ($$1 ~ /^12/) print "monterey"; else print "unknown"}')
 
+LIB_PRESENT_TIMED_CACHE := $(osascript -e 'try' \
+	-e 'set optionalScript to script "core/timed-cache-plist"' \
+	-e 'return 0' \
+	-e 'end try' \
+	-e 'return 1')
+
 help:
 	@echo "make install - Create config files, assets, and install essential
 	libraries."
@@ -65,6 +71,7 @@ CORE_LIBS :=  \
 	unicodes \
 	window \
 	logger \
+	property-list \
 	spot-test
 
 APPS_PATH=/Applications/AppleScript
@@ -103,6 +110,16 @@ $(STUB_LIBS): Makefile
 
 $(CORE_LIBS): Makefile
 	./scripts/build-lib.sh core/$@
+
+
+poc:
+ifeq ($(LIB_PRESENT_TIMED_CACHE), 0)
+	@echo "timed-cache-plist present"
+else
+	@echo "timed-cache-plist is absent"
+endif
+
+.PHONY: poc
 
 uninstall:
 	# TODO
@@ -193,6 +210,10 @@ reveal-apps:
 reveal-stay-open:
 	open $(APPS_PATH)/Stay\ Open
 
+build-test:
+	osacompile -o ~/Library/Script\ Libraries/core/test/terminal-util.scpt test/terminal-util.applescript
+	osacompile -o ~/Library/Script\ Libraries/core/test/xml-util.scpt test/xml-util.applescript
+.PHONY: build-test
 
 test-all:
 	osascript "test/Test Loader.applescript"
@@ -208,18 +229,23 @@ test-unit:
 # 	osascript "test/libs/Test log4as.applescript"
 # 	osascript "test/core/Test redis.applescript"
 # 	osascript "test/core/Test date-time.applescript"
+# 	osascript "test/core/Test dec-terminal-path.applescript"
+# 	osascript "test/core/Test dec-terminal-prompt.applescript"
+# 	osascript "test/core/Test terminal-tab.applescript"
+# 	osascript "test/core/Test terminal.applescript"
 # 	osascript "test/core/Test decorator.applescript"
 # 	osascript "test/core/Test file.applescript"
 # 	osascript "test/core/Test list.applescript"
 # 	osascript "test/core/Test lov.applescript"
 # 	osascript "test/core/Test map.applescript"
 # 	osascript "test/core/Test plist-buddy.applescript"
-	osascript "test/core/Test plutil.applescript"
-# 	osascript "test/core/Test property-list.applescript"
+# 	osascript "test/core/Test plutil.applescript"
+	osascript "test/core/Test property-list.applescript"
 # 	osascript "test/core/Test regex.applescript"
 # 	osascript "test/core/Test regex-pattern.applescript"
 # 	osascript "test/core/Test safari-javascript.applescript"
 # 	osascript "test/core/Test stack.applescript"
+# 	osascript "test/core/Test string.applescript"
 # 	osascript "test/core/Test switch.applescript"
 # 	osascript "test/core/Test speech.applescript"  # results in Segmentation fault: 11
 # 	osascript "test/core/Test string.applescript"
@@ -229,7 +255,7 @@ test-unit:
 # 	osascript "test/apps/3rd-party/Test keyboard-maestro.applescript"
 
 
-watch: test
+watch: test-unit
 	scripts/run-tests_on-change.sh  # This runs test-unit target on change.
 
 
@@ -381,12 +407,15 @@ else ifeq ($(OS), monterey)
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-run
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/terminal
 
-
 else
 	@echo "Hello Something Else"
 endif
 
 	./scripts/build-lib.sh libs/sftp/dec-terminal-prompt-sftp
+
+install-omz:
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt-omz
+
 
 
 # macOS Version-Specific Apps -------------------------------------------------
@@ -572,7 +601,7 @@ build-user:
 install-dvorak:
 	./scripts/build-lib.sh core/decorators/dec-keyboard-dvorak-cmd
 	./scripts/build-lib.sh core/keyboard
-	plutil -replace 'KeyboardInstance' -string 'dec-keyboard-dvorak-cmd' ~/applescript-core/config-lib-factory.plist
+	plutil -replace 'KeyboardInstance' -string 'core/dec-keyboard-dvorak-cmd' ~/applescript-core/config-lib-factory.plist
 
 build-cliclick:
 	./scripts/build-lib.sh libs/cliclick/cliclick

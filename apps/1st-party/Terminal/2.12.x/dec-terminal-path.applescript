@@ -25,11 +25,7 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		Manual: Posix Path
-		Manual: Is User Path (true, false, home path)
-		Manual: Is Home Path (true, false)
-		Manual: Home Relative Path
-		Manual: Directory Name
+		NOOP
 	")
 
 	set spotClass to spotScript's new()
@@ -45,20 +41,30 @@ on spotCheck()
 	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)
 
+	-- Cases: Home, User subdir, Non-user; with/out command
+	logger's infof("Posix Path: {}", sut's getPosixPath())
+
+	-- Cases: Home, User subdir, Non-user; with/out command
+	logger's infof("Is User Path: {}", sut's isUserPath())
+
+	-- Cases: Home, User subdir, Non-user; with/out command
+	logger's infof("Is Home Path: {}", sut's isAtHomePath())
+
+	-- Cases: Home, User subdir, Non-user; with/out command
+	logger's infof("Home Relative Path: {}", sut's getHomeRelativePath())
+
+	-- Cases: Home, User subdir, Non-user; with/out command
+	logger's infof("Directory Name: {}", sut's getDirectoryName())
+
 	if caseIndex is 1 then
-		logger's infof("Posix Path: {}", sut's getPosixPath())
 
 	else if caseIndex is 2 then
-		logger's infof("Is User Path: {}", sut's isUserPath())
 
 	else if caseIndex is 3 then
-		logger's infof("Is Home Path: {}", sut's isAtHomePath())
 
 	else if caseIndex is 4 then
-		logger's infof("Home Relative Path: {}", sut's getHomeRelativePath())
 
 	else if caseIndex is 5 then
-		logger's infof("Directory Name: {}", sut's getDirectoryName())
 
 	end if
 

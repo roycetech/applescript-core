@@ -191,11 +191,16 @@ end script
 
 script |ltrim tests|
 	property parent : TestSet(me)
+
+	script |Missing value|
+		property parent : UnitTest(me)
+		assertMissing(sutScript's ltrim(missing value))
+	end script
 		
-	script |Preceeding space and new line|
+	script |Preceeding space, new line, and tab|
 		property parent : UnitTest(me)
 		assertEqual("SELECT", sutScript's ltrim("
-	SELECT"))
+	 SELECT"))
 	end script
 
 	script |No leading whitespace|
@@ -211,6 +216,32 @@ script |ltrim tests|
 	script |Empty string|
 		property parent : UnitTest(me)
 		assertEqual("", sutScript's ltrim(""))
+	end script
+end script
+
+
+script |rtrim tests|
+	property parent : TestSet(me)
+		
+	script |Missing value|
+		property parent : UnitTest(me)
+		assertEqual(missing value, sutScript's rtrim(missing value))
+	end script
+
+	script |Empty string|
+		property parent : UnitTest(me)
+		assertEqual("", sutScript's rtrim(""))
+	end script
+
+	script |Spaces only|
+		property parent : UnitTest(me)
+		assertEqual("", sutScript's rtrim("   "))
+	end script
+
+	script |Succeeding space, new line, and tab|
+		property parent : UnitTest(me)
+		assertEqual("SELECT", sutScript's rtrim("SELECT
+	 "))
 	end script
 end script
 
