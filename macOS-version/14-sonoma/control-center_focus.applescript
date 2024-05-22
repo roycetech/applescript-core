@@ -118,6 +118,9 @@ on decorate(mainScript)
 	script ControlCenterFocusDecorated
 		property parent : mainScript
 
+		(*
+			@returns 0 for off, 1 for on.
+		*)
 		on getDNDStatus()
 			set currentState to 0
 			_activateControlCenter()

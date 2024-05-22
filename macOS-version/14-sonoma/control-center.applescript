@@ -20,6 +20,8 @@ use spotScript : script "core/spot-test"
 use decoratorNetwork : script "core/control-center_network"
 use decoratorSound : script "core/control-center_sound"
 use decoratorFocus : script "core/control-center_focus"
+use decoratorBluetooth : script "core/control-center_bluetooth"
+use decoratorWifi : script "core/control-center_wifi"
 
 property logger : missing value
 property kb : missing value
@@ -147,4 +149,6 @@ on new()
 	decoratorFocus's decorate(result)
 	decoratorSound's decorate(result)
 	decoratorNetwork's decorate(result)
+	decoratorBlueTooth's decorate(result)
+	decoratorWiFi's decorate(result)
 end new

@@ -428,6 +428,8 @@ ifeq ($(OS), sonoma)
 	./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_sound"
 	./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_focus"
 	./scripts/build-lib.sh "macOS-version/14-sonoma/control-center"
+	./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_bluetooth"
+	./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_wifi"
 
 else ifeq ($(OS), ventura)
 	osacompile -o "$(HOME)/Library/Script Libraries/core/control-center.scpt" "scripts/stub.applescript"
