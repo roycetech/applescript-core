@@ -14,7 +14,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
 
-	@Last Modified: 2024-03-11 10:39:45
+	@Last Modified: 2024-05-25 20:01:54
 *)
 
 use script "core/Text Utilities"
@@ -54,7 +54,7 @@ on spotCheck()
 		Find Tab: Projects
 		Manual: Add to SideBar (Manual: Needs/Does not need adding)
 
-		Manual: Posix to Folder (View in Replies: User Path, Non-User Path)
+		Manual: Posix to Folder (View in Replies: User Path, Non-User Path, Applications)
 		Manual: Copy File
 		Manual: Rename File
 		Manual: Delete File
@@ -143,6 +143,7 @@ on spotCheck()
 	else if caseIndex is 11 then
 		logger's infof("Handler result: {}", sut's posixToFolder("/Users/" & std's getUsername() & "/applescript-core/logs"))
 		logger's infof("Handler result: {}", sut's posixToFolder("/Applications"))
+		logger's infof("Handler result: {}", sut's posixToFolder("/Applications/"))
 
 	else if caseIndex is 12 then
 		tell application "Finder"
@@ -176,6 +177,7 @@ on spotCheck()
 			set fileReference to file "spot-delete.txt" of folder "Delete Daily" of (path to home folder)
 		end tell
 		sut's deleteFile(fileReference)
+
 	end if
 
 	spot's finish()
@@ -196,7 +198,6 @@ on new()
 	set kb to kbLib's new()
 
 	script FinderInstance
-
 		(*
 			@returns true if delete is successful.
 		*)
@@ -242,7 +243,7 @@ on new()
 				try
 					set target of finderWindow to posixFileTarget
 				end try
-				my _newInstance(id of front window)
+				my _new(id of front window)
 			end tell
 		end newTab
 
@@ -590,6 +591,7 @@ on new()
 
 			else if posixPath starts with "/" then
 				set rootRelativePath to text 2 thru -1 of posixPath
+				if rootRelativePath ends with "/" then set rootRelativePath to text 1 thru -2 of rootRelativePath
 				return _posixSubPathToFolder(rootRelativePath, path to startup disk)
 
 			end if
