@@ -57,6 +57,7 @@ on spotCheck()
 		Manual: Click on Show Accessory View - Default
 		Manual: Click on Show Accessory View - Reset
 		Manual: Move To XY
+		Manual: DoubleClick Relative
 	")
 
 	set spotClass to spotScript's new()
@@ -87,6 +88,11 @@ on spotCheck()
 		else if caseIndex is 4 then
 			sut's moveToXy(0, 0)
 
+		else if caseIndex is 5 then
+			tell application "System Events" to tell process "Ryujinx"
+				set frontmost to true
+				doubleClickRelative of sut at front window given fromLeft:100, fromTop:200
+			end tell
 		end if
 	end if
 
@@ -108,6 +114,35 @@ on new()
 	script CliClickInstance
 		property smoothingSeconds : 1
 
+		on doubleClickRelative at theWindow given fromLeft:pLeft : missing value, fromBottom:pBottom : missing value, fromTop:pTop : missing value, fromRight:pRight : missing value
+			tell application "System Events"
+				tell theWindow -- do not merge with above, it will fail.
+					set {x, y} to its position
+					set {w, h} to its size
+				end tell
+			end tell
+
+			if pLeft is not missing value then set theX to pLeft + x
+			if pBottom is not missing value then
+				if y is less than 0 then -- 2nd screen at the top
+					set theY to y + h - pBottom
+				else
+					set theY to y + h - pBottom
+				end if
+			end if
+
+			if pTop is not missing value then
+				if y is less than 0 then -- 2nd screen at the top
+					set theY to y - pTop
+				else
+					set theY to y + pTop
+				end if
+			end if
+
+			doubleClickAtXy(theX, theY)
+		end doubleClickRelative
+
+
 		on clickRelative at theWindow given fromLeft:pLeft : missing value, fromBottom:pBottom : missing value, fromTop:pTop : missing value, fromRight:pRight : missing value
 			tell application "System Events"
 				tell theWindow -- do not merge with above, it will fail.
@@ -118,7 +153,7 @@ on new()
 
 			if pLeft is not missing value then set theX to pLeft + x
 			if pBottom is not missing value then
-				if y is less than 0 then -- 2nd screen
+				if y is less than 0 then -- 2nd screen at the top
 					set theY to y + h - pBottom
 				else
 					set theY to y + h - pBottom
@@ -229,6 +264,22 @@ on new()
 		end lclickAtXy
 
 		(*
+			Retrofitted from #lclickAtXy.
+		*)
+		on doubleClickAtXy(x, y)
+			saveCurrentPosition()
+
+			set formattedCoord to _formatCoordinates(x, y)
+			set clickCommand to CLICLICK_CLI & " -e 1 dc:" & formattedCoord
+
+			try
+				do shell script clickCommand
+			end try -- swallow if the command is not present.
+
+			restorePosition()
+		end doubleClickAtXy
+
+		(*
 			Adapter, it conflicts with the click when invoked inside System Events.
 		*)
 		-- to lclick at theUi with reset and smoothing
@@ -244,7 +295,7 @@ on new()
 		*)
 		-- on lclick at theUi with reset and smoothing
 		-- on lclick at theUi with reset:false and smoothing:true
-		on lclick at theUi given reset:resetArg : true, smoothing:smoothingArg : true, relativex:relativexArg:0, relativey:relativeyArg:0
+		on lclick at theUi given reset:resetArg : true, smoothing:smoothingArg : true, relativex:relativexArg : 0, relativey:relativeyArg : 0
 
 			-- WARNING: if we don't log these parameters, compile error :tableflip:.
 			-- Seems  it's no longer a problem February 19, 2021
@@ -268,7 +319,7 @@ on new()
 					set theYPos to "=" & theYPos
 				end if
 				set negativeX to relativexArg is less than 0
-				set cliParamX to std's ternary(negativeX, xPosition + xSize + relativexArg, xPosition + relativexArg +  (xSize div 2))
+				set cliParamX to std's ternary(negativeX, xPosition + xSize + relativexArg, xPosition + relativexArg + (xSize div 2))
 				-- logger's debugf("xPosition: {}", xPosition)
 				-- logger's debugf("xSize: {}", xSize)
 				-- logger's debugf("cliParamX: {}", cliParamX)
