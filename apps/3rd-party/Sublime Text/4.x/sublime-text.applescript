@@ -6,14 +6,18 @@
 		use stLib : script "core/sublime-text"
 		property sublime : stLib's new()  -- Text Expander: "uuse sublime"
 		
+	@Project:
+		applescript-core
+		
 	@Build:
-		make build-sublime-text
+		./scripts/build-lib.sh 'apps/3rd-party/Sublime Text/4.x/sublime-text'
 
 	@Known Issues:
 		The handler isCurrentFileNewUnsaved is broken when the front window does 
 		not have a saved project.
 
 	@Change Logs:
+		Thursday, May 23, 2024 at 11:55:01 AM - Add runCommandPalette handler.
 		August 30, 2023 9:44 AM - New handler getCurrentFileDirectory()
 
  	NOTE: if AXDocument is missing, usually when filename is missing value then restart Sublime Text.
@@ -52,7 +56,7 @@ on spotCheck()
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
-		Manual: Current File details (No file, Find Result, Ordinary File)
+		NOOP
 		Focus Window - AppleScript		
 		Open File
 		Manual: New Unsaved File
@@ -60,6 +64,7 @@ on spotCheck()
 
 		Manual: Switch to Group 2
 		Run Remote File - e2e
+		Manual: Run Command Palette
 	")
 	
 	set spotClass to spotScript's new()
@@ -67,17 +72,19 @@ on spotCheck()
 	set {caseIndex, caseDesc} to spot's start()
 	
 	set sut to new()
+	
+	-- Manual: Current File details (No file, Find Result, Ordinary File)
+	logger's infof("Current File Path: {}", sut's getCurrentFilePath())
+	logger's infof("Current Filename: {}", sut's getCurrentFilename())
+	logger's infof("Current Directory: {}", sut's getCurrentFileDirectory())
+	logger's infof("Current Base Filename: {}", sut's getCurrentBaseFilename())
+	logger's infof("Current File Ext: {}", sut's getCurrentFileExtension())
+	logger's infof("Current Document Name: {}", sut's getCurrentDocumentName())
+	logger's infof("Current Project: {}", sut's getCurrentProjectName())
+	logger's infof("Current Project Path: {}", sut's getCurrentProjectPath())
+	logger's infof("Current Resource: {}", sut's getCurrentProjectResource())
+	
 	if caseIndex is 1 then
-		logger's infof("Current File Path: {}", sut's getCurrentFilePath())
-		logger's infof("Current Filename: {}", sut's getCurrentFilename())
-		logger's infof("Current Directory: {}", sut's getCurrentFileDirectory())
-		logger's infof("Current Base Filename: {}", sut's getCurrentBaseFilename())
-		logger's infof("Current File Ext: {}", sut's getCurrentFileExtension())
-		logger's infof("Current Document Name: {}", sut's getCurrentDocumentName())
-		
-		logger's infof("Current Project: {}", sut's getCurrentProjectName())
-		logger's infof("Current Project Path: {}", sut's getCurrentProjectPath())
-		logger's infof("Current Resource: {}", sut's getCurrentProjectResource())
 		
 	else if caseIndex is 2 then
 		sut's focusWindowEndingWith("applescript-core")
@@ -95,6 +102,12 @@ on spotCheck()
 	else if caseIndex is 6 then
 		activate application "Sublime Text"
 		sut's focusGroup2()
+		
+	else if caseIndex is 8 then
+		tell application "System Events" to tell process "Sublime Text"
+			set frontmost to true
+		end tell
+		sut's runCommandPalette("Terminus: Tab")
 		
 	else if caseIndex is 11 then
 		
@@ -123,6 +136,18 @@ on new()
 	set configSystem to configLib's new("system")
 	
 	script SublimeTextInstance
+		on gotoFile(fileKeyword)
+			kb's pressCommandKey("t")
+			kb's typeText(fileKeyword)
+			kb's pressKey(return)
+		end
+	
+		on runCommandPalette(commandKey)
+			kb's pressCommandShiftKey("p")
+			kb's typeText(commandKey)
+			kb's pressKey(return)
+		end runCommandPalette
+		
 		on openFile(filePath)
 			set openShellCommand to format {"{} {}", {ST_CLI, quoted form of filePath}}
 			do shell script openShellCommand
