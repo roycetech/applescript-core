@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2024-02-15 12:50:18
+	@Last Modified: 2024-05-22 16:11:02
 *)
 
 use script "core/Text Utilities"
@@ -216,17 +216,40 @@ on getBaseFilename(filePath)
 	if (offset of "/" in filePath) is greater than 0 then -- POSIX Notation
 		set theDelimiter to "/"
 
-	else if (offset of ":" in filePath) is greater than 0 then  -- assume Mac OS Notation
+	else if (offset of ":" in filePath) is greater than 0 then -- assume Mac OS Notation
 		set theDelimiter to ":"
 
 	else
 		error "Could not determine the file separator"
-		
+
 	end if
 
 	set theList to textUtil's split(filePath, theDelimiter)
 	last item of theList
 end getBaseFilename
+
+
+on getFolderName(filePath)
+	if filePath is missing value then return missing value
+
+	set tokens to textUtil's split(filePath, "/")
+	if the (count of tokens) is 2 and filePath starts with "~" then return std's getUsername()
+	if the (count of tokens) is less than 3 then return missing value
+
+	item -2 of tokens
+end getFolderName
+
+
+on getContainingDirectory(filePath)
+	if filePath is missing value then return missing value
+
+	set cleanFilePath to expandTildePath(filePath)
+	if cleanFilePath ends with "/" then set cleanFilePath to text 1 thru -2 of cleanFilePath
+	set tokens to textUtil's split(cleanFilePath, "/")
+	if the (count of tokens) is 2 then return "/"
+
+	textUtil's join(reverse of rest of reverse of tokens, "/")
+end getContainingDirectory
 
 
 on quoteFilePath(posixFilePath)
