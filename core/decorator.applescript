@@ -6,11 +6,15 @@
 	@Plist:
 		config-lib-factory.plist
 
-	@Build:
-		make build-lib SOURCE=core/decorator
+	@Project:
+		applescript-core
 
-	@Last Modified: 2023-09-25 14:57:57
+	@Build:
+		./scripts/build-lib.sh core/decorator
+
+	@Last Modified: 2024-05-26 14:08:45
 	@Change Logs:
+		Thursday, May 23, 2024 at 1:37:40 PM - Use detect the original instance name to handle an internally decorated script objects.
 		August 10, 2023 7:49 AM - Allow multiple overrides on the same instance name.
 *)
 
@@ -64,10 +68,11 @@ on new(pScriptObject)
 		end _getHierarchy
 
 
-		on decorate()
-			if skip then return scriptObj
+		on decorateByName(instanceName)
+			set scriptName to instanceName
+			if scriptName is missing value then set scriptName to the name of the scriptObj
 
-			set scriptName to the name of the scriptObj
+			if skip then return scriptObj
 			set factory to missing value
 			try
 				-- set factory to do shell script "plutil -extract '" & scriptName & "' raw " & PLIST
@@ -108,6 +113,11 @@ on new(pScriptObject)
 			end if
 
 			scriptObj
+		end decorateByName
+
+
+		on decorate()
+			decorateByName(missing value)
 		end decorate
 	end script
 end new
