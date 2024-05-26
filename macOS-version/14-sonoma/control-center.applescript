@@ -15,6 +15,7 @@ use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 use kbLib : script "core/keyboard"
+use retryLib : script "core/retry"
 
 use spotScript : script "core/spot-test"
 use decoratorNetwork : script "core/control-center_network"
@@ -25,6 +26,7 @@ use decoratorWifi : script "core/control-center_wifi"
 
 property logger : missing value
 property kb : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -58,9 +60,9 @@ on spotCheck()
 	logger's infof("Voice Control is active: {}", sut's isVoiceControlActive())
 
 	(* Manually check 3 cases: none, DND On, Other Focus *)
-	logger's infof("DND Status: {}", sut's getDNDStatus())
 
 	if caseIndex is 1 then
+		sut's _activateControlCenter()
 
 	else if caseIndex is 2 then
 		sut's showWidgets()
@@ -114,6 +116,7 @@ end spotCheck
 on new()
 	loggerFactory's inject(me)
 	set kb to kbLib's new()
+	set retry to retryLib's new()
 
 	script ControlCenterInstance
 		(* Accomplished by clicking on the time in the menu bar items *)
@@ -137,11 +140,14 @@ on new()
 
 		-- Private Codes below =======================================================
 		on _activateControlCenter()
-			tell application "System Events" to tell process "ControlCenter"
-				try
+			script WindowWaiter
+				tell application "System Events" to tell process "ControlCenter"
 					click (first menu bar item of menu bar 1 whose value of attribute "AXIdentifier" is "com.apple.menuextra.controlcenter")
-				end try
-			end tell
+					delay 0.1
+					exists window 1
+				end tell
+			end script
+			exec of retry on result for 3
 		end _activateControlCenter
 
 	end script
@@ -149,6 +155,6 @@ on new()
 	decoratorFocus's decorate(result)
 	decoratorSound's decorate(result)
 	decoratorNetwork's decorate(result)
-	decoratorBlueTooth's decorate(result)
-	decoratorWiFi's decorate(result)
+	decoratorBluetooth's decorate(result)
+	decoratorWifi's decorate(result)
 end new
