@@ -69,7 +69,7 @@ script |getBaseFilename tests|
 	property sut : missing value 
 
 	on setUp() 
-		TopLevel's __createTestFile()
+		TopLevel's __createTestFile() 
 	end setUp
 
 	on tearDown()
@@ -79,6 +79,68 @@ script |getBaseFilename tests|
 	script |Basic Test|
 		property parent : unitTest(me)
 		assertEqual("README.md", sutScript's getBaseFilename("/Users/cloud.strife/Projects/README.md"))
+	end script
+end script 
+
+
+script |getContainingDirectory tests| 
+	property parent : TestSet(me)
+	property sut : missing value 
+
+	script |Missing Value|
+		property parent : unitTest(me)
+		assertMissing(sutScript's getContainingDirectory(missing value))
+	end script
+
+	script |Root file|
+		property parent : unitTest(me)
+		assertEqual("/", sutScript's getContainingDirectory("/unit-test.txt"))
+	end script
+
+	script |Home File|
+		property parent : unitTest(me)
+		assertEqual("/Users/" & std's getUsername(), sutScript's getContainingDirectory("~/unit-test.txt"))
+	end script
+
+	script |Home Subdirectory|
+		property parent : unitTest(me)
+		assertEqual("/Users/" & std's getUsername() & "/Library" , sutScript's getContainingDirectory("~/Library/Script Libraries/"))
+	end script
+
+	script |Basic|
+		property parent : unitTest(me)
+		assertEqual("/etc" , sutScript's getContainingDirectory("/etc/hosts"))
+	end script
+end script 
+ 
+
+script |getFolderName tests| 
+	property parent : TestSet(me)
+	property sut : missing value 
+
+	script |Missing Value|
+		property parent : unitTest(me)
+		assertMissing(sutScript's getFolderName(missing value))
+	end script
+
+	script |Root file|
+		property parent : unitTest(me)
+		assertMissing(sutScript's getFolderName("/unit-test.txt"))
+	end script
+
+	script |Home Path|
+		property parent : unitTest(me)
+		assertEqual(std's getUsername(), sutScript's getFolderName("~/unit-test.txt"))
+	end script
+
+	script |Home Sub Path|
+		property parent : unitTest(me)
+		assertEqual("Projects", sutScript's getFolderName("~/Projects/unit-test.txt"))
+	end script
+
+	script |Basic|
+		property parent : unitTest(me)
+		assertEqual("strife", sutScript's getFolderName("/Users/cloud/strife/unit-test.txt"))
 	end script
 end script 
 
@@ -393,4 +455,3 @@ on __deleteTestFile()
 	end script
 	retry's exec on result for 15 by 0.5
 end __deleteTestFile
- 
