@@ -277,6 +277,10 @@ on new()
 			delay delayAfterKeySeconds
 		end pressShiftKey
 
+		(*
+			Problem on macOS 14.4.1 when typing a dash(-) character on Terminal
+			with omz, it fails to type dash and dot.
+		*)
 		on typeText(theText)
 			tell application "System Events" to keystroke theText
 			delay delayAfterTypingSeconds
