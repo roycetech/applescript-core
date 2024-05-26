@@ -89,7 +89,7 @@ on decorate(termTabScript)
 		set localSessionPlist to text 8 thru -1 of (URL of folder "applescript-core" of (path to home folder) as text) & "session.plist"
 	end tell
 
-	script TerminalTabInstance
+	script TerminalRunDecorator
 		property parent : termTabScript
 		property SESSION_PLIST : localSessionPlist
 

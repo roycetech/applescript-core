@@ -57,7 +57,7 @@ autorun(suite)
 -- this will work when all the tests in the current folder are run together using loadTestsFromFolder().
 -- Besides, this will make sure that we are using the latest version of the script
 -- to be tested even if we do not recompile this test script.
-script |Load script - decorator|
+script |Load script - terminal-tab|
 	property parent : TestSet(me)
 	script |Loading the script|
 		property parent : unitTest(me)
@@ -86,7 +86,7 @@ script |clearLingeringCommand tests|
 	end setUp
 	on tearDown()
 		if my name is "afterClass" then afterClass()
-		if my name is "afterSuite" then afterSuite() 
+		-- if my name is "afterSuite" then afterSuite() 
 	end tearDown
  
 	on beforeClass()
@@ -106,6 +106,7 @@ script |clearLingeringCommand tests|
 		property parent : UnitTest(me)
 		set beforeTrimmedContent to TopLevel's terminalUtil's getTrimmedContent()
 		terminalTab's clearLingeringCommand()
+		delay 1
 		assertEqual(beforeTrimmedContent, TopLevel's terminalUtil's getTrimmedContent())		
 	end script
 
@@ -116,6 +117,7 @@ script |clearLingeringCommand tests|
 		TopLevel's terminalUtil's typeCommand(someCommand)
 		set typedTrimmedContent to TopLevel's terminalUtil's getTrimmedContent()
 		terminalTab's clearLingeringCommand()
+		delay 1
 		set clearedTrimmedContent to TopLevel's terminalUtil's getTrimmedContent()
 		ok(typedTrimmedContent ends with someCommand)		
 		assertEqual(initialTrimmedContent, clearedTrimmedContent)
@@ -126,7 +128,6 @@ script |clearLingeringCommand tests|
 	-- 	ok(true) -- dummy test to trigger the afterSuite.
 	-- end script
 end script
-
 
 script |getLingeringCommand tests|
 	property parent : TestSet(me)
@@ -148,6 +149,12 @@ script |getLingeringCommand tests|
 	on afterClass()
 		terminalTab's closeTab() 
 	end afterClass
+	on afterSuite()
+		if terminalTab is not missing value then -- Noise reduction
+			terminalTab's closeTab()
+		end if
+		TopLevel's terminalUtil's quitTerminal()
+	end afterSuite
 
 	script |None| 
 		property parent : UnitTest(me)
@@ -159,7 +166,13 @@ script |getLingeringCommand tests|
 		set someCommand to "typed text"
 		TopLevel's terminalUtil's typeCommand(someCommand)
 		assertEqual(someCommand, terminalTab's getLingeringCommand())
+		TopLevel's terminalUtil's clearScreenAndCommands()
 	end script
+
+	-- script |afterSuite|
+	-- 	property parent : unitTest(me)
+	-- 	ok(true) -- dummy test to trigger the afterSuite.
+	-- end script
 end script
 
 
@@ -182,8 +195,18 @@ script |scrollToTop tests|
 		set terminalTab to TopLevel's terminalUtil's getTestingTab()
 	end beforeClass
 	on afterClass()
-		terminalTab's closeTab() 
+		terminalTab's closeTab()
 	end afterClass
+	on afterSuite()
+		if terminalTab is not missing value then -- Noise reduction
+			log 1
+			terminalTab's closeTab()
+		else
+			log 2
+		end if
+		log 3
+		TopLevel's terminalUtil's quitTerminal()
+	end afterSuite
 	
 	script |Basic| 
 		property parent : UnitTest(me)
@@ -197,8 +220,13 @@ script |scrollToTop tests|
 
 	script |afterClass|
 		property parent : UnitTest(me)
-		ok(true)  -- dummy test to trigger the afterSuite.
-	end script	
+		ok(true)  -- dummy test to trigger the afterClass.
+	end script
+
+	-- script |afterSuite|
+	-- 	property parent : unitTest(me)
+	-- 	ok(true) -- dummy test to trigger the afterSuite.
+	-- end script
 end script
 
 
@@ -243,8 +271,7 @@ script |scrollToBottom tests|
 	end script	
 end script
 
-(*
-*)
+
 script |newWindow tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
@@ -339,11 +366,9 @@ script |newWindow tests|
 		property parent : unitTest(me)
 		ok(true) -- dummy test to trigger the afterSuite.
 	end script
-end script
+end script 
+ 
 
-
-(*
-*)
 script |newTab tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
@@ -420,8 +445,6 @@ script |newTab tests|
 end script
 
 
-(*
-*)
 script |getProfile tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
@@ -463,8 +486,9 @@ script |getProfile tests|
 	
 	script |Default Profile|
 		property parent : unitTest(me)
-		set defaultProfile to terminalTab's getProfile()
-		assertEqual("Basic", defaultProfile)
+		set tabProfile to terminalTab's getProfile()
+
+		assertEqual(TopLevel's terminalUtil's getDefaultProfile(), tabProfile)
 	end script
 	
 	script |Other Profile|
@@ -478,8 +502,6 @@ script |getProfile tests|
 end script
 
 
-(*
-*)
 script |setProfile tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
@@ -530,8 +552,6 @@ script |setProfile tests|
 end script
 
 
-(*
-*)
 script |focus tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
@@ -594,8 +614,6 @@ script |focus tests|
 end script
 
 
-(*
-*)
 script |getWindowTitle tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
@@ -621,7 +639,7 @@ script |getWindowTitle tests|
 				end if
 			end tell
 		end if
-		
+
 		set terminalTab to TopLevel's terminalUtil's getTestingTab()
 		if terminalTab is missing value then
 			error "Testing Tab failed to initialize"
@@ -649,8 +667,6 @@ script |getWindowTitle tests|
 end script
 
 
-(*
-*)
 script |getTabTitle tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
@@ -664,7 +680,7 @@ script |getTabTitle tests|
 		if my name is "afterClass" then afterClass()
 		if my name is "afterSuite" then afterSuite()
 	end tearDown
-	
+
 	on beforeClass()
 		if running of application "Terminal" then
 			tell application "System Events" to tell process "Terminal"
@@ -676,13 +692,13 @@ script |getTabTitle tests|
 				end if
 			end tell
 		end if
-		
+
 		set terminalTab to TopLevel's terminalUtil's getTestingTab()
 		if terminalTab is missing value then
 			error "Testing Tab failed to initialize"
 		end if
 	end beforeClass
-	
+
 	script |No tab single window|
 		property parent : unitTest(me)
 		assertEqual("", terminalTab's getTabTitle())
@@ -694,17 +710,15 @@ script |getTabTitle tests|
 		ok(terminalTab's getTabTitle() contains TopLevel's terminalUtil's TEST_TAB_NAME)
 		ok(caseTab's getTabTitle() contains TopLevel's TAB_NAME_TEST_CASE)
 		caseTab's closeTab()
-	end script	
+	end script
 end script
 
 
-(*
-*)
 script |setWindowTitle tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
 	property terminalTab : missing value
-	
+
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
@@ -713,7 +727,7 @@ script |setWindowTitle tests|
 		if my name is "afterClass" then afterClass()
 		if my name is "afterSuite" then afterSuite()
 	end tearDown
-	
+
 	on beforeClass()
 		if running of application "Terminal" then
 			tell application "System Events" to tell process "Terminal"
@@ -725,20 +739,20 @@ script |setWindowTitle tests|
 				end if
 			end tell
 		end if
-		
+
 		set terminalTab to TopLevel's terminalUtil's getTestingTab()
 		if terminalTab is missing value then
 			error "Testing Tab failed to initialize"
 		end if
 	end beforeClass
-	
+
 	script |No tab single window|
 		property parent : unitTest(me)
 		terminalTab's setWindowTitle("new-win-title")
 		tell application "Terminal"
 			set customTitle to the custom title of selected tab of front window
 		end tell
-		assertEqual("new-win-title", customTitle) 
+		assertEqual("new-win-title", customTitle)
 	end script
 
 	script |Multiple Tabs - Focused Tab|
@@ -761,19 +775,17 @@ script |setWindowTitle tests|
 			set unmodifiedCount to number of items in (tab of windows whose custom title is equal to TopLevel's TAB_NAME_TEST_CASE)
 		end tell
 		assertEqual(1, modifiedCount)
-		assertEqual(1, unmodifiedCount) 
-		caseTab's closeTab() 
-	end script 	
+		assertEqual(1, unmodifiedCount)
+		caseTab's closeTab()
+	end script
 end script
 
 
-(*
-*)
 script |setTabTitle tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
 	property terminalTab : missing value
-	
+
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
@@ -782,7 +794,7 @@ script |setTabTitle tests|
 		if my name is "afterClass" then afterClass()
 		if my name is "afterSuite" then afterSuite()
 	end tearDown
-	
+
 	on beforeClass()
 		if running of application "Terminal" then
 			tell application "System Events" to tell process "Terminal"
@@ -794,13 +806,13 @@ script |setTabTitle tests|
 				end if
 			end tell
 		end if
-		
+
 		set terminalTab to TopLevel's terminalUtil's getTestingTab()
 		if terminalTab is missing value then
 			error "Testing Tab failed to initialize"
 		end if
 	end beforeClass
-	
+
 	script |No tab single window|
 		property parent : unitTest(me)
 		terminalTab's setTabTitle(TopLevel's TITLE_NEW_TAB)
@@ -825,9 +837,9 @@ script |setTabTitle tests|
 		tell application "System Events" to tell process "Terminal"
 			set tab1Title to title of radio button 1 of tab group "tab bar" of front window
 		end tell
-		assertEqual(TopLevel's TITLE_NEW_TAB, tab1Title) 
-		caseTab's closeTab() 
-	end script 	  
+		assertEqual(TopLevel's TITLE_NEW_TAB, tab1Title)
+		caseTab's closeTab()
+	end script
 end script
 
 
@@ -837,7 +849,7 @@ script |closeTab tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
 	property terminalTab : missing value
-	
+
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
@@ -858,7 +870,7 @@ script |closeTab tests|
 				end if
 			end tell
 		end if
-		
+
 		set terminalTab to TopLevel's terminalUtil's getTestingTab()
 		if terminalTab is missing value then
 			error "Testing Tab failed to initialize"
@@ -872,10 +884,10 @@ script |closeTab tests|
 		end if
 		TopLevel's terminalUtil's quitTerminal()
 	end afterSuite
-	
+
 	script |No tab single window|
 		property parent : unitTest(me)
-		ok(TopLevel's terminalUtil's waitWindowCount(1))		
+		ok(TopLevel's terminalUtil's waitWindowCount(1))
 		terminalTab's closeTab()  -- execute
 		ok(TopLevel's terminalUtil's waitWindowCount(0))
 		set terminalTab to TopLevel's terminalUtil's getTestingTab()  -- reset closed tab.
@@ -883,12 +895,12 @@ script |closeTab tests|
 
 	script |Multiple Tabs|
 		property parent : unitTest(me)
-		set caseTab to terminalTab's newTab(TopLevel's TAB_NAME_TEST_CASE)		
-		ok(TopLevel's terminalUtil's waitWindowCount(2))		
+		set caseTab to terminalTab's newTab(TopLevel's TAB_NAME_TEST_CASE)
+		ok(TopLevel's terminalUtil's waitWindowCount(2))
 		caseTab's closeTab()
 		ok(TopLevel's terminalUtil's waitWindowCount(1))
 	end script
-	  
+
 	script |afterSuite|
 		property parent : unitTest(me)
 		ok(true) -- dummy test to trigger the afterSuite.

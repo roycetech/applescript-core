@@ -89,7 +89,7 @@ on decorate(termTabScript)
 	set retry to retryLib's new()
 	set terminal to terminalLib's new()
 
-	script TerminalTabInstance
+	script TerminalOutputDecorator
 		property parent : termTabScript
 
 		(* Used to determine the amount of characters to include in the getRecentOutput handler. *)

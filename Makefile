@@ -10,6 +10,24 @@ LIB_PRESENT_TIMED_CACHE := $(osascript -e 'try' \
 	-e 'end try' \
 	-e 'return 1')
 
+
+OMZ_EXISTS := $(wildcard ~/.oh-my-zsh/plugins)
+
+
+poc:
+ifneq ($(wildcard ~/.oh-my-zsh/plugins),)
+	@echo "Found omz"
+else
+	@echo "Did not find omz"
+endif
+ifeq ($(LIB_PRESENT_TIMED_CACHE), 0)
+	@echo "timed-cache-plist present"
+else
+	@echo "timed-cache-plist is absent"
+endif
+.PHONY: poc
+
+
 help:
 	@echo "make install - Create config files, assets, and install essential
 	libraries."
@@ -112,15 +130,6 @@ $(CORE_LIBS): Makefile
 	./scripts/build-lib.sh core/$@
 
 
-poc:
-ifeq ($(LIB_PRESENT_TIMED_CACHE), 0)
-	@echo "timed-cache-plist present"
-else
-	@echo "timed-cache-plist is absent"
-endif
-
-.PHONY: poc
-
 uninstall:
 	# TODO
 
@@ -219,6 +228,15 @@ test-all:
 	osascript "test/Test Loader.applescript"
 
 test-integration:
+# 	osascript "test/core/Test dec-terminal-path.applescript"
+ifneq ($(OMZ_EXISTS),)
+	osascript "test/core/Test dec-terminal-prompt-omz.applescript"
+else
+	osascript "test/core/Test dec-terminal-prompt.applescript"
+endif
+
+# 	osascript "test/core/Test terminal-tab.applescript"
+# 	osascript "test/core/Test terminal.applescript"
 
 test: test-all
 .PHONY: test
@@ -229,18 +247,14 @@ test-unit:
 # 	osascript "test/libs/Test log4as.applescript"
 # 	osascript "test/core/Test redis.applescript"
 # 	osascript "test/core/Test date-time.applescript"
-# 	osascript "test/core/Test dec-terminal-path.applescript"
-# 	osascript "test/core/Test dec-terminal-prompt.applescript"
-# 	osascript "test/core/Test terminal-tab.applescript"
-# 	osascript "test/core/Test terminal.applescript"
 # 	osascript "test/core/Test decorator.applescript"
-# 	osascript "test/core/Test file.applescript"
+	osascript "test/core/Test file.applescript"
 # 	osascript "test/core/Test list.applescript"
 # 	osascript "test/core/Test lov.applescript"
 # 	osascript "test/core/Test map.applescript"
 # 	osascript "test/core/Test plist-buddy.applescript"
 # 	osascript "test/core/Test plutil.applescript"
-	osascript "test/core/Test property-list.applescript"
+# 	osascript "test/core/Test property-list.applescript"
 # 	osascript "test/core/Test regex.applescript"
 # 	osascript "test/core/Test regex-pattern.applescript"
 # 	osascript "test/core/Test safari-javascript.applescript"
@@ -255,8 +269,10 @@ test-unit:
 # 	osascript "test/apps/3rd-party/Test keyboard-maestro.applescript"
 
 
-watch: test-unit
-	scripts/run-tests_on-change.sh  # This runs test-unit target on change.
+watch: test-integration
+# watch: test-unit
+# 	scripts/run-tests_on-change.sh  # This runs test-unit target on change.
+	scripts/run-integration-tests_on-change.sh  # This runs test-unit target on change.
 
 
 build-macos-apps: \
@@ -389,6 +405,9 @@ ifeq ($(OS), sonoma)
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-output
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-path
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt
+ifneq ($(OMZ_EXISTS),)
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt-omz
+endif
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-run
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal
@@ -413,9 +432,14 @@ endif
 
 	./scripts/build-lib.sh libs/sftp/dec-terminal-prompt-sftp
 
-install-omz:
+build-omz:
+	./scripts/build-lib.sh libs/zsh/oh-my-zsh
 	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt-omz
 
+
+install-omz: build-omz
+	./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt-omz
+	./scripts/factory-insert.sh TerminalTabInstance core/dec-terminal-prompt-omz
 
 
 # macOS Version-Specific Apps -------------------------------------------------
@@ -603,7 +627,7 @@ build-user:
 install-dvorak:
 	./scripts/build-lib.sh core/decorators/dec-keyboard-dvorak-cmd
 	./scripts/build-lib.sh core/keyboard
-	plutil -replace 'KeyboardInstance' -string 'core/dec-keyboard-dvorak-cmd' ~/applescript-core/config-lib-factory.plist
+	./scripts/factory-insert.sh KeyboardInstance core/dec-keyboard-dvorak-cmd
 
 build-cliclick:
 	./scripts/build-lib.sh libs/cliclick/cliclick

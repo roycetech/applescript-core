@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
 
 	@Created: Sunday, January 28, 2024 at 2:35:54 PM
-	@Last Modified: 2024-04-29 10:54:02
+	@Last Modified: 2024-05-24 10:16:46
 *)
 use script "core/Text Utilities"
 use scripting additions
@@ -48,7 +48,7 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-	
+
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP
@@ -56,8 +56,10 @@ on spotCheck()
 		Manual: New Tab
 		Manual: Set Window Title
 		Manual: Set Tab Title
+
+		Manual: Clear Lingering Command
 	")
-	
+
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -65,51 +67,55 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	set terminalLib to script "core/terminal"
 	set terminal to terminalLib's new()
 	set terminalTab to terminal's getFrontTab()
 	if terminalTab is missing value then
 		terminal's newWindow(missing value, "Initial Spot Terminal")
 	end if
-	
+
 	tell application "Terminal" to set frontWinID to id of first window
 	logger's debugf("Window ID: {}", frontWinID)
-	
+
 	set sut to new(frontWinID)
 	logger's infof("Name: {}", name of sut)
 	logger's infof("Lingering Command: {}", sut's getLingeringCommand())
-	
+
 	logger's infof("Tab Name: {}", sut's getTabName())
 	logger's infof("POSIX Path: {}", sut's getPosixPath())
-	
+
 	(* Manually test: zsh, bash, docker, sftp, redis-cli. *)
 	logger's infof("Is Shell Prompt: {}", sut's isShellPrompt())
 	logger's infof("Is Bash: {}", sut's isBash())
 	logger's infof("Is Zsh: {}", sut's isZsh())
 	logger's infof("Is SSH: {}", sut's isSSH())
 	logger's infof("Prompt Text: {}", sut's getPromptText())
-	
+
 	logger's infof("Prompt: {}", sut's getPrompt())
 	-- logger's infof("Last Output: {}", sut's getLastOutput()) -- BROKEN on @rt. Reproduce with command: "2"
 	logger's infof("Window Title: {}", sut's getWindowTitle())
 	logger's infof("Tab Title: {}", sut's getTabTitle())
-	
+	logger's infof("Has Dialogue: {}", sut's hasDialogue())
+
 	if caseIndex is 1 then
-		
+
 	else if caseIndex is 2 then
 		sut's newWindow("echo case 2", "spot window")
-		
+
 	else if caseIndex is 3 then
 		set terminalTab to sut's newTab("Spot tab")
-		
+
 	else if caseIndex is 4 then
 		sut's setWindowTitle("spot-win-title")
-		
+
 	else if caseIndex is 5 then
 		sut's setTabTitle("spot-tab-title")
+
+	else if caseIndex is 6 then
+		sut's clearLingeringCommand()
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -120,10 +126,10 @@ on new(pWindowId)
 	loggerFactory's inject(me)
 	set kb to kbLib's new()
 	set retry to retryLib's new()
-	
+
 	tell application "Terminal"
 		if not (exists window id pWindowId) then return missing value
-		
+
 		set localPromptEndChar to "$"
 		tell application "Terminal"
 			set termProcesses to processes of selected tab of window id pWindowId
@@ -131,14 +137,14 @@ on new(pWindowId)
 			if termProcesses contains "-zsh" then set localPromptEndChar to "%"
 		end tell
 	end tell
-	
+
 	set initialTabIndex to TopLevel's getSelectedTabIndex()
 	-- logger's debugf("initialTabIndex: {}", initialTabIndex)
-	
+
 	script TerminalTabInstance
 		property appWindow : missing value -- will be set to app window (not system event window)
 		property |instance name| : missing value
-		
+
 		(* Will only for for bash and zsh, not for ohmyzsh. *)
 		property promptEndChar : localPromptEndChar -- designed for bash only.
 		property commandRunMax : 100
@@ -150,19 +156,20 @@ on new(pWindowId)
 		property recentOutputChars : 300
 		property tabIndex : initialTabIndex -- Will be affeted when tab is closed.
 		property storedTabTitle : ""
-		
+		property autoDismissDialogue : false
+
 		(*
 			User prompt has timestamp embedded. When refleshPromt is true, it
 			will first send a blank command so the prompt is updated, then the
 			actual command is sent next, so that execution time can be measured.
 		*)
 		property refreshPrompt : false
-		
+
 		on hasDuplicatedName()
-			
+
 		end hasDuplicatedName
-		
-		
+
+
 		(* With test/s *)
 		on scrollToTop()
 			tell application "System Events" to tell process "Terminal"
@@ -171,12 +178,12 @@ on new(pWindowId)
 				end try
 			end tell
 		end scrollToTop
-		
+
 		(* With test/s *)
 		on scrollToBottom()
 			scrollToEnd()
 		end scrollToBottom
-		
+
 		(* With test/s *)
 		on scrollToEnd()
 			tell application "System Events" to tell process "Terminal"
@@ -185,17 +192,17 @@ on new(pWindowId)
 				end try
 			end tell
 		end scrollToEnd
-		
+
 		(* With test/s *)
 		on newWindow(bashCommand, windowName)
 			set terminalLib to script "core/terminal"
 			set terminal to terminalLib's new()
 			terminal's newWindow(bashCommand, windowName)
 		end newWindow
-		
-		(* 
-			Creates a new tab at the end of the window. 
-			
+
+		(*
+			Creates a new tab at the end of the window.
+
 			Cases:
 		*)
 		(* With test/s *)
@@ -206,21 +213,21 @@ on new(pWindowId)
 			script FailRetrier
 				(id of front window of application "Terminal") as integer
 			end script
-			set localWindowId to retry's exec on result for 20 by 0.2
+			set localWindowId to exec of retry on result for 20 by 0.2
 
 			set theNewTab to new(localWindowId)
 			set preferredName of theNewTab to tabName
 			theNewTab's _setTabName(tabName)
 			theNewTab
 		end newTab
-		
+
 		(*
 		on newTab(tabName)
 			focus()
 			tell application "System Events" to tell process "Terminal"
 				click menu item "Basic" of menu 1 of menu item "New Tab" of menu 1 of menu bar item "Shell" of menu bar 1
 			end tell
-			
+
 			set localWindowId to (id of front window of application "Terminal") as integer
 			set theNewTab to new(localWindowId)
 			set preferredName of theNewTab to tabName
@@ -229,14 +236,22 @@ on new(pWindowId)
 			theNewTab
 		end newTab
 		*)
-		
+
+		on getDefaultProfile()
+			tell application "System Events" to tell process "Terminal"
+				try
+					textUtil's stringAfter(title of menu item 1 of menu 1 of menu item 1 of menu 1 of menu bar item "Shell" of menu bar 1, "New Window with Profile - ")
+				end try
+			end tell
+		end getDefaultProfile
+
 		(* With test/s *)
 		on getProfile()
 			tell application "Terminal"
 				name of current settings of selected tab of front window
 			end tell
 		end getProfile
-		
+
 		(* With test/s *)
 		on setProfile(profileName)
 			tell application "Terminal"
@@ -245,20 +260,20 @@ on new(pWindowId)
 				end script
 				exec of retry on WaitBusy by 0.1
 				activate
-				
+
 				set current settings of selected tab of appWindow to settings set profileName
 			end tell
 		end setProfile
-		
+
 		(* With test/s *)
 		on focus()
 			_focus(true)
 		end focus
-		
+
 		on focusLast()
 			_focus(false)
 		end focusLast
-		
+
 		(* @ascending - why did we need this parameter again? *)
 		on _focus(ascending)
 			-- logger's debugf("ascending: {}", ascending)
@@ -275,8 +290,8 @@ on new(pWindowId)
 			end tell
 			activate application "Terminal"
 		end _focus
-		
-		
+
+
 		on dismissDialogue()
 			focus()
 			tell application "System Events" to tell process "Terminal"
@@ -289,21 +304,32 @@ on new(pWindowId)
 				end try
 			end tell
 		end dismissDialogue
-		
+
+
+		on hasDialogue()
+			tell application "System Events" to tell process "Terminal"
+				try
+					return exists button "Terminate" of sheet 1 of window (name of my appWindow)
+				end try
+			end tell
+			false
+		end hasDialogue
+
+
 		on isBash()
 			tell application "Terminal" to processes of selected tab of my appWindow contains "-bash"
 		end isBash
-		
+
 		on isZsh()
 			tell application "Terminal"
 				set termProcesses to processes of selected tab of my appWindow
 			end tell
 			set lastItem to last item of termProcesses
-			
+
 			termProcesses contains "-zsh" and {"com.docker.cli", "bash", "ssh"} does not contain the lastItem or lastItem contains "zsh"
 			-- lastItem contains "zsh" -- fails when using awsume cli on MFA wait state
 		end isZsh
-		
+
 		(*
 			Checks most recent text in the buffer, and see if a command is waiting after the prompt to be executed.
 			TODO:
@@ -316,33 +342,33 @@ on new(pWindowId)
 		on getLingeringCommand()
 			set recentBuffer to getPromptText()
 			if recentBuffer is missing value then return missing value
-			
+
 			if isBash() then
 				if recentBuffer does not contain promptEndChar then return missing value
 				if recentBuffer ends with my promptEndChar then return missing value
 				return textUtil's substringFrom(recentBuffer, (textUtil's lastIndexOf(recentBuffer, my promptEndChar)) + 2)
 			end if
-			
+
 			set dirName to getDirectoryName()
 			-- logger's debugf("dirName: {}", dirName)
-			
+
 			if dirName is equal to std's getUsername() then set dirName to "~"
 			-- logger's debugf("dirName: {}", dirName)
-			
+
 			ignoring case
 				if recentBuffer ends with dirName then return missing value
 			end ignoring
-			
+
 			regex's firstMatchInStringNoCase("(?<=" & dirName & "\\s%\\s)[\\w\\s-]+$", recentBuffer)
 		end getLingeringCommand
-		
-		
+
+
 		on clearLingeringCommand()
 			set lingeringCommand to getLingeringCommand()
 			if lingeringCommand is missing value then return
-			
+
 			set commandWords to count of words of lingeringCommand
-			
+
 			focus()
 			set maxTry to 50 -- 5 / 0.1 = 5 seconds.
 			repeat until getLingeringCommand() is missing value or maxTry is less than 0
@@ -351,15 +377,19 @@ on new(pWindowId)
 				delay 0.1
 			end repeat
 		end clearLingeringCommand
-		
-		
+
+
 		on closeTab()
 			tell application "Terminal" to close my appWindow
+			if autoDismissDialogue and  hasDialogue() then
+				delay 0.2
+				dismissDialogue()
+			end if
 		end closeTab
-		
-		
-		(* 
-			@returns the value in the Window Title field (1st text field) when you view the inspector. 
+
+
+		(*
+			@returns the value in the Window Title field (1st text field) when you view the inspector.
 		*)
 		(* With test/s *)
 		on getWindowTitle()
@@ -367,30 +397,30 @@ on new(pWindowId)
 				custom title of selected tab of my appWindow
 			end tell
 		end getWindowTitle
-		
+
 		(* With test/s *)
 		on setWindowTitle(newTitle)
 			tell application "Terminal"
 				set custom title of selected tab of my appWindow to newTitle
 			end tell
 		end setWindowTitle
-		
-		
-		(* 		
-			@returns the value in the Tab Title field (2nd text field) when you view the inspector. 
+
+
+		(*
+			@returns the value in the Tab Title field (2nd text field) when you view the inspector.
 		*)
 		(* With test/s *)
 		on getTabTitle()
 			tell application "System Events" to tell process "Terminal"
-				if exists(tab group "tab bar" of front window) then
+				if exists (tab group "tab bar" of front window) then
 					title of radio button (my tabIndex) of tab group "tab bar" of front window
 				else
 					my storedTabTitle
 				end if
 			end tell
 		end getTabTitle
-		
-		
+
+
 		(* With test/s *)
 		on setTabTitle(newTabTitle)
 			tell application "System Events" to tell process "Terminal"
@@ -406,7 +436,7 @@ on new(pWindowId)
 				click (first button of window "Inspector" whose description is "close button")
 			end tell
 		end setTabTitle
-		
+
 		(*
 			This is to improve flexibility when switching between zsh and bash,
 			in zsh, window name contained the folder name as well.
@@ -415,12 +445,12 @@ on new(pWindowId)
 		*)
 		on getTabName()
 			if isBash() then return name of appWindow
-			
+
 			set nameTokens to textUtil's split(name of appWindow, SEPARATOR)
 			last item of nameTokens
 		end getTabName
-		
-		
+
+
 		on _setTabName(tabName as text)
 			-- logger's debugf("Setting tab name to {}", tabName)
 			script TabNameWaiter
@@ -431,15 +461,15 @@ on new(pWindowId)
 			end script
 			exec of retry on TabNameWaiter for 3
 		end _setTabName
-		
+
 		on _refreshTabName()
 			if not maintainName then return
-			
+
 			delay 1.5
 			_setTabName(preferredName)
 		end _refreshTabName
 	end script
-	
+
 	tell application "Terminal"
 		set appWindow of TerminalTabInstance to window id pWindowId
 	end tell
@@ -449,14 +479,14 @@ on new(pWindowId)
 	extPath's decorate(result)
 	extPrompt's decorate(result)
 	decoratorLib's new(result)
-	result's decorate()
+	result's decorateByName("TerminalTabInstance")
 end new
 
 
 on getSelectedTabIndex()
 	tell application "System Events" to tell process "Terminal"
 		if not (exists (tab group "tab bar" of front window)) then return 1
-		
+
 		repeat with i from 1 to the count of radio buttons of tab group "tab bar" of front window
 			if value of radio button i of tab group "tab bar" of front window is true then
 				return i
