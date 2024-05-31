@@ -346,7 +346,7 @@ build-safari: build-dock
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
 	./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/safari-tab
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-finder
-	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-noncompact
+	./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
 
