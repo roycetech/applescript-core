@@ -119,6 +119,13 @@ on new()
 	set retry to retryLib's new()
 
 	script ControlCenterInstance
+		on isWindowActive()
+			tell application "System Events" to tell process "ControlCenter"
+				exists window 1
+			end tell
+
+		end isWindowActive
+
 		(* Accomplished by clicking on the time in the menu bar items *)
 		on showWidgets()
 			tell application "System Events" to tell process "ControlCenter"
@@ -142,7 +149,7 @@ on new()
 		on _activateControlCenter()
 			script WindowWaiter
 				tell application "System Events" to tell process "ControlCenter"
-					if exists window 1 then return true  -- Already present.
+					if exists window 1 then return true -- Already present.
 
 					click (first menu bar item of menu bar 1 whose value of attribute "AXIdentifier" is "com.apple.menuextra.controlcenter")
 					delay 0.1
@@ -151,6 +158,14 @@ on new()
 			end script
 			exec of retry on result for 3
 		end _activateControlCenter
+
+		on dismissControlCenter()
+				tell application "System Events" to tell process "ControlCenter"
+					if not exists window 1 then return  -- Already absent.
+
+					click (first menu bar item of menu bar 1 whose value of attribute "AXIdentifier" is "com.apple.menuextra.controlcenter")
+				end tell
+		end dismissControlCenter
 
 	end script
 
