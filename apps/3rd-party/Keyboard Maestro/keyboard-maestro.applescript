@@ -1,4 +1,6 @@
 (* 
+	This script focuses on the Keyboard Maestro Editor and fundamental handlers when working with the app.
+
 	@Project:
 		applescript-core
 	
@@ -7,6 +9,7 @@
 
 	@Last Modified: November 28, 2023 11:05 PM
 	@Change Logs:
+		Wednesday, May 29, 2024 at 2:33:10 PM - Macro sorting handlers.
 		October 20, 2023 10:27 AM - Added focusSelectedMacroGroup().
 *)
 
@@ -52,6 +55,9 @@ on spotCheck()
 		Manual: Select Macro
 		Manual: Scroll Macros/Actions Pane
 		Manual: Focus MacroGroup Pane
+		Manual: Sort By Name
+
+		Manual: Sort By Trigger
 	")
 	
 	set spotClass to spotScript's new()
@@ -68,6 +74,7 @@ on spotCheck()
 	logger's infof("Selected Group Name: {}", sut's getSelectedGroupName())
 	logger's infof("Macro with name exists (Unicorn): {}", sut's macroWithNameExists("Unicorn"))
 	logger's infof("Macro with name exists yes: {}", sut's macroWithNameExists("Script Editor: Text Expander: km's getFocusedType()"))
+	logger's infof("Macro sort mode: {}", sut's getMacroSortMode())
 	
 	if caseIndex is 1 then
 		-- sut's sendSafariText("KM Test")
@@ -114,6 +121,16 @@ on spotCheck()
 	else if caseIndex is 14 then
 		sut's focusSelectedMacroGroup()
 		
+	else if caseIndex is 15 then
+		-- sut's setSortMode("Unicorn")
+		sut's setSortMode("Name")
+		-- sut's setSortMode("Trigger")
+		
+		logger's infof("New macro sort mode: {}", sut's getMacroSortMode())
+		
+	else if caseIndex is 16 then
+		
+		
 	end if
 	
 	activate
@@ -129,6 +146,32 @@ on new()
 	script KeyboardMaestroInstance
 		property variable_update_retry_count : 3
 		property delayAfterRun : 0
+
+		(* @returns "Sort by Name" or "Sort by Trigger" *)
+		on getMacroSortMode()
+			if running of application "Keyboard Maestro" is false then return missing value
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				description of first checkbox of splitter group 1 of group 6 of front window whose enabled is false
+			end tell
+			last word of result
+		end getMacroSortMode
+		
+		(*
+			@newSortMode - Trigger or Name
+		*)
+		on setSortMode(newSortMode)
+			if running of application "Keyboard Maestro" is false then return
+			if getMacroSortMode() is equal to newSortMode then return
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					click (first checkbox of splitter group 1 of group 6 of front window whose description contains newSortMode)
+				end try
+			end tell
+		end setSortMode
+		
+		
 		
 		on scrollMacrosPane(zeroToOne)
 			tell application "System Events" to tell process "Keyboard Maestro"
