@@ -15,7 +15,7 @@
 	@Created:
 		Tuesday, May 21, 2024 at 7:49:18 PM
 *)
-
+use scripting additions
 
 use listUtil : script "core/list"
 use textUtil : script "core/string"
@@ -97,10 +97,20 @@ on decorate(mainScript)
 	script ControlCenterFocusDecorated
 		property parent : mainScript
 
+
+		(* This implementation will use shell script*)
+		on getBlueToothStatus()
+			set rawResult to do shell script "system_profiler SPBluetoothDataType | grep State | awk '{ print $2 }'"
+			logger's debugf("rawResult: {}", rawResult)
+			if rawResult is "On" then return 1
+
+			0
+		end
+
 		(*
 			@returns 0 if off, 1 if on, missing value on error.
 		*)
-		on getBlueToothStatus()
+		on getBlueToothStatus_Orig()
 			set currentState to 0
 			_activateControlCenter()
 
@@ -147,9 +157,9 @@ on decorate(mainScript)
 				set currentStatus to value of first checkbox of group 1 of front window whose value of attribute "AXIdentifier" is "controlcenter-bluetooth"
 
 				if currentStatus is 0 and newValue is false or currentStatus is 1 and newValue is true then
-			kb's pressKey("esc")
-									return
-end
+					kb's pressKey("esc")
+					return
+				end if
 
 				click (first checkbox of group 1 of front window whose value of attribute "AXIdentifier" is "controlcenter-bluetooth")
 			end tell

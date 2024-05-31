@@ -142,6 +142,8 @@ on new()
 		on _activateControlCenter()
 			script WindowWaiter
 				tell application "System Events" to tell process "ControlCenter"
+					if exists window 1 then return true  -- Already present.
+
 					click (first menu bar item of menu bar 1 whose value of attribute "AXIdentifier" is "com.apple.menuextra.controlcenter")
 					delay 0.1
 					exists window 1
