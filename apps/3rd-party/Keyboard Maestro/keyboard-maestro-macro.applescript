@@ -6,7 +6,8 @@
 		applescript-core
 		
 	@Build:
-		make build-keyboard-maestro
+		./scripts/build-lib.sh 'apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro'
+		
 *)
 
 use std : script "core/std"
@@ -28,6 +29,7 @@ on spotCheck()
 		Manual: New Instance (Missing, Present)
 		Manual: Enable Macro, get state
 		Manual: Disable Macro, get state
+		Manual: Find By Name Containing
 	")
 	
 	set spotClass to spotScript's new()
@@ -42,6 +44,7 @@ on spotCheck()
 	set sut to new(sutMacroName)
 	logger's infof("sutMacroName: {}", sutMacroName)
 	logger's infof("Macro UUID: {}", sut's getUUID())
+	
 	if caseIndex is 1 then
 		try
 			set sut to new("POCx")
@@ -61,11 +64,33 @@ on spotCheck()
 		assertThat of std given condition:sut's isEnabled() is false, messageOnFail:"Failed spot check"
 		logger's info("Passed")
 		
+	else if caseIndex is 4 then
+		-- log findMacroWithTitleContaining("Unicorn")
+		set spotInstance to findMacroWithTitleContaining("dia's showChoicesWithTimeout(")
+		if spotInstance is not missing value then
+			logger's info("A macro was found")
+		else
+			logger's info("No macro was found")
+		end if
 	end if
 	
 	spot's finish()
 	logger's finish()
 end spotCheck
+
+
+on findMacroWithTitleContaining(macroKeyword)
+	log macroKeyword
+	tell application "Keyboard Maestro"
+		try
+			return my new(name of first macro whose name contains macroKeyword)
+		on error the errorMessage number the errorNumber
+			log errorMessage
+		end try
+	end tell
+	
+	missing value
+end findMacroWithTitleContaining
 
 
 (*  *)
