@@ -3,8 +3,8 @@
 	Each individual project tabs are not treated as separate windows as compared to first party apps.
 
 	@Usage:
-		use stLib : script "core/sublime-text"
-		property sublime : stLib's new()  -- Text Expander: "uuse sublime"
+		use sublimeTextLib : script "core/sublime-text"
+		property sublimeText : sublimeTextLib's new()  -- Text Expander: "uuse sublime"
 		
 	@Project:
 		applescript-core
@@ -140,8 +140,8 @@ on new()
 			kb's pressCommandKey("t")
 			kb's typeText(fileKeyword)
 			kb's pressKey(return)
-		end
-	
+		end gotoFile
+		
 		on runCommandPalette(commandKey)
 			kb's pressCommandShiftKey("p")
 			kb's typeText(commandKey)
@@ -346,15 +346,17 @@ on new()
 			Returns the names of focused projects for each Sublime Text windows.
 		*)
 		on getWindowProjectNames()
-			if not running of application "Sublime Text" then return
+			if not running of application "Sublime Text" then return {}
 			
 			tell application "System Events" to tell process "Sublime Text"
 				set windowNames to the name of windows
-				set projectNames to {}
-				repeat with nextWindowTitle in windowNames
-					set end of projectNames to the last item of textUtil's split(nextWindowTitle, unic's SEPARATOR)
-				end repeat
 			end tell
+			
+			set projectNames to {}
+			repeat with nextWindowTitle in windowNames
+				set end of projectNames to the last item of textUtil's split(nextWindowTitle, unic's SEPARATOR)
+			end repeat
+			
 			projectNames
 		end getWindowProjectNames
 		
@@ -394,20 +396,9 @@ on new()
 			tell application "System Events" to tell process "Sublime Text"
 				tell front window
 					set windowTitle to get value of attribute "AXTitle"
-					if windowTitle is "" then
-						return missing value
-					end if
-					
-					(*
-					set oldDelimiters to AppleScript's text item delimiters
-					set AppleScript's text item delimiters to unic's SEPARATOR
-					set theArray to every text item of theWindowTitle
-					set retval to last item of theArray
-					set AppleScript's text item delimiters to oldDelimiters
-					return retval
-					*)
 				end tell
 			end tell
+					if windowTitle is "" then 						return missing value
 			
 			set csv to textUtil's split(windowTitle, ",")
 			set projectPart to first item of csv
