@@ -1,11 +1,14 @@
 (*
 	Migrated from code.applescript.
 	
+	@Requirements:
+	
 	@Plists:
 		config-user:
 			User Projects Path
 			
-		repo-org-path (missing)
+		repo-org-path - Need to have the project registered so we can determine the organization mapping.
+			
 		
 	@Project:
 		applescript-core
@@ -50,7 +53,7 @@ on spotCheck()
 	
 	-- If you haven't got these imports already.
 	set cases to listUtil's splitByLine("
-		Manual: INFO
+		NOOP
 		Open File
 		Open Resource via UI
 		Run Script
@@ -65,14 +68,16 @@ on spotCheck()
 	end if
 	
 	set sut to new()
+	logger's infof("Current File Type: {}", sut's getFileType())
+	logger's infof("Current Project Name: {}", sut's getProjectName())
+	logger's infof("Resource Path: {}", sut's getResourcePath())
+	logger's infof("Document Name: {}", sut's getDocumentName())
+	logger's infof("Document Path: {}", sut's getDocumentPath())
+	logger's infof("Projects Path: {}", sut's getProjectsPath())
+	logger's infof("Project Path: {}", sut's getProjectPath())
+	logger's infof("Open in Container: {}", sut's isOpenInContainer())
+	
 	if caseIndex is 1 then
-		logger's infof("Current File Type: {}", sut's getFileType())
-		logger's infof("Current Project Name: {}", sut's getProjectName())
-		logger's infof("File Path: {}", sut's getResourcePath())
-		logger's infof("Document Name: {}", sut's getDocumentName())
-		logger's infof("Document Path: {}", sut's getDocumentPath())
-		logger's infof("Projects Path: {}", sut's getProjectsPath())
-		logger's infof("Open in Container: {}", sut's isOpenInContainer())
 		
 	else if caseIndex is 2 then
 		set filePath to format {"{}/{}", {my PROJECTS_PATH, "/@rt-playground/ts-fetchjson/index.ts"}}
@@ -199,11 +204,29 @@ on new()
 			if resourcePath is missing value then return missing value
 			
 			set projectName to getProjectName()
+			-- logger's debugf("projectName: {}", projectName)
+			
 			set repoSubfolder to REPO_PROJECT_PATH's getValue(projectName)
 			repoSubfolder & "/" & projectName & "/" & resourcePath
 		end getProjectsPath
 		
-		
+		on getProjectPath()
+			set projectName to getProjectName()
+			-- 			logger's debugf("projectName: {}", projectName)
+			
+			set repoSubfolder to REPO_PROJECT_PATH's getValue(projectName)
+			-- 			logger's debugf("PROJECTS_PATH: {}", PROJECTS_PATH)
+			
+			-- 			logger's debugf("repoSubfolder: {}", repoSubfolder)
+			
+			textUtil's join({PROJECTS_PATH, repoSubfolder, projectName}, "/") & "/"
+		end getProjectPath
+
+		(*
+			Cases:
+				Root resource selected
+				Non-root resource selected
+		*)
 		on getResourcePath()
 			if running of application "Visual Studio Code" is false then return missing value
 			
@@ -217,7 +240,7 @@ on new()
 			if (count of tokens) is less than 2 then return missing value
 			
 			set latterPart to last item of tokens
-			first item of tokens
+			textUtil's stringAfter(first item of tokens, getProjectName() & "/")
 		end getResourcePath
 		
 		
