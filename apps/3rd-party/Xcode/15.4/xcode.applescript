@@ -6,17 +6,20 @@
 		./scripts/build-lib.sh apps/3rd-party/Xcode/15.4/xcode
 
 	@Created: Monday, May 27, 2024 at 1:22:50 PM
-	@Last Modified: 2024-05-27 15:03:17
+	@Last Modified: 2024-05-31 16:10:02
 *)
 
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
+use kbLib : script "core/keyboard"
+
 
 use spotScript : script "core/spot-test"
 
 property logger : missing value
+property kb : missing value
 
 property PROJECT_EXT_PLAYGROUND : ".playground"
 property PROJECT_EXT_REGULAR : ".xcodeproj"
@@ -30,6 +33,7 @@ on spotCheck()
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP
+		Manual: Quick Open File
 	")
 
 	set spotClass to spotScript's new()
@@ -41,6 +45,8 @@ on spotCheck()
 	end if
 
 	set sut to new()
+
+	activate application "Xcode"
 
 	-- Manual: Current File details (No file, Find Result, Ordinary File)
 	logger's infof("Is Playground: {}", sut's isPlayground())
@@ -62,8 +68,10 @@ on spotCheck()
 	if caseIndex is 1 then
 
 	else if caseIndex is 2 then
-
+		sut's quickOpen("main.m")
 	end if
+
+	-- activate
 
 	spot's finish()
 	logger's finish()
@@ -73,8 +81,17 @@ end spotCheck
 (*  *)
 on new()
 	loggerFactory's inject(me)
+	set kb to kbLib's new()
 
 	script XcodeInstance
+		on quickOpen(filename)
+			kb's pressCommandShiftKey("o")
+			kb's typeText(filename)
+			delay 0.1
+			kb's pressKey(return)
+		end quickOpen
+
+
 		on isPlayground()
 			tell application "Xcode"
 				name of active workspace document ends with ".playground"
@@ -103,10 +120,10 @@ on new()
 
 		on getCurrentDocumentName()
 			if isPlayground() then
-			tell application "Xcode"
-			return name of active workspace document
+				tell application "Xcode"
+					return name of active workspace document
 
-end tell
+				end tell
 			end if
 
 			tell application "Xcode"
