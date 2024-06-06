@@ -2,7 +2,7 @@
 	Library wrapper for Preview app.
 
 		@Created: July 14, 2023 6:57 PM
-		@Last Modified: 2024-03-13 13:36:50
+		@Last Modified: 2024-06-04 12:10:18
 
 	@Project:
 		applescript-core
@@ -15,6 +15,7 @@ use scripting additions
 use listUtil : script "core/list"
 use textUtil : script "core/string"
 use windowUtilLib : script "core/window"
+use fileUtil : script "core/file"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -45,6 +46,7 @@ on spotCheck()
 		Manual: Trigger Save Button
 		Manual: Find Tab
 		Manual: Front Tab (TODO)
+		Manual: Reveal in Finder
 	")
 
 	set spotClass to spotScript's new()
@@ -93,6 +95,12 @@ on spotCheck()
 			logger's infof("File Path: {}", frontTab's getFilePath())
 		end if
 
+	else if caseIndex is 9 then
+		set frontTab to sut's getFrontTab()
+		logger's infof("File Path: {}", frontTab's getFilePath())
+		frontTab's revealInFinder()
+
+
 	end if
 
 	spot's finish()
@@ -127,7 +135,7 @@ on new()
 				set frontmost to true
 				delay 0.1
 
-					click menu item "New from Clipboard" of menu 1 of menu bar item "File" of menu bar 1
+				click menu item "New from Clipboard" of menu 1 of menu bar item "File" of menu bar 1
 			end tell
 		end newFromClipboard
 
@@ -268,6 +276,11 @@ on new()
 		on _new(pAppWindow)
 			script PreviewTabInstance
 				property appWindow : pAppWindow
+
+				on revealInFinder()
+					set containerPath to fileUtil's getContainingDirectory(getFilePath())
+					do shell script "open " & quoted form of containerPath
+				end revealInFinder
 
 				on getFilePath()
 					tell application "Preview"
