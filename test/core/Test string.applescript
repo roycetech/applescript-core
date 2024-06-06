@@ -56,6 +56,28 @@ script |Load script|
 	end script
 end script
 
+script |join tests| 
+	property parent : TestSet(me)
+	script |source text is missing value|
+		property parent : UnitTest(me)
+		assertMissing(sutScript's join(missing value, "|"))
+	end script
+
+	script |missing delimiter|
+		property parent : UnitTest(me)
+		assertEqual("abcdef", sutScript's join({"abc", "def"}, missing value))
+	end script 
+
+	script |Happy Case|
+		property parent : UnitTest(me)
+		assertEqual("abc,def", sutScript's join({"abc", "def"}, ","))
+	end script 
+
+	script |Delimiter part of source|
+		property parent : UnitTest(me)
+		assertEqual("/abc/def/ghi", sutScript's join({"/abc/def", "ghi"}, "/"))
+	end script 
+end script
 
 script |stringAfter tests|
 	property parent : TestSet(me)

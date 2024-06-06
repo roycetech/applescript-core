@@ -248,7 +248,7 @@ test-unit:
 # 	osascript "test/core/Test redis.applescript"
 # 	osascript "test/core/Test date-time.applescript"
 # 	osascript "test/core/Test decorator.applescript"
-	osascript "test/core/Test file.applescript"
+# 	osascript "test/core/Test file.applescript"
 # 	osascript "test/core/Test list.applescript"
 # 	osascript "test/core/Test lov.applescript"
 # 	osascript "test/core/Test map.applescript"
@@ -262,16 +262,18 @@ test-unit:
 # 	osascript "test/core/Test string.applescript"
 # 	osascript "test/core/Test switch.applescript"
 # 	osascript "test/core/Test speech.applescript"  # results in Segmentation fault: 11
-# 	osascript "test/core/Test string.applescript"
+	osascript "test/core/Test string.applescript"
 # 	osascript "test/core/Test timed-cache-plist.applescript"
 # 	osascript test/apps/1st-party/script-editorTest.applescript
 # 	osascript test/apps/1st-party/dec-script-editor-contentTest.applescript
 # 	osascript "test/apps/3rd-party/Test keyboard-maestro.applescript"
 
+watch: watch-unit
 
-watch: test-integration
-# watch: test-unit
-# 	scripts/run-tests_on-change.sh  # This runs test-unit target on change.
+watch-unit: test-unit
+	scripts/run-tests_on-change.sh  # This runs test-unit target on change.
+
+watch-integration: test-integration
 	scripts/run-integration-tests_on-change.sh  # This runs test-unit target on change.
 
 
@@ -522,6 +524,12 @@ build-ms-edge:
 	./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge-javascript
 	./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge-tab
 	./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge
+
+build-opera:
+	osacompile -o "$(HOME)/Library/Script Libraries/core/opera.scpt" "scripts/stub.applescript"
+	./scripts/build-lib.sh apps/3rd-party/Opera/110.0/opera-javascript
+	./scripts/build-lib.sh apps/3rd-party/Opera/110.0/opera-tab
+	./scripts/build-lib.sh apps/3rd-party/Opera/110.0/opera
 
 
 build-intellij:

@@ -13,7 +13,7 @@
 	@Build:
 		./scripts/build-lib.sh core/string
 
-	@Last Modified: 2024-05-06 17:25:05
+	@Last Modified: 2024-06-06 14:57:05
 *)
 use scripting additions
 
@@ -345,10 +345,14 @@ end splitWithTrim
 
 
 on join(aList, delimiter)
+	if aList is missing value then return missing value
+	set calcDelimiter to delimiter
+	if delimiter is missing value then set calcDelimiter to ""
+
 	set retval to ""
 	repeat with i from 1 to (count of aList)
 		set retval to retval & item i of aList
-		if i is not equal to (count of aList) then set retval to retval & delimiter
+		if i is not equal to (count of aList) then set retval to retval & calcDelimiter
 	end repeat
 	return retval
 end join
@@ -446,16 +450,16 @@ end substringFrom
 on rtrim(theText)
 	if theText is missing value then return missing value
 	if theText is "" then return theText
-	
+
 	set counter to 0
 	repeat with nextCharacter in reverse of characters of theText
 		if {tab, "
 ", " "} does not contain the nextCharacter then exit repeat
 		set counter to counter + 1
-	end repeat	
+	end repeat
 
 	if counter is equal to the length of theText then return ""
-	
+
 	text 1 thru ((the length of theText) - counter) of theText
 end rtrim
 
