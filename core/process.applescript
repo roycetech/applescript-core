@@ -149,6 +149,19 @@ on new(pProcessName)
 	script ProcessInstance
 		property processName : pProcessName
 
+		on isMinimized()
+			tell application "System Events" to tell process "Mail"
+				try
+					return value of attribute "AXMinimized" of window 1
+				end try
+			end tell
+
+			false
+		end isMinimized
+
+
+
+
 		on raiseWindows()
 			tell application "System Events" to tell process processName
 				try
@@ -167,6 +180,8 @@ on new(pProcessName)
 
 
 		on hide()
+			if running of application processName is false then return
+
 			tell application "System Events" to tell process processName
 				set visible to false
 			end tell
@@ -174,6 +189,8 @@ on new(pProcessName)
 
 
 		on unhide()
+			if running of application processName is false then return
+
 			tell application "System Events" to tell process processName
 				set visible to true
 			end tell
@@ -181,6 +198,8 @@ on new(pProcessName)
 
 
 		on minimize()
+			if running of application processName is false then return
+
 			tell application "System Events" to tell process processName
 				try
 					click (first button of front window whose description contains "minimize")
@@ -189,7 +208,21 @@ on new(pProcessName)
 		end minimize
 
 
+		on unminimize()
+			if running of application processName is false then return
+
+			tell application "System Events" to tell process processName
+				try
+					set value of attribute "AXMinimized" of window 1 to false
+				end try
+			end tell
+
+		end unminimize
+
+
 		on minimizeAll()
+			if running of application processName is false then return
+
 			tell application "System Events" to tell process processName
 				try
 					click (first button of every window whose description contains "minimize")
