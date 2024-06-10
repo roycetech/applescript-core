@@ -5,12 +5,10 @@
 	@Build:
 		make build-lib SOURCE=libs/counter-plist/counter
 
-	WARNING: This script is crappy, do not remove the init() on every handler
-	because it triggers a weird error where reference to countTotal is lost
-	despite being a globally declared variable.
-*)
+	@Usage:
+		use counterLib : script "core/counter"
+		set counter to counterLib's new("plist-name")
 
-(*
 	PList Design:
 
 	Each entry will need to update the following keys:
@@ -23,8 +21,6 @@
 
 	UPDATE:
 		Removed logging to countDailyList because plutil is crashing due to the data size.
-
-	TODO: Should we refactor this to use instances? June 22, 2023 3:04 PM
 *)
 
 use script "core/Text Utilities"
@@ -45,6 +41,7 @@ property plutil : missing value
 property countDailySuffix : "-daily"
 property countKeysSuffix : "-all-keys"
 property countTotalSuffix : "-total"
+property DEFAULT_PLIST : "counter-default"
 
 property TopLevel : me
 
@@ -69,20 +66,29 @@ on spotCheck()
 		return
 	end if
 
+
 	set sutPlist to "spot-counter"
 	set sutKey to "spot-key"
 	set sut to new(sutPlist)
+
+	logger's debugf("Test Key: {}", sutKey)
+	logger's info("Before run -------------------------------")
+	logger's infof("totalAll: {}", sut's totalAll(sutKey))
+	logger's infof("totalToday: {}", sut's totalToday(sutKey))
+	logger's infof("hasRunToday: {}", sut's hasRunToday(sutKey))
+	logger's infof("hasNotRunToday: {}", sut's hasNotRunToday(sutKey))
+
 	if caseIndex is 1 then
 
 	else if caseIndex is 2 then
 		sut's increment(sutKey)
 
 	else if caseIndex is 3 then
-		sut's clear()
+		sut's clear(sutKey)
 
 	end if
 
-	logger's debugf("Test Key: {}", sutKey)
+	logger's info("After run -------------------------------")
 	logger's infof("totalAll: {}", sut's totalAll(sutKey))
 	logger's infof("totalToday: {}", sut's totalToday(sutKey))
 	logger's infof("hasRunToday: {}", sut's hasRunToday(sutKey))
@@ -107,11 +113,16 @@ on spotCheck()
 end spotCheck
 
 
+on newDefault()
+	new(DEFAULT_PLIST)
+end newDefault
+
+
 on new(pPlistName)
 	loggerFactory's inject(me)
 
 	set plutil to plutilLib's new()
-	if pPlistName is missing value then set pPlistName to "counter-default"
+	if pPlistName is missing value then set pPlistName to DEFAULT_PLIST
 
 	set countDailyName to _createPlistIfMissing(pPlistName & countDailySuffix)
 	set countKeysName to _createPlistIfMissing(pPlistName & countKeysSuffix)
@@ -152,7 +163,7 @@ on new(pPlistName)
 
 		(*  *)
 		on totalAll(theKey)
-			logger's debugf("theKey: {}", theKey)
+			-- logger's debugf("theKey: {}", theKey)
 			set theCount to countTotal's getInt(theKey)
 			if theCount is missing value then return 0
 
@@ -161,11 +172,11 @@ on new(pPlistName)
 
 
 		(*
-	Useful if you want lets say to do something every nth run.
+			Useful if you want lets say to do something every nth run.
 
-	@nth - a positive integer.
-	@return boolean.
-*)
+			@nth - a positive integer.
+			@return boolean.
+		*)
 		on isNthRun(theKey as text, nth as integer)
 			assertThat of std given condition:nth is greater than 0, messageOnFail:format {"The nth:{} must be a positive integer", nth}
 
