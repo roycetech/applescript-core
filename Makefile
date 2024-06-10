@@ -356,13 +356,13 @@ ifeq (, $(shell which cliclick))
 	$(warning "cliclick was not found in PATH.")
 else
 	$(MAKE) build-cliclick
-	./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-tab-group
+	./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-group
 endif
 	./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
 	./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari
 
 #3rd-party cliclick is required because some Safari actions no longer work without simulated user interactions.
-install-safari: install-cliclick build-safari
+install-safari: build-safari
 	osascript ./scripts/allow-apple-events-in-safari.applescript
 	plutil -replace 'FIND_RETRY_MAX' -integer 90 ~/applescript-core/config-system.plist
 	plutil -replace 'FIND_RETRY_SLEEP' -integer 1 ~/applescript-core/config-system.plist

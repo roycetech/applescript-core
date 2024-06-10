@@ -7,13 +7,12 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-tab-group
+		./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-group
 
-	@Created: Friday, April 26, 2024 at 11:52:07 AM
-	@Last Modified: 2024-06-10 11:38:31
+	@Created: Monday, June 10, 2024 at 11:42:13 AM
+	@Last Modified: 2024-06-10 11:54:43
 	@Change Logs:
-		Friday, April 26, 2024 at 11:55:54 AM
-			 - Switch to default stopped working because the default group was greyed out when programmatically clicking on the Tab Group menu button. Now we need to steal focus and use a 3rd party tool cliclick to simulate user interaction.
+		Monday, June 10, 2024 at 11:47:12 AM - cliclick no longer required.
 *)
 use listUtil : script "core/list"
 use textUtil : script "core/string"
@@ -21,7 +20,6 @@ use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
 
-use cliclickLib : script "core/cliclick"
 use retryLib : script "core/retry"
 use kbLib : script "core/keyboard"
 
@@ -29,7 +27,8 @@ use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
-property cliclick : missing value
+
+property DEFAULT_GROUP_NAME : "<default>"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -56,9 +55,11 @@ on spotCheck()
 	set sut to decorate(sut)
 
 	logger's infof("Group name before: {}", sut's getGroupName())
+	logger's infof("Is Default Group: {}", sut's isDefaultGroup())
 
 	if caseIndex is 1 then
 		sut's switchGroup("applescript-core")
+		delay 1 -- Allow the group change to propagate before reading it again.
 
 	else if caseIndex is 2 then
 		sut's switchGroup(missing value)
@@ -68,6 +69,7 @@ on spotCheck()
 	else
 
 	end if
+
 	logger's infof("Group name after: {}", sut's getGroupName())
 
 	spot's finish()
@@ -88,7 +90,6 @@ on decorate(mainScript)
 
 	set retry to retryLib's new()
 	set kb to kbLib's new()
-	set cliclick to cliclickLib's new()
 
 	script SafariTabGroupDecorator
 		property parent : mainScript
@@ -102,6 +103,7 @@ on decorate(mainScript)
 				set windowTitle to name of front window
 			end tell
 
+			if isDefaultGroup() then return DEFAULT_GROUP_NAME
 
 			set sideBarWasVisible to isSideBarVisible()
 			-- logger's debugf("sideBarWasVisible: {}", sideBarWasVisible)
@@ -175,7 +177,7 @@ on decorate(mainScript)
 				tell application "System Events" to tell process "Safari"
 					set frontmost to true
 
-					lclick of cliclick at menu button 1 of group 1 of toolbar 1 of front window
+					click menu button 1 of group 1 of toolbar 1 of front window
 				end tell
 				true
 			end script
@@ -199,5 +201,43 @@ on decorate(mainScript)
 
 			if sideBarWasVisible then showSideBar()
 		end switchGroup
+
+		(*
+			Determine if on default group when:
+				SideBar Visible: first row is selected.
+				SideBar Hidden: the tab picker is small, without any labels
+
+		*)
+		on isDefaultGroup()
+			if isSideBarVisible() then
+				tell application "System Events" to tell process "Safari"
+					return value of attribute "AXSelected" of row 1 of outline 1 of scroll area 1 of group 1 of splitter group 1 of front window
+				end tell
+			end if
+
+			-- else: SideBar not visible.
+			script GroupPickerWaiter
+				tell application "System Events" to tell process "Safari"
+					first menu button of group 1 of toolbar 1 of front window whose help is "Tab Group Picker"
+				end tell
+			end script
+			set groupPicker to exec of retry on result for 40 by 0.2 -- 2 seconds max.
+			if groupPicker is missing value then error "Unable to find the group picker UI"
+
+			(*
+			-- Old implementation, checks the size of the UI
+			tell application "System Events" to tell process "Safari"
+				set wh to the size of groupPicker
+				(first item of wh) is less than 40
+			end tell
+			*)
+
+
+			tell application "System Events" to tell process "Safari"
+				set tabGroupId to get value of attribute "AXIdentifier" of menu button 1 of group 1 of toolbar 1 of front window
+			end tell
+			tabGroupId does not contain "TabGroup="
+		end isDefaultGroup
+
 	end script
 end decorate
