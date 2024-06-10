@@ -1,5 +1,9 @@
 (*
-	@Last Modified: 2023-09-18 22:33:06
+	@Purpose:
+		Inspect a UI. It can more reliably trace the UI hierarchy than UI browser but with manual steps.
+
+	@Created: Pre-2024.
+	@Last Modified: 2024-06-03 13:17:08
 *)
 use std : script "core/std"
 
@@ -124,5 +128,19 @@ on new()
 			end tell
 
 		end printAttributeValues
+
+
+		on printUIElements(sourceElement, padding)
+			if sourceElement is missing value then return
+
+			tell application "System Events"
+				repeat with nextElement in UI elements of sourceElement
+					try
+						log padding & class of nextElement & ": " & description of nextElement & ": " & role description of nextElement
+					end try
+					my printUIElements(nextElement, padding & "  ")
+				end repeat
+			end tell
+		end printUIElements
 	end script
 end new
