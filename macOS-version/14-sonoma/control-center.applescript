@@ -35,7 +35,7 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		INFO
+		NOOP
 		Manual: Show Widgets
 		DND On
 		Manual: DND On - From Work Focus
@@ -46,6 +46,10 @@ on spotCheck()
 		Manual: List of Hotspot (Maybe used to identify your hotpot key, mind the Unicode apostrophe, test no hotspot available)
 		Manual: Join Hotspot (Not Joined, Already Joined, Not Found)
 		Manual: Join WIFI (Not Joined, Already Joined, Not Found)
+
+		Manual: Activate Control Center
+		Manual: Voice Control: Start Listening
+		Manual: Voice Control: Stop Listening
 	")
 
 	set spotClass to spotScript's new()
@@ -58,11 +62,11 @@ on spotCheck()
 
 	set sut to new()
 	logger's infof("Voice Control is active: {}", sut's isVoiceControlActive())
+	logger's infof("Voice Control is Awake: {}", sut's isVoiceControlAwake())
 
 	(* Manually check 3 cases: none, DND On, Other Focus *)
 
 	if caseIndex is 1 then
-		sut's _activateControlCenter()
 
 	else if caseIndex is 2 then
 		sut's showWidgets()
@@ -106,6 +110,14 @@ on spotCheck()
 		sut's joinHotspot("Care")
 		-- joinHotspot("Careless")
 
+	else if caseIndex is 11 then
+		sut's _activateControlCenter()
+
+	else if caseIndex is 12 then
+		sut's startListening()
+
+	else if caseIndex is 13 then
+		sut's stopListening()
 	end if
 
 	spot's finish()
@@ -145,6 +157,58 @@ on new()
 		end isVoiceControlActive
 
 
+		on isVoiceControlAwake()
+			tell application "System Events" to tell process "Control Center"
+				exists (first menu bar item of menu bar 1 whose value of attribute "AXAttributedDescription" starts with "Voice Control, Awake")
+			end tell
+		end isVoiceControlAwake
+
+
+		on isVoiceControlAsleep()
+			not isVoiceControlAwake()
+		end isVoiceControlAwake
+
+
+		(*
+			Sets the voice control to listen if it is active.
+		*)
+		on startListening()
+			if not isVoiceControlActive() then return
+
+			tell application "System Events" to tell process "Control Center"
+				click (first menu bar item of menu bar 1 whose value of attribute "AXAttributedDescription" starts with "Voice Control")
+			end tell
+
+			script EnsureClick
+				tell application "System Events" to tell process "Control Center"
+					click button 2 of group 1 of window 1 -- No nicer way to click this button other than the index.
+				end tell
+				true
+			end script
+			exec of retry on result for 3
+		end startListening
+
+
+		(*
+			Sets the voice control to listen if it is active.
+		*)
+		on stopListening()
+			if not isVoiceControlActive() then return
+
+			tell application "System Events" to tell process "Control Center"
+				click (first menu bar item of menu bar 1 whose value of attribute "AXAttributedDescription" starts with "Voice Control")
+			end tell
+
+			script EnsureClick
+				tell application "System Events" to tell process "Control Center"
+					click button 1 of group 1 of window 1 -- No nicer way to click this button other than the index.
+				end tell
+				true
+			end script
+			exec of retry on result for 3
+		end stopListening
+
+
 		-- Private Codes below =======================================================
 		on _activateControlCenter()
 			script WindowWaiter
@@ -160,11 +224,11 @@ on new()
 		end _activateControlCenter
 
 		on dismissControlCenter()
-				tell application "System Events" to tell process "ControlCenter"
-					if not exists window 1 then return  -- Already absent.
+			tell application "System Events" to tell process "ControlCenter"
+				if not (exists window 1) then return -- Already absent.
 
-					click (first menu bar item of menu bar 1 whose value of attribute "AXIdentifier" is "com.apple.menuextra.controlcenter")
-				end tell
+				click (first menu bar item of menu bar 1 whose value of attribute "AXIdentifier" is "com.apple.menuextra.controlcenter")
+			end tell
 		end dismissControlCenter
 
 	end script
