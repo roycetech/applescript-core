@@ -103,8 +103,9 @@ on decorate(mainScript)
 			tell application "System Events" to tell process "System Settings"
 				set micPopup to pop up button 2 of group 1 of scroll area 1 of group 1 of last UI element of splitter group 1 of UI element 1 of front window
 				click micPopup
-				click (first menu item of menu 1 of micPopup whose title contains micKeyword)
-				
+				try
+					click (last menu item of menu 1 of micPopup whose title contains micKeyword)  -- Using last trying to avoid the automatic.
+				end try
 			end tell
 		end setMicrophone
 		
@@ -205,7 +206,7 @@ on decorate(mainScript)
 			
 			set currentState to -1
 			script ClickWaiter
-				tell application "System Events" to tell process "System Settings" to tell window "Voice Control" to tell first group
+				tell application "System Events" to tell process "System Settings" to tell window "Voice Control" to tell first UI Element
 					-- set currentState to get value of checkbox "Enable Voice Control"
 					set currentState to get value of checkbox 1 of group 1 of scroll area 1 of group 1 of group 2 of splitter group 1
 					click checkbox "Voice Control" of group 1 of scroll area 1 of group 1 of group 2 of splitter group 1
