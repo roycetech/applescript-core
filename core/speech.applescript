@@ -56,6 +56,8 @@ property plutil : missing value
 
 property isSpot : false
 
+property DEFAULT_CONFIG : "text-to-speech_default"
+
 if {"Script Editor", "Script Debugger"} contains the name of current application then
 	set isSpot to true
 	spotCheck()
@@ -103,6 +105,10 @@ end spotCheck
 
 -- HANDLERS =================================================================
 
+on newDefault()
+	new(DEFAULT_CONFIG)
+end newDefault
+
 (*
 	NOTE: Removed logger references inside the script.
 
@@ -123,6 +129,8 @@ on new(pLocalizationConfigName)
 		property _localizationConfigName : missing value
 		property _translationKeys : {}
 		property _translationsDictionary : missing value
+
+		-- This is too specific. TODO: Convert it to a passed script instead to determine silence state.
 		property _userInMeetingStub : missing value
 
 		(*
@@ -263,7 +271,7 @@ on new(pLocalizationConfigName)
 
 	tell SpeechInstance
 		set its _localizationConfigName to pLocalizationConfigName
-		if pLocalizationConfigName is missing value then set its _localizationConfigName to "text-to-speech_default"
+		if pLocalizationConfigName is missing value then set its _localizationConfigName to DEFAULT_CONFIG
 		-- logger's debugf("localizationConfigName: {}", its _localizationConfigName)
 	end tell
 
