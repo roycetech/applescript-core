@@ -41,7 +41,7 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2024-05-15 12:34:52
+	@Last Modified: 2024-06-17 16:02:36
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
@@ -309,6 +309,7 @@ on new()
 
 						if dataType is text then
 							set shellValue to quoted form of newValue
+
 						else if dataType is date then
 							set shellValue to quoted form of _formatPlistDate(newValue)
 						end if
@@ -750,6 +751,7 @@ on new()
 				on _buildKeyNameFromList(keyNameList)
 					set keynameBuilder to "" -- May be a bad idea to use the string-builder library.
 					repeat with nextKeyName in keyNameList
+						if nextKeyName contains "." then set nextKeyName to textUtil's replace(nextKeyName, ".", "\\.")
 						if keynameBuilder is not "" then set keynameBuilder to keynameBuilder & "."
 						if regex's matches("^\\d", nextKeyName) then set nextKeyName to "_" & nextKeyName
 
@@ -812,7 +814,7 @@ on new()
 					if theDate is missing value then return missing value
 
 					set dateString to short date string of theDate
-					logger's debugf("dateString: {}", dateString)
+					-- logger's debugf("dateString: {}", dateString)
 
 					set myMonth to (first word of dateString) as integer
 					if myMonth is less than 10 then set myMonth to "0" & myMonth
