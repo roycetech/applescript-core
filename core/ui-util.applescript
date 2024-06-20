@@ -2,8 +2,14 @@
 	@Purpose:
 		Inspect a UI. It can more reliably trace the UI hierarchy than UI browser but with manual steps.
 
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh core/ui-util
+
 	@Created: Pre-2024.
-	@Last Modified: 2024-06-03 13:17:08
+	@Last Modified: 2024-06-13 14:02:29
 *)
 use std : script "core/std"
 
@@ -136,7 +142,13 @@ on new()
 			tell application "System Events"
 				repeat with nextElement in UI elements of sourceElement
 					try
-						log padding & class of nextElement & ": " & description of nextElement & ": " & role description of nextElement
+						set className to class of nextElement
+						set uiDesc to the description of nextElement
+						set uiRole to role description of nextElement
+						set elementValue to ""
+						if className is text field then set elementValue to ":" & value of nextElement
+
+						log padding & className & ": " & uiDesc & ": " & uiRole & elementValue
 					end try
 					my printUIElements(nextElement, padding & "  ")
 				end repeat
