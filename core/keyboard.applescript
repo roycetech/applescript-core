@@ -33,8 +33,8 @@ use spotScript : script "core/spot-test"
 use decoratorLib : script "core/decorator"
 
 property logger : missing value
-property LF : ASCII Character 10
-property CR : ASCII Character 13
+property LF : ASCII character 10
+property CR : ASCII character 13
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -62,6 +62,10 @@ on spotCheck()
 
 	tell sut
 		if caseIndex is 1 then
+			keyDown("z")
+			keyUp("z")
+
+			(*
 			pressKey(0)
 			pressKey(1)
 			pressKey(2)
@@ -72,8 +76,6 @@ on spotCheck()
 			pressKey(7)
 			pressKey(8)
 			pressKey(9)
-			(*
-
 		pressKey("a")
 		pressKey("b")
 		pressKey("c")
@@ -100,10 +102,10 @@ on spotCheck()
 		pressKey("x")
 		pressKey("y")
 		pressKey("z")
-	*)
 			activate application "Terminal"
 			delay 0.1
 			pressControlKey("c")
+	*)
 
 		else if caseIndex is 2 then
 			insertTextByPasting("Hello " & emoji's HORN)
@@ -122,7 +124,7 @@ on spotCheck()
 	end tell
 
 	(* Output will vary depending on current system keyboard layout. *)
-	-- Cursor inside bracket: [] -- Manually erase the contents each time
+	-- Cursor inside bracket: [0123456789] -- Manually erase the contents each time
 
 	spot's finish()
 	logger's finish()
@@ -203,6 +205,44 @@ on new()
 			end tell
 			delay delayAfterKeySeconds
 		end pressKey
+
+
+		(*
+			This handler works when keyboard is used as game input.
+		*)
+		on keyDownAndUp(keyToPress)
+			keyDown(keyToPress)
+			keyUp(keyToPress)
+		end keyDownAndUp
+
+		on keyDup(keyToPress)
+			keyDown(keyToPress)
+			keyUp(keyToPress)
+		end keyDup
+
+
+		on keyDown(keyToPress)
+			keyD(keyToPress)
+			delay delayAfterKeySeconds
+		end keyDown
+
+		on keyD(keyToPress)
+			tell application "System Events"
+				key down keyToPress
+			end tell
+		end keyD
+
+
+		on keyU(keyToPress)
+			tell application "System Events"
+				key up keyToPress
+			end tell
+		end keyU
+
+		on keyUp(keyToPress)
+			keyU(keyToPress)
+			delay delayAfterKeySeconds
+		end keyU
 
 
 		on pressCommandKey(keyToPress)
