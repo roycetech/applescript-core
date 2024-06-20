@@ -2,6 +2,11 @@
 	@Purpose:
 		For manipulating the state of a macro or macro group.
 		
+	@Usage:
+		use keyboardMaestroMacroLib : script "core/keyboard-maestro-macro"
+		set keyboardMaestroMacro to keyboardMaestroMacroLib's new(<macro-name>)
+		keyboardMaestroMacro's disable()
+
 	@Project:
 		applescript-core
 		
