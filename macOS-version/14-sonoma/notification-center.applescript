@@ -24,7 +24,6 @@
 use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "core/list"
 use regex : script "core/regex"
 
 use loggerFactory : script "core/logger-factory"
@@ -43,7 +42,7 @@ property notificationCenterHelper : missing value
 	Stacked notification will have the date of the latest notice.
 
 	@TODO:
-		Dismiss All dismissed only one notification.
+		"Dismiss All" dismissed only one notification.
 *)
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -52,9 +51,12 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
+	(* TODO: Re-organize spot check cases after case 2. *)
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Stacked Notice Details - toString()
-		Manual: App Names
+		Manual: Perform Action
+
 		Manual: For Each - Notification Helper
 		Manual: Notifications By App (Try diff apps)
 		Manual: Dismiss
@@ -85,18 +87,34 @@ on spotCheck()
 		logger's infof("Notice: {}", notice's toString())
 		logger's infof("Is Stacked: {}", notice's isStacked())
 		logger's info("Apps with notification/s")
-		set appNames to sut's getAppNames()
-		repeat with nextAppName in appNames
-			logger's infof("Next App Name: {}", nextAppName)
-		end repeat
+
 	else
 		logger's info("No notifications detected.")
 
 	end if
 
+	set appNames to sut's getAppNames()
+	if appNames is not missing value and (count of appNames) is not 0 then
+		repeat with nextAppName in appNames
+			logger's infof("Notification/s detected for App: {}", nextAppName)
+		end repeat
+	else
+		logger's info("There are no notifications right now")
+	end if
+
+	set mailNotices to sut's getNotificationsByAppName("Mail")
+	spotPrintNotices(mailNotices, "Mail")
+
+	set noNotice to sut's getNotificationsByAppName("Unicorn")
+	spotPrintNotices(noNotice, "Unicorn")
 
 	if caseIndex is 1 then
+
 	else if caseIndex is 2 then
+		logger's infof("Perform action result: {}", notice's performAction("See Unicorn"))
+		logger's infof("Perform action result: {}", notice's performAction("Mark as Read")) -- SMS
+
+
 	else if caseIndex is 3 then
 		script PrintTitle
 			on next(notice)
@@ -107,17 +125,6 @@ on spotCheck()
 		notificationCenterHelper's _forEach(result)
 
 	else if caseIndex is 4 then
-		set sutAppName to "Mail"
-		set sutAppName to "Slack"
-		set notices to sut's getNotificationsByAppName(sutAppName)
-
-		if notices is missing value or the (count of notices) is 0 then
-			logger's infof("There are no notifications for app name: {}", sutAppName)
-		else
-			repeat with nextNotice in notices
-				logger's infof("Title: {}", nextNotice's title)
-			end repeat
-		end if
 
 	else if caseIndex is 5 then
 		tell application "System Events" to tell process "Notification Center"
@@ -161,11 +168,24 @@ on spotCheck()
 	else if caseIndex is 9 then
 		sut's expandNotification()
 
+	else if caseIndex is 15 then
+
 	end if
 
 	spot's finish()
 	logger's finish()
 end spotCheck
+
+
+on spotPrintNotices(notices, label)
+	if notices is missing value or the (count of notices) is 0 then
+		logger's infof("There are no notifications for {}", label)
+	else
+		repeat with nextNotice in notices
+			logger's infof("Title: {}", nextNotice's title)
+		end repeat
+	end if
+end spotPrintNotices
 
 
 on new()
@@ -291,7 +311,7 @@ on new()
 					log notice's appName
 					if notice's appName is not equal to "MAIL" or not notice's isPast() then return
 
-					notice's deleteNotice()
+					notice's deleteMail()
 				end next
 			end script
 			notificationCenterHelper's _reverseLoop(result)
@@ -299,7 +319,7 @@ on new()
 
 
 		(* GENERAL HANDLERS *)
-		on expandNotificationsByAppName(targetAppName as text)
+		on expandNotificationsByAppName(targetAppName)
 			_expandNotifications for targetAppName
 		end expandNotificationsByAppName
 
@@ -330,7 +350,7 @@ on new()
 
 			script AppNameScript
 				on next(notice)
-					set retval to retval & notice's appName
+					set end of retval to notice's appName
 				end next
 			end script
 			notificationCenterHelper's _forEach(result)
@@ -397,7 +417,11 @@ on new()
 						return
 					end if
 
-					performAction("Close")
+					if appName contains "com.apple.MobileSMSSMS;" then
+						performAction("Mark as Read")
+					else
+						performAction("Close")
+					end if
 				end dismiss
 
 				on deleteMail()
@@ -499,10 +523,10 @@ Is Stacked: {}
 
 		-- Private Codes below ======================================================
 		on _expandNotifications for appName : missing value
-			logger's debug("_expandNotifications....")
+			-- logger's debug("_expandNotifications....")
 			try
 				appName
-			on error
+			on error the errorMessage number the errorNumber
 				set appName to missing value
 			end try
 
