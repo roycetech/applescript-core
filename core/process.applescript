@@ -51,6 +51,9 @@ on spotCheck()
 		Manual: App Is Running
 		Manual: Minimize
 		Manual: Minimize All
+		Manual: Is Fullscreen
+
+		Manual: Force Quit
 	")
 
 	set spotClass to spotScript's new()
@@ -133,6 +136,16 @@ on spotCheck()
 		set sut to new("Sublime Text")
 		sut's minimizeAll()
 
+	else if caseIndex is 15 then
+		delay 5 -- App in another space is not detected, manually focus the space with the app.
+		set sut to new("Safari")
+		logger's infof("Is Fullscreen: {}", sut's isFullscreen())
+		beep 1
+
+	else if caseIndex is 16 then
+		set sut to new("Safari")
+		sut's forceQuit()
+
 	end if
 
 	spot's finish()
@@ -149,8 +162,42 @@ on new(pProcessName)
 	script ProcessInstance
 		property processName : pProcessName
 
+		on forceQuit()
+			tell application "System Events" to tell (first process whose frontmost is true)
+				try
+					click (first menu item of menu 1 of menu bar item "Apple" of menu bar 1 whose title starts with "Force Quit")
+				on error the errorMessage number the errorNumber
+					return
+				end try
+				delay 1
+			end tell
+
+			tell application "System Events" to tell process "loginwindow"
+				set matchedRow to missing value
+				repeat with nextRow in rows of table 1 of scroll area 1 of front window
+					if the name of static text 1 of UI element 1 of nextRow contains the processName then
+						set matchedRow to the nextRow
+						exit repeat
+					end if
+				end repeat
+
+				if matchedRow is not missing value then
+					set selected of matchedRow to true
+					click button "Force Quit" of front window
+
+					-- Confirm
+					click button "Force Quit" of sheet 1 of front window
+
+				end if
+
+				-- Close the dialog
+				click (first button of front window whose description is "close button")
+			end tell
+		end forceQuit
+
+
 		on isMinimized()
-			tell application "System Events" to tell process "Mail"
+			tell application "System Events" to tell process processName
 				try
 					return value of attribute "AXMinimized" of window 1
 				end try
@@ -160,6 +207,13 @@ on new(pProcessName)
 		end isMinimized
 
 
+		on isFullscreen()
+			tell application "System Events" to tell process processName
+				return exists (first window whose value of attribute "AXFullScreen" is true)
+			end tell
+
+			false
+		end isFullscreen
 
 
 		on raiseWindows()
