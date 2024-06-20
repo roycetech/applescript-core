@@ -19,12 +19,18 @@
 	@Change Logs:
 		Thursday, May 23, 2024 at 11:55:01 AM - Add runCommandPalette handler.
 		August 30, 2023 9:44 AM - New handler getCurrentFileDirectory()
+		
+	@Known Issues:
+		Tuesday, June 11, 2024 at 3:34:02 PM - INTERMITTENT: error "*** -[NSPlaceholderString initWithString:]: nil argument" number -10000
+			This error is so far uncatchable :(
 
  	NOTE: if AXDocument is missing, usually when filename is missing value then restart Sublime Text.
 *)
 
 use script "core/Text Utilities"
 use scripting additions
+
+use AppleScript version "2.8"
 
 use std : script "core/std"
 
@@ -74,15 +80,19 @@ on spotCheck()
 	set sut to new()
 	
 	-- Manual: Current File details (No file, Find Result, Ordinary File)
-	logger's infof("Current File Path: {}", sut's getCurrentFilePath())
-	logger's infof("Current Filename: {}", sut's getCurrentFilename())
-	logger's infof("Current Directory: {}", sut's getCurrentFileDirectory())
-	logger's infof("Current Base Filename: {}", sut's getCurrentBaseFilename())
-	logger's infof("Current File Ext: {}", sut's getCurrentFileExtension())
-	logger's infof("Current Document Name: {}", sut's getCurrentDocumentName())
-	logger's infof("Current Project: {}", sut's getCurrentProjectName())
-	logger's infof("Current Project Path: {}", sut's getCurrentProjectPath())
-	logger's infof("Current Resource: {}", sut's getCurrentProjectResource())
+	set currentProject to sut's getCurrentProjectName()
+	logger's infof("Current Project: {}", currentProject)
+	
+	if currentProject is not missing value then
+		logger's infof("Current File Path: {}", sut's getCurrentFilePath())
+		logger's infof("Current Filename: {}", sut's getCurrentFilename())
+		logger's infof("Current Directory: {}", sut's getCurrentFileDirectory())
+		logger's infof("Current Base Filename: {}", sut's getCurrentBaseFilename())
+		logger's infof("Current File Ext: {}", sut's getCurrentFileExtension())
+		logger's infof("Current Document Name: {}", sut's getCurrentDocumentName())
+		logger's infof("Current Project Path: {}", sut's getCurrentProjectPath()) -- foobar with NSPlaceholderString initWithString error.
+		logger's infof("Current Resource: {}", sut's getCurrentProjectResource())
+	end if
 	
 	if caseIndex is 1 then
 		
@@ -136,6 +146,7 @@ on new()
 	set configSystem to configLib's new("system")
 	
 	script SublimeTextInstance
+		
 		on gotoFile(fileKeyword)
 			kb's pressCommandKey("t")
 			kb's typeText(fileKeyword)
@@ -155,7 +166,7 @@ on new()
 		
 		
 		on getCurrentFileDirectory()
-			if running of application "Sublime Text" is false then return missing value
+			if not _isAppWindowAvailable() then return missing value
 			
 			set filePath to getCurrentFilePath()
 			if filePath is missing value then return missing value
@@ -169,15 +180,13 @@ on new()
 		
 		(* Retrieves the current document name by parsing the window title. *)
 		on getCurrentDocumentName()
-			if running of application "Sublime Text" is false then return missing value
+			if not _isAppWindowAvailable() then return missing value
 			
-			set filename to missing value
 			tell application "System Events" to tell process "Sublime Text"
-				if (count of windows) is 0 then return missing value
-				
-				set windomName to name of first window
+				set windowName to name of first window
 			end tell
-			set windowNameTokens to textUtil's split(windomName, unic's SEPARATOR)
+			
+			set windowNameTokens to textUtil's split(windowName, unic's SEPARATOR)
 			first item of windowNameTokens
 		end getCurrentDocumentName
 		
@@ -186,19 +195,21 @@ on new()
 			getCurrentProjectPath()
 		end getCurrentProjectDirectory
 		
+		(* NOTE: Strange NSPlacehelderString error with the pre-check. *)
 		on getCurrentProjectPath()
+			set currentProjectName to getCurrentProjectName()
+			if currentProjectName is missing value then return missing value
+			
 			set filePath to getCurrentFilePath()
 			if filePath is missing value then return missing value
 			
-			set currentProjectName to getCurrentProjectName()
-			if currentProjectName is missing value then return missing value
 			
 			text 1 thru ((offset of currentProjectName in filePath) + (length of currentProjectName) - 1) of filePath
 		end getCurrentProjectPath
 		
 		
 		on getCurrentFilename()
-			if running of application "Sublime Text" is false then return missing value
+			if not _isAppWindowAvailable() then return missing value
 			
 			set currentFilePath to getCurrentFilePath()
 			if currentFilePath is missing value then return missing value
@@ -209,6 +220,8 @@ on new()
 		
 		(* @returns the filename without the extension. *)
 		on getCurrentBaseFilename()
+			if not _isAppWindowAvailable() then return missing value
+			
 			set filename to getCurrentFilename()
 			if filename is missing value then return missing value
 			
@@ -224,11 +237,9 @@ on new()
 			if the workspace was not saved as a project.
 		*)
 		on isCurrentFileNewUnsaved()
-			if running of application "Sublime Text" is false then return missing value
+			if not _isAppWindowAvailable() then return missing value
 			
 			tell application "System Events" to tell process "Sublime Text"
-				if (count of windows) is 0 then return missing value
-				
 				not (exists (image 1 of window 1)) -- When there's file icon, it means it is a saved file.
 			end tell
 		end isCurrentFileNewUnsaved
@@ -241,6 +252,8 @@ on new()
 				File is loaded
 		*)
 		on getCurrentFilePath()
+			if not _isAppWindowAvailable() then return missing value
+			
 			set docName to getCurrentDocumentName()
 			if docName is "Find Results" or docName is missing value or isCurrentFileNewUnsaved() then return missing value
 			
@@ -277,6 +290,8 @@ on new()
 				Extension only
 		*)
 		on getCurrentFileExtension()
+			if not _isAppWindowAvailable() then return missing value
+			
 			set docName to getCurrentDocumentName()
 			if docName is "Find Results" or docName is missing value or isCurrentFileNewUnsaved() then return missing value
 			
@@ -296,7 +311,11 @@ on new()
 			@return false if an error is encountered, when the window was not 
 			found for example. Otherwise, it returns true for success.
 		*)
-		on focusWindowContaining(titleSubstring as text)
+		on focusWindowContaining(titleSubstring)
+			if running of application "Sublime Text" is false then
+				error "Sublime Text app is not running."
+			end if
+			
 			tell application "System Events" to tell process "Sublime Text"
 				try
 					click (first menu item of menu 1 of menu bar item "Window" of menu bar 1 whose title contains titleSubstring)
@@ -362,7 +381,7 @@ on new()
 		
 		
 		on getOpenProjectNames()
-			if not running of application "Sublime Text" then return {}
+			if not _isAppWindowAvailable() then return {}
 			
 			set projectNames to {}
 			tell application "System Events" to tell process "Sublime Text"
@@ -383,9 +402,34 @@ on new()
 		on getWindowsCount()
 			if not running of application "Sublime Text" then return 0
 			
-			tell application "System Events" to tell process "Sublime Text"
-				count of windows
-			end tell
+			
+			(*
+			-- CONCLUSION: Too Slow
+			set scriptResult to do shell script "osascript \\
+	-e 'tell application \"System Events\" to tell process \"Sublime Text\"' \\
+	-e 'with timeout of 0.5 seconds' \\
+	-e 'try' \\
+	-e 'return count of static text 2 of windows' \\
+	-e 'end try' \\
+	-e '0' \\
+	-e 'end timeout' \\
+	-e 'end tell' \\
+"
+			
+			return scriptResult as number
+*)
+			
+			with timeout of 0.5 seconds
+				tell application "System Events" to tell process "Sublime Text"
+					try
+						-- return count of static text 2 of windows
+						return count of windows
+					on error the errorMessage number the errorNumber
+						-- log errorMessage
+						0
+					end try
+				end tell
+			end timeout
 		end getWindowsCount
 		
 		(*
@@ -393,12 +437,15 @@ on new()
 			Might not work if the opened resource is not part of a saved project.
 		*)
 		on getCurrentProjectName()
+			if not _isAppWindowAvailable() then return missing value
+			
 			tell application "System Events" to tell process "Sublime Text"
 				tell front window
-					set windowTitle to get value of attribute "AXTitle"
+					-- set windowTitle to get value of attribute "AXTitle"
+					set windowTitle to get value of static text 2
 				end tell
 			end tell
-					if windowTitle is "" then 						return missing value
+			if windowTitle is "" then return missing value
 			
 			set csv to textUtil's split(windowTitle, ",")
 			set projectPart to first item of csv
@@ -411,6 +458,8 @@ on new()
 			@return e.g. lib/resource.c
 		*)
 		on getCurrentProjectResource()
+			if not _isAppWindowAvailable() then return missing value
+			
 			set currentFilePath to getCurrentFilePath()
 			if currentFilePath is missing value then return missing value
 			
@@ -420,7 +469,7 @@ on new()
 		
 		
 		on closeProject()
-			if running of application "Sublime Text" is false then return
+			if not _isAppWindowAvailable() then return
 			
 			activate application "Sublime Text"
 			tell application "System Events" to tell process "Sublime Text"
@@ -433,12 +482,15 @@ on new()
 		
 		(* Sends a close tab key stroke combination. *)
 		on closeTab()
+			if not _isAppWindowAvailable() then return
+			
 			kb's pressCommandKey("w")
 		end closeTab
 		
 		
 		(* NOTE:  *)
 		on focusGroup1()
+			if not _isAppWindowAvailable() then return
 			(*
 				-- Toggle's the focus group.
 				kb's pressCommandKey("k")
@@ -455,6 +507,7 @@ on new()
 		
 		(* NOTE: Toggle's the focus group. *)
 		on focusGroup2()
+			if not _isAppWindowAvailable() then return
 			(*
 				-- Toggle's the focus group.
 				kb's pressCommandKey("k")
@@ -470,6 +523,15 @@ on new()
 		
 		
 		-- Private Codes below =======================================================
+		on _isAppWindowAvailable()
+			try
+				return getWindowsCount() is greater than 0
+			end try
+			
+			false
+		end _isAppWindowAvailable
+		
+		
 		(* 
 			Determines the project name by tokenizing the Sublime Text title and checking if the token exists in the full filename of the 
 			active editor file. 
