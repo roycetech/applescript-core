@@ -1,1 +1,1 @@
-fswatch -o -e ".*" -i "Test .*\\.applescript$" -i "Makefile" . | xargs -n 1 make test-integration
+fswatch -o -e ".*" -i "Test .*\\.applescript$" -i "Makefile" . | xargs -n1 -I{} make test-integration
