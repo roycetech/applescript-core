@@ -253,7 +253,7 @@ test-unit:
 # 	osascript "test/core/Test lov.applescript"
 # 	osascript "test/core/Test map.applescript"
 # 	osascript "test/core/Test plist-buddy.applescript"
-# 	osascript "test/core/Test plutil.applescript"
+	osascript "test/core/Test plutil.applescript"
 # 	osascript "test/core/Test property-list.applescript"
 # 	osascript "test/core/Test regex.applescript"
 # 	osascript "test/core/Test regex-pattern.applescript"
@@ -262,7 +262,7 @@ test-unit:
 # 	osascript "test/core/Test string.applescript"
 # 	osascript "test/core/Test switch.applescript"
 # 	osascript "test/core/Test speech.applescript"  # results in Segmentation fault: 11
-	osascript "test/core/Test string.applescript"
+# 	osascript "test/core/Test string.applescript"
 # 	osascript "test/core/Test timed-cache-plist.applescript"
 # 	osascript test/apps/1st-party/script-editorTest.applescript
 # 	osascript test/apps/1st-party/dec-script-editor-contentTest.applescript

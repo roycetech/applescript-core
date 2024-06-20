@@ -98,6 +98,11 @@ on getUsername()
 end getUsername
 
 
+on getComputerName()
+	computer name of (system info)
+end getComputerName
+
+
 on assertThat given condition:condition as boolean, messageOnFail:message : missing value
 	if condition is false then
 		loggerFactory's injectBasic(me)
