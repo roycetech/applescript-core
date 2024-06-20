@@ -1,5 +1,9 @@
 (* 
-	This script focuses on the Keyboard Maestro Editor and fundamental handlers when working with the app.
+	This script focuses on the Keyboard Maestro Editor and fundamental handlers 
+		when working with the app.
+
+	NOTE: Do not reference front window directly in this code because other 
+		non-editor window may be active. Use the "my _getMainWindow()" instead.
 
 	@Project:
 		applescript-core
@@ -39,7 +43,7 @@ on spotCheck()
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
-		Safari
+		NOOP
 		Manual: Run Macro
 		Set/Get Variable
 		Placeholder (So toggle action cases are in the same set)		
@@ -146,13 +150,13 @@ on new()
 	script KeyboardMaestroInstance
 		property variable_update_retry_count : 3
 		property delayAfterRun : 0
-
+		
 		(* @returns "Sort by Name" or "Sort by Trigger" *)
 		on getMacroSortMode()
 			if running of application "Keyboard Maestro" is false then return missing value
 			
 			tell application "System Events" to tell process "Keyboard Maestro"
-				description of first checkbox of splitter group 1 of group 6 of front window whose enabled is false
+				description of first checkbox of splitter group 1 of group 6 of my _getMainWindow() whose enabled is false
 			end tell
 			last word of result
 		end getMacroSortMode
@@ -166,7 +170,7 @@ on new()
 			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				try
-					click (first checkbox of splitter group 1 of group 6 of front window whose description contains newSortMode)
+					click (first checkbox of splitter group 1 of group 6 of my _getMainWindow() whose description contains newSortMode)
 				end try
 			end tell
 		end setSortMode
@@ -241,21 +245,68 @@ on new()
 		end getSelectedGroupName
 		
 		(* 
-			@returns "group", "macro", or "action" depending on the state of the menus. 
+			NOTE: Menu doesn't immediately reflect reality unless the menu was actually clicked by the user.
+			
+			@Test Cases:
+				1 Enabled Macro Group
+				1 Enabled Macro
+				1 Enabled Action
+				1 Disabled Macro
+				1 Disabled Macro Group
+				1 Disabled Action
+				2 Enabled Macro Group
+				2 Enabled Macro
+				2 Enabled Action
+				2 Disabled Macro
+				2 Disabled Macro Group
+				2 Disabled Action
+		
+			@returns "macro group", "macro", or "action" depending on the state of the menus. 
 		*)
 		on getFocusedType()
 			if running of application "Keyboard Maestro" is false then return missing value
 			
-			(*
+			
 			-- Below fails to work from Keyboard Maestro AppleScript
 			tell application "Keyboard Maestro"
-				set selection_list to selection
-				return class of first item of selection_list as text
+				selection
+				first item of result
+				class of result
+				return result as text
 			end tell
-			*)
+			
 			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				set viewMenu to menu 1 of menu bar item "View" of menu bar 1
+				
+				menu items of viewMenu
+				
+				set disableMenu to missing value
+				set enableMenu to missing value
+				
+				try
+					set disableMenu to first menu item of viewMenu whose title starts with "Disable"
+				end try
+				
+				try
+					set enableMenu to first menu item of viewMenu whose title starts with "Enable"
+				end try
+				
+				
+				
+				if disableMenu is not missing value then
+					logger's debugf("title: {}", title of disableMenu)
+					if title of disableMenu contains "Action" then return "action"
+					if title of disableMenu contains "Macro Group" then return "group"
+				end if
+				
+				if enableMenu is not missing value then
+					logger's debugf("title: {}", title of enableMenu)
+					if title of enableMenu contains "Action" then return "action"
+					if title of enableMenu contains "Macro Group" then return "group"
+				end if
+				
+				(*
 				if exists (first menu item of viewMenu whose title ends with "able Action") then
 					return "action"
 					
@@ -263,6 +314,8 @@ on new()
 					return "group"
 					
 				end if
+*)
+				
 			end tell
 			
 			"macro"
@@ -456,15 +509,18 @@ on new()
 			exec of retry on result for variable_update_retry_count
 		end setVariable
 		
+		on getEditorWindow()
+			_getMainWindow()
+		end getEditorWindow
+		
 		on _getMainWindow()
 			script RetryMainWindow
 				tell application "System Events" to tell process "Keyboard Maestro"
-					first window whose title is not "New Action"
+					first window whose title starts with "Keyboard Maestro Editor"
 				end tell
 			end script
 			exec of retry on result for 3
 		end _getMainWindow
-		
 	end script
 	
 	set decorator to decoratorLib's new(result)
