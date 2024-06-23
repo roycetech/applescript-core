@@ -5,13 +5,16 @@
 	WARNING: The log needs to choose between console and logger object each time
 	we need to log to avoid the circular dependency.
 
+	@Special Features:
+		Run new case after adding a new case.
+
 	@Project:
 		applescript-core
 
 	@Build:
 		make build-lib SOURCE=core/spot-test
 
-	@Last Modified: 2023-09-25 14:57:57
+	@Last Modified: 2024-06-23 22:35:05
 *)
 
 use script "core/Text Utilities"
@@ -117,7 +120,7 @@ on new()
 
 							set noticeText to "Subject Changed, select desired case from menu and re-run"
 							logger's info(noticeText)
-							notifyChange({event_type: "spot:event:new-case", case_index: _currentCase as integer})
+							notifyChange({event_type:"spot:event:new-case", case_index:_currentCase as integer})
 							return {0, "Re-run recommended"}
 
 						else
@@ -133,6 +136,8 @@ on new()
 									log "Number of cases increased, running the next new case"
 								else
 									logger's warn("Number of cases increased, running the next new case")
+									-- logger's debugf("_currentCaseCount: {}", _currentCaseCount)
+									-- logger's debugf("newCaseCount: {}", newCaseCount)
 								end if
 								session's setValue("Current Case Index", _currentCaseCount + 1)
 							end if
@@ -141,7 +146,11 @@ on new()
 					end if
 
 					set _currentCase to session's getInt("Current Case Index")
-					if _currentCase is 0 or _currentCase is greater than the number of items in caseLabels then
+					-- DEBUG_LOGF("_currentCase", _currentCase)
+
+					if _currentCase is 0 or _currentCase is greater than the number of items in cases then
+						-- DEBUG_LOGF("Resetting case to 1 because of case label count", number of items in caseLabels)
+
 						set _currentCase to 1
 						session's setValue("Current Case Index", _currentCase)
 					end if
@@ -153,7 +162,8 @@ on new()
 					else
 						logger's infof("Running case: {}/{} ({}): {}", {_currentCase, _currentCaseCount, autoText, item _currentCase of cases})
 					end if
-					notifyChange({event_type: "spot:event:run-case", case_index: _currentCase as integer})
+
+					notifyChange({event_type:"spot:event:run-case", case_index:_currentCase as integer})
 					{_currentCase as integer, item _currentCase of cases}
 				end start
 
@@ -184,6 +194,24 @@ on new()
 					end if
 
 				end finish
+
+
+				on DEBUG_LOGF(message, value)
+					if my logger is missing value then
+						log "DEBUG " & message & ": " & value
+					else
+						logger's debugf("{}: {}", {message, value})
+					end if
+				end DEBUG_LOGF
+
+				on DEBUG_LOG(message)
+					if my logger is missing value then
+						log "DEBUG " & message
+					else
+						logger's debug(message)
+					end if
+				end DEBUG_LOG
+
 			end script
 
 			set incrementSwitch to switchLib's new("Auto Increment Case Index")
