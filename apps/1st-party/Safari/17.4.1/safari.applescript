@@ -32,7 +32,7 @@
 		end tell
 
 	@Created: Wednesday, April 24, 2024 at 1:03:10 PM
-	@Last Modified: 2024-05-15 12:25:19
+	@Last Modified: 2024-06-20 12:55:47
 *)
 
 use script "core/Text Utilities"
@@ -252,6 +252,10 @@ on new()
 	end try
 
 	script SafariInstance
+		(*
+			TOFIX: False positive detected when a dialog was detected.  The
+			Developer settings window is not a dialog btw.
+		*)
 		on isMediaFullScreen()
 			if running of application "Safari" is false then return false
 
