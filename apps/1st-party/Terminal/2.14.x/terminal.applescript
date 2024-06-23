@@ -105,7 +105,7 @@ on spotCheck()
 
 	if caseIndex is 1 then
 		logger's infof("Name: {}", name of frontTab)
-		logger's infof("Has Tab Bar: {}", frontTab's hasTabBar())
+		logger's infof("Has Tab Bar: {}", sut's hasTabBar())
 		logger's infof("Tab Name: {}", frontTab's getTabName())
 		logger's infof("Posix Path: {}", frontTab's getPosixPath())
 		logger's infof("Lingering Command: {}", frontTab's getLingeringCommand())
@@ -321,7 +321,7 @@ on new()
 			end tell
 
 			missing value
-		end findTabEndingWith
+		end findTabWithWindowNameEndingWith
 
 
 		on hasTabBar()
