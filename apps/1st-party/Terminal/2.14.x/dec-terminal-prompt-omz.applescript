@@ -246,6 +246,10 @@ on decorate(termTabScript)
 		end _lastCommandNonShell
 
 
+		on hasLingeringCommand()
+			getLingeringCommand() is not missing value
+		end hasLingeringCommand
+
 
 		on getLingeringCommand()
 			if isShellPrompt() then return missing value
