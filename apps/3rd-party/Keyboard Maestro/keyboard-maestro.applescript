@@ -32,8 +32,12 @@ use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
 
+
 property logger : missing value
 property retry : missing value
+
+property MENU_ALL : "All Actions"
+
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 if name of current application is "osascript" then unitTest()
@@ -59,9 +63,9 @@ on spotCheck()
 		Manual: Select Macro
 		Manual: Scroll Macros/Actions Pane
 		Manual: Focus MacroGroup Pane
-		Manual: Sort By Name
+		Manual: Sort By Name/Trigger
 
-		Manual: Sort By Trigger
+		Manual: Insert Action
 	")
 	
 	set spotClass to spotScript's new()
@@ -134,6 +138,8 @@ on spotCheck()
 		
 	else if caseIndex is 16 then
 		
+		-- sut's insertAction("Favorites", "Code Complet")
+		sut's insertAction(missing value, "Alert")
 		
 	end if
 	
@@ -150,6 +156,23 @@ on new()
 	script KeyboardMaestroInstance
 		property variable_update_retry_count : 3
 		property delayAfterRun : 0
+		
+		(*
+			Insert a new action via the menu "Edit".
+		
+			@ middleMenu - missing value defaults to "All Actions" which is slow.
+		*)
+		on insertAction(middleMenu, menuItemKeyword)
+			set actualMiddleMenu to middleMenu
+			if actualMiddleMenu is missing value then set actualMiddleMenu to MENU_ALL
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					click (first menu item of menu 1 of menu item actualMiddleMenu of menu 1 of menu item "Insert Action" of menu 1 of menu bar item "Edit" of menu bar 1 whose title contains menuItemKeyword)
+				end try
+			end tell
+		end insertAction
+		
 		
 		(* @returns "Sort by Name" or "Sort by Trigger" *)
 		on getMacroSortMode()
