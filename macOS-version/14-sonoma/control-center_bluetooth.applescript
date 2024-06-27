@@ -97,11 +97,10 @@ on decorate(mainScript)
 	script ControlCenterFocusDecorated
 		property parent : mainScript
 
-
 		(* This implementation will use shell script*)
 		on getBlueToothStatus()
 			set rawResult to do shell script "system_profiler SPBluetoothDataType | grep State | awk '{ print $2 }'"
-			logger's debugf("rawResult: {}", rawResult)
+			-- logger's debugf("rawResult: {}", rawResult)
 			if rawResult is "On" then return 1
 
 			0

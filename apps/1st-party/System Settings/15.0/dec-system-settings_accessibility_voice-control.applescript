@@ -104,7 +104,7 @@ on decorate(mainScript)
 				set micPopup to pop up button 2 of group 1 of scroll area 1 of group 1 of last UI element of splitter group 1 of UI element 1 of front window
 				click micPopup
 				try
-					click (last menu item of menu 1 of micPopup whose title contains micKeyword)  -- Using last trying to avoid the automatic.
+					click (last menu item of menu 1 of micPopup whose title contains micKeyword) -- Using last trying to avoid the automatic.
 				end try
 			end tell
 		end setMicrophone
@@ -206,7 +206,7 @@ on decorate(mainScript)
 			
 			set currentState to -1
 			script ClickWaiter
-				tell application "System Events" to tell process "System Settings" to tell window "Voice Control" to tell first UI Element
+				tell application "System Events" to tell process "System Settings" to tell window "Voice Control" to tell first UI element
 					-- set currentState to get value of checkbox "Enable Voice Control"
 					set currentState to get value of checkbox 1 of group 1 of scroll area 1 of group 1 of group 2 of splitter group 1
 					click checkbox "Voice Control" of group 1 of scroll area 1 of group 1 of group 2 of splitter group 1
@@ -223,12 +223,12 @@ on decorate(mainScript)
 		
 		
 		on _getVoiceControlToggleUI()
-			tell application "System Events" to tell process "System Settings"
-				try
-					return checkbox 1 of group 1 of scroll area 1 of group 1 of last UI element of splitter group 1 of UI element 1 of window "Voice Control"
-				end try
-			end tell
-			missing value
+			script Failable
+				tell application "System Events" to tell process "System Settings"
+					checkbox 1 of group 1 of scroll area 1 of group 1 of last UI element of splitter group 1 of UI element 1 of window "Voice Control"
+				end tell
+ 			end script
+			exec of retry on result for 6 by 0.5
 		end _getVoiceControlToggleUI
 	end script
 end decorate
