@@ -41,7 +41,7 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2024-06-29 15:40:22
+	@Last Modified: 2024-06-29 16:03:43
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
@@ -496,14 +496,16 @@ on new()
 						return missing value
 					end try
 
+					-- logger's debugf("dataType: {}", dataType)
 					if dataType is "array" then
 						return getList(plistKeyOrKeyList)
 
 					else if dataType is "dictionary" then
 						(* Use the traditional way via property list. *)
 						tell application "System Events" to tell property list file plistFilename
+							set partialEscaped to my _escapeStartingNumber(plistKeyOrKeyList)
 							try
-								return value of property list item plistKeyOrKeyList
+								return value of property list item partialEscaped
 							on error errorText
 								-- Goes here when the key don't exist, that's fine.
 								return missing value

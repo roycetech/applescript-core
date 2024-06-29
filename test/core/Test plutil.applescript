@@ -178,10 +178,10 @@ script |plutil hasValue tests|
 	end tearDown
 
 	on beforeClass()
-		TopLevel's xmlUtil's __createTestPlist() 
+		TopLevel's xmlUtil's __createTestPlist()
 	end beforeClass
 	on afterClass()
-		-- TopLevel's xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass
 
 	script |Not Found|
@@ -201,6 +201,11 @@ script |plutil hasValue tests|
 		TopLevel's xmlUtil's __writeQuotedValue("found\\.yes", "bool", true)
 		ok(sut's hasValue("found.yes"))
 	end script
+
+	script |afterClass|
+		property parent : unitTest(me)
+		ok(true)
+	end script
 end script
 
 
@@ -210,8 +215,6 @@ script |plutil getValue tests|
 	property sut : missing value
  
 	property executedTestCases : 0
-	(* Manually Set *)
-	property totalTestCases : 17
 
 	on beforeClass()
 		TopLevel's xmlUtil's __createTestPlist()
@@ -226,7 +229,7 @@ script |plutil getValue tests|
 	end setUp
 
 	on tearDown()
-		if executedTestCases is equal to the totalTestCases then afterClass()
+		if my name is "afterClass" then afterClass()
 	end tearDown
 
 	on afterClass()
@@ -346,6 +349,18 @@ script |plutil getValue tests|
 		assertEqual({key1:"first value"}, sut's getValue("dictionary"))
 		TopLevel's xmlUtil's __deleteValue("dictionary")
 	end script
+
+	script |Get Dictionary, with number starting key|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __insertXml("_1grand", "<dict><key>key1</key><string>first value</string></dict>")
+		assertEqual({key1:"first value"}, sut's getValue("1grand"))
+		TopLevel's xmlUtil's __deleteValue("_1grand")
+	end script
+
+	script |afterClass|
+		property parent : unitTest(me)
+		ok(true)  -- dummy test to trigger the afterClass
+	end script
 end script
 
 
@@ -354,8 +369,6 @@ script |plutil getScalarValue tests|
 	property sut : missing value
 
 	property executedTestCases : 0
-	(* Manually Set *)
-	property totalTestCases : 7
 
 	on setUp()
 		set executedTestCases to executedTestCases + 1
@@ -364,7 +377,7 @@ script |plutil getScalarValue tests|
 		set sut to sutLib's new("plutil-test")
 	end setUp
 	on tearDown()
-		if executedTestCases is equal to the totalTestCases then afterClass()
+		if my name is "afterClass" then afterClass()
 	end tearDown
 	on beforeClass()
 		TopLevel's xmlUtil's __createTestPlist()
@@ -420,6 +433,11 @@ script |plutil getScalarValue tests|
 		assertEqual(date "July 19, 2023 at 08:01:02 AM", sut's getDate("date"))
 		TopLevel's xmlUtil's __deleteValue("date")
 	end script
+
+	script |afterClass|
+		property parent : unitTest(me)
+		ok(true)
+	end script
 end script
 
 
@@ -428,8 +446,6 @@ script |getList set|
 	property sut : missing value
 
 	property executedTestCases : 0
-	(* Manually Set *)
-	property totalTestCases : 7
 
 	on setUp()
 		set executedTestCases to executedTestCases + 1
@@ -440,8 +456,7 @@ script |getList set|
 	end setUp
 
 	on tearDown()
-
-		if executedTestCases is equal to the totalTestCases then afterClass()
+		if my name is "afterClass" then afterClass()
 	end tearDown
 
 	on beforeClass()
@@ -506,6 +521,11 @@ script |getList set|
 		assertEqual({1}, sut's getList({"array", "array-sub"}))
 		TopLevel's xmlUtil's __deleteValue("array")
 	end script
+
+	script |afterClass|
+		property parent : unitTest(me)
+		ok(true)
+	end script
 end script
 
 
@@ -514,8 +534,6 @@ script |plutil getValueWithDefault tests|
 	property sut : missing value
 
 	property executedTestCases : 0
-	(* Manually Set *)
-	property totalTestCases : 2
 
 	on setUp()
 		set executedTestCases to executedTestCases + 1
@@ -526,8 +544,7 @@ script |plutil getValueWithDefault tests|
 	end setUp
 
 	on tearDown()
-
-		if executedTestCases is equal to the totalTestCases then afterClass()
+		if my name is "afterClass" then afterClass()
 	end tearDown
 
 	on beforeClass()
@@ -549,6 +566,11 @@ script |plutil getValueWithDefault tests|
 		TopLevel's xmlUtil's __deleteValue("no-value")
 		assertEqual("default", sut's getValueWithDefault("no-value", "default"))
 	end script
+
+	script |afterClass|
+		property parent : unitTest(me)
+		ok(true)
+	end script
 end script
 
 
@@ -557,8 +579,6 @@ script |plutil appendValue tests|
 	property sut : missing value
 
 	property executedTestCases : 0
-	(* Manually Set *)
-	property totalTestCases : 8
 
 	on setUp()
 		set executedTestCases to executedTestCases + 1
@@ -569,8 +589,7 @@ script |plutil appendValue tests|
 	end setUp
 
 	on tearDown()
-
-		if executedTestCases is equal to the totalTestCases then afterClass()
+		if my name is "afterClass" then afterClass()
 	end tearDown
 
 	on beforeClass()
@@ -658,6 +677,11 @@ script |plutil appendValue tests|
 		</array>"), TopLevel's xmlUtil's __grepMultiLineValueXml("list-sub", "array"))
 		TopLevel's xmlUtil's __deleteValue("list")
 	end script
+
+	script |afterClass|
+		property parent : unitTest(me)
+		ok(true)
+	end script
 end script
 
 
@@ -666,8 +690,6 @@ script |plutil removeElement tests|
 	property sut : missing value
 
 	property executedTestCases : 0
-	(* Manually Set *)
-	property totalTestCases : 7
 
 	on setUp()
 		set executedTestCases to executedTestCases + 1
@@ -678,8 +700,7 @@ script |plutil removeElement tests|
 	end setUp
 
 	on tearDown()
-
-		if executedTestCases is equal to the totalTestCases then afterClass()
+		if my name is "afterClass" then afterClass()
 	end tearDown
 
 
@@ -687,7 +708,7 @@ script |plutil removeElement tests|
 		TopLevel's xmlUtil's __createTestPlist()
 	end beforeClass
 	on afterClass()
-		-- TopLevel's xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass
 
 
@@ -746,6 +767,11 @@ script |plutil removeElement tests|
 		ok(sut's removeElement({"array-main", "array-sub"}, "element"))
 		TopLevel's xmlUtil's __deleteValue("array-main")
 	end script
+
+	script |afterClass|
+		property parent : unitTest(me)
+		ok(true)
+	end script
 end script
 
 
@@ -754,8 +780,6 @@ script |plutil _getDateText tests|
 	property sut : missing value
 
 	property executedTestCases : 0
-	(* Manually Set *)
-	property totalTestCases : 2
 
 	on setUp()
 		set executedTestCases to executedTestCases + 1
@@ -766,8 +790,7 @@ script |plutil _getDateText tests|
 	end setUp
 
 	on tearDown()
-
-		if executedTestCases is equal to the totalTestCases then afterClass()
+		if my name is "afterClass" then afterClass()
 	end tearDown
 
 	on beforeClass()
@@ -791,6 +814,11 @@ script |plutil _getDateText tests|
 		assertEqual("2023-07-19T00:01:02Z", sut's _getDateText({"date", "date nest"}))
 		TopLevel's xmlUtil's __deleteValue("date nest")
 	end script
+
+	script |afterClass|
+		property parent : unitTest(me)
+		ok(true)
+	end script
 end script
 
 
@@ -799,8 +827,6 @@ script |plutil setValue tests|
 	property sut : missing value
 
 	property executedTestCases : 0
-	(* Manually Set *)
-	property totalTestCases : 14
 
 	on setUp()
 		set executedTestCases to executedTestCases + 1
@@ -811,8 +837,7 @@ script |plutil setValue tests|
 	end setUp
 
 	on tearDown()
-
-		if executedTestCases is equal to the totalTestCases then afterClass()
+		if my name is "afterClass" then afterClass()
 	end tearDown
 
 	on beforeClass()
@@ -820,7 +845,7 @@ script |plutil setValue tests|
 	end beforeClass
 
 	on afterClass()
-		-- TopLevel's xmlUtil's __deleteTestPlist()
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass
 
 	script |String Value|
@@ -923,17 +948,19 @@ script |plutil setValue tests|
 		sut's setValue("string spaced", "string-value")
 		assertEqual("string-value", TopLevel's xmlUtil's __readValue("string spaced"))
 	end script
+
+	script |afterClass|
+		property parent : unitTest(me)
+		ok(true)
+	end script
 end script
 
-(*
 script |plutil delete tests set|
 	property parent : TestSet(me)
 	property sut : missing value
 
 	property beforeClassExecuted : false
 	property executedTestCases : 0
-	(* Manually Set *)
-	property totalTestCases : 6
 
 	(* Each Test. *)
 	on setUp()
@@ -950,10 +977,8 @@ script |plutil delete tests set|
 
 	on tearDown()
 		TopLevel's xmlUtil's __deleteValue("key-root")
-
-		if executedTestCases is equal to the totalTestCases then afterClass()
+		if my name is "afterClass" then afterClass()
 	end tearDown
-
 
 	on afterClass()
 		TopLevel's xmlUtil's __deleteTestPlist()
@@ -1001,6 +1026,11 @@ script |plutil delete tests set|
 		refuteMissing(TopLevel's xmlUtil's __readValue("key-root", "raw"))
 		TopLevel's xmlUtil's __deleteValue("key-root")
 	end script
+
+	script |afterClass|
+		property parent : unitTest(me)
+		ok(true)
+	end script
 end script
 
 
@@ -1011,7 +1041,6 @@ script |_getTypedGetterShellTemplate|
 	property parent : TestSet(me)
 	property sut : missing value
 	property executedTestCases : 0
-	property totalTestCases : 1
 
 	on setUp()
 		set sutLib to sutScript's new()
@@ -1043,7 +1072,6 @@ script |plutil _validatePlistKey tests|
 	property parent : TestSet(me)
 	property sut : missing value
 	property executedTestCases : 0
-	property totalTestCases : 1
 
 	on setUp()
 		set sutLib to sutScript's new()
@@ -1074,81 +1102,3 @@ script |plutil _validatePlistKey tests|
 		shouldRaise(sutScript's ERROR_PLIST_KEY_INVALID_TYPE, Lambda, "Invalid key type but no error raised")
 	end script
 end script
-
----------------------------------------------------------------------------------------
--- Shared Utilities
----------------------------------------------------------------------------------------
-on __grepValueXml(keyName)
-	do shell script "grep -A 1 '>" & keyName & "<' " & plist & " \\
-		| tail -n 1 \\
-		| awk '{$1=$1};1'"
-end __grepValueXml
-
-
-on __grepMultiLineValueXml(keyName, blockTagName)
-	do shell script "awk '/>" & keyName & "</,/<\\/" & blockTagName & ">/' " & plist & " \\
-	| tail -n +2"
-end __grepMultiLineValueXml
-
-
-on __readAllKeys()
-	do shell script "/usr/libexec/PlistBuddy \\
-				-c \"Print\" " & plist & " \\
-			| grep -E '^\\s*[^[:space:]]+\\s*=' \\
-			| awk '{print $1}'"
-end __readAllKeys
-
-
-on __readValue(keyName)
-	try
-		return do shell script "plutil -extract '" & keyName & "' raw " & plist
-	end try
-	missing value
-end __readValue
-
-
-on __writeString(keyName, newValue)
-	__writeQuotedValue(keyName, "string", newValue)
-end __writeString
-
-(*
-	@keyName - plist key name
-	@xmlText - the XML value for the given key name.
-*)
-on __insertXml(keyName, xmlText)
-	do shell script "plutil -insert '" & keyName & "' -xml '" & xmlText & "' " & plist
-end __insertXml
-
-(*
-	NOTE: When writing nested values, do it one at a time. Root first then the
-	nested key, otherwise it will fail.
-*)
-on __writeValue(keyName, keyType, newValue)
-	do shell script "plutil -replace '" & keyName & "' -" & keyType & " " & newValue & " " & plist
-end __writeValue
-
-on __writeQuotedValue(keyName, keyType, newValue)
-	try
-		do shell script "plutil -replace '" & keyName & "' -" & keyType & " '" & newValue & "' " & plist
-	end try
-end __writeQuotedValue
-
-on __deleteValue(keyName)
-	try
-		do shell script "plutil -remove '" & keyName & "' " & plist
-	end try
-end __deleteValue
-
-on __createTestPlist()
-	try
-		do shell script "plutil -create xml1 " & plist
-	end try
-end __createTestPlist
-
-on __deleteTestPlist()
-	try
-		do shell script "rm " & plist & " || true"
-	end try
-end __deleteTestPlist
-
-*)
