@@ -39,6 +39,8 @@ use std : script "core/std"
 use textUtil : script "core/string"
 use listUtil : script "core/list"
 use regex : script "core/regex"
+use decoratorLib : script "core/decorator"
+
 use loggerFactory : script "core/logger-factory"
 
 use userLib : script "core/user"
@@ -275,5 +277,6 @@ on new(pLocalizationConfigName)
 		-- logger's debugf("localizationConfigName: {}", its _localizationConfigName)
 	end tell
 
-	SpeechInstance
+	set decorator to decoratorLib's new(SpeechInstance)
+	decorator's decorate()
 end new
