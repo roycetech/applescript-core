@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-inspector
 
 	@Created: Friday, April 19, 2024 at 4:35:51 PM
-	@Last Modified: 2024-04-24 13:20:35
+	@Last Modified: 2024-06-29 11:04:19
 	@Change Logs:
 
 *)
@@ -99,7 +99,7 @@ end newSpotBase
 on decorate(mainScript)
 	loggerFactory's inject(me)
 
-	script SafariKeychainDecorator
+	script SafariInspectorDecorator
 		property parent : mainScript
 
 		(*

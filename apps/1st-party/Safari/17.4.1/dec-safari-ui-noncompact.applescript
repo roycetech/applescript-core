@@ -8,29 +8,33 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-noncompact
+		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2024-05-30 23:56:48
+	@Last Modified: 2024-06-29 11:10:36
 	@Change Logs:
+		Sat, Jun 29, 2024 at 10:59:40 AM - Added isMuted() and implemented isPlaying()
 *)
 use listUtil : script "core/list"
+use textUtil : script "core/string"
+use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
 
 use spotScript : script "core/spot-test"
-use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 
 property retry : missing value
 property logger : missing value
-property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
+
+	set kbLib to script "core/keyboard"
+	set kb to kbLib's new()
 
 	set cases to listUtil's splitByLine("
 		NOOP
@@ -52,6 +56,8 @@ on spotCheck()
 
 	logger's infof("Is Loading: {}", sut's isLoading())
 	logger's infof("isDefaultGroup: {}", sut's isDefaultGroup())
+	logger's infof("Is Playing: {}", sut's isPlaying())
+	logger's infof("Is Muted: {}", sut's isMuted())
 
 	if caseIndex is 1 then
 
@@ -83,7 +89,6 @@ end newSpotBase
 on decorate(mainScript)
 	loggerFactory's inject(me)
 
-	set kb to kbLib's new()
 	set retry to retryLib's new()
 
 	script SafariUiNoncompactDecorator
@@ -148,12 +153,30 @@ on decorate(mainScript)
 		end isDefaultGroup
 
 
-		(* TODO: Implement. *)
+		(* @returns true if an video or music is playing. *)
 		on isPlaying()
-			if running of application "Safari" is false then return missing value
+			if running of application "Safari" is false then return false
 
-			false
+			tell application "System Events" to tell process "Safari"
+				set windowTitle to the last item of textUtil's split(title of front window, unic's SEPARATOR)
+
+				exists (first button of radio button windowTitle of UI element 1 of group 3 of toolbar 1 of front window whose description contains "Mute This Tab") -- case insensitive
+			end tell
 		end isPlaying
+
+
+		(*
+			@returns true if a sound is playing in the browser but muted in the browser.
+		*)
+		on isMuted()
+			if running of application "Safari" is false then return false
+
+			tell application "System Events" to tell process "Safari"
+				set windowTitle to the last item of textUtil's split(title of front window, unic's SEPARATOR)
+
+				exists (first button of radio button windowTitle of UI element 1 of group 3 of toolbar 1 of front window whose description contains "Unmute This Tab") -- case insensitive
+			end tell
+		end isMuted
 
 
 		on focusAddressBar()
