@@ -41,7 +41,7 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2024-06-17 16:02:36
+	@Last Modified: 2024-06-29 15:40:22
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
@@ -344,7 +344,8 @@ on new()
 						if my getValue(plistKeyOrKeyList) is equal to missing value then
 							my _newValue(plistKeyOrKeyList, newValue)
 						else
-							tell property list file plistFilename to set value of property list item plistKey to newValue
+							set partialEscaped to my _escapeStartingNumber(plistKeyOrKeyList)
+							tell property list file plistFilename to set value of property list item partialEscaped to newValue
 						end if
 					end tell
 				end setValue
@@ -675,7 +676,7 @@ on new()
 
 					if class of plistKeyOrKeyList is text then
 						if regex's matches("^\\d", plistKeyOrKeyList) then
-							set plistKeyOrKeyList to "_" & plistKeyOrKeyList
+							set plistKeyOrKeyList to _escapeStartingNumber(plistKeyOrKeyList)
 						end if
 						return quoted form of plistKeyOrKeyList
 					end if
@@ -753,7 +754,7 @@ on new()
 					repeat with nextKeyName in keyNameList
 						if nextKeyName contains "." then set nextKeyName to textUtil's replace(nextKeyName, ".", "\\.")
 						if keynameBuilder is not "" then set keynameBuilder to keynameBuilder & "."
-						if regex's matches("^\\d", nextKeyName) then set nextKeyName to "_" & nextKeyName
+						if regex's matches("^\\d", nextKeyName) then set nextKeyName to _escapeStartingNumber(nextKeyName)
 
 						set keynameBuilder to keynameBuilder & nextKeyName
 					end repeat
@@ -764,12 +765,22 @@ on new()
 				on _escapeAndQuoteKey(plistKey)
 					if plistKey is missing value then return missing value
 
-					if regex's matches("^\\d", plistKey) then set plistKey to "_" & plistKey
+					if regex's matches("^\\d", plistKey) then set plistKey to _escapeStartingNumber(plistKey)
 					set escapedPlistKey to plistKey
 					if plistKey contains "." then set escapedPlistKey to do shell script (format {"echo \"{}\" | sed 's/\\./\\\\./g'", plistKey})
 
 					quoted form of escapedPlistKey
 				end _escapeAndQuoteKey
+
+
+				on _escapeStartingNumber(plistKey)
+					if plistKey is missing value then return missing value
+
+					if regex's matches("^\\d", plistKey) then return "_" & plistKey
+
+					plistKey
+				end _escapeStartingNumber
+
 
 				(*
 					@listToSet must have similarly element type.

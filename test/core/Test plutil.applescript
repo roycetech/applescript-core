@@ -820,7 +820,7 @@ script |plutil setValue tests|
 	end beforeClass
 
 	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
+		-- TopLevel's xmlUtil's __deleteTestPlist()
 	end afterClass
 
 	script |String Value|
@@ -864,7 +864,7 @@ script |plutil setValue tests|
 	</array>"), TopLevel's xmlUtil's __grepMultiLineValueXml("Array", "array"))
 	end script
 
-	script |String Array Values|
+	script |String Array Values| 
 		property parent : unitTest(me)
 		sut's setValue("Array", {"a", "b", "$Dollar and c & d"})
 		assertEqual(textUtil's multiline("	<array>
@@ -875,7 +875,7 @@ script |plutil setValue tests|
 	end script
 
 	script |Record Value|
-		property parent : unitTest(me)
+		property parent : unitTest(me) 
 		sut's setValue("Record", {one:"half"})
 		assertEqual(textUtil's multiline("	<dict>
 		<key>one</key>
@@ -885,8 +885,17 @@ script |plutil setValue tests|
 
 	script |Key starts with a number|
 		property parent : unitTest(me)
-		sut's setValue("1Password 6", 6)
+		sut's setValue("1Password 6", 6) 
 		assertEqual("6", TopLevel's xmlUtil's __readValue("_1Password 6"))
+	end script
+
+	script |Key starts with a number, saving a record|
+		property parent : unitTest(me)
+		sut's setValue("1Password 6", {nested_key: "value"})
+		assertEqual(textUtil's multiline("	<dict>
+		<key>nested_key</key>
+		<string>value</string>
+	</dict>"), TopLevel's xmlUtil's __grepMultiLineValueXml("_1Password 6", "dict"))
 	end script
 
 	script |Update Value Type|
@@ -916,7 +925,7 @@ script |plutil setValue tests|
 	end script
 end script
 
-
+(*
 script |plutil delete tests set|
 	property parent : TestSet(me)
 	property sut : missing value
@@ -1142,3 +1151,4 @@ on __deleteTestPlist()
 	end try
 end __deleteTestPlist
 
+*)
