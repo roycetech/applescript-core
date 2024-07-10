@@ -14,7 +14,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
 
-	@Last Modified: 2024-05-25 20:01:54
+	@Last Modified: 2024-07-08 17:32:04
 *)
 
 use script "core/Text Utilities"
@@ -69,6 +69,7 @@ on spotCheck()
 	end if
 
 	set sut to new()
+	logger's infof("Is Busy: {}", sut's isBusy())
 	if caseIndex is 1 then
 		logger's infof("User Folder: {}", sut's getUserFolder()) -- aka Home Folder
 		logger's infof("User Path: {}", sut's getUserPath())
@@ -198,6 +199,14 @@ on new()
 	set kb to kbLib's new()
 
 	script FinderInstance
+
+		on isBusy()
+			tell application "System Events" to tell process "Finder"
+				exists (first window whose role description is "dialog")
+			end tell
+		end isBusy
+
+
 		(*
 			@returns true if delete is successful.
 		*)
@@ -526,6 +535,8 @@ on new()
 
 
 		on getHomePath()
+			if isBusy() then return missing value
+
 			tell application "Finder"
 				text 1 thru -2 of textUtil's stringAfter(URL of my getHomeFolder() as text, "file://")
 			end tell
@@ -540,12 +551,16 @@ on new()
 
 
 		on getUserLibraryFolder()
+			if isBusy() then return missing value
+
 			tell application "Finder"
 				folder "Library" of my getUserFolder()
 			end tell
 		end getUserLibraryFolder
 
 		on getUserScriptsFolder()
+			if isBusy() then return missing value
+
 			tell application "Finder"
 				folder "Scripts" of my getUserLibraryFolder()
 			end tell
