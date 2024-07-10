@@ -2,6 +2,11 @@
 	@Purpose:
 		This decorator contains the handlers that are used around sound settings.
 
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh macOS-version/14-sonoma/control-center_sound
 
 	@Migrated:
 		September 25, 2023 11:35 AM
@@ -28,7 +33,7 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
-		Manual: Is Mic In Use
+		Manual: Is Mic In Use (Off, Mic only, Mic and Camera)
 		Manual: Switch to AirPods (N/A, Happy, Already Selected)
 		Manual: Switch to Default (Happy, Already Selected)
 	")
@@ -83,9 +88,16 @@ on decorate(mainScript)
 		property parent : mainScript
 
 		on isMicInUse()
+			(*
 			tell application "System Events" to tell process "ControlCenter"
 				exists (first menu bar item of menu bar 1 whose description is "Microphone is in use")
 			end tell
+			*)
+
+			tell application "System Events" to tell process "Control Center"
+				set controlCenterDescription to description of first menu bar item of menu bar 1 whose value of attribute "AXAttributedDescription" starts with "Control Center"
+			end tell
+			controlCenterDescription contains "Camera and microphone are in use" or controlCenterDescription contains "Microphone is in use"
 		end isMicInUse
 
 
