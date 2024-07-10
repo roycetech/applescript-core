@@ -167,31 +167,54 @@ on new(pProcessName)
 				try
 					click (first menu item of menu 1 of menu bar item "Apple" of menu bar 1 whose title starts with "Force Quit")
 				on error the errorMessage number the errorNumber
+					logger's warn(errorMessage)
 					return
 				end try
 				delay 1
 			end tell
 
+			set matchedRow to missing value
+			set processRows to missing value
 			tell application "System Events" to tell process "loginwindow"
-				set matchedRow to missing value
-				repeat with nextRow in rows of table 1 of scroll area 1 of front window
+				try
+					set processRows to rows of table 1 of scroll area 1 of front window
+				end try -- Sometimes loginwindow window is not available.
+			end tell
+			if processRows is missing value then return --
+
+			repeat with nextRow in processRows
+				tell application "System Events"
 					if the name of static text 1 of UI element 1 of nextRow contains the processName then
 						set matchedRow to the nextRow
 						exit repeat
 					end if
-				end repeat
+				end tell
+			end repeat
 
-				if matchedRow is not missing value then
-					set selected of matchedRow to true
-					click button "Force Quit" of front window
+			if matchedRow is not missing value then
+				tell application "System Events" to tell process "loginwindow"
+				set selected of matchedRow to true
+					try
+						click button "Force Quit" of front window
+					end try
+				end tell
 
-					-- Confirm
-					click button "Force Quit" of sheet 1 of front window
+				-- Confirm
+				tell application "System Events" to tell process "loginwindow"
+					try
+						click button "Force Quit" of sheet 1 of front window
+					end try
+				end tell
 
-				end if
+			end if
 
+			tell application "System Events" to tell process "loginwindow"
 				-- Close the dialog
-				click (first button of front window whose description is "close button")
+				try
+					click (first button of front window whose description is "close button")
+				on error the errorMessage number the errorNumber
+					logger's infow(errorMessage)
+				end try
 			end tell
 		end forceQuit
 
