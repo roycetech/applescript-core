@@ -821,7 +821,6 @@ script |plutil _getDateText tests|
 	end script
 end script
 
-
 script |plutil setValue tests|
 	property parent : TestSet(me)
 	property sut : missing value
@@ -841,7 +840,7 @@ script |plutil setValue tests|
 	end tearDown
 
 	on beforeClass()
-		TopLevel's xmlUtil's __createTestPlist()
+		TopLevel's xmlUtil's __createTestPlist() 
 	end beforeClass
 
 	on afterClass()
@@ -916,11 +915,12 @@ script |plutil setValue tests|
 
 	script |Key starts with a number, saving a record|
 		property parent : unitTest(me)
-		sut's setValue("1Password 6", {nested_key: "value"})
+		-- sut's setValue("1Password 6", {nested_key: "value"})
+		sut's setValue("02-Concurrency", {nested_key: "value"})
 		assertEqual(textUtil's multiline("	<dict>
 		<key>nested_key</key>
 		<string>value</string>
-	</dict>"), TopLevel's xmlUtil's __grepMultiLineValueXml("_1Password 6", "dict"))
+	</dict>"), TopLevel's xmlUtil's __grepMultiLineValueXml("_02-Concurrency", "dict"))
 	end script
 
 	script |Update Value Type|
