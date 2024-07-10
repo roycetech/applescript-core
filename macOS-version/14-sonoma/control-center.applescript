@@ -131,6 +131,14 @@ on new()
 	set retry to retryLib's new()
 
 	script ControlCenterInstance
+		on isCameraInUse()
+			tell application "System Events" to tell process "Control Center"
+	set controlCenterDescription to description of first menu bar item of menu bar 1 whose value of attribute "AXAttributedDescription" starts with "Control Center"
+end tell
+controlCenterDescription contains "Camera and microphone are in use" or controlCenterDescription contains "Camera is in use"
+		end isCameraInUse
+
+
 		on isWindowActive()
 			tell application "System Events" to tell process "ControlCenter"
 				exists window 1
@@ -166,7 +174,7 @@ on new()
 
 		on isVoiceControlAsleep()
 			not isVoiceControlAwake()
-		end isVoiceControlAwake
+		end isVoiceControlAsleep
 
 
 		(*
