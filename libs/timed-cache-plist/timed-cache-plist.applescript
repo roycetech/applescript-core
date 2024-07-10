@@ -20,10 +20,45 @@ use loggerFactory : script "core/logger-factory"
 
 use plutilLib : script "core/plutil"
 
+use spotScript : script "core/spot-test"
+
 property logger : missing value
 (* Set a default cache name. *)
 property cacheName : "timed-cache"
 -- property cache : missing value
+
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+
+on spotCheck()
+	loggerFactory's inject(me)
+	logger's start()
+
+	set cases to listUtil's splitByLine("
+		First
+	")
+
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(me, cases)
+	set {caseIndex, caseDesc} to spot's start()
+
+	if caseIndex is 0 then
+		return
+	end if
+
+	set sut to new(0)
+	if caseIndex is 1 then
+		logger's infof("Retrieve non existing value: {}", sut's getValue("Unicorn"))
+		logger's infof("Delete non existing value: {}", sut's deleteKey("Unicorn"))
+		sut's setValue("Present", true)
+
+	else if caseIndex is 2 then
+
+	end if
+
+	spot's finish()
+	logger's finish()
+end spotCheck
 
 
 (*  *)
