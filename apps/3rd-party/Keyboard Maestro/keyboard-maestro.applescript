@@ -289,13 +289,26 @@ on new()
 		on getFocusedType()
 			if running of application "Keyboard Maestro" is false then return missing value
 			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					if focused of text field 1 of scroll area 3 of splitter group 1 of group 6 of my _getMainWindow() then
+						return "action"
+					end if
+				end try
+			end tell
 			
 			-- Below fails to work from Keyboard Maestro AppleScript
 			tell application "Keyboard Maestro"
 				selection
 				first item of result
-				class of result
-				return result as text
+				set typeClass to class of result
+				if typeClass is action then
+					return "action"
+				else if typeClass is macro then
+					return "macro"
+				else
+					return "macro group"
+				end if
 			end tell
 			
 			
