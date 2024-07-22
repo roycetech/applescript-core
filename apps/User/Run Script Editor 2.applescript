@@ -5,7 +5,7 @@
 	@Installation:
 		Run Create Automator App.app while this script is opened and focused in Script Editor.
 		Grant the resulting app an accessibility access so it can trigger the Script Editor's run button.
-		The following fails with access permission error: make compile-app SOURCE="apps/User/Run Script Editor"
+		The following fails with access permission error: make build-app SOURCE="apps/User/Run Script Editor"
 
 *)
 
