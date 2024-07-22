@@ -1,5 +1,5 @@
 (*
-	@Last Modified: 2023-10-01 16:36:18
+	@Last Modified: 2024-07-21 11:48:08
 
 	@Project:
 		applescript-core
@@ -171,8 +171,12 @@ on new()
 				logger's info(message)
 			end if
 
+			try
 			display dialog message with title theTitle with icon 1 buttons choices default button defaultButton
-			button returned of result
+			return button returned of result
+			end try
+
+			"Cancel"
 		end showChoicesWithDefault
 
 
