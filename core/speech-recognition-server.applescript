@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh core/speech-recognition-server
 
 	@Created: Friday, December 1, 2023 at 10:28:21 AM
-	@Last Modified: 2023-12-01 10:42:53
+	@Last Modified: 2024-07-10 18:27:39
 *)
 
 use listUtil : script "core/list"
@@ -65,10 +65,15 @@ on new()
 		on listenFor(prompt, listOfWordsOrPhrases)
 			tell application "SpeechRecognitionServer"
 				try
-					return listen for listOfWordsOrPhrases with prompt prompt
+					if prompt is not missing value then
+						return listen for listOfWordsOrPhrases with prompt prompt
+					else
+						return listen for listOfWordsOrPhrases
+					end if
 				end try
 			end tell
-			false
+
+			missing value
 		end listenFor
 
 		(*
@@ -82,6 +87,5 @@ on new()
 			end tell
 			false
 		end listenForWithTimeout
-
 	end script
 end new
