@@ -60,12 +60,14 @@ on spotCheck()
 	
 	set sut to new()
 	logger's infof("USB Connected: {}", sut's isUsbConnected())
+	
 	if caseDesc starts with "Manual: Switch Profile:" then
 		set caseProfile to textUtil's stringAfter(caseDesc, "Switch Profile: ")
 		logger's debugf("caseProfile: {}", caseProfile)
 		sut's switchProfile(caseProfile)
 		
 	end if
+	
 	if caseIndex is 1 then
 		logger's infof("Switch Profile: Found: {}", sut's switchProfile("Work - Default"))
 		

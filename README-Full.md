@@ -48,7 +48,9 @@ While I try to limit dependency to 3rd party tools because I wanted to use vanil
 
 ### Limitations
 
-* I have not worked out automating apps across desktop spaces. While some may work coincidentally, deliberate testing is required to improve their reliability.
+*    I have not intended in automating apps interaction across desktop spaces.
+While some may work coincidentally, I have no plans to make further development
+on that area.
 
 ## How to Install and Run the Project
 

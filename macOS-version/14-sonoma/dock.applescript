@@ -136,6 +136,7 @@ on new()
 		property waitSeconds : 1
 		property waitMax : 3
 
+		(* Will not work if the app doesn't even appear in the dock. *)
 		on clickApp(appName)
 			tell application "System Events" to tell process "Dock"
 				try

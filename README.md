@@ -19,7 +19,8 @@ Install into the user's Script Libraries: `make install`
 
 ### Recommended 3rd party dependency
 
-*   Install [CliClick](https://github.com/BlueM/cliclick) to allow simulating user mouse interactions.
+*   Install [CliClick](https://github.com/BlueM/cliclick) to allow simulating user mouse interactions.  This is used only in few cases where the default click does not
+trigger UI controls .
 
 ### Recommended AppleScript applications
 *   [Create Automator App](apps/User/Create%20Automator%20App.applescript) - For easily creating AppleScript app wrapped by Automator that can be invoked via Spotlight.
