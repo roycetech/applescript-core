@@ -27,6 +27,7 @@ use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 use ccLib : script "core/control-center"
+use lovLib : script "core/lov"
 
 use decoratorLib : script "core/decorator"
 
@@ -34,6 +35,9 @@ use spotScript : script "core/spot-test"
 
 property logger : missing value
 property cc : missing value
+property lov : missing value
+
+property LOV_KEY : "[app-core] Deployment Type"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -65,7 +69,8 @@ on spotCheck()
 	logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
 	logger's infof("Is Online?: {}", sut's isOnline())
 	logger's infof("Major OS Version?: {}", sut's getOsMajorVersion())
-	logger's infof("Sound output device: {}", sut's getSoundOutput())
+	logger's infof("Sound output device: {}", sut's getAudioOutputDevice()) -- Decorated from dec-user-sound-device.
+	logger's infof("Deployment Type: {}", sut's getDeploymentType())
 
 	if caseIndex is 1 then
 		logger's logObj("Meeting Window", sut's getMeetingWindow())
@@ -88,8 +93,21 @@ end spotCheck
 on new()
 	loggerFactory's injectBasic(me)
 	set cc to ccLib's new()
+	set lov to lovLib's new(LOV_KEY)
 
 	script UserInstance
+		(*
+			@returns "computer" or "user"
+		*)
+		on getDeploymentType()
+			if lov's getSavedValue() is equal to "computer" then
+				return "computer"
+			end if
+
+			"user"
+		end getDeploymentType
+
+
 		on cueForTouchId()
 			do shell script "afplay /System/Library/Sounds/Glass.aiff"
 		end cueForTouchId
