@@ -1,0 +1,11 @@
+# Makefile.user
+
+USE_SUDO ?= false
+APPS_PATH := $(HOME)/Applications
+SCRIPT_LIBRARY_PATH := "$(HOME)/Library/Script\ Libraries"
+
+include Makefile.core
+include Makefile.app1
+include Makefile.app3
+include Makefile.test
+include Makefile.extra

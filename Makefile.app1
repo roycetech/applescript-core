@@ -1,0 +1,140 @@
+# Makefile.app1
+# @Created: Fri, Jul 19, 2024 at 1:14:29 PM
+
+
+build-all: \
+	build \
+	build-extras \
+	build-apps-first-party
+
+
+build-apps-first-party: \
+	build-automator \
+	build-calendar \
+	build-console \
+	install-control-center \
+	build-dock \
+	build-finder \
+	build-notification-center \
+	build-preview \
+	install-safari \
+	build-system-settings \
+	build-terminal
+
+
+# 1st Party Apps Library
+
+build-automator:
+	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/automator.scpt" "scripts/stub.applescript"
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Automator/2.10/dec-automator-applescript
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Automator/2.10/automator
+
+install-automator: build-automator
+	mkdir -p /Applications/AppleScript
+	# cp -n plist.template ~/applescript-core/config-system.plist || true
+	osascript scripts/setup-applescript-apps-path.applescript
+
+uninstall-automator:
+	@echo "TODO"
+	# TODO:
+
+
+build-calendar:
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/11.0/dec-calendar-view"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/11.0/calendar-event"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/11.0/calendar"
+
+install-calendar: build-calendar
+	osascript ./scripts/enter-user-country.applescript
+
+
+build-console:
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Console/v1.1/console"
+
+
+build-finder:
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
+
+
+build-home:
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Home/7.0/home
+
+
+build-mail:
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Mail/16.0/mail
+
+
+build-preview:
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Preview/v11/preview
+
+
+build-safari: build-dock
+	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/safari.scpt" "scripts/stub.applescript"
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/safari-tab
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-group
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari
+
+install-safari: build-safari
+	osascript ./scripts/allow-apple-events-in-safari.applescript
+	plutil -replace 'FIND_RETRY_MAX' -integer 90 ~/applescript-core/config-system.plist
+	plutil -replace 'FIND_RETRY_SLEEP' -integer 1 ~/applescript-core/config-system.plist
+
+
+build-safari-technology-preview:
+	osacompile -o "$(HOME)/Library/Script Libraries/core/safari-technology-preview.scpt" "scripts/stub.applescript"
+	./scripts/build-lib.sh  apps/1st-party/Safari Technology Preview/r168/dec-safari-technology-preview-javascript
+	./scripts/build-lib.sh  apps/1st-party/Safari Technology Preview/r168/safari-technology-preview
+
+install-safari-technology-preview: build-safari-technology-preview
+	osascript ./scripts/allow-apple-events-in-safari-technology-preview.applescript
+
+
+build-script-editor:
+	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-content"
+	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
+
+
+build-system-settings:
+	./scripts/factory-insert.sh SystemSettingsInstance core/dec-system-settings-sonoma
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/macOS Sonoma/dec-system-settings-sonoma"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control_voice-commands"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_passwords"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
+
+
+build-terminal:
+	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/terminal.scpt" "scripts/stub.applescript"
+
+ifeq ($(OS_NAME), sonoma)
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-output
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-path
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt
+ifneq ($(OMZ_EXISTS),)
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt-omz
+endif
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-run
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal
+
+else ifeq ($(OS_NAME), ventura)
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-output
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-path
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-prompt
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-run
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/terminal
+
+else ifeq ($(OS_NAME), monterey)
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-output
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-path
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-run
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/terminal
+endif
+	$(SUDO) ./scripts/build-lib.sh libs/sftp/dec-terminal-prompt-sftp
