@@ -6,6 +6,9 @@
 		Create the app "Run Script Editor 2.app" to automatically trigger run after 
 		selecting a test case.
 
+	@Project:
+		applescript-core 
+
 	@Known Issues:
 		Upon cases change, the menu items gets duplicated, but gets fixed after 
 		a few seconds.
@@ -29,7 +32,6 @@ property internalMenuItem : class "NSMenuItem"
 property externalMenuItem : class "NSMenuItem"
 property newMenu : class "NSMenu"
 
-
 use std : script "core/std"
 
 use textUtil : script "core/string"
@@ -46,14 +48,10 @@ use plutilLib : script "core/plutil"
 use spotScript : script "core/spot-test"
 
 property logger : missing value
-property speech : speechLib's new(missing value)
+property speech : missing value
+property plutil : missing value
+property session : missing value
 
-property plutil : plutilLib's new() -- WARNING: This line is causing problems exporting this file as an app.
-
-property session : plutil's new("session")
-
--- property isSpot : {"Script Editor", "Script Debugger"} contains the name of current application
--- Spot remained true after deploying!
 property isSpot : false
 
 property idleSeconds : 5
@@ -63,17 +61,20 @@ property caseIndex : 1
 property autoIncrement : false
 
 loggerFactory's injectBasic(me)
-
 logger's start()
 
+set plutil to plutilLib's new()
+set session to plutil's new("session")
+set speech to speechLib's new(missing value)
+
 set spotLib to spotScript's new()
-spotLib's setSessionCaseIndex(0)
+
+set currentSessionCaseIndex to session's getValue("Current Case Index")
+spotLib's setSessionCaseIndex(currentSessionCaseIndex)
+set my caseId to session's getString("Case ID")
+set my cases to session's getList("Case Labels")
+
 set spotLib to missing value
-
-session's setValue("Current Case Index", 0)
-session's setValue("Case Labels", {})
-session's deleteKey("Case ID")
-
 
 set isSpot to {"Script Editor", "Script Debugger"} contains the name of current application
 
@@ -166,9 +167,9 @@ on makeMenus()
 	_addMenuSeparator()
 	
 	-- Create the Quit menu item separately
-	set thisMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:"Quit" action:("quitAction:") keyEquivalent:"")
-	(newMenu's addItem:thisMenuItem)
-	(thisMenuItem's setTarget:me) -- required for enabling the menu item
+	set quitMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:"Quit" action:("quitAction:") keyEquivalent:"")
+	(newMenu's addItem:quitMenuItem)
+	(quitMenuItem's setTarget:me) -- required for enabling the menu item
 end makeMenus
 
 
@@ -251,3 +252,5 @@ on _addMenuSeparator()
 	set sepMenuItem to (current application's NSMenuItem's separatorItem())
 	(newMenu's addItem:sepMenuItem)
 end _addMenuSeparator
+
+

@@ -115,6 +115,7 @@ on main()
 	
 	set currentDeploymentType to usr's getDeploymentType()
 	set chosenDeployment to dia's showChoicesWithDefault("Deployment Type", "User-type has no dock icon but requires per user app deployment", {"user", "computer"}, currentDeploymentType)
+	logger's debugf("chosenDeployment: {}", chosenDeployment)
 	
 	if chosenDeployment is "computer" then
 		set appsFolder to finder's getApplicationsFolder()
@@ -129,18 +130,27 @@ on main()
 	logger's debugf("targetFolderMon: {}", targetFolder as text)
 	
 	-- set newScriptName to scriptEditorTab's getBaseScriptName() & ".app"
-	set appFilename to scriptEditorTab's getBaseScriptName() & ".app"
+	set appPrefix to ""
+	if chosenDeployment is "user" then
+		set appPrefix to std's getUsername() & "."
+	end if
+	set appFilename to appPrefix & scriptEditorTab's getBaseScriptName() & ".app"
+	logger's debugf("appFilename: {}", appFilename)
+	
 	session's setValue("New Script Name", appFilename)
 	
 	if backUpSwitch's active() then backUpApp(appFilename, targetFolder)
 	
-	set savedScript to scriptEditorTab's saveAsStayOpenApp(targetFolder as text)
+	set savedScript to scriptEditorTab's saveAsStayOpenApp(appFilename, targetFolder as text)
 	logger's debugf("savedScript: {}", savedScript)
 	
 	if chosenDeployment is "user" then updateAppToDockless(appFilename, targetFolder)
 	
+	say 1
 	tell speech to speakSynchronously("Menu app deployed") -- causing problems.
+	say 2
 	activate application baseScriptName
+	say 3
 	scriptEditorTab's closeTab()
 end main
 
