@@ -2,10 +2,7 @@
 	Usage:
 		set std to script "core/std"
 
-		IMPORTANT: Do not remove the init() at the start of each handler. This
-		is critical in this library, because this library is loaded differently from the rest.
-
-		Do not use logger here because it will result in circular dependency.
+		Do not use logger here because it will result in circular dependency.  <- FOR REVIEW.
 
 	@Project:
 		applescript-core
@@ -107,6 +104,11 @@ on getUsername()
 	if my username is missing value then set my username to short user name of (system info)
 	my username
 end getUsername
+
+
+on getComputerName()
+	computer name of (system info)
+end getComputerName
 
 
 on assertThat given condition:condition as boolean, messageOnFail:message : missing value
