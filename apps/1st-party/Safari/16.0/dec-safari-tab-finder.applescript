@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-finder
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2024-02-21 15:27:44
+	@Last Modified: 2024-07-22 12:27:11
 	@Change Logs: .
 *)
 use listUtil : script "core/list"
@@ -48,6 +48,7 @@ on spotCheck()
 	set sut to decorate(sut)
 
 	-- 	logger's infof("Is Loading: {}", sut's isLoading())
+	logger's infof("Tab Count: {}", sut's getTabCount())
 
 	if caseIndex is 1 then
 		sut's findTabStartingWithUrl("app.pluralsight.com/ilx/video-courses")
@@ -93,9 +94,14 @@ on decorate(mainScript)
 		on getTabCount()
 			if running of application "Safari" is false then return 0
 
+
 			tell application "Safari"
-				count every tab of (first window whose title does not start with "Web Inspector")
+				try
+					return count every tab of (first window whose name does not start with "Web Inspector")
+				end try
 			end tell
+
+			0
 		end getTabCount
 
 		(*
