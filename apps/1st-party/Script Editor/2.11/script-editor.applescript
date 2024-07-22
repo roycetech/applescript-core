@@ -367,15 +367,14 @@ on new()
 				(*
 		    			@targetFolder Mac OS colon separated format for the script destination.
 				*)
-				on saveAsStayOpenApp(targetFolder)
+				on saveAsStayOpenApp(newScriptName, targetFolder)
 					if running of application "Script Editor" is false then return
 					
-					set newScriptName to textUtil's replace(getScriptName(), ".applescript", ".app")
-					log targetFolder & newScriptName
+					if newScriptName is missing value then set newScriptName to textUtil's replace(getScriptName(), ".applescript", ".app")
 					tell application "Script Editor"
 						tell document of my appWindow
 							compile
-							save as "application" in (targetFolder & newScriptName) with stay open
+							save as "application" in (targetFolder & newScriptName) with stay open and run only
 						end tell
 					end tell
 					newScriptName
