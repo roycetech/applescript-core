@@ -16,7 +16,7 @@
 		Assumes automator is not used or opened for purposes other than the exclusive use of this script.
 		Wipes out clipboard contents.
 
-	@Last Modified: 2024-07-22 22:52:29
+	@Last Modified: 2024-07-22 23:10:27
 
 	@Change Logs:
 		Fri, Jul 19, 2024 at 2:40:35 PM - Refactored to use simpler script wrapped in an app.
@@ -35,6 +35,7 @@ use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 use usrLib : script "core/user"
 
+use applescriptDecorator : script "core/dec-automator-applescript"
 use decoratorLib : script "core/decorator"
 
 use spotScript : script "core/spot-test"
@@ -253,55 +254,6 @@ on new()
 		end showSideBar
 
 
-		(*
-			@ projectPathKey - this is the key in config-user.plist which points to the path of the project containing the script.
-			@resourcePath - the script path name relative to the project.
-		*)
-		on writeRunScript(appScriptName)
-			if running of application "Automator" is false then return
-
-
-			tell application "System Events" to tell process "Automator"
-				-- set the code
-				set theCodeTextArea to text area 1 of scroll area 1 of splitter group 1 of group 1 of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my newWindowName)
-				set deploymentType to usr's getDeploymentType()
-
-				tell application "System Events"
-					if deploymentType is "computer" then
-						set domainObjectKey to "local"
-					else
-						set domainObjectKey to "user"
-					end if
-				end tell
-
-				-- set appScriptMon to path of (library folder of domainObject) & SUBMON_APP_SCRIPT & appScriptName & ".scpt"
-				set appScriptMon to "(path of library folder of (" & domainObjectKey & " domain) & \"Script Libraries:core:app:" & appScriptName & ".scpt\")"
-				logger's debugf("appScriptMon: {}", appScriptMon)
-
-				set value of theCodeTextArea to "
-use scripting additions
-
-on run {input, parameters}
-	(* Your script goes here *)
-	tell application \"System Events\"
-		run script alias " & appScriptMon & "
-	end tell
-	return input
-end run
-"
-			end tell
-		end writeRunScript
-
-
-		on compileScript()
-			if running of application "Automator" is false then return
-
-			tell application "System Events" to tell process "Automator"
-				click button 4 of group 1 of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my newWindowName)
-			end tell
-		end compileScript
-
-
 		on setCommandPhrase(commandPhrase)
 			if running of application "Automator" is false then return
 
@@ -446,6 +398,7 @@ end run
 		end forceQuitApp
 	end script
 
+	applescriptDecorator's decorate(result)
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
