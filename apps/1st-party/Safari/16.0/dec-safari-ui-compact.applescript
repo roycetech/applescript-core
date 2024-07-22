@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2024-02-23 16:11:13
+	@Last Modified: 2024-07-22 13:29:18
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -127,10 +127,12 @@ on decorate(mainScript)
 
 
 		on isPlaying()
-			if running of application "Safari" is false then return missing value
+			if running of application "Safari" is false then return false
 			if isCompact() is false then return continue isPlaying()
 
 			tell application "System Events" to tell process "Safari"
+				if (count of windows) is 0 then return false
+
 				return exists (first button of (first radio button of UI element 1 of my _getAddressBarGroup() whose value of attribute "AXValue" is true) whose description contains "Mute")
 			end tell
 		end isPlaying
