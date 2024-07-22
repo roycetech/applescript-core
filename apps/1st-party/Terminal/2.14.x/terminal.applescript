@@ -305,6 +305,19 @@ on new()
 			missing value
 		end findTabEndingWith
 
+		on findTabStartingWith(titleStart)
+			if winUtil's hasWindow("Terminal") is false then return missing value
+
+			tell application "Terminal"
+				try
+					set appWindow to first window whose custom title of tab 1 starts with titleStart
+					return terminalTabLib's new(id of appWindow)
+				end try
+			end tell
+
+			missing value
+		end findTabStartingWith
+
 		(*
 			This was the original implementation before unit tests was added.
 
