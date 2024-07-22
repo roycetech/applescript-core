@@ -26,11 +26,11 @@
 use script "core/Text Utilities"
 use scripting additions
 
-use loggerFactory : script "core/logger-factory"
-
 use fileUtil : script "core/file"
 use listUtil : script "core/list"
 use textUtil : script "core/string"
+
+use loggerFactory : script "core/logger-factory"
 
 use contentDecorator : script "core/dec-script-editor-content"
 
@@ -60,6 +60,7 @@ on spotCheck()
 		
 		Manual: Focus
 		Manual: Save as app
+		Manual: Replace and Select
 	")
 	
 	set spotClass to spotScript's new()
@@ -111,11 +112,19 @@ on spotCheck()
 		
 	else if caseIndex is 7 then
 		set sutTab to sut's findTabWithName("Menu Case.applescript")
-		sutTab's focus()
-		tell application "Finder"
-			set targetFolderMon to folder "Stay Open" of folder "AppleScript" of (path to applications folder) as text
-		end tell
-		logger's infof("Handler result: {}", sutTab's saveAsStayOpenApp(targetFolderMon))
+		if sutTab is missing value then
+			logger's warn("You need to open Menu Case.applescript in Script Editor")
+		else
+			sutTab's focus()
+			tell application "Finder"
+				set targetFolderMon to folder "Stay Open" of folder "AppleScript" of (path to applications folder) as text
+				-- set targetFolderMon to folder "Stay Open" of folder "AppleScript" of (path to applications folder from user domain) as text
+			end tell
+			logger's infof("Handler result: {}", sutTab's saveAsStayOpenApp(missing value, targetFolderMon))
+		end if
+		
+	else if caseIndex is 8 then
+		sut's replaceAndSelect("xxx", "yyy") -- This line will be updated.
 		
 	end if
 	
@@ -197,6 +206,21 @@ on new()
 			end tell
 		end recompileAllOpenDocuments
 		
+		(*
+				    Copied from the default AppleScripts.
+				*)
+		on replaceAndSelect(target_string, replacement_string)
+			tell application "Script Editor"
+				tell the front document
+					set this_text to the contents
+					set this_offset to the offset of the target_string in this_text
+					if this_offset is not 0 then
+						set selection to characters this_offset thru (this_offset + (length of the target_string) - 1)
+						set the contents of the selection to the replacement_string
+					end if
+				end tell
+			end tell
+		end replaceAndSelect
 		
 		-- Private Codes below =======================================================
 		on _new(windowId)
