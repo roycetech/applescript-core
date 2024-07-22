@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
 
 	@Created: Sunday, January 28, 2024 at 2:35:54 PM
-	@Last Modified: 2024-05-24 10:16:46
+	@Last Modified: 2024-07-20 22:14:29
 *)
 use script "core/Text Utilities"
 use scripting additions
@@ -329,6 +329,12 @@ on new(pWindowId)
 			termProcesses contains "-zsh" and {"com.docker.cli", "bash", "ssh"} does not contain the lastItem or lastItem contains "zsh"
 			-- lastItem contains "zsh" -- fails when using awsume cli on MFA wait state
 		end isZsh
+
+
+		on hasLingeringCommand()
+			getLingeringCommand() is not missing value
+		end hasLingeringCommand
+
 
 		(*
 			Checks most recent text in the buffer, and see if a command is waiting after the prompt to be executed.
