@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2024-06-29 11:10:36
+	@Last Modified: 2024-07-22 12:54:10
 	@Change Logs:
 		Sat, Jun 29, 2024 at 10:59:40 AM - Added isMuted() and implemented isPlaying()
 *)
@@ -105,8 +105,9 @@ on decorate(mainScript)
 			if running of application "Safari" is false then return false
 
 			set addressBarGroup to _getAddressBarGroup()
-			tell application "System Events" to tell process "Safari"
+			if addressBarGroup is missing value then return false
 
+			tell application "System Events" to tell process "Safari"
 				try
 					return exists (first button of addressBarGroup whose description is "Stop loading this page")
 				end try
@@ -122,6 +123,11 @@ on decorate(mainScript)
 
 		*)
 		on isDefaultGroup()
+			if running of application "Safari" is false then return false
+				tell application "System Events" to tell process "Safari"
+					if (count of windows) is 0 then return false
+					end tell
+
 			if isSideBarVisible() then
 				tell application "System Events" to tell process "Safari"
 					return value of attribute "AXSelected" of row 1 of outline 1 of scroll area 1 of group 1 of splitter group 1 of front window
@@ -158,8 +164,9 @@ on decorate(mainScript)
 			if running of application "Safari" is false then return false
 
 			tell application "System Events" to tell process "Safari"
-				set windowTitle to the last item of textUtil's split(title of front window, unic's SEPARATOR)
+				if (count of windows) is 0 then return false
 
+				set windowTitle to the last item of textUtil's split(title of front window, unic's SEPARATOR)
 				exists (first button of radio button windowTitle of UI element 1 of group 3 of toolbar 1 of front window whose description contains "Mute This Tab") -- case insensitive
 			end tell
 		end isPlaying
@@ -172,17 +179,20 @@ on decorate(mainScript)
 			if running of application "Safari" is false then return false
 
 			tell application "System Events" to tell process "Safari"
-				set windowTitle to the last item of textUtil's split(title of front window, unic's SEPARATOR)
+				if (count of windows) is 0 then return false
 
+				set windowTitle to the last item of textUtil's split(title of front window, unic's SEPARATOR)
 				exists (first button of radio button windowTitle of UI element 1 of group 3 of toolbar 1 of front window whose description contains "Unmute This Tab") -- case insensitive
 			end tell
 		end isMuted
 
 
 		on focusAddressBar()
-			if running of application "Safari" is false then return missing value
+			if running of application "Safari" is false then return
 
 			tell application "System Events" to tell process "Safari"
+				if (count of windows) is 0 then return
+
 				try
 					click (the first menu item of menu 1 of menu bar item "File" of menu bar 1 whose title starts with "Open Location")
 				end try
@@ -198,8 +208,12 @@ on decorate(mainScript)
 		end getHtmlUI
 
 		on _getHtmlUI(targetUI)
+			if running of application "Safari" is false then return missing value
+
 			if targetUI is missing value then
 				tell application "System Events" to tell process "Safari"
+					if (count of windows) is 0 then return missing value
+
 					try
 						set targetUI to splitter group 1 of front window
 					end try
@@ -240,6 +254,8 @@ on decorate(mainScript)
 
 			set addressBarGroupIndex to 0
 			tell application "System Events" to tell process "Safari"
+				if (count of windows) is 0 then return missing value
+
 				set toolbarGroups to groups of toolbar 1 of front window
 				repeat with i from (count of toolbarGroups) to 1 by -1
 					set nextGroup to item i of toolbarGroups
