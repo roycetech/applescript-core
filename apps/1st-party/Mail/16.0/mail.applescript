@@ -1,27 +1,23 @@
 (*
 	Wrapper library for the macOS Mail app.
 
-	The 3rd party library cliclick is required by this library.
-
 	@Project:
 		applescript-core
 
 	@Build:
-		make build-mail
+		./scripts/build-lib.sh apps/1st-party/Mail/16.0/mail
 
 	@Created: Pre-2023
+
+	@Change Logs:
+		Wed, Jul 17, 2024 at 10:33:53 AM - Removed dependency with cliclick.
 *)
 
 use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
 
-use cliclickLib : script "core/cliclick"
-
-use spotScript : script "core/spot-test"
-
 property logger : missing value
-
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -29,9 +25,11 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 
 	set cases to listUtil's splitByLine("
+		Manual: NOOP
 		Manual: Goto Favorite Folder
 
 	")
@@ -47,15 +45,12 @@ on spotCheck()
 	set sut to new()
 	set isMessageWindow to sut's isMessageWindowActive()
 	logger's infof("Message window at front?: {}", isMessageWindow)
-	if isMessageWindow then
-		logger's infof("Sender: {}", sut's getMessageSender())
-
-	end if
+	logger's infof("Sender: {}", sut's getMessageSender())
 
 	if caseIndex is 1 and not isMessageWindow then
-		sut's gotoFolder("04 Updates")
 
 	else if caseIndex is 2 then
+		sut's gotoFolder("04 Updates")
 
 	end if
 
@@ -66,7 +61,6 @@ end spotCheck
 
 on new()
 	loggerFactory's inject(me)
-	set cliclick to cliclickLib's new()
 
 	script MailInstance
 
@@ -90,34 +84,36 @@ on new()
 			@requires: App Focus.
 
 			@returns the email address from the message window.
-
 		*)
 		on getMessageSender()
 			if running of application "Mail" is false then return missing value
 
-			tell application "System Events" to tell process "Mail"
-				set frontmost to true
+			tell application "Mail"
 				try
-					set subjectContainer to text area 1 of group 1 of group 1 of scroll area 1 of front window
+					set selectedMessage to item 1 of (get selection)
+					set senderEmail to sender of selectedMessage
 				on error the errorMessage number the errorNumber
 					logger's warn(errorMessage)
 					return missing value
 				end try
 
-				(* Native click doesn't work so we rely on 3rd party cliclick. *)
-				lclick of cliclick at static text 1 of subjectContainer given relativex:-10
-				set email to the name of menu item 1 of menu 1 of subjectContainer
-				lclick of cliclick at static text 1 of subjectContainer
+				if senderEmail is not missing value then
+					return extract address from senderEmail
+				end if
 			end tell
-			email
 		end getMessageSender
 
 
 		(*  *)
 		on gotoFolder(folderName)
+			set mainMailWindow to getMainWindow()
+			if mainMailWindow is missing value then return
 
 			tell application "System Events" to tell process "Mail"
-				repeat with nextRow in rows of outline 1 of scroll area 1 of splitter group 1 of (first window whose title contains "messages" or title contains "drafts")
+				if title of mainMailWindow starts with folderName then return
+
+				set mailFolderRows to rows of outline 1 of scroll area 1 of splitter group 1 of mainMailWindow
+				repeat with nextRow in mailFolderRows
 					if get description of UI element 1 of nextRow contains folderName then
 						set selected of nextRow to true
 						exit repeat
@@ -125,5 +121,20 @@ on new()
 				end repeat
 			end tell
 		end gotoFolder
+
+
+		(*
+			@returns the main mail window, not a message window.
+		*)
+		on getMainWindow()
+			if running of application "Mail" is false then return missing value
+
+			tell application "System Events" to tell process "Mail"
+				try
+					return first window whose title contains "messages" or title contains "drafts"
+				end try
+			end tell
+			missing value
+		end getMainWindow
 	end script
 end new
