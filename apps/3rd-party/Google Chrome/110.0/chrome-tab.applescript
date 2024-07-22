@@ -322,7 +322,7 @@ on new(windowId, pTabIndex)
 		
 		on getHtmlUI()
 			tell application "System Events" to tell process "Google Chrome"
-					first UI element of group 1 of group 1 of group 1 of group 1 of front window whose role description is "HTML Content"
+				first UI element of group 1 of group 1 of group 1 of group 1 of front window whose role description is "HTML Content"
 			end tell
 		end getHtmlUI
 	end script

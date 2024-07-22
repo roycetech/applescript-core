@@ -37,8 +37,7 @@ use scripting additions
 use std : script "core/std"
 
 use textUtil : script "core/string"
-use listUtil : script "core/list"
-use regex : script "core/regex"
+use regexLib : script "core/regex-pattern"
 use decoratorLib : script "core/decorator"
 
 use loggerFactory : script "core/logger-factory"
@@ -69,7 +68,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
-
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Random
 		Manual: Private: Load Plist
@@ -87,6 +86,11 @@ on spotCheck()
 	if caseIndex is 1 then
 
 		set sut to new(missing value)
+		set decoratorLib to script "core/decorator"
+		set decorator to decoratorLib's new(sut)
+		decorator's printHierarchy()
+
+
 		sut's speak("2904")
 		sut's speak("hello")
 
@@ -247,7 +251,8 @@ on new(pLocalizationConfigName)
 					set nextTranslation to _translationsDictionary's getValue(nextTranslatable)
 					set pattern to text 2 thru ((count of nextTranslatable) - 1) of nextTranslatable
 
-					if regex's matchesInString(pattern, localizedMessage) then
+					set regex to regexLib's new(pattern)
+					if regex's matchesInString(localizedMessage) then
 						-- logger's debugf("Translating pattern: '{}' to '{}'", {nextTranslatable, nextTranslation})
 						set localizedMessage to regex's replace(localizedMessage, pattern, nextTranslation)
 					end if
