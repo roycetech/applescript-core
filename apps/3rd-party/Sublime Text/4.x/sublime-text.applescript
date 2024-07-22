@@ -185,6 +185,7 @@ on new()
 			tell application "System Events" to tell process "Sublime Text"
 				set windowName to name of first window
 			end tell
+			if windowName is missing value then return missing value
 			
 			set windowNameTokens to textUtil's split(windowName, unic's SEPARATOR)
 			first item of windowNameTokens
@@ -503,8 +504,8 @@ on new()
 				end try
 			end tell
 		end focusGroup1
-		
-		
+
+
 		(* NOTE: Toggle's the focus group. *)
 		on focusGroup2()
 			if not _isAppWindowAvailable() then return
@@ -520,21 +521,21 @@ on new()
 				end try
 			end tell
 		end focusGroup2
-		
-		
+
+
 		-- Private Codes below =======================================================
 		on _isAppWindowAvailable()
 			try
 				return getWindowsCount() is greater than 0
 			end try
-			
+
 			false
 		end _isAppWindowAvailable
-		
-		
-		(* 
-			Determines the project name by tokenizing the Sublime Text title and checking if the token exists in the full filename of the 
-			active editor file. 
+
+
+		(*
+			Determines the project name by tokenizing the Sublime Text title and checking if the token exists in the full filename of the
+			active editor file.
 		*)
 		on _findProjectFolder(projectNameRaw, filename)
 			repeat with nextFolder in textUtil's split(projectNameRaw, ", ")
@@ -545,7 +546,7 @@ on new()
 			tell me to error "I can't find your project folder from: " & projectNameRaw
 		end _findProjectFolder
 	end script
-	
+
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
