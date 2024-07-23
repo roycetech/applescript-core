@@ -3,8 +3,11 @@
 	WARNING: Do not use the Core Text Utilities. It results to a not so
 	visible crash for some scripts that are triggered via Voice Command.
 
+	@Project:
+		applescript-core
+
 	@Build:
-		make build-lib SOURCE=core/logger
+		./scripts/build-lib.sh core/logger
 *)
 
 
@@ -224,8 +227,11 @@ on new(pObjectName)
 	set basicInstance to newBase(pObjectName)
 	script LoggerOverridableInstance
 		property parent : basicInstance
+
+		on placeholder()
+		end placeholder
 	end script
 
-	set decorator to decoratorLib's new(result)
+	set decorator to decoratorLib's new(LoggerOverridableInstance)
 	decorator's decorate()
 end new
