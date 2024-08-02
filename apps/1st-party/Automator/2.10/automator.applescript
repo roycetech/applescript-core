@@ -16,7 +16,7 @@
 		Assumes automator is not used or opened for purposes other than the exclusive use of this script.
 		Wipes out clipboard contents.
 
-	@Last Modified: 2024-07-22 23:10:27
+	@Last Modified: 2024-07-23 10:55:22
 
 	@Change Logs:
 		Fri, Jul 19, 2024 at 2:40:35 PM - Refactored to use simpler script wrapped in an app.
@@ -38,8 +38,6 @@ use usrLib : script "core/user"
 use applescriptDecorator : script "core/dec-automator-applescript"
 use decoratorLib : script "core/decorator"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 property usr : missing value
 
@@ -59,6 +57,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set spotScript to script "core/spot-test"
 	set processLib to script "core/process"
 	set dockLib to script "core/dock"
 	set dock to dockLib's new()
