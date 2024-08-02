@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Xcode/15.4/xcode
 
 	@Created: Monday, May 27, 2024 at 1:22:50 PM
-	@Last Modified: 2024-07-13 15:51:16
+	@Last Modified: 2024-08-02 18:29:36
 
 	@Known Issues:
 		Sat, Jul 13, 2024 at 3:17:17 PM - Files created outside of target will be referenced incorrectly by the
@@ -17,8 +17,9 @@ use fileUtil : script "core/file"
 use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
-use kbLib : script "core/keyboard"
 
+use kbLib : script "core/keyboard"
+use decXcodeDebugging : script "core/dec-xcode-debugging"
 
 use spotScript : script "core/spot-test"
 
@@ -185,4 +186,6 @@ on new()
 			end tell
 		end getCurrentProjectFullPath
 	end script
+
+	decXcodeDebugging's decorate(result)
 end new
