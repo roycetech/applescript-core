@@ -36,7 +36,8 @@ use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
 
-use xmlUtilLib : script "core/test/xml-util" 
+use xmlUtilLib : script "core/test/xml-util"
+use usrLib : script "core/user"
 
 property logger : missing value
 property xmlUtil : missing value
@@ -44,8 +45,8 @@ property xmlUtil : missing value
 property TopLevel : me
 property suite : makeTestSuite(suitename)
 
-loggerFactory's inject(me) 
-set xmlUtil to xmlUtilLib's newPlist(plist) 
+loggerFactory's inject(me)
+set xmlUtil to xmlUtilLib's newPlist(plist)
 autorun(suite)
 
 ---------------------------------------------------------------------------------------
@@ -63,9 +64,15 @@ script |Load script|
 	script |Loading the script|
 		property parent : unitTest(me)
 
+		set usr to usrLib's new()
+		if usr's getDeploymentType() is "computer" then
+			set objectDomain to local domain
+		else
+			set objectDomain to user domain
+		end if
 		try
 			tell application "Finder"
-				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:core:"
+				set deploymentPath to ((path to library folder from objectDomain) as text) & "Script Libraries:core:"
 			end tell
 
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
@@ -122,11 +129,11 @@ script |plutil _buildKeyNameFromList tests|
 		if executedTestCases is 1 then beforeClass()
 
 		set sutLib to sutScript's new()
-		set sut to sutLib's new("plutil-test") 
+		set sut to sutLib's new("plutil-test")
 	end setUp
 
 	on tearDown()
-		if my name is "afterClass" then 
+		if my name is "afterClass" then
 			afterClass()
 		end if
 	end tearDown
@@ -159,7 +166,7 @@ end script
 
 script |plutil hasValue tests|
 	property parent : TestSet(me)
-	property sut : missing value 
+	property sut : missing value
 
 	property executedTestCases : 0
 
@@ -172,7 +179,7 @@ script |plutil hasValue tests|
 	end setUp
 
 	on tearDown()
-		if my name is "afterClass" then 
+		if my name is "afterClass" then
 			afterClass()
 		end if
 	end tearDown
@@ -185,19 +192,19 @@ script |plutil hasValue tests|
 	end afterClass
 
 	script |Not Found|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __deleteValue("unicorn")
 		notOk(sut's hasValue("unicorn"))
 	end script
 
 	script |Found|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __writeValue("found", "bool", true)
 		ok(sut's hasValue("found"))
 	end script
 
 	script |Nested Key name|
-		property parent : UnitTest(me) 
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __writeQuotedValue("found\\.yes", "bool", true)
 		ok(sut's hasValue("found.yes"))
 	end script
@@ -213,7 +220,7 @@ script |plutil getValue tests|
 	property parent : TestSet(me)
 	property sutLib : missing value
 	property sut : missing value
- 
+
 	property executedTestCases : 0
 
 	on beforeClass()
@@ -359,7 +366,7 @@ script |plutil getValue tests|
 
 	script |afterClass|
 		property parent : unitTest(me)
-		ok(true)  -- dummy test to trigger the afterClass
+		ok(true) -- dummy test to trigger the afterClass
 	end script
 end script
 
@@ -387,50 +394,50 @@ script |plutil getScalarValue tests|
 	end afterClass
 
 	script |Get Int|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __writeValue("integer", "integer", 1)
 		assertEqual(1, sut's getInt("integer"))
 	end script
 
 	script |Get Int - Incorrect Type|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __writeValue("string", "string", "1")
 		assertMissing(sut's getInt("string"))
 	end script
 
 	script |Get Int - dotted key|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __writeValue("integer\\.dotted", "integer", 2)
 		assertEqual(2, sut's getInt("integer.dotted"))
 		TopLevel's xmlUtil's __deleteValue("integer.dotted")
 	end script
 
 	script |Get Int - Nested key|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("integer-root", "<dict><key>integer-sub</key><integer>3</integer></dict>")
 		assertEqual(3, sut's getInt({"integer-root", "integer-sub"}))
 		TopLevel's xmlUtil's __deleteValue("integer-root\\.integer-sub")
 	end script
 
 	script |Get Real|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __writeValue("real", "float", 1.5)
 		assertEqual(1.5, sut's getReal("real"))
 		TopLevel's xmlUtil's __deleteValue("real")
 	end script
 
 	script |Get Boolean|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __writeValue("boolean", "bool", false)
 		assertEqual(false, sut's getBool("boolean"))
 		TopLevel's xmlUtil's __deleteValue("boolean")
 	end script
 
 	script |Get Date|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __writeValue("date", "date", "2023-07-19T00:01:02Z")
 		-- Will likely fail due to localization.
-		assertEqual(date "July 19, 2023 at 08:01:02 AM", sut's getDate("date"))
+		assertEqual(date "Wednesday, July 19, 2023 at 8:01:02 AM", sut's getDate("date"))
 		TopLevel's xmlUtil's __deleteValue("date")
 	end script
 
@@ -469,48 +476,48 @@ script |getList set|
 
 
 	script |getList - Not Found|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __deleteValue("unicorn-list")
 		assertMissing(sut's getList("unicorn-list"))
 	end script
 
 	script |getList - Empty List|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("empty-list", "<array/>")
 		assertEqual({}, sut's getList("empty-list"))
 		TopLevel's xmlUtil's __deleteValue("empty-list")
 	end script
 
 	script |getList - Integer List|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("integer-list", "<array><integer>1</integer></array>")
 		assertEqual({1}, sut's getList("integer-list"))
 		TopLevel's xmlUtil's __deleteValue("integer-list")
 	end script
 
 	script |getList - String List|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("string-list", "<array><string>1</string></array>")
 		assertEqual({"1"}, sut's getList("string-list"))
 		TopLevel's xmlUtil's __deleteValue("string-list")
 	end script
 
 	script |getList - Spaced Key|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("spaced list", "<array><string>1</string></array>")
 		assertEqual({"1"}, sut's getList("spaced list"))
 		TopLevel's xmlUtil's __deleteValue("spaced list")
 	end script
 
 	script |getList - Dotted Key|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("dotted\\.getList", "<array><integer>1</integer></array>")
 		assertEqual({1}, sut's getList("dotted.getList"))
 		TopLevel's xmlUtil's __deleteValue("dotted\\.getList")
 	end script
 
 	script |getList - Nested Key|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("array", "
 		<dict>
 			<key>array-sub</key>
@@ -555,14 +562,14 @@ script |plutil getValueWithDefault tests|
 	end afterClass
 
 	script |With Value|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __writeValue("with-value", "string", "string-value")
 		assertEqual("string-value", sut's getValueWithDefault("with-value", "default"))
 		TopLevel's xmlUtil's __deleteValue("with-value")
 	end script
 
 	script |Without Value|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __deleteValue("no-value")
 		assertEqual("default", sut's getValueWithDefault("no-value", "default"))
 	end script
@@ -600,7 +607,7 @@ script |plutil appendValue tests|
 	end afterClass
 
 	script |Non Existing|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		sut's appendValue("unicorn-list", 1)
 		assertEqual(textUtil's multiline("	<array>
 		<integer>1</integer>
@@ -609,7 +616,7 @@ script |plutil appendValue tests|
 	end script
 
 	script |Ignore Missing New Value|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("list", "<array/>")
 		sut's appendValue("list", missing value)
 		assertEqual("", TopLevel's xmlUtil's __grepValueXml("<array/>"))
@@ -617,7 +624,7 @@ script |plutil appendValue tests|
 	end script
 
 	script |First Element|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("list", "<array/>")
 		sut's appendValue("list", true)
 		assertEqual(textUtil's multiline("	<array>
@@ -627,7 +634,7 @@ script |plutil appendValue tests|
 	end script
 
 	script |Additional Element|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("list", "<array><real>1.5</real></array>")
 		sut's appendValue("list", 2.5)
 		assertEqual(textUtil's multiline("	<array>
@@ -638,7 +645,7 @@ script |plutil appendValue tests|
 	end script
 
 	script |Additional element, different type|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("list", "<array><real>1.5</real></array>")
 		sut's appendValue("list", 3)
 		assertEqual(textUtil's multiline("	<array>
@@ -649,7 +656,7 @@ script |plutil appendValue tests|
 	end script
 
 	script |Dotted Key|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("list\\.test", "<array/>")
 		sut's appendValue("list.test", 3)
 		assertEqual(textUtil's multiline("	<array>
@@ -659,7 +666,7 @@ script |plutil appendValue tests|
 	end script
 
 	script |Spaced Key|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("space list", "<array/>")
 		sut's appendValue("space list", 3)
 		assertEqual(textUtil's multiline("	<array>
@@ -669,7 +676,7 @@ script |plutil appendValue tests|
 	end script
 
 	script |Nested Key|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("list", "<dict><key>list-sub</key><array/></dict>")
 		sut's appendValue({"list", "list-sub"}, 3)
 		assertEqual(textUtil's multiline("		<array>
@@ -713,50 +720,50 @@ script |plutil removeElement tests|
 
 
 	script |Missing Value as element|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("array", "<array/>")
-		notok(sut's removeElement("array", missing value))
+		notOk(sut's removeElement("array", missing value))
 		TopLevel's xmlUtil's __deleteValue("array")
 	end script
 
 	script |Happy Case|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("array", "<array><string>element</string></array>")
 		ok(sut's removeElement("array", "element"))
 		TopLevel's xmlUtil's __deleteValue("array")
 	end script
 
 	script |Wrong Type|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		skip("Known Issue, all elements are treated as string.")
 		TopLevel's xmlUtil's __insertXml("array", "<array><string>1</string></array>")
 		notOk(sut's removeElement("array", 1))
-		TopLevel's xmlUtil's __deleteValue("array") 
+		TopLevel's xmlUtil's __deleteValue("array")
 	end script
 
 	script |Inexistent Array|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("array", "<array><string>element</string></array>")
 		notOk(sut's removeElement("array-unicorn", "element"))
 		TopLevel's xmlUtil's __deleteValue("array")
 	end script
 
 	script |Inexistent Element|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("array", "<array><string>element</string></array>")
 		ok(sut's removeElement("array", "element"))
 		TopLevel's xmlUtil's __deleteValue("array")
 	end script
 
 	script |Dotted Name|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("array\\.test", "<array><string>element</string></array>")
 		ok(sut's removeElement("array.test", "element"))
 		TopLevel's xmlUtil's __deleteValue("array\\.test")
 	end script
 
 	script |Nested|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("array-main", "
 			<dict>
 				<key>array-sub</key>
@@ -840,7 +847,7 @@ script |plutil setValue tests|
 	end tearDown
 
 	on beforeClass()
-		TopLevel's xmlUtil's __createTestPlist() 
+		TopLevel's xmlUtil's __createTestPlist()
 	end beforeClass
 
 	on afterClass()
@@ -888,7 +895,7 @@ script |plutil setValue tests|
 	</array>"), TopLevel's xmlUtil's __grepMultiLineValueXml("Array", "array"))
 	end script
 
-	script |String Array Values| 
+	script |String Array Values|
 		property parent : unitTest(me)
 		sut's setValue("Array", {"a", "b", "$Dollar and c & d"})
 		assertEqual(textUtil's multiline("	<array>
@@ -899,7 +906,7 @@ script |plutil setValue tests|
 	end script
 
 	script |Record Value|
-		property parent : unitTest(me) 
+		property parent : unitTest(me)
 		sut's setValue("Record", {one:"half"})
 		assertEqual(textUtil's multiline("	<dict>
 		<key>one</key>
@@ -909,14 +916,14 @@ script |plutil setValue tests|
 
 	script |Key starts with a number|
 		property parent : unitTest(me)
-		sut's setValue("1Password 6", 6) 
+		sut's setValue("1Password 6", 6)
 		assertEqual("6", TopLevel's xmlUtil's __readValue("_1Password 6"))
 	end script
 
 	script |Key starts with a number, saving a record|
 		property parent : unitTest(me)
 		-- sut's setValue("1Password 6", {nested_key: "value"})
-		sut's setValue("02-Concurrency", {nested_key: "value"})
+		sut's setValue("02-Concurrency", {nested_key:"value"})
 		assertEqual(textUtil's multiline("	<dict>
 		<key>nested_key</key>
 		<string>value</string>
@@ -1062,7 +1069,7 @@ script |_getTypedGetterShellTemplate|
 		property parent : unitTest(me)
 		set actual to sut's _getTypedGetterShellTemplate("string", {"unit", "test"})
 		ok(actual does not contain "else plutil")
-		ok(actual contain "plutil -extract 'unit.test' raw -expect string")
+		ok(actual contains "plutil -extract 'unit.test' raw -expect string")
 		ok(actual ends with ".plist'")
 	end script
 end script
@@ -1079,7 +1086,7 @@ script |plutil _validatePlistKey tests|
 	end setUp
 
 	script |Missing Key|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		script Lambda
 			sut's _validatePlistKey(missing value)
 		end script
@@ -1087,7 +1094,7 @@ script |plutil _validatePlistKey tests|
 	end script
 
 	script |Empty Key|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		script Lambda
 			sut's _validatePlistKey(" ")
 		end script
@@ -1095,7 +1102,7 @@ script |plutil _validatePlistKey tests|
 	end script
 
 	script |Invalid Key Type|
-		property parent : UnitTest(me)
+		property parent : unitTest(me)
 		script Lambda
 			sut's _validatePlistKey(1234)
 		end script

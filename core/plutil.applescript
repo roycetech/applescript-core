@@ -41,7 +41,7 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2024-06-29 16:03:43
+	@Last Modified: 2024-07-23 16:00:50
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
@@ -341,8 +341,9 @@ on new()
 							return
 						end if
 
-						if my getValue(plistKeyOrKeyList) is equal to missing value then
-							my _newValue(plistKeyOrKeyList, newValue)
+						set partialEscaped to my _escapeStartingNumber(plistKeyOrKeyList)
+						if my getValue(partialEscaped) is equal to missing value then
+							my _newValue(partialEscaped, newValue)
 						else
 							set partialEscaped to my _escapeStartingNumber(plistKeyOrKeyList)
 							tell property list file plistFilename to set value of property list item partialEscaped to newValue

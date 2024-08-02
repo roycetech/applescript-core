@@ -4,8 +4,8 @@
 
 
 build-test:
-	osacompile -o ~/Library/Script\ Libraries/core/test/terminal-util.scpt test/terminal-util.applescript
-	osacompile -o ~/Library/Script\ Libraries/core/test/xml-util.scpt test/xml-util.applescript
+	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/test/terminal-util.scpt" test/terminal-util.applescript
+	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/test/xml-util.scpt" test/xml-util.applescript
 .PHONY: build-test
 
 
