@@ -29,14 +29,13 @@ use loggerFactory : script "core/logger-factory"
 use retryLib : script "core/retry"
 
 use decoratorLib : script "core/decorator"
-
-use spotScript : script "core/spot-test"
-
+use keyboardMaestroPreferencesDecorator : script "core/dec-keyboard-maestro-preferences-variables"
 
 property logger : missing value
 property retry : missing value
 
 property MENU_ALL : "All Actions"
+property KM_DELETE_LITERAL : "%Delete%"
 
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -46,6 +45,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 	
+	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		NOOP
 		Manual: Run Macro
@@ -66,6 +66,7 @@ on spotCheck()
 		Manual: Sort By Name/Trigger
 
 		Manual: Insert Action
+		Manual: Delete Variable
 	")
 	
 	set spotClass to spotScript's new()
@@ -140,6 +141,9 @@ on spotCheck()
 		
 		-- sut's insertAction("Favorites", "Code Complet")
 		sut's insertAction(missing value, "Alert")
+		
+	else if caseIndex is 17 then
+		sut's deleteVariable("ActionID")
 		
 	end if
 	
@@ -545,6 +549,17 @@ on new()
 			exec of retry on result for variable_update_retry_count
 		end setVariable
 		
+		
+		on deleteVariable(variableName)
+			script SetRetry
+				tell application "Keyboard Maestro Engine" to setvariable variableName to KM_DELETE_LITERAL
+				true
+			end script
+			exec of retry on result for variable_update_retry_count
+			
+		end deleteVariable
+		
+		
 		on getEditorWindow()
 			_getMainWindow()
 		end getEditorWindow
@@ -559,6 +574,7 @@ on new()
 		end _getMainWindow
 	end script
 	
+	keyboardMaestroPreferencesDecorator's decorate(result)
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
