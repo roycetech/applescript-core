@@ -15,6 +15,7 @@ list-targets:
 help:
 	@echo "make install - Create config files, assets, and install essential libraries."
 
+$(info     AppleScript Core Build Script)
 $(info     OS_NAME: $(OS_NAME))
 $(info     DEPLOY_TYPE: $(DEPLOY_TYPE))
 
@@ -28,3 +29,20 @@ else
  	include Makefile.user
 
 endif
+
+
+deploy-type:
+	@deploy_type=$$(plutil -extract "[app-core] Deployment Type - LOV Selected" raw ~/applescript-core/session.plist); \
+	if [ "$$deploy_type" = "computer" ]; then \
+		echo "computer"; \
+	else \
+		echo "user"; \
+	fi
+
+set-user-deploy-type:
+	$$(plutil -replace '[app-core] Deployment Type - LOV Selected' -string 'user' ~/applescript-core/session.plist);
+
+
+set-computer-deploy-type:
+	$$(plutil -replace '[app-core] Deployment Type - LOV Selected' -string 'computer' ~/applescript-core/session.plist);
+
