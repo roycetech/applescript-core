@@ -86,7 +86,7 @@ install-safari: build-safari
 	plutil -replace 'FIND_RETRY_SLEEP' -integer 1 ~/applescript-core/config-system.plist
 
 
-build-safari-technology-preview:
+build-safari-technology-preview:  # Broken
 	osacompile -o "$(HOME)/Library/Script Libraries/core/safari-technology-preview.scpt" "scripts/stub.applescript"
 	./scripts/build-lib.sh  apps/1st-party/Safari Technology Preview/r168/dec-safari-technology-preview-javascript
 	./scripts/build-lib.sh  apps/1st-party/Safari Technology Preview/r168/safari-technology-preview
@@ -138,3 +138,8 @@ else ifeq ($(OS_NAME), monterey)
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/terminal
 endif
 	$(SUDO) ./scripts/build-lib.sh libs/sftp/dec-terminal-prompt-sftp
+
+
+build-xcode:
+	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/xcode.scpt" "scripts/stub.applescript"
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Xcode/15.4/xcode
