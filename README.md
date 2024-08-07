@@ -9,7 +9,7 @@ A framework and collection of libraries for for writing AppleScripts that utiliz
 
 AppleScript Core is a collection of wrapper AppleScripts that allows you to write automation AppleScripts faster and more efficiently.
 
-For the more comprehensive documentation, see [README-Full.md](./README-full.md)
+For the more comprehensive documentation, see [README-Full.md](./README-Full.md)
 
 
 ## Installation
