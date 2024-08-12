@@ -14,7 +14,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
 
-	@Last Modified: 2024-07-08 17:32:04
+	@Last Modified: 2024-08-06 14:00:05
 *)
 
 use script "core/Text Utilities"
@@ -264,7 +264,7 @@ on new()
 			else if tildePath starts with "~" then
 				set posixPath to format {"/Users/{}/{}", {std's getUsername(), text 3 thru -1 of posixPath}}
 			end if
-			logger's debugf("posixPath: {}", posixPath)
+			-- logger's debugf("posixPath: {}", posixPath)
 			posixPath
 		end _untilde
 
@@ -380,7 +380,7 @@ on new()
 							end if
 						end repeat
 					end tell
-					logger's debugf("inSideBar: {}", inSideBar)
+					-- logger's debugf("inSideBar: {}", inSideBar)
 
 					if not inSideBar then
 						activate application "Finder"
