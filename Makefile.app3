@@ -123,6 +123,11 @@ install-text-mate:
 install-viscosity:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Viscosity/1.10.x/viscosity
 
+
+build-visual-studio-code:
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Visual Studio Code/1.81/visual-studio-code
+
+
 build-zoom:
 	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/zoom.scpt" "scripts/stub.applescript"
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/dec-user-zoom

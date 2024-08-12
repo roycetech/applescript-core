@@ -26,7 +26,7 @@ fi
 result=`awk "/>$list_key</,/<\\/array>/" $file_path | tail -n +2 | grep "$new_decorator"`
 if [[ -n "$result" ]];
 then
-	echo "Removing: $new_decorator for $list_key"
+	echo "Removing: $new_decorator from $list_key"
 	escaped_decorator=$(echo "$new_decorator" | sed 's/[.*\/]/\\&/g')
 	cleaned_list=$(awk "/>$list_key</,/<\\/array>/" $file_path | tail -n +2 | sed "/$escaped_decorator/d")
 
