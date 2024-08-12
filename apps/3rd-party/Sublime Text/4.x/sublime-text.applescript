@@ -185,7 +185,7 @@ on new()
 			tell application "System Events" to tell process "Sublime Text"
 				set windowName to name of first window
 			end tell
-			if windowName is missing value then return missing value
+			if windowName is missing value or windowName is "" then return missing value
 			
 			set windowNameTokens to textUtil's split(windowName, unic's SEPARATOR)
 			first item of windowNameTokens
@@ -271,6 +271,8 @@ on new()
 			end if
 			
 			set filename to textUtil's stringAfter(filename, "file://")
+			if filename is missing value then return missing value
+
 			textUtil's replace(filename, "%20", " ")
 		end getCurrentFilePath
 		
@@ -446,8 +448,8 @@ on new()
 					set windowTitle to get value of static text 2
 				end tell
 			end tell
-			if windowTitle is "" then return missing value
-			
+			if windowTitle is "" or windowTitle is missing value then return missing value
+
 			set csv to textUtil's split(windowTitle, ",")
 			set projectPart to first item of csv
 			set filenameAndProject to textUtil's split(projectPart, unic's SEPARATOR)
@@ -484,11 +486,11 @@ on new()
 		(* Sends a close tab key stroke combination. *)
 		on closeTab()
 			if not _isAppWindowAvailable() then return
-			
+
 			kb's pressCommandKey("w")
 		end closeTab
-		
-		
+
+
 		(* NOTE:  *)
 		on focusGroup1()
 			if not _isAppWindowAvailable() then return
