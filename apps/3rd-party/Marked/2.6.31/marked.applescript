@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.31/marked
 
 	@Created: January 13, 2024 1:29:36 PM
-	@Last Modified: 2024-03-21 10:46:17
+	@Last Modified: 2024-08-09 17:10:44
 *)
 
 use std : script "core/std"
@@ -38,28 +38,31 @@ on spotCheck()
 	set configSystem to configLib's new("system")
 
 	set cases to listUtil's splitByLine("
+		INFO
+
 		Open File - Not Running
 		Open File - Running
 		Open File - Running - No document
 		Focus Doc - Manual
-		Get Front Tab - Manual (Test Zoomed and non Zoomed)
 
+		Get Front Tab - Manual (Test Zoomed and non Zoomed)
 		Manual: Find Tab With Name
 		Manual: Close Tab
 		Open File - Free Style 1-2s
 		Open File Asynchronous
-		Toggle Dark Mode
 
+		Toggle Dark Mode
 		Turn On Dark Mode
 		Turn On Light Mode
 		Manual: Set Raise Window on Update ON
 		Manual: Set Raise Window on Update OFF
-		Manual: Scroll to Bottom
 
+		Manual: Scroll to Bottom
 		Manual: Set Preprocess Arguments
 		Manual: Scroll Down a Step
 		Manual: Scroll Up a Step
 		Manual: Scroll Page Down
+
 		Manual: Scroll Page Up
 	")
 
@@ -77,12 +80,21 @@ on spotCheck()
 
 	set sut to new()
 	if caseIndex is 1 then
+		set markedTab to sut's getFrontTab()
+		if markedTab is missing value then
+			logger's info("Front tab was not found")
+		else
+			logger's info("Front tab was found")
+			logger's infof("Document Name: {}", markedTab's getDocumentName())
+		end if
+
+	else if caseIndex is 2 then
 		tell application "Marked 2" to quit
 		delay 1
 		set macTab to sut's openFile(testFile1)
 		logger's infof("Open file: {}", name of macTab)
 
-	else if caseIndex is 2 then
+	else if caseIndex is 3 then
 		tell application "Marked 2" to quit
 		delay 2 -- 1s failed.
 		activate application "Marked 2"
@@ -94,7 +106,7 @@ on spotCheck()
 		set markedTab2 to sut's openFile(testFile2)
 		logger's infof("Open file: {}", markedTab2's getDocumentName())
 
-	else if caseIndex is 3 then
+	else if caseIndex is 4 then
 		tell application "Marked 2" to quit
 		delay 1
 		activate application "Marked 2"
@@ -104,7 +116,7 @@ on spotCheck()
 		set markedTab1 to sut's openFile(testFile1)
 		logger's infof("Open file: {}", markedTab1's getDocumentName())
 
-	else if caseIndex is 4 then
+	else if caseIndex is 5 then
 		tell application "Marked 2" to quit
 		delay 1
 		activate application "Marked 2"
@@ -117,7 +129,7 @@ on spotCheck()
 		markedTab2's focus()
 		logger's infof("Open file: {}", markedTab1's getDocumentName())
 
-	else if caseIndex is 5 then
+	else if caseIndex is 6 then
 		set frontTab to sut's getFrontTab()
 		if frontTab is missing value then
 			logger's info("No window found")
@@ -126,7 +138,7 @@ on spotCheck()
 			logger's infof("Open document name: {}", frontTab's getDocumentName())
 		end if
 
-	else if caseIndex is 6 then
+	else if caseIndex is 7 then
 		set mdTab to sut's findTabWithName("Safari-general.md")
 		assertThat of std given condition:mdTab is not missing value, messageOnFail:"Expected found but missing"
 
@@ -134,51 +146,51 @@ on spotCheck()
 		assertThat of std given condition:(mdTabMissing is missing value), messageOnFail:"Expected missing but present"
 		logger's info("Passed.")
 
-	else if caseIndex is 7 then
+	else if caseIndex is 8 then
 		set mdTab to sut's findTabWithName("example-2.md")
 		if mdTab is not missing value then mdTab's closeTab()
 
-	else if caseIndex is 8 then
+	else if caseIndex is 9 then
 		sut's openFile(testFile2)
 
-	else if caseIndex is 9 then
+	else if caseIndex is 10 then
 		sut's openFileAsync(testFile2)
 
-	else if caseIndex is 10 then
+	else if caseIndex is 11 then
 		sut's toggleDarkMode()
 
-	else if caseIndex is 11 then
+	else if caseIndex is 12 then
 		sut's turnOnDarkMode()
 
-	else if caseIndex is 12 then
+	else if caseIndex is 13 then
 		sut's turnOnLightMode()
 
-	else if caseIndex is 13 then
+	else if caseIndex is 14 then
 		sut's setRaiseWindowOnUpdate(true)
 
-	else if caseIndex is 14 then
+	else if caseIndex is 15 then
 		sut's setRaiseWindowOnUpdate(false)
 
-	else if caseIndex is 15 then
-		sut's scrollToBottom()
-
 	else if caseIndex is 16 then
-		set markdownTab to sut's getFrontTab()
-		markdownTab's setPreprocessorArguments("1234")
+		sut's scrollToBottom()
 
 	else if caseIndex is 17 then
 		set markdownTab to sut's getFrontTab()
-		markdownTab's scrollStepDown()
+		markdownTab's setPreprocessorArguments("1234")
 
 	else if caseIndex is 18 then
 		set markdownTab to sut's getFrontTab()
-		markdownTab's scrollStepUp()
+		markdownTab's scrollStepDown()
 
 	else if caseIndex is 19 then
 		set markdownTab to sut's getFrontTab()
-		markdownTab's scrollPageDown()
+		markdownTab's scrollStepUp()
 
 	else if caseIndex is 20 then
+		set markdownTab to sut's getFrontTab()
+		markdownTab's scrollPageDown()
+
+	else if caseIndex is 21 then
 		set markdownTab to sut's getFrontTab()
 		markdownTab's scrollPageUp()
 
@@ -187,6 +199,7 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
+
 
 on new()
 	loggerFactory's injectBasic(me)
@@ -431,7 +444,13 @@ on new()
 					NOTE: Take into account when the document is zoomed, the percentage is displayed in the window title.
 				*)
 				on getDocumentName()
-					set windowName to name of appWindow
+					try
+						set windowName to name of appWindow
+					on error the errorMessage number the errorNumber -- Throws when the app window is minimized in the dock.
+						logger's warn(errorMessage)
+						return missing value
+					end try
+
 					set regex to regexPatternLib's new(".*(?=\\s\\(\\d{2}%\\))")
 					set zoomLessName to regex's firstMatchInString(windowName)
 					if zoomLessName is not missing value then return zoomLessName
