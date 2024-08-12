@@ -18,10 +18,13 @@
 		
 	Migrated On: Monday, April 29, 2024 at 12:44:46 PM
 *)
+
+
 use scripting additions
 
 use script "core/Text Utilities"
 
+use std : script "core/std"
 use listUtil : script "core/list"
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
@@ -42,6 +45,7 @@ property plutil : missing value
 property configUser : missing value
 property kb : missing value
 
+(* TODO: Move away from using this extra configuration. *)
 property REPO_PROJECT_PATH : missing value
 property PROJECTS_PATH : missing value
 
@@ -185,6 +189,15 @@ on new()
 		
 		
 		on getDocumentPath()
+			(* Extract path from the window title. *)
+			tell application "System Events" to tell process "Electron"
+				title of front window
+				textUtil's split(result, unic's SEPARATOR)
+			end tell
+			first item of result
+			return textUtil's replace(result, "~", "/Users/" & std's getUsername())
+			
+			
 			set resourcePath to getResourcePath()
 			if resourcePath is missing value then return missing value
 			
@@ -200,6 +213,8 @@ on new()
 		
 		(* Get the file path relative to the "Projects" folder *)
 		on getProjectsPath()
+			return textUtil's replace(getDocumentPath(), PROJECTS_PATH & "/", "")
+			
 			set resourcePath to getResourcePath()
 			if resourcePath is missing value then return missing value
 			
@@ -212,16 +227,26 @@ on new()
 		
 		on getProjectPath()
 			set projectName to getProjectName()
-			-- 			logger's debugf("projectName: {}", projectName)
+			if projectName is missing value then return missing value
 			
+			(* Extract path from the window title. *)
+			tell application "System Events" to tell process "Electron"
+				title of front window
+				textUtil's split(result, unic's SEPARATOR)
+			end tell
+			first item of result
+			textUtil's stringBefore(result, projectName) & projectName
+			return textUtil's replace(result, "~", "/Users/" & std's getUsername())
+			
+			(* For when the project is registered. *)
+			set projectName to getProjectName()
+			-- 			logger's debugf("projectName: {}", projectName)
 			set repoSubfolder to REPO_PROJECT_PATH's getValue(projectName)
 			-- 			logger's debugf("PROJECTS_PATH: {}", PROJECTS_PATH)
-			
-			-- 			logger's debugf("repoSubfolder: {}", repoSubfolder)
-			
+			-- 			logger's debugf("repoSubfolder: {}", repoSubfolder)			
 			textUtil's join({PROJECTS_PATH, repoSubfolder, projectName}, "/") & "/"
 		end getProjectPath
-
+		
 		(*
 			Cases:
 				Root resource selected
@@ -291,7 +316,6 @@ on new()
 			if {"untitled"} contains resourcePath then return "unknown"
 			if resourcePath is "requirements.txt" then return "python-package-definition"
 			if resourcePath is "Find Results" then return "find-results"
-			
 			
 			last item of filenameTokens
 		end getFileType
