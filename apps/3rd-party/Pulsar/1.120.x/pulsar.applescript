@@ -9,13 +9,17 @@
 		Project Find Results
 		Welcome Guide
 
-	@Last Modified: 2024-08-28 14:10:57
+	@Created:
+		Wed, Aug 28, 2024 at 2:18:46 PM
 
 	@Project:
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/3rd-party/Pulsar/1.102.x/pulsar
+		./scripts/build-lib.sh apps/3rd-party/Pulsar/1.120.x/pulsar
+
+	@Change Logs:
+		Wed, Aug 28, 2024 at 2:22:21 PM - isProjectEmpty() is no longer detectable.
 *)
 
 use script "core/Text Utilities"
@@ -31,7 +35,6 @@ use loggerFactory : script "core/logger-factory"
 use listUtil : script "core/list"
 use retryLib : script "core/retry"
 use configLib : script "core/config"
-use spotScript : script "core/spot-test"
 use kbLib : script "core/keyboard"
 use syseveLib : script "core/system-events"
 use clipLib : script "core/clipboard"
@@ -61,6 +64,7 @@ on spotCheck()
 		Manual: _extractDocPathByLowerLeftButton
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -142,6 +146,8 @@ on new()
 
 		(* This is the state when there are no project folder is currently open. *)
 		on isProjectEmpty()
+			return false
+
 			tell application "System Events" to tell process "Pulsar"
 				not (exists group 1 of UI element 1 of front window)
 			end tell
