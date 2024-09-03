@@ -1,9 +1,15 @@
 (*
-	@Known Issues:
-		Fails to compile intermittently, but mostly it fails.
+	@Purpose:
+		Commonly used unicodes in a macOS System.
 
-	@TODO:
-		Migrate out domain-specific characters like the OMZ.
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh core/unicodes
+
+	@Known Issues:
+		May fail to build using external shell tool because the file read may fail due to the presence of unicode characters.  Build manually or using the command line instead.
 
 	@Build:
 		make build-lib SOURCE=core/unicodes
@@ -25,6 +31,7 @@ on spotCheck()
 
 	logger's infof("Separator: {}", my SEPARATOR)
 	logger's infof("App{}Store", my APP_STORE_SPACE)
+	logger's infof("Menu Checked", my MENU_CHECK)
 
 	logger's finish()
 end spotCheck
@@ -37,5 +44,6 @@ property SEPARATOR : " — "
 property MAIL_SUBDASH : "–"
 property ARROW_LEFT : "←"
 property ARROW_RIGHT : "→"
+property MENU_CHECK : "✓"
 
 property APP_STORE_SPACE : ASCII character 202
