@@ -35,7 +35,7 @@ on spotCheck()
 	set caseId to "process-spotCheck"
 
 	set cases to listUtil's splitByLine("
-		Inexistent App
+		Nonexistent App
 		Manual: Terminate (Launch Automator). (Running/Not Running)
 		Manual: Is Front Most (Running,Not Running)
 		Manual: Move Window
