@@ -76,8 +76,8 @@ on new()
 			if running of application "Guitar Pro 7" is false then return
 			
 			tell application "System Events" to tell process "GuitarPro7"
-			try
-				click menu item "Play" of menu 1 of menu bar item "Sound" of menu bar 1
+				try
+					click menu item "Play" of menu 1 of menu bar item "Sound" of menu bar 1
 				end try
 			end tell
 		end startPlaying
