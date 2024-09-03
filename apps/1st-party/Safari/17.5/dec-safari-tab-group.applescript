@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-group
 
 	@Created: Monday, June 10, 2024 at 11:42:13 AM
-	@Last Modified: 2024-06-10 11:54:43
+	@Last Modified: 2024-09-03 17:33:30
 	@Change Logs:
 		Monday, June 10, 2024 at 11:47:12 AM - cliclick no longer required.
 *)
@@ -37,6 +37,7 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
+		INFO: NOOP
 		Manual: Switch to applescript-core
 		Manual: Switch to Default
 	")
@@ -58,13 +59,13 @@ on spotCheck()
 	logger's infof("Is Default Group: {}", sut's isDefaultGroup())
 
 	if caseIndex is 1 then
+
+	else if caseIndex is 2 then
 		sut's switchGroup("applescript-core")
 		delay 1 -- Allow the group change to propagate before reading it again.
 
-	else if caseIndex is 2 then
-		sut's switchGroup(missing value)
-
 	else if caseIndex is 3 then
+		sut's switchGroup(missing value)
 
 	else
 

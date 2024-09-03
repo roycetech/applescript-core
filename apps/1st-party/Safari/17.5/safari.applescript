@@ -32,7 +32,7 @@
 		end tell
 
 	@Created: Fri, Jul 12, 2024 at 3:01:31 PM
-	@Last Modified: 2024-07-12 15:03:20
+	@Last Modified: 2024-09-03 18:47:14
 *)
 
 use script "core/Text Utilities"
@@ -292,10 +292,19 @@ on new()
 		on getFrontTab()
 			if not winUtil's hasWindow("Safari") then return missing value
 
-			tell application "Safari" to tell first window
-				if current tab is missing value then return missing value -- When on full screen.
+			set firstWindow to missing value
+			tell application "Safari"
+				try
+					firstWindow to first window -- Error when only a settings window is available.
+				end try
 
-				safariTabLib's new(its id, index of current tab, me)
+				if firstWindow is missing value then return missing value
+
+				tell firstWindow
+					if current tab is missing value then return missing value -- When on full screen.
+
+					safariTabLib's new(its id, index of current tab, me)
+				end tell
 			end tell
 		end getFrontTab
 
@@ -304,10 +313,15 @@ on new()
 		on getFirstTab()
 			if running of application "Safari" is false then return missing value
 
+				try
+					firstWindow to first window -- Error when only a settings window is available.
+				end try
+				if firstWindow is missing value then return missing value
+
 			tell application "Safari"
 				if (count of windows) is 0 then return missing value
 
-				tell first window
+				tell firstWindow
 					if current tab is missing value then return missing value -- When on full screen.
 
 					safariTabLib's new(its id, index of current tab, me)
