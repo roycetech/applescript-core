@@ -32,7 +32,7 @@ end newSpotBase
 
 (* *)
 on decorate(baseScript)
-	set speech to speechLib's new(missing value)
+	set speech to speechLib's new()
 
 	script LoggerSpeechAndTrackingInstance
 		property parent : baseScript

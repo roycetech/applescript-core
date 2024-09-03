@@ -64,7 +64,7 @@ logger's start()
 
 set plutil to plutilLib's new()
 set session to plutil's new("session")
-set speech to speechLib's new(missing value)
+set speech to speechLib's new()
 set scriptEditor to scriptEditorLib's new()
 set retry to retryLib's new()
 set plutil to plutilLib's new()
@@ -114,7 +114,7 @@ on main()
 	end try
 	
 	set currentDeploymentType to usr's getDeploymentType()
-	set chosenDeployment to dia's showChoicesWithDefault("Deployment Type", "User-type has no dock icon but requires per user app deployment", {"user", "computer"}, currentDeploymentType)
+	set chosenDeployment to dia's showChoicesWithDefault("Choose Deployment Type", "User-type requires per user app deployment", {"user", "computer"}, currentDeploymentType)
 	logger's debugf("chosenDeployment: {}", chosenDeployment)
 	
 	if chosenDeployment is "computer" then
@@ -146,11 +146,8 @@ on main()
 	
 	if chosenDeployment is "user" then updateAppToDockless(appFilename, targetFolder)
 	
-	say 1
 	tell speech to speakSynchronously("Menu app deployed") -- causing problems.
-	say 2
 	activate application baseScriptName
-	say 3
 	scriptEditorTab's closeTab()
 end main
 

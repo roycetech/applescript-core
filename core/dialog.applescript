@@ -1,5 +1,5 @@
 (*
-	@Last Modified: 2024-07-21 11:48:08
+	@Last Modified: 2024-08-14 10:59:36
 
 	@Project:
 		applescript-core
@@ -104,7 +104,7 @@ end spotCheck
 
 on new()
 	loggerFactory's injectBasic(me)
-	set speech to speechLib's new(missing value)
+	set speech to speechLib's new()
 
 	script DialogInstance
 		property speechOn : false

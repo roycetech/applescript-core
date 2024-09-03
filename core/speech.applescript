@@ -8,7 +8,7 @@
 
 	@Usage:
 		use speechLib : script "core/speech"
-		set speech to speechLib's new(missing value)  for the default customization config.
+		set speech to speechLib's new()  for the default customization config.
 		speech's speak("some text")
 
 	@Known Issues:
@@ -109,18 +109,26 @@ on spotCheck()
 	logger's finish()
 end spotCheck
 
+
 -- HANDLERS =================================================================
 
+on new()
+	newWithLocale(DEFAULT_CONFIG)
+end new
+
+
+(* For backwards-compatibility. *)
 on newDefault()
-	new(DEFAULT_CONFIG)
+	new()
 end newDefault
+
 
 (*
 	NOTE: Removed logger references inside the script.
 
 	@Final - maybe getting too complex if we want to make this extensible.
 *)
-on new(pLocalizationConfigName)
+on newWithLocale(pLocalizationConfigName)
 	-- loggerFactory's inject(me)
 	set usr to userLib's new()
 	set plutil to plutilLib's new()
@@ -138,6 +146,8 @@ on new(pLocalizationConfigName)
 
 		-- This is too specific. TODO: Convert it to a passed script instead to determine silence state.
 		property _userInMeetingStub : missing value
+		(* Allows subclass to have access to the last translation. *)
+		property _lastTranslation : missing value
 
 		(*
 			Speak text without checking the custom pronunciations.
@@ -193,15 +203,17 @@ on new(pLocalizationConfigName)
 				say textToSpeak without waiting until completion
 			end if
 
-			textToSpeak
+			set my _lastTranslation to textToSpeak
+			my _lastTranslation
 		end speak
 
 
 		on speakSynchronously(rawText)
 			set origState to synchronous
 			set synchronous to true
-			speak(rawText)
+			set output to speak(rawText)
 			set synchronous to origState
+			output
 		end speakSynchronously
 
 
@@ -284,4 +296,4 @@ on new(pLocalizationConfigName)
 
 	set decorator to decoratorLib's new(SpeechInstance)
 	decorator's decorate()
-end new
+end newWithLocale

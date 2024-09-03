@@ -65,7 +65,7 @@ logger's start()
 
 set plutil to plutilLib's new()
 set session to plutil's new("session")
-set speech to speechLib's new(missing value)
+set speech to speechLib's new()
 
 set spotLib to spotScript's new()
 

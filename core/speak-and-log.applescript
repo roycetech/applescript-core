@@ -1,6 +1,12 @@
 (*
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh core/speak-and-log
+
 	@Created: Tuesday, December 19, 2023 at 3:35:33 PM
-	@Last Modified: 2023-12-19 15:45:02
+	@Last Modified: 2024-08-14 10:59:14
 *)
 
 use scripting additions
@@ -51,7 +57,7 @@ end spotCheck
 (*  *)
 on new()
 	loggerFactory's inject(me)
-	set speech to speechLib's new(missing value)
+	set speech to speechLib's new()
 
 	script SpeakAndLogInstance
 
