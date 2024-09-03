@@ -9,6 +9,8 @@
 		./scripts/build-lib.sh core/unicodes
 
 	@Known Issues:
+		Tue, Sep 3, 2024 at 12:39:11 PM - Source control may not show the code difference.
+			Re-save with utf-8 encoding to fix.
 		May fail to build using external shell tool because the file read may fail due to the presence of unicode characters.  Build manually or using the command line instead.
 
 	@Build:
