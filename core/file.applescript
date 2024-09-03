@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2024-05-22 16:11:02
+	@Last Modified: 2024-08-23 10:29:57
 *)
 
 use script "core/Text Utilities"
@@ -212,6 +212,8 @@ end writeTextToTempFile
 	@returns the name of the file with its extension/s.
 *)
 on getBaseFilename(filePath)
+	if filePath is missing value then return missing value
+
 	-- if (offset of ":" in filePath) is greater than 0 then  -- Mac OS Notation
 	if (offset of "/" in filePath) is greater than 0 then -- POSIX Notation
 		set theDelimiter to "/"
