@@ -13,7 +13,7 @@
 	@Build:
 		./scripts/build-lib.sh core/string
 
-	@Last Modified: 2024-06-06 14:57:05
+	@Last Modified: 2024-09-01 19:52:54
 *)
 use scripting additions
 
@@ -47,7 +47,7 @@ on spotCheck()
 	if caseIndex is 1 then
 		set sut to "1
 		2"
-		log urlEncode(sut)
+		log encodeUrl(sut)
 		-- log format("What's missing? {}", missing value)
 		log format("Body: {}", "She said: \"hello?\"")
 		log format("Body: \"{}\"", "She")
@@ -364,7 +364,7 @@ on indexOf(sourceText, substring)
 	if (offset of substring in sourceText) is 0 then return 0
 
 	offset of substring in sourceText
-end lastIndexOf
+end indexOf
 
 
 on lastIndexOf(sourceText, substring)
