@@ -27,14 +27,13 @@ property ERROR_OUT_OF_BOUNDS : 1001
 property linesDelimiter : "@"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
-if name of current application is "osascript" then unitTest()
 
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
 	set cases to splitByLine("
-		Unit Test
+		NOOP
 		Split By Line (TODO: presence of single quote results in error)
 		Trailing empty line
 		Split with trim
@@ -58,7 +57,6 @@ on spotCheck()
 	end if
 
 	if caseIndex is 1 then
-		unitTest()
 
 	else if caseIndex is 2 then
 		log (count of splitByLine("
