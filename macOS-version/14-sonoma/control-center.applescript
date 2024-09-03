@@ -3,6 +3,8 @@
 
 	The position of the Focus checkbox in the control center pane important.  It must be the 2nd one. (To improve to make it more robust.)
 
+	This script contains access to the other menu bar items as well like the voice control and game mode.
+
 	@Project:
 		applescript-core
 
@@ -50,6 +52,7 @@ on spotCheck()
 		Manual: Activate Control Center
 		Manual: Voice Control: Start Listening
 		Manual: Voice Control: Stop Listening
+
 	")
 
 	set spotClass to spotScript's new()
@@ -63,6 +66,7 @@ on spotCheck()
 	set sut to new()
 	logger's infof("Voice Control is active: {}", sut's isVoiceControlActive())
 	logger's infof("Voice Control is Awake: {}", sut's isVoiceControlAwake())
+	logger's infof("Is Game mode Active: {}", sut's isGameModeActive())
 
 	(* Manually check 3 cases: none, DND On, Other Focus *)
 
@@ -131,11 +135,17 @@ on new()
 	set retry to retryLib's new()
 
 	script ControlCenterInstance
+		on isGameModeActive()
+			tell application "System Events" to tell process "SystemUIServer"
+				exists (first menu item of menu "SystemUIServer" of menu bar item 3 of menu bar 1 whose title starts with "Game Mode: On")
+			end tell
+		end isGameModeActive
+
 		on isCameraInUse()
 			tell application "System Events" to tell process "Control Center"
-	set controlCenterDescription to description of first menu bar item of menu bar 1 whose value of attribute "AXAttributedDescription" starts with "Control Center"
-end tell
-controlCenterDescription contains "Camera and microphone are in use" or controlCenterDescription contains "Camera is in use"
+				set controlCenterDescription to description of first menu bar item of menu bar 1 whose value of attribute "AXAttributedDescription" starts with "Control Center"
+			end tell
+			controlCenterDescription contains "Camera and microphone are in use" or controlCenterDescription contains "Camera is in use"
 		end isCameraInUse
 
 
@@ -181,7 +191,7 @@ controlCenterDescription contains "Camera and microphone are in use" or controlC
 			Sets the voice control to listen if it is active.
 		*)
 		on startListening()
-			if not isVoiceControlActive() then return
+			if not isVoiceControlActive() or isVoiceControlAwake() then return
 
 			tell application "System Events" to tell process "Control Center"
 				click (first menu bar item of menu bar 1 whose value of attribute "AXAttributedDescription" starts with "Voice Control")
@@ -201,7 +211,7 @@ controlCenterDescription contains "Camera and microphone are in use" or controlC
 			Sets the voice control to listen if it is active.
 		*)
 		on stopListening()
-			if not isVoiceControlActive() then return
+			if not isVoiceControlActive() or isVoiceControlAsleep() then return
 
 			tell application "System Events" to tell process "Control Center"
 				click (first menu bar item of menu bar 1 whose value of attribute "AXAttributedDescription" starts with "Voice Control")
