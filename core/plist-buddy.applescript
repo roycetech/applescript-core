@@ -12,7 +12,7 @@
 
 	TODO: Reduce the spot checks and move to Test plist-buddy.
 
-	@Last Modified: 2023-10-08 18:52:49
+	@Last Modified: 2024-09-02 07:58:50
 *)
 
 use script "core/Text Utilities"
@@ -305,8 +305,8 @@ on new(pPlistName)
 			try
 				do shell script command
 				return true
-			on error the errorMessage number the errorNumber
-				log errorMessage
+			-- on error the errorMessage number the errorNumber
+			-- 	log errorMessage
 			end try
 
 			false
@@ -330,7 +330,7 @@ on new(pPlistName)
 			set settableValue to _quoteAsNeeded(keyValue)
 			set dataType to _getType(keyValue)
 			set command to format {"{} -c \"Add ':{}:{}' {} {}\" {}", {CLI, escapedRootKey, escapedSubKey, dataType, settableValue, quotedPlistPosixPath}}
-			logger's debugf("command: {}", command)
+			-- logger's debugf("command: {}", command)
 
 			try
 				do shell script command
@@ -352,7 +352,7 @@ on new(pPlistName)
 		*)
 		on deleteRootKey(rootKey)
 			set command to format {"{} -c \"Delete :{}\" {}", {CLI, rootKey, quotedPlistPosixPath}}
-			logger's debugf("command: {}", command)
+			-- logger's debugf("command: {}", command)
 			try
 				do shell script command
 				return true
@@ -367,7 +367,7 @@ on new(pPlistName)
 		*)
 		on deleteDictionaryKeyValue(rootKey, subKey)
 			set command to format {"{} -c \"Delete :{}:{}\" {}", {CLI, rootKey, subKey, quotedPlistPosixPath}}
-			logger's debugf("command: {}", command)
+			-- logger's debugf("command: {}", command)
 
 			try
 				do shell script command
