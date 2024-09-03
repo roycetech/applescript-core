@@ -2,6 +2,8 @@
 # Created: Fri, Jul 19, 2024 at 1:27:27 PM
 # Contains target for 3rd party apps and libraries.
 
+OMZ_EXISTS := $(wildcard ~/.oh-my-zsh/plugins)
+
 build-omz:
 	$(SUDO) ./scripts/build-lib.sh libs/zsh/oh-my-zsh
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt-omz
@@ -10,7 +12,6 @@ build-omz:
 install-omz: build-omz
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt-omz
 	$(SUDO) ./scripts/factory-insert.sh TerminalTabInstance core/dec-terminal-prompt-omz
-
 
 
 # 3rd Party Apps Library ------------------------------------------------------
@@ -34,6 +35,13 @@ build-chrome:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/chrome-javascript
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/chrome-tab
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/chrome
+
+
+build-guitar-pro:
+	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/guitar-pro.scpt" "scripts/stub.applescript"
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Guitar Pro/7.6/dec-guitar-pro-note
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Guitar Pro/7.6/guitar-pro
+
 
 build-ms-edge:
 	$(SUDO) osacompile -o "$(HOME)/Library/Script Libraries/core/microsoft-edge.scpt" "scripts/stub.applescript"
@@ -62,7 +70,9 @@ install-pulsar: build-pulsar
 
 build-keyboard-maestro:
 	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/keyboard-maestro.scpt" "scripts/stub.applescript"
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-variables
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-preferences-variables
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-editor
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro-group
@@ -130,16 +140,27 @@ build-visual-studio-code:
 
 build-zoom:
 	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/zoom.scpt" "scripts/stub.applescript"
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/dec-user-zoom
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-window
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-participants
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/dec-calendar-event-zoom
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-authentication
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting-actions
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting-actions-audio
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting-actions-video
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting-actions-sharing
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/zoom
+#	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/dec-user-zoom
+#	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-window
+#	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
+#	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-participants
+#	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/dec-calendar-event-zoom
+#	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom
+
 
 install-zoom: build-zoom
 	mkdir -p ~/applescript-core/zoom.us/
 	cp -n plist.template ~/applescript-core/zoom.us/config.plist || true
 	osascript ./apps/3rd-party/zoom.us/setup-configurations.applescript
-	plutil -replace 'UserInstance' -string 'core/dec-user-zoom' ~/applescript-core/config-lib-factory.plist
+	# plutil -replace 'UserInstance' -string 'core/dec-user-zoom' ~/applescript-core/config-lib-factory.plist
+	./scripts/plist-insert.sh ~/applescript-core/config-lib-factory.plist "UserInstance" "core/dec-user-zoom"
+
+
 	plutil -replace 'CalendarEventLibrary' -string 'core/dec-calendar-event-zoom' ~/applescript-core/config-lib-factory.plist
