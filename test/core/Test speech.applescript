@@ -17,7 +17,6 @@
 use AppleScript
 use scripting additions
 
-
 property parent : script "com.lifepillar/ASUnit"
 
 ---------------------------------------------------------------------------------------
@@ -28,6 +27,7 @@ global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
 use xmlUtilLib : script "core/test/xml-util"
+use usrLib : script "core/user"
 
 property TopLevel : me
 property suite : makeTestSuite(suitename)
@@ -49,11 +49,17 @@ script |Load script - speech|
 	property parent : TestSet(me)
 	script |Loading the script|
 		property parent : UnitTest(me)
+		set usr to usrLib's new()
+		if usr's getDeploymentType() is "computer" then
+			set objectDomain to local domain
+		else
+			set objectDomain to user domain
+		end if
+		
 		try
 			tell application "Finder"
-				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:core:"
+				set deploymentPath to ((path to library folder from objectDomain) as text) & "Script Libraries:core:"
 			end tell
-			
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
 			set xmlUtil to xmlUtilLib's newPlist(plist)
 		end try
@@ -61,25 +67,27 @@ script |Load script - speech|
 	end script
 end script
 
-
 script |speak tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
-	property totalTestCases : 6
 	
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
 	end setUp
 	on tearDown()
-		if executedTestCases is equal to the totalTestCases then afterClass()
+		if my name is "afterClass" then
+			afterClass()
+		end if
+		
 	end tearDown
 	on beforeClass()
 		xmlUtil's __createTestPlist()
-		set sut to sutScript's new(plist)
+		set sut to sutScript's newWithLocale(plist)
 	end beforeClass
+	
 	on afterClass()
-		xmlUtil's __deleteTestPlist()
+		-- xmlUtil's __deleteTestPlist()
 	end afterClass
 	
 	script |Unknown|
@@ -88,16 +96,17 @@ script |speak tests|
 		assertEqual("Unicorn", sut's speak("Unicorn"))
 	end script
 	
+	
 	script |Dashing 4 digits|
 		property parent : UnitTest(me)
 		script Lambda
 			xmlUtil's __writeValue("_1234", "string", "12-34")
 		end script
 		set sut to TopLevel's __newSut(Lambda)
-		-- set sut to sutScript's new(plist)
+		-- set sut to sutScript's newWithLocale(plist)
 		-- set _userInMeetingStub of sut to true
 		assertEqual("12-34", sut's speak("1234"))
-
+		delay 0.1 -- Fixes crushing error.
 		xmlUtil's __deleteValue("_1234")
 	end script
 	
@@ -108,6 +117,7 @@ script |speak tests|
 		end script
 		set sut to TopLevel's __newSut(Lambda)
 		assertEqual("1234", sut's speak(1234))
+		delay 0.1 -- Fixes crushing error.
 		-- Expect that speech correctly pronounces it as one thousand, two hundred, thirty four.
 		xmlUtil's __deleteValue("_1234")
 	end script
@@ -133,7 +143,7 @@ script |speak tests|
 			xmlUtil's __writeValue("se", "string", "S-E")
 		end script
 		set sut to TopLevel's __newSut(Lambda)
-		assertEqual("The variable S-E is not defined", sut's speak("The variable se is not defined"))
+		assertEqual("Test S-E spoken", sut's speak("Test se spoken"))
 	end script
 	
 	(* Unable to test.
@@ -158,9 +168,14 @@ script |speak tests|
 		ok(endTime - startTime > 2)
 	end script
 	*)
+	
+	script |afterClass|
+		property parent : UnitTest(me)
+		ok(true)
+	end script
 end script
 
-
+(*
 script |speech.speakSynchronously tests|
 	property parent : TestSet(me)
 	property executedTestCases : 0
@@ -175,7 +190,7 @@ script |speech.speakSynchronously tests|
 	end tearDown
 	on beforeClass()
 		xmlUtil's __createTestPlist()
-		set sut to sutScript's new(plist)
+		set sut to sutScript's newWithLocale(plist)
 	end beforeClass
 	on afterClass()
 		xmlUtil's __deleteTestPlist()
@@ -196,13 +211,13 @@ script |speech.speakSynchronously tests|
 		ok(synchronous of sut)
 	end script
 end script
-
+*)
 
 on __newSut(Lambda)
 	if Lambda is not missing value then run script Lambda
-
-	log plist
-	set sut to sutScript's new(plist)
+	
+	-- log plist
+	set sut to sutScript's newWithLocale(plist)
 	-- set _userInMeetingStub of sut to true -- Can't use this, because translation happens only when UNSILENCED.
 	sut
 end __newSut

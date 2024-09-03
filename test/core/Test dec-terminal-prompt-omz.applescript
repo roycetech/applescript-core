@@ -31,6 +31,7 @@ use textUtil : script "core/string"
 use loggerFactory : script "core/logger-factory"
 
 use terminalUtilLib : script "core/test/terminal-util"
+use usrLib : script "core/user"
 
 property logger : missing value
 property terminalUtil : missing value
@@ -78,11 +79,17 @@ script |Load script - dec-terminal-prompt-omz|
 	property parent : TestSet(me)
 	script |Loading the script|
 		property parent : UnitTest(me)
+		set usr to usrLib's new()
+		if usr's getDeploymentType() is "computer" then
+			set objectDomain to local domain
+		else
+			set objectDomain to user domain
+		end if
+
 		try
 			tell application "Finder"
-				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:core:"
-			end tell
-			
+				set deploymentPath to ((path to library folder from objectDomain) as text) & "Script Libraries:core:"
+			end tell			
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
 			set terminalUtil to terminalUtilLib's new()
 			set useCommandPasting of terminalUtil to true

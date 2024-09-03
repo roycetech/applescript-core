@@ -2,7 +2,7 @@
 	Utility for testing Terminal app scripts.
 
 	@Created: Friday, May 17, 2024 at 9:50:26 AM
-	@Last Modified: 2024-05-26 10:15:12
+	@Last Modified: 2024-09-03 10:44:44
 
 	@Plists:
 		config-user:
@@ -12,7 +12,7 @@
 		applescript-core
 
 	@Build:
-		/usr/bin/osacompile -o "$HOME/Library/Script Libraries/core/test/terminal-util.scpt" test/terminal-util.applescript
+		make build-test
 *)
 use scripting additions
 
@@ -91,6 +91,7 @@ on new()
 
 		(*
 			Strange error when using OMZ where dash and dot doesn't get typed at all.
+			Set to true if using OMZ
 		*)
 		property useCommandPasting : false
 

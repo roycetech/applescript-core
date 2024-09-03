@@ -741,14 +741,14 @@ script |plutil removeElement tests|
 		TopLevel's xmlUtil's __deleteValue("array")
 	end script
 
-	script |Inexistent Array|
+	script |Nonexistent Array|
 		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("array", "<array><string>element</string></array>")
 		notOk(sut's removeElement("array-unicorn", "element"))
 		TopLevel's xmlUtil's __deleteValue("array")
 	end script
 
-	script |Inexistent Element|
+	script |Nonexistent Element|
 		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("array", "<array><string>element</string></array>")
 		ok(sut's removeElement("array", "element"))
@@ -992,7 +992,7 @@ script |plutil delete tests set|
 	end afterClass
 
 
-	script |Delete Inexistent Key|
+	script |Delete Nonexistent Key|
 		property parent : unitTest(me)
 		TopLevel's xmlUtil's __deleteValue("Unicorn")
 		notOk(sut's deleteKey("Unicorn"))

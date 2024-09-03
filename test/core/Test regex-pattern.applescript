@@ -14,7 +14,6 @@
 use AppleScript
 use scripting additions
  
-use omz : script "core/oh-my-zsh"
 
 property parent : script "com.lifepillar/ASUnit"
 
@@ -25,6 +24,8 @@ global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
 use loggerFactory : script "core/logger-factory"
+use omz : script "core/oh-my-zsh"
+use usrLib : script "core/user"
 
 property logger : missing value
 
@@ -47,9 +48,16 @@ script |Load script|
 	property parent : TestSet(me)
 	script |Loading the script|
 		property parent : UnitTest(me)
+		set usr to usrLib's new()
+		if usr's getDeploymentType() is "computer" then
+			set objectDomain to local domain
+		else
+			set objectDomain to user domain
+		end if
+
 		try
 			tell application "Finder"
-				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:core:"
+				set deploymentPath to ((path to library folder from objectDomain) as text) & "Script Libraries:core:"
 			end tell
 			
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
