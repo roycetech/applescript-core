@@ -123,18 +123,25 @@ on decorate(mainScript)
 				This was observed after toggling the UI to ON.
 		*)
 		on flipVoiceControlSwitch()
+			-- logger's debug("_getVoiceControlToggleUI()...")
 			set toggleUI to _getVoiceControlToggleUI()
 			if toggleUI is missing value then return false
 			
+			logger's debug("click toggleUI...")
 			tell application "System Events"
 				click toggleUI
-				delay 0.4 -- Fails intermittently, 
+				delay 1.6 -- 0.8 Fails intermittently, 
+				-- logger's debug("_getVoiceControlToggleUI() again...")
+				
 				set toggleUI to my _getVoiceControlToggleUI()
+				-- logger's debugf("Toggle UI found: {}", toggleUI is not missing value)
+				
 				if toggleUI is missing value then return false
 				
-				-- try
-				the value of toggleUI is 1
-				-- end try
+				-- logger's debug("Getting the value of the toggle UI...")
+				try
+					the value of toggleUI is 1
+				end try
 			end tell
 		end flipVoiceControlSwitch
 		
@@ -205,6 +212,7 @@ on decorate(mainScript)
 				set the performPopup to the pop up button 2 of group 1 of scroll area 1 of group 2 of splitter group 1 of group 1 of sheet 1 of window "Voice Control"
 				click the performPopup
 				delay 0.2
+				-- logger's debugf("TOFIX: Clicking the {} of perform pop up...", actionTitle)
 				click the menu item actionTitle of menu 1 of the performPopup
 			end tell
 			delay 1
@@ -297,3 +305,4 @@ on decorate(mainScript)
 		end enableTurnOffVoiceControl
 	end script
 end decorate
+
