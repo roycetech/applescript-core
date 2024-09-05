@@ -32,7 +32,7 @@
 		end tell
 
 	@Created: Fri, Jul 12, 2024 at 3:01:31 PM
-	@Last Modified: 2024-09-03 18:47:14
+	@Last Modified: 2024-09-05 10:23:51
 *)
 
 use script "core/Text Utilities"
@@ -295,7 +295,7 @@ on new()
 			set firstWindow to missing value
 			tell application "Safari"
 				try
-					firstWindow to first window -- Error when only a settings window is available.
+					set firstWindow to first window -- Error when only a settings window is available.
 				end try
 
 				if firstWindow is missing value then return missing value
@@ -313,10 +313,10 @@ on new()
 		on getFirstTab()
 			if running of application "Safari" is false then return missing value
 
-				try
-					firstWindow to first window -- Error when only a settings window is available.
-				end try
-				if firstWindow is missing value then return missing value
+			try
+				firstWindow to first window -- Error when only a settings window is available.
+			end try
+			if firstWindow is missing value then return missing value
 
 			tell application "Safari"
 				if (count of windows) is 0 then return missing value
