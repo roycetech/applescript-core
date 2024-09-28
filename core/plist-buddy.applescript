@@ -12,7 +12,7 @@
 
 	TODO: Reduce the spot checks and move to Test plist-buddy.
 
-	@Last Modified: 2024-09-02 07:58:50
+	@Last Modified: 2024-09-12 18:33:30
 *)
 
 use script "core/Text Utilities"
@@ -23,7 +23,7 @@ use std : script "core/std"
 use textUtil : script "core/string"
 use listUtil : script "core/list"
 
-use regex : script "core/regex"
+use regexPatternLib : script "core/regex-pattern"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -120,7 +120,8 @@ on new(pPlistName)
 	set localPlistPosixPath to AS_CORE_PATH & pPlistName & ".plist"
 
 	try
-		if regex's matches("^(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_-]+$", pPlistName) is false then
+		set regex to regexPatternLib's new("^(?:[a-zA-Z0-9_-]+/)*[a-zA-Z0-9_-]+$")
+		if regex's matches(pPlistName) is false then
 			error "Invalid PList Name: " & pPlistName
 		end if
 	end try -- undefined when used with system library.
@@ -409,7 +410,8 @@ on new(pPlistName)
 			This escaping is likely incomplete but it supports what I need for now. Will update when I get more bandwidth in the future.
 		*)
 		on _escapeKey(keyName)
-			if regex's matches("^\\d", keyName) then
+			set regex to regexPatternLib's new("^\\d")
+			if regex's matches(keyName) then
 				"_" & keyName
 			else
 				keyName
