@@ -76,13 +76,13 @@ on catch(source, errorNumber, errorMessage)
 end catch
 
 
--- on appExists(bundleId)
--- 	try
--- 		tell application "Finder" to get application file id bundleId
--- 		return true
--- 	end try
--- 	false
--- end appExists
+on appWithIdExists(bundleId)
+	try
+		tell application "Finder" to get application file id bundleId
+		return true
+	end try
+	false
+end appWithIdExists
 
 
 on appExists(appName)

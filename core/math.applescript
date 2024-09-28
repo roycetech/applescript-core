@@ -6,10 +6,10 @@
 		applescript-core
 
 	@Build:
-		make build-lib SOURCE=core/math
+		./scripts/build-lib.sh core/math
 
 	@Created: August 25, 2023 8:27 PM
-	@Last Modified: 2024-03-04 12:47:31
+	@Last Modified: 2024-09-21 12:14:08
 *)
 
 use framework "Foundation"
