@@ -1,7 +1,8 @@
 (*
 	@Usage:
 		use kbLib : script "core/keyboard"
-	Or type (Text Expander): uuse kb
+		Or type (Text Expander): uuse kb
+		kb's checkModifier("option")  -- Check if option key is pressed.
 
 	@Project:
 		applescript-core
