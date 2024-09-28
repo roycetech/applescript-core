@@ -12,7 +12,25 @@
 	@Build:
 		./scripts/build-lib.sh core/decorator
 
-	@Last Modified: 2024-05-26 14:08:45
+	@Usage:
+		Apply this dynamic decoration AFTER the built-in decorators are completed.
+
+		use decoratorLib : script "core/decorator"
+
+		on new()
+			script MyInstance
+			end script
+			-- standard decorators
+			...
+			-- Dynamic decorators
+			set decorator to decoratorLib's new(result)
+			decorator's decorateByName("MyInstance")
+		end new
+
+	@Makefile:
+		Neither the decorator nor the decorated must be required at compile time.
+
+	@Last Modified: 2024-09-25 14:53:30
 	@Change Logs:
 		Thursday, May 23, 2024 at 1:37:40 PM - Use detect the original instance name to handle an internally decorated script objects.
 		August 10, 2023 7:49 AM - Allow multiple overrides on the same instance name.
