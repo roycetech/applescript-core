@@ -73,7 +73,6 @@ install-pulsar: build-pulsar
 
 
 build-keyboard-maestro:
-# $(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/keyboard-maestro.scpt" "scripts/stub.applescript"
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-variables
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-preferences-variables
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-editor

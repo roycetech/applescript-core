@@ -34,6 +34,7 @@ CORE_LIBS :=  \
 	unit-test \
 	list \
 	string \
+	regex \
 	regex-pattern \
 	map \
 	date-time \
@@ -60,7 +61,8 @@ CORE_LIBS :=  \
 	logger \
 	property-list \
 	spot-test \
-	menu
+	menu \
+	math
 
 APPS_PATH=/Applications/AppleScript
 
@@ -69,8 +71,8 @@ ifeq ($(DEPLOY_TYPE), user)
 	mkdir -p ~/Library/Script\ Libraries/core
 	mkdir -p ~/Applications/AppleScript/Stay\ Open/
 else
-	mkdir -p /Library/Script\ Libraries/core
-	mkdir -p /Applications/AppleScript/Stay\ Open/
+	$(SUDO) mkdir -p /Library/Script\ Libraries/core
+	$(SUDO) mkdir -p /Applications/AppleScript/Stay\ Open/
 endif
 	mkdir -p ~/applescript-core/sounds/
 	mkdir -p ~/applescript-core/logs/
@@ -100,7 +102,7 @@ else
 	$(SUDO) mkdir -p /Library/'Script Libraries'/core/app
 endif
 	touch ~/applescript-core/logs/applescript-core.log
-	osascript scripts/setup-applescript-core-project-path.applescript
+#	osascript scripts/setup-applescript-core-project-path.applescript
 	./scripts/setup-switches.sh
 	@echo "Installation done"
 
@@ -112,22 +114,18 @@ $(CORE_LIBS): Makefile
 	$(SUDO) ./scripts/build-lib.sh core/$@
 
 
-uninstall:
-	# TODO
-
-
 build-standard:
 ifeq ($(OS_NAME), sonoma)
-	./scripts/build-lib.sh macOS-version/14-sonoma/std
+	$(SUDO) ./scripts/build-lib.sh macOS-version/14-sonoma/std
 
 else ifeq ($(OS_NAME), ventura)
-	./scripts/build-lib.sh macOS-version/13-ventura/std
+	$(SUDO) ./scripts/build-lib.sh macOS-version/13-ventura/std
 
 else ifeq ($(OS_NAME), monterey)
-	./scripts/build-lib.sh macOS-version/12-monterey/std
+	$(SUDO) ./scripts/build-lib.sh macOS-version/12-monterey/std
 
 else
-	./scripts/build-lib.sh macOS-version/12-monterey/std
+	$(SUDO) ./scripts/build-lib.sh macOS-version/12-monterey/std
 	@echo "build-core unimplemented macOS version error"
 endif
 
@@ -253,6 +251,21 @@ endif
 
 build-user:
 	$(SUDO) ./scripts/build-lib.sh libs/user/user
+
+
+# Directory containing the files
+DECORATORS_PATH = ./core/decorators
+
+# Get all the .txt files in the directory
+DECORATORS = $(wildcard $(DECORATORS_PATH)/dec-*.applescript)
+
+build-decorators:
+	@for file in $(DECORATORS); do \
+		no_ext=$${file%.applescript}; \
+		echo "Building $$file"; \
+		$(SUDO) ./scripts/build-lib.sh "$$no_ext"; \
+	done
+	@echo "Done building core decorators"
 
 
 # Library Decorators
