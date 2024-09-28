@@ -13,13 +13,14 @@
 	@Last Modified: Wednesday, August 14, 2024 at 5:53:03 PM
 	@Change Logs:
 *)
-use listUtil : script "core/list"
-
 use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
 
 property logger : missing value
+
+property MENU_ALL : "All Actions"
+
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -27,6 +28,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
+	set listUtil to script "core/list"
 	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Main

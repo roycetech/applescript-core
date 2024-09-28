@@ -14,8 +14,12 @@
 use scripting additions
 
 use loggerFactory : script "core/logger-factory"
+use retryLib : script "core/retry"
 
 property logger : missing value
+property retry : missing value
+
+property KM_DELETE_LITERAL : "%Delete%"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -67,6 +71,7 @@ end newSpotBase
 (*  *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
+	set retry to retryLib's new()
 	
 	script KeyboardMaestroVariablesDecorator
 		property parent : mainScript
@@ -75,7 +80,7 @@ on decorate(mainScript)
 			script RetrieveRetry
 				tell application "Keyboard Maestro Engine" to getvariable variableName
 			end script
-			exec of retry on result for variable_update_retry_count
+			exec of retry on result for my variable_update_retry_count
 		end getVariable
 		
 		
@@ -86,7 +91,7 @@ on decorate(mainScript)
 					return getvariable variableName instance kmInst
 				end tell
 			end script
-			exec of retry on result for variable_update_retry_count
+			exec of retry on result for my variable_update_retry_count
 		end getLocalVariable
 		
 		
@@ -97,7 +102,7 @@ on decorate(mainScript)
 					setvariable variableName to textValue instance kmInst
 				end tell
 			end script
-			exec of retry on result for variable_update_retry_count
+			exec of retry on result for my variable_update_retry_count
 		end setLocalVariable
 		
 		
@@ -107,7 +112,7 @@ on decorate(mainScript)
 				tell application "Keyboard Maestro Engine" to setvariable variableName to newValue
 				true
 			end script
-			exec of retry on result for variable_update_retry_count
+			exec of retry on result for my variable_update_retry_count
 		end setVariable
 		
 		
@@ -116,7 +121,7 @@ on decorate(mainScript)
 				tell application "Keyboard Maestro Engine" to setvariable variableName to KM_DELETE_LITERAL
 				true
 			end script
-			exec of retry on result for variable_update_retry_count
+			exec of retry on result for my variable_update_retry_count
 			
 		end deleteVariable
 	end script

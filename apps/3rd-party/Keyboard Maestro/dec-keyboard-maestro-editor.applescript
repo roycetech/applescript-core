@@ -10,10 +10,11 @@
 	@Last Modified: Wednesday, August 14, 2024 at 5:53:03 PM
 	@Change Logs:
 *)
-use listUtil : script "core/list"
+use retryLib : script "core/retry"
 use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -21,6 +22,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
+	set listUtil to script "core/list"
 	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Main
@@ -69,6 +71,7 @@ end newSpotBase
 (*  *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
+	set retry to retryLib's new()
 	
 	script KeyboardMaestroEditorDecorator
 		property parent : mainScript

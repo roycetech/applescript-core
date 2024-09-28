@@ -20,7 +20,6 @@
 use script "core/Text Utilities"
 use scripting additions
 
-use listUtil : script "core/list"
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
 
@@ -29,15 +28,9 @@ use loggerFactory : script "core/logger-factory"
 use retryLib : script "core/retry"
 
 use decoratorLib : script "core/decorator"
-use keyboardMaestroPreferenceVariableDecorator : script "core/dec-keyboard-maestro-preferences-variables"
-use keyboardMaestroVariablesDecorator : script "core/dec-keyboard-maestro-variables"
 
 property logger : missing value
 property retry : missing value
-
-property MENU_ALL : "All Actions"
-property KM_DELETE_LITERAL : "%Delete%"
-
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 if name of current application is "osascript" then unitTest()
@@ -46,12 +39,13 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 	
+	set listUtil to script "core/list"
 	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		NOOP
 		Manual: Run Macro
 		Set/Get Variable
-		Placeholder (So toggle action cases are in the same set)		
+		Placeholder (So toggle action cases are in the same set)
 		
 		Manual: Editor: Hide Actions
 		Manual: Get Current Item Name
@@ -211,8 +205,14 @@ on new()
 		end runMacroWithParameter
 	end script
 	
+	set keyboardMaestroPreferenceVariableDecorator to script "core/dec-keyboard-maestro-preferences-variables"
+	set keyboardMaestroVariablesDecorator to script "core/dec-keyboard-maestro-variables"
+	set keyboardMaestroEditorActionsDecorator to script "core/dec-keyboard-maestro-editor-actions"
+	
+	set decorator to decoratorLib's new(KeyboardMaestroInstance)
+	decorator's decorate()
+	
 	keyboardMaestroPreferenceVariableDecorator's decorate(result)
 	keyboardMaestroVariablesDecorator's decorate(result)
-	set decorator to decoratorLib's new(result)
-	decorator's decorate()
+	keyboardMaestroEditorActionsDecorator's decorate(result)
 end new
