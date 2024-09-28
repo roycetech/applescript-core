@@ -9,11 +9,8 @@
 *)
 use std : script "core/std"
 
-use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 use syseveLib : script "core/system-events"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -21,16 +18,17 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's injectBasic(me)
-	set caseId to "dec-keyboard-dvorak-cmd-spotCheck"
 	logger's start()
 	
 	-- All spot check cases are manual.
+	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Basic Test
 	")
 	
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(caseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	
 	set sut to syseveLib's new()

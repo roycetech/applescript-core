@@ -11,15 +11,11 @@ use script "core/Text Utilities"
 
 use loggerFactory : script "core/logger-factory"
 
-use listUtil : script "core/list"
-
 use winUtilLib : script "core/window"
 use chromeTabLib : script "core/chrome-tab"
 use decChromeTabFinder : script "core/dec-chrome-tab-finder"
 
 use retryLib : script "core/retry"
-
-use spotScript : script "core/spot-test"
 
 property winUtil : missing value
 property logger : missing value
@@ -31,11 +27,14 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
+	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
-			Manual: New Window
-			Manual: New Tab
-			Manual: Open the Developer tools
-			Manual: JavaScript
+		Info
+		Manual: New Window
+		Manual: New Tab
+		Manual: Open the Developer tools
+		Manual: JavaScript
 	")
 	
 	set spotClass to spotScript's new()
@@ -47,17 +46,21 @@ on spotCheck()
 	end if
 	
 	set sut to new()
+	logger's infof("Is playing: {}", sut's isPlaying())
+	
 	if caseIndex is 1 then
-		sut's newWindow("https://www.example.com")
 		
 	else if caseIndex is 2 then
+		sut's newWindow("https://www.example.com")
+		
+	else if caseIndex is 3 then
 		set chromeTab to sut's newTab("https://www.example.com")
 		chromeTab's waitForPageLoad()
 		
-	else if caseIndex is 3 then
+	else if caseIndex is 4 then
 		sut's openDeveloperTools()
 		
-	else if caseIndex is 4 then
+	else if caseIndex is 5 then
 		set chromeTab to sut's getFrontTab()
 		if chromeTab is missing value then
 			logger's info("Chrome window was not found")
@@ -78,6 +81,19 @@ on new()
 	set retry to retryLib's new()
 	
 	script ChromeInstance
+		on isPlaying()
+			if not winUtil's hasWindow("Google Chrome") then return false
+			
+			tell application "System Events" to tell process "Google Chrome"
+				try
+					first radio button of tab group 1 of group 1 of group 1 of group 1 of group 1 of front window whose selected is true
+					return exists (first button of result whose description is "Mute tab")
+				end try
+			end tell
+			false
+		end isPlaying
+		
+		
 		on newWindow(targetUrl)
 			tell application "Google Chrome"
 				activate
@@ -115,6 +131,7 @@ on new()
 				chromeTabLib's new(its id, active tab index)
 			end tell
 		end newTab
+		
 		
 		on getFrontTab()
 			if not winUtil's hasWindow("Google Chrome") then return missing value
