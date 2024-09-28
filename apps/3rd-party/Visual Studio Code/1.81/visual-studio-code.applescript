@@ -25,8 +25,8 @@ use scripting additions
 use script "core/Text Utilities"
 
 use std : script "core/std"
-use listUtil : script "core/list"
 use textUtil : script "core/string"
+use listUtil : script "core/list"
 use unic : script "core/unicodes"
 use systemEventLib : script "core/system-events"
 
@@ -61,6 +61,12 @@ on spotCheck()
 		Open File
 		Open Resource via UI
 		Run Script
+		Manual: Switch Activity
+		
+		Manual: New Terminal
+		Manual: Focus Terminal
+		Manual: Next Tab
+		Manual: Previous Tab
 	")
 	
 	set spotClass to spotScript's new()
@@ -72,6 +78,7 @@ on spotCheck()
 	end if
 	
 	set sut to new()
+	logger's infof("Has Terminal: {}", sut's hasTerminal())
 	logger's infof("Current File Type: {}", sut's getFileType())
 	logger's infof("Current Project Name: {}", sut's getProjectName())
 	logger's infof("Resource Path: {}", sut's getResourcePath())
@@ -94,6 +101,21 @@ on spotCheck()
 	else if caseIndex is 4 then
 		sut's runShell("ls")
 		
+	else if caseIndex is 5 then
+		sut's switchActivity("Docker")
+		
+	else if caseIndex is 6 then
+		sut's newTerminal()
+		
+	else if caseIndex is 7 then
+		sut's focusTerminal()
+		
+	else if caseIndex is 8 then
+		sut's nextTab()
+		
+	else if caseIndex is 9 then
+		sut's previousTab()
+
 	end if
 	
 	spot's finish()
@@ -114,6 +136,77 @@ on new()
 	set configBusiness to configLib's new("business")
 	
 	script VisualStudioCodeInstance
+		
+		(* Go > Switch Editor > Next Editor *)
+		on nextTab()
+			if running of application "Visual Studio Code" is false then return
+			
+			tell application "System Events" to tell process "Electron"
+				set frontmost to true
+				try
+					click menu item "Next Editor" of menu 1 of menu item "Switch Editor" of menu 1 of menu bar item "Go" of menu bar 1
+				end try
+			end tell
+		end nextTab
+		
+		
+		(* Go > Switch Editor > Previous Editor *)
+		on previousTab()
+			if running of application "Visual Studio Code" is false then return
+			
+			tell application "System Events" to tell process "Electron"
+				set frontmost to true
+				try
+					click menu item "Previous Editor" of menu 1 of menu item "Switch Editor" of menu 1 of menu bar item "Go" of menu bar 1
+				end try
+			end tell
+		end previousTab
+		
+		
+		on focusTerminal()
+			if running of application "Visual Studio Code" is false then return
+			
+			tell application "System Events" to tell process "Electron"
+				set frontmost to true
+				try
+					click menu item "Terminal" of menu 1 of menu bar item "View" of menu bar 1
+				end try
+			end tell
+			
+		end focusTerminal
+		
+		on newTerminal()
+			if running of application "Visual Studio Code" is false then return
+			
+			tell application "System Events" to tell process "Electron"
+				set frontmost to true
+				try
+					click menu item "New Terminal" of menu 1 of menu bar item "Terminal" of menu bar 1
+				end try
+			end tell
+		end newTerminal
+		
+		
+		on hasTerminal()
+			if running of application "Visual Studio Code" is false then return false
+			
+			tell application "System Events" to tell process "Electron"
+				try
+					return enabled of menu item "Split Terminal" of menu 1 of menu bar item "Terminal" of menu bar 1
+				end try
+			end tell
+			
+			false
+		end hasTerminal
+		
+		on switchActivity(activityName)
+			if running of application "Visual Studio Code" is false then return
+			
+			tell application "System Events" to tell process "Electron"
+				click radio button activityName of tab group 1 of group 1 of group 1 of group 2 of group 1 of group 2 of group 2 of group 1 of group 1 of group 1 of group 1 of UI element 1 of group 1 of group 1 of group 1 of group 1 of front window
+			end tell
+		end switchActivity
+		
 		
 		(* Problem when opening a file inside a container. *)
 		on openFile(filePath)
