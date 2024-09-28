@@ -1,6 +1,13 @@
 (*
+	@Purpose:
+		This library provides auxiliary functionality to the notification-center library.
+
+	NOTE:
+		Import to the main library is declared internally instead of usually at
+		the top of the script to avoid a circular dependency.
+
 	@Version:
-		macOS Ventura
+		macOS Sonoma
 
 	@Project:
 		applescript-core
@@ -14,12 +21,9 @@ use scripting additions
 use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 
-use spotScript : script "core/spot-test"
-
-use loggerLib : script "core/logger"
-use notificationCenterLib : script "core/notification-center"
-
+property SCRIPT_NOTIFICATION_CENTER : "core/notification-center"
 property logger : missing value
+
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -27,6 +31,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
+	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Notice Meetings
 		First Notice
@@ -43,9 +48,14 @@ on spotCheck()
 
 	set sut to new()
 	if caseIndex is 1 then
-		repeat with nextActiveMeeting in sut's getActiveMeetingsFromNotices()
+		set activeMeetings to sut's getActiveMeetingsFromNotices()
+		if (the count of activeMeetings) is 0 then
+			logger's info("There are no active meetings at the moment.")
+		else
+		repeat with nextActiveMeeting in activeMeetings
 			logger's infof("Next Active Meeting: {}", nextActiveMeeting's toString())
 		end repeat
+		end
 
 	else if caseIndex is 2 then
 		logger's infof("First Notice: {}", sut's firstNotice()'s toString())
@@ -62,6 +72,7 @@ end spotCheck
 
 on new()
 	loggerFactory's injectBasic(me)
+
 	script NotificationCenterHelperInstance
 		(* Defined here to avoid circular call. *)
 		property notificationCenter : missing value
@@ -142,7 +153,13 @@ on new()
 
 			set sortedGroup to _simpleSort(noticeGroups)
 			repeat with i from (count noticeGroups) to 1 by -1
-				scriptObj's next(_getNotificationCenterInstance()'s new(item i of noticeGroups))
+				try
+					set nextNoticeGroup to item i of noticeGroups
+				on error the errorMessage number the errorNumber -- Likely when a notification is closed midway.
+					exit repeat
+				end try
+
+				scriptObj's next(_getNotificationCenterInstance()'s new(nextNoticeGroup))
 			end repeat
 		end _reverseLoop
 
@@ -186,7 +203,10 @@ on new()
 
 
 		on _getNotificationCenterInstance()
-			if notificationCenter is missing value then set notificationCenter to notificationCenterLib's new()
+			if notificationCenter is missing value then
+				set notificationCenterLib to script SCRIPT_NOTIFICATION_CENTER
+				set notificationCenter to notificationCenterLib's new()
+			end if
 			notificationCenter
 		end _getNotificationCenterInstance
 	end script
