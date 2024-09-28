@@ -14,6 +14,9 @@
 	@Build:
 		./scripts/build-lib.sh core/screenshot
 
+	@Usage:
+
+
 	@Script Menu
 		View Image From Clipboard - to view the clipboard contents during testing.
 
@@ -126,7 +129,7 @@ on new()
 			end if
 
 			set clipboardParam to std's ternary(baseFilename is missing value, " -c", "")
-			set command to textUtil's rtrim(format {"screencapture{} -R{},{},{},{} {}", {clipboardParam, x, y, w, h, filePathParam}})
+			set command to textUtil's rtrim(format {"screencapture{} -R{},{},{},{} {}", {clipboardParam, x, y, w, h, quoted form of filePathParam}})
 			logger's debugf("command: {}", command)
 
 			do shell script command
