@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting
 
 	@Created: Monday, August 12, 2024 at 4:29:20 PM
-	@Last Modified: 2024-08-21 14:37:34
+	@Last Modified: 2024-09-16 10:17:10
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -106,6 +106,10 @@ on decorate(mainScript)
 					logger's info("Meeting is already in progress")
 					return
 				end if
+			end if
+
+			if getTabName() is not "Home" then
+				switchTab("Home")
 			end if
 
 			tell application "System Events" to tell process "zoom.us"

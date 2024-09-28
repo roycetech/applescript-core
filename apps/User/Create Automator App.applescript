@@ -45,7 +45,6 @@ use loggerFactory : script "core/logger-factory"
 use usrLib : script "core/user"
 use plutilLib : script "core/plutil"
 use scriptEditorLib : script "core/script-editor"
-use configLib : script "core/config"
 use automatorLib : script "core/automator"
 use dockLib : script "core/dock"
 
@@ -53,7 +52,6 @@ use dockLib : script "core/dock"
 property logger : missing value
 property plutil : missing value
 property scriptEditor : missing value
-property configUser : missing value
 property automator : missing value
 property dock : missing value
 property session : missing value
@@ -70,7 +68,6 @@ set dock to dockLib's new()
 set plutil to plutilLib's new()
 set session to plutil's new("session")
 set scriptEditor to scriptEditorLib's new()
-set configUser to configLib's new("user")
 set automator to automatorLib's new()
 set usr to usrLib's new()
 
@@ -143,12 +140,6 @@ on main()
 	
 	logger's info("Conditionally quitting existing automator app...")
 	automator's forceQuitApp()
-	
-	set projectPaths to configUser's getValue("AppleScript Projects Path")
-	if projectPaths is missing value then
-		error "'AppleScript Projects Path' was not found in config-user.plist"
-		return
-	end if
 	
 	tell automator
 		launchAndWaitReady()
