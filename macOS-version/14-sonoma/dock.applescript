@@ -196,6 +196,13 @@ on new()
 		end isAutoHide
 
 
+		on setAutoHide(newState)
+			tell application "System Events" to tell dock preferences
+				set autohide to newState
+			end tell
+		end setAutoHide
+
+
 		(*
 			NOTE: Up to single nesting only.
 
