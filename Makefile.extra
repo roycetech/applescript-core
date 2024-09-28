@@ -20,6 +20,13 @@ build-cliclick:
 install-cliclick: build-cliclick
 	osascript libs/cliclick/setup-cliclick-cli.applescript
 
+install-cliclick-decorators:
+	$(SUDO) ./scripts/plist-insert.sh ~/applescript-core/config-lib-factory.plist "SystemSettingsInstance" "core/dec-system-settings-cliclick"
+
+uninstall-cliclick-decorators:
+	$(SUDO) ./scripts/plist-remove.sh ~/applescript-core/config-lib-factory.plist "SystemSettingsInstance" "core/dec-system-settings-cliclick"
+
+
 install-jira:
 	$(SUDO) ./scripts/build-lib.sh libs/jira/jira
 
@@ -44,6 +51,11 @@ install-log4as: build-log4as
 	plutil -replace 'writeToFile' -bool true ~/applescript-core/log4as.plist
 	plutil -insert categories -xml "<dict></dict>" ~/applescript-core/log4as.plist || true
 
+
+build-math:
+	$(SUDO) ./scripts/build-lib.sh core/math
+
+
 build-redis:
 	osascript ./scripts/setup-redis-cli.applescript
 	$(SUDO) ./scripts/build-lib.sh libs/redis/redis
@@ -52,6 +64,11 @@ build-redis-terminal:
 	$(SUDO) ./scripts/build-lib.sh libs/redis/dec-terminal-prompt-redis
 
 install-redis: build-redis
+
+
+build-screenshot: build-math
+	$(SUDO) ./scripts/build-lib.sh core/screenshot
+
 
 install-timed-cache:
 	cp -n plist.template ~/applescript-core/timed-cache.plist || true
