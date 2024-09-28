@@ -4,10 +4,6 @@
 		Permission to access the Calendar app.
 
 	@Plists
-		counter
-			calendar.getMeetingsAtThisTime - for other scripts to limit this
-			slow, user-interrupting check to once per day.
-
 		config-user.plist
 			User Country - User configured location country, used to select the
 			default timezone when reading the calendar events.
@@ -39,7 +35,6 @@ use scripting additions
 use listUtil : script "core/list"
 use textUtil : script "core/string"
 use regex : script "core/regex"
-use counter : script "core/counter"
 use dt : script "core/date-time"
 
 use loggerFactory : script "core/logger-factory"
