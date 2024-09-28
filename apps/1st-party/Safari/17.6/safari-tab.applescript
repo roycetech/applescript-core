@@ -1,12 +1,18 @@
 (*
+
 	@Project:
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-tab
+		./scripts/build-lib.sh apps/1st-party/Safari/17.6/safari-tab
 
-	@Created: Wednesday, September 20, 2023 at 3:23:31 PM
-	@Last Modified: 2024-09-25 14:55:26
+	@Version: 17.6
+
+	@Created: Wed, Sep 25, 2024 at 2:36:07 PM
+	@Last Modified: 2024-09-25 14:43:06
+
+	@Change Logs:
+		Sunday, March 31, 2024 at 9:28:23 AM - After Sonoma 14.4.1, document reference could no longer be passed from intermediary reference, it needs to be directly accessed to work.
 *)
 
 use scripting additions
@@ -32,6 +38,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Manual: Closed Tab
 		Manual: Move tab to index
+		Manual: Switch to Tab Index
 	")
 
 	set spotClass to spotScript's new()
@@ -54,6 +61,8 @@ on spotCheck()
 	logger's infof("Window ID: {}", sut's getWindowID())
 	logger's infof("Has toolbar: {}", sut's hasToolBar())
 	logger's infof("Has alert: {}", sut's hasAlert())
+	logger's infof("Current URL: {}", sut's getURL())
+
 	if caseIndex is 1 then
 		(* Prepare a test tab, then close it.*)
 		logger's info("Close the test tab.")
@@ -67,6 +76,11 @@ on spotCheck()
 
 	else if caseIndex is 2 then
 		sut's moveTabToIndex(5)
+		logger's infof("Current Title: {}", sut's getTitle())
+
+	else if caseIndex is 3 then
+		sut's focusTabIndex(99)
+		-- sut's focusTabIndex(2)
 
 	end if
 
@@ -76,12 +90,13 @@ end spotCheck
 
 
 (*
-			@windowId app window ID
-			@pTabIndex the Safari tab index
-		*)
+		@windowId app window ID
+		@pTabIndex the Safari tab index
+	*)
 on new(windowId, pTabIndex)
--- on new(windowId, pTabIndex, pSafari)
+	-- on new(windowId, pTabIndex, pSafari)
 	loggerFactory's inject(me)
+	set localMain to me
 
 	set retry to retryLib's new()
 
@@ -91,26 +106,47 @@ on new(windowId, pTabIndex)
 		property appWindow : missing value -- app window, not syseve window.
 		property maxTryTimes : 60
 		property sleepSec : 1
-		-- property closeOtherTabsOnFocus : false
+		property closeOtherTabsOnFocus : false
 		property tabIndex : pTabIndex
+		property main : localMain
 		-- property safari : pSafari
 
 		property _tab : missing value
 		property _url : missing value
 
 
+		on focusTabIndex(tabIndex)
+			if running of application "Safari" is false then return
+
+			tell application "Safari"
+				set tabCount to (count of tabs in front window)
+				if tabIndex is greater than the tabCount then return
+
+				set tabInstance to main's new(id of front window, tabIndex)
+			end tell
+			tabInstance's focus()
+		end focusTabIndex
+
+
+		(*
+			@returns void
+		*)
 		on moveTabToIndex(newIndex)
 			if running of application "Safari" is false then return
 
 			tell application "Safari"
 				set tabCount to (count of tabs in front window)
-				set sourceTabIndex to tabIndex -- the index of the tab you want to move
+				set sourceTabIndex to my tabIndex -- the index of the tab you want to move
 				set targetTabIndex to newIndex -- the index where you want to move the tab
+				if sourceTabIndex is equal to targetTabIndex then return
 
+				set nextToTarget to targetTabIndex - sourceTabIndex is 1
 				if (sourceTabIndex > tabCount) or (targetTabIndex > tabCount) then
 					display dialog "Invalid tab index."
-				else if targetTabIndex - sourceTabIndex is 1 then
+
+				else if nextToTarget then
 					move tab targetTabIndex of front window to before tab sourceTabIndex of front window
+
 				else
 					move tab sourceTabIndex of front window to before tab targetTabIndex of front window
 				end if
@@ -118,6 +154,10 @@ on new(windowId, pTabIndex)
 				set my _tab to tab newIndex of front window
 				set current tab of front window to my _tab
 			end tell
+			script NameWaiter
+				if name of my _tab is not "Untitled" then return true
+			end script
+			exec of retry on result for 20 by 0.2
 		end moveTabToIndex
 
 
@@ -127,7 +167,7 @@ on new(windowId, pTabIndex)
 
 		on getTitle()
 			try
-				return name of _tab -- This returns the title of the front tab.
+				return name of my _tab -- This returns the title of the front tab.
 			end try -- When the tab is closed.
 			missing value
 		end getTitle
@@ -178,7 +218,7 @@ on new(windowId, pTabIndex)
 		on focus()
 			try
 				tell application "Safari" to set current tab of my appWindow to _tab
-			end try  -- When tab is manually closed
+			end try -- When tab is manually closed
 		end focus
 
 		on closeTab()
@@ -192,8 +232,8 @@ on new(windowId, pTabIndex)
 		on reload()
 			focus()
 			tell application "Safari"
-				set currentUrl to URL of my getDocument()
-				set URL of my getDocument() to currentUrl
+				set currentUrl to URL of front document
+				set URL of front document to currentUrl
 			end tell
 			delay 0.01
 		end reload
@@ -206,7 +246,7 @@ on new(windowId, pTabIndex)
 			script SourceWaiter
 				tell application "Safari"
 					if my getWindowName() is equal to "Failed to open page" then return "failed"
-					if source of my getDocument() is not "" then return true
+					if source of front document is not "" then return true
 				end tell
 			end script
 			exec of retry on result for maxTryTimes by sleepSec
@@ -216,7 +256,7 @@ on new(windowId, pTabIndex)
 		on isDocumentLoading()
 			tell application "Safari"
 				if my getWindowName() is equal to "Failed to open page" then return false
-				if source of my getDocument() is not "" then return true
+				if source of front document is not "" then return true
 			end tell
 			false
 		end isDocumentLoading
@@ -232,7 +272,7 @@ on new(windowId, pTabIndex)
 		on getSource()
 			tell application "Safari"
 				try
-					return (source of my getDocument()) as text
+					return (source of front document) as text
 				end try
 			end tell
 
@@ -242,7 +282,8 @@ on new(windowId, pTabIndex)
 		on getURL()
 			tell application "Safari"
 				try
-					return URL of my getDocument()
+					-- return URL of front document
+					return URL of my _tab
 				end try
 			end tell
 
@@ -266,7 +307,7 @@ on new(windowId, pTabIndex)
 			script PageWaiter
 
 				-- tell application "Safari" to set URL of document (name of my appWindow) to targetUrl
-				tell application "Safari" to set URL of my getDocument() to targetUrl
+				tell application "Safari" to set URL of front document to targetUrl
 				true
 			end script
 			exec of retry on result for 2
@@ -305,13 +346,6 @@ on new(windowId, pTabIndex)
 		on getWindowName()
 			name of appWindow
 		end getWindowName
-
-		on getDocument()
-			tell application "Safari"
-				document (my getWindowName())
-			end tell
-		end getDocument
-
 
 		on getSysEveWindow()
 			tell application "System Events" to tell process "Safari"

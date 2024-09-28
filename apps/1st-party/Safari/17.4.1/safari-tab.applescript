@@ -1,4 +1,6 @@
 (*
+
+
 	@Project:
 		applescript-core
 
@@ -6,7 +8,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/safari-tab
 
 	@Created: Sunday, March 31, 2024 at 9:31:30 AM
-	@Last Modified: 2024-05-07 19:45:05
+	@Last Modified: 2024-09-25 14:34:38
 
 	@Change Logs:
 		Sunday, March 31, 2024 at 9:28:23 AM - After Sonoma 14.4.1, document reference could no longer be passed from intermediary reference, it needs to be directly accessed to work.
@@ -74,6 +76,9 @@ on spotCheck()
 		sut's moveTabToIndex(5)
 		logger's infof("Current Title: {}", sut's getTitle())
 
+	else if caseIndex is 3 then
+		sut's focusTabIndex(2)
+
 	end if
 
 	spot's finish()
@@ -82,9 +87,9 @@ end spotCheck
 
 
 (*
-			@windowId app window ID
-			@pTabIndex the Safari tab index
-		*)
+		@windowId app window ID
+		@pTabIndex the Safari tab index
+	*)
 on new(windowId, pTabIndex)
 	-- on new(windowId, pTabIndex, pSafari)
 	loggerFactory's inject(me)
@@ -133,8 +138,8 @@ on new(windowId, pTabIndex)
 			end tell
 			script NameWaiter
 				if name of my _tab is not "Untitled" then return true
-			end
-			retry's exec on result for 20 by 0.2
+			end script
+			exec of retry on result for 20 by 0.2
 		end moveTabToIndex
 
 
