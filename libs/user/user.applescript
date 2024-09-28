@@ -38,6 +38,8 @@ property cc : missing value
 property lov : missing value
 
 property LOV_KEY : "[app-core] Deployment Type"
+property PATH_DEPLOYMENT : "/Library/Script Libraries/core"
+property PATH_SOUNDS : "/System/Library/Sounds"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -108,15 +110,47 @@ on new()
 		end getDeploymentType
 
 
+		on getDeploymentPath()
+			if isLocalDeployment() then return PATH_DEPLOYMENT
+
+			getUserDeploymentPath()
+		end getDeploymentPath
+
+
+		on isUserDeployment()
+			not isLocalDeployment()
+		end isUserDeployment
+
+
+		(*
+			A bit confusing because "local" is normally associated to a smaller
+			scope but in this case, local domain refers to the shared space in
+			the computer.
+		*)
+		on isLocalDeployment()
+			getDeploymentType() is equal to "computer"
+		end isLocalDeployment
+
+
+		on getUserDeploymentPath()
+			"/Users/" & std's getUsername() & PATH_DEPLOYMENT
+		end getUserDeploymentPath
+
+
 		on cueForTouchId()
-			do shell script "afplay /System/Library/Sounds/Glass.aiff"
+			afplay("Glass.aiff")
 		end cueForTouchId
 
 		on done()
-			try
-				do shell script "afplay /System/Library/Sounds/Submarine.aiff"
-			end try
+			afplay("Submarine.aiff")
 		end done
+
+
+		on afplay(filename)
+			try
+				do shell script "afplay " & PATH_SOUNDS & "/" & filename
+			end try
+		end afplay
 
 
 		on isInMeeting()
