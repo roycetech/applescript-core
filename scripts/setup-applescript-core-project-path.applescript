@@ -1,6 +1,8 @@
 #!/usr/bin/osascript
 
 (*
+	DEPRECATED: User scripts should create a library, import that instead.
+
 	Browse the AppleScript Core project path so it can referenced by user
 	scripts for testing.
 
