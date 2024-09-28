@@ -25,9 +25,8 @@ build-apps-first-party: \
 # 1st Party Apps Library
 
 build-automator:
-	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/automator.scpt" "scripts/stub.applescript"
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Automator/2.10/dec-automator-applescript
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Automator/2.10/automator
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Automator/2.10/dec-automator-applescript
 
 install-automator: build-automator
 	mkdir -p /Applications/AppleScript
@@ -71,7 +70,7 @@ build-preview:
 build-safari: build-dock
 	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/safari.scpt" "scripts/stub.applescript"
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/safari-tab
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.6/safari-tab
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact

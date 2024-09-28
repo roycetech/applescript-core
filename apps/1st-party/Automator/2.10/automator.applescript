@@ -16,7 +16,7 @@
 		Assumes automator is not used or opened for purposes other than the exclusive use of this script.
 		Wipes out clipboard contents.
 
-	@Last Modified: 2024-07-23 10:55:22
+	@Last Modified: 2024-09-28 11:05:17
 
 	@Change Logs:
 		Fri, Jul 19, 2024 at 2:40:35 PM - Refactored to use simpler script wrapped in an app.
@@ -35,7 +35,6 @@ use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 use usrLib : script "core/user"
 
-use applescriptDecorator : script "core/dec-automator-applescript"
 use decoratorLib : script "core/decorator"
 
 property logger : missing value
@@ -76,7 +75,7 @@ on spotCheck()
 	end if
 
 	set sut to new()
-	set automatorProcess to processLib's new("automator")
+	set automatorProcess to processLib's new("Automator")
 
 	if usr's getDeploymentType() is equal to "computer" then
 		set scriptMonPath to "/Applications/AppleScript"
@@ -264,6 +263,7 @@ on new()
 
 			tell application "System Events" to tell process "Automator"
 				set theTextField to text field 1 of list 1 of scroll area 1 of splitter group 1 of splitter group 1 of window (my newWindowName)
+				set focused of theTextField to true
 				set value of theTextField to commandPhrase
 			end tell
 		end setCommandPhrase
@@ -397,7 +397,8 @@ on new()
 		end forceQuitApp
 	end script
 
-	applescriptDecorator's decorate(result)
+	set applescriptDecorator to script "core/dec-automator-applescript"
+	applescriptDecorator's decorate(AutomatorInstance)
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
