@@ -54,9 +54,15 @@ on that area.
 
 ## How to Install and Run the Project
 
-1. Run `make install`. It will install the essential libraries under `~/Library/Script Libraries`. It will also install basic sounds and property files under `~/applescript-core/`.  See the [Makefile](./Makefile) for more information.
-2. To test that it works, open the files inside examples using Script Editor and run them.
-3. You will see the output.
+1.  Checkout this project: `git clone https://github.com/roycetech/applescript-core`
+2. Run `make install`. It will install the essential libraries under `~/Library/Script Libraries`. It will also install basic sounds and property files under `~/applescript-core/`.  See the [Makefile](./Makefile) for more information.
+3. To test that it works, open the files inside examples using Script Editor and run them.
+
+Optionally install individual wrappers as needed. (e.g. `make install-safari`)
+
+## Uninstall
+
+Run `$ make uninstall` to remove the installed scripts under Script Libraries.
 
 ## How to Use the Project (Developing)
 
@@ -135,3 +141,8 @@ The libraries where tested mainly on macOS Monterey. I have tried some scripts o
 
 This project includes a system for doing spot checking by utilizing a stay open app menu to manage the case number to be tested.
 This project also includes its own unit testing functionality to ensure code quality. I plan to migrate the unit tests into ASUnit which I believe is a great library, having tried it out very recently.
+
+
+### Troubleshooting
+* Sun, Sep 8, 2024 at 10:46:20 PM - Segmentation Fault 11 on `make install`
+	* Just append a space on the failing script to resolve.

@@ -14,8 +14,14 @@ For the more comprehensive documentation, see [README-Full.md](./README-Full.md)
 
 ## Installation
 
-Checkout this project: `git clone https://github.com/roycetech/applescript-core`
-Install into the user's Script Libraries: `make install`
+1.  Checkout this project: `git clone https://github.com/roycetech/applescript-core`
+2.  Install into the user's Script Libraries: `make install`
+
+Optionally install individual wrappers as needed. (e.g. `make install-safari`)
+
+## Uninstall
+
+Run `$ make uninstall` to remove the installed scripts under Script Libraries.
 
 ### Recommended 3rd party dependency
 
