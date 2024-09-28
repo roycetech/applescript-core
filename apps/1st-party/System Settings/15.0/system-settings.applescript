@@ -4,7 +4,7 @@
 	info.
 
 	@Version:
-		macOS Ventura 13.x. 
+		macOS Ventura 13.x and above.
 
 	@Project:
 		applescript-core
@@ -25,11 +25,6 @@ use retryLib : script "core/retry"
 use usrLib : script "core/user"
 
 use decoratorLib : script "core/decorator"
-use decPasswords : script "core/dec-system-settings_passwords"
-use decVoiceControl : script "core/dec-system-settings_accessibility_voice-control"
-use decVoiceCommand : script "core/dec-system-settings_accessibility_voice-control_voice-commands"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property retry : missing value
@@ -43,7 +38,7 @@ on spotCheck()
 	
 	set cases to listUtil's splitByLine("
 		Manual: Quit App (Running/Not Running)
-		Manual: Reveal Security & Privacy > Privacy		
+		Manual: Reveal Security & Privacy > Privacy
 		Manual: Unlock Security & Privacy > Privacy (Unlock button must be visible already) 
 		Manual: Reveal Voice Control
 		Manual: Toggle Voice Control
@@ -59,6 +54,7 @@ on spotCheck()
 		Manual: Reveal Passwords (decorator)
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	-- spot's setAutoIncrement(true)
@@ -186,12 +182,16 @@ on new()
 			end repeat
 		end quitApp
 	end script
-	
-	set decorator to decoratorLib's new(result)
-	decorator's decorate()
-	
-	decPasswords's decorate(result)
+
+	set decPasswords to script "core/dec-system-settings_passwords"
+	set decVoiceControl to script "core/dec-system-settings_accessibility_voice-control"
+	set decVoiceCommand to script "core/dec-system-settings_accessibility_voice-control_voice-commands"
+	set decDisplays to script "core/dec-system-settings_displays"
+	decPasswords's decorate(SystemSettingsInstance)
 	decVoiceControl's decorate(result)
 	decVoiceCommand's decorate(result)
-end new
+	decDisplays's decorate(result)
 
+	set decorator to decoratorLib's new(result)
+	decorator's decorateByName("SystemSettingsInstance")
+end new

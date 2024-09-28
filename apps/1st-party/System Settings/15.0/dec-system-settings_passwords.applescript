@@ -1,10 +1,6 @@
 (*
 	Passwords handlers for System Settings.
-	
-	@Plists:
-		config-user
-			Username 2: Used for testing only.
-	
+		
 	@Project:
 		applescript-core
 		
@@ -19,13 +15,13 @@
 		systemSetting's clickCredentialInformation()
 		systemSetting's getVerificationCode(2)
 
-
 	@Created: Wednesday, November 8, 2023 at 10:41:03 PM
 	@Last Modified: Wednesday, November 8, 2023 at 10:41:03 PM
 	@Change Logs:
 *)
 
 use scripting additions
+use script "core/Text Utilities"
 
 use textUtil : script "core/string"
 use listUtil : script "core/list"
@@ -50,10 +46,13 @@ on spotCheck()
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
+		NOOP: Info
 		Main: Reveal Passwords
 		Manual: Filter Credentials
 		Manual: Click Credentials Info
+		
 		Manual: Get Credentials Info
+		Manual: Get Verification Code
 	")
 	
 	set spotClass to spotScript's new()
@@ -66,28 +65,40 @@ on spotCheck()
 	
 	-- activate application ""
 	set sutLib to script "core/system-settings"
-	set sut to sutLib's new()
+	
+	logger's debug("Timing point 1")
+	set sut to sutLib's new() -- INVESTIGATE: This statement is too slow at 4s.
+	
+	logger's debug("Timing point 2")
 	set sut to decorate(sut)
+	
 	set configLib to script "core/config"
 	set configUser to configLib's new("user")
 	
+	logger's infof("Is password locked: {}", sut's isPasswordsLocked())
+	
 	if caseIndex is 1 then
+		
+	else if caseIndex is 2 then
 		-- sut's printPaneIds()
 		sut's revealPasswords()
 		
-	else if caseIndex is 2 then
+	else if caseIndex is 3 then
 		sut's filterCredentials("signin.aws.amazon.com")
 		
-	else if caseIndex is 3 then
-		-- sut's clickFirstCredentialInformation()
+	else if caseIndex is 4 then
+		sut's clickFirstCredentialInformation()
+		
+	else if caseIndex is 5 then
 		set secondaryEmail to configUser's getValue("Username 2")
 		logger's debugf("secondaryEmail: {}", secondaryEmail)
 		sut's clickCredentialInformationWithUsername(secondaryEmail)
 		
-	else if caseIndex is 4 then
+	else if caseIndex is 6 then
 		logger's infof("Username: {}", sut's getUsername())
-		-- logger's infof("Password: {}", sut's getPassword())
+		log (format {"Password: {}", sut's getPassword()})
 		logger's infof("Verification Code: {}", sut's getVerificationCode(2))
+		
 	else
 		
 	end if
@@ -115,9 +126,14 @@ on decorate(mainScript)
 		property parent : mainScript
 		
 		on isPasswordsLocked()
-			tell application "System Events" to tell process "System Settings"
-				exists (text field "Enter password" of group 1 of group 2 of splitter group 1 of group 1 of window "Passwords")
-			end tell
+			script WindowWaiter
+				tell application "System Events" to tell process "System Settings"
+					if exists (text field "Enter password" of group 1 of group 2 of splitter group 1 of group 1 of window "Passwords") then return true
+					if exists (text field "Enter password" of group 1 of list 2 of splitter group 1 of list 1 of window "Passwords") then return true
+				end tell
+				false
+			end script
+			exec of retry on result for 5 by 0.2
 		end isPasswordsLocked
 		
 		
@@ -139,13 +155,18 @@ on decorate(mainScript)
 		
 		
 		on revealPasswords()
-			tell application "System Settings"
-				activate
-				delay 0.4 -- Intermittent failure  with 0.2.
-				set current pane to pane id "com.apple.Passwords-Settings.extension"
-				delay 1
-				usr's cueForTouchId()
-			end tell
+			activate application "System Settings"
+			delay 1
+			
+			script PaneChanger
+				tell application "System Settings"
+					set current pane to pane id "com.apple.Passwords-Settings.extension"
+				end tell
+				return true
+			end script
+			exec of retry on result for 3
+			
+			if my isPasswordsLocked() then usr's cueForTouchId()
 		end revealPasswords
 		
 		
@@ -153,6 +174,7 @@ on decorate(mainScript)
 			script RetryScript
 				tell application "System Events" to tell process "System Settings"
 					group 3 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of window "Passwords"
+					
 				end tell
 			end script
 			exec of retry on result for 3
@@ -160,8 +182,10 @@ on decorate(mainScript)
 		
 		
 		on filterCredentials(keyword)
-			tell application "System Events"
-				set value of text field 1 of my _getCommonGroup() to keyword
+			tell application "System Events" to tell process "System Settings"
+				set searchGroup to group 1 of scroll area 1 of group 1 of list 2 of splitter group 1 of list 1 of window "Passwords"
+				set focused of text field 1 of searchGroup to true
+				set value of text field 1 of searchGroup to keyword
 				delay 0.1
 			end tell
 		end filterCredentials
@@ -169,7 +193,11 @@ on decorate(mainScript)
 		
 		on clickFirstCredentialInformation()
 			tell application "System Events" to tell process "System Settings"
-				click button 1 of UI element 1 of row 1 of table 1 of scroll area 1 of my _getCommonGroup()
+				try
+					click button 1 of UI element 1 of row 1 of table 1 of scroll area 1 of my _getCommonGroup()
+				on error -- Changed DOM.
+					click button 1 of UI element 1 of row 1 of table 1 of scroll area 1 of group 2 of scroll area 1 of group 1 of list 2 of splitter group 1 of list 1 of front window
+				end try
 				delay 0.1
 			end tell
 		end clickFirstCredentialInformation
@@ -197,26 +225,46 @@ on decorate(mainScript)
 		
 		
 		on getUsername()
+			if running of application "System Settings" is false then return missing value
+			
 			if isPasswordsLocked() then
 				promptForTouchID()
 				waitForPasswordsUnlock()
 			end if
 			
 			tell application "System Events" to tell process "System Settings"
-				value of static text 4 of group 1 of scroll area 1 of group 1 of sheet 1 of window "Passwords"
+				try
+					return value of static text 4 of group 1 of scroll area 1 of group 1 of sheet 1 of window "Passwords"
+				on error
+					return value of UI element 3 of group 1 of scroll area 1 of group 1 of sheet 1 of window "Passwords"
+				end try
 			end tell
+			missing value
 		end getUsername
 		
 		(*
 			Returns the password. It requires that the credential info pane is already in focus.		
+			BROKEN: as of Thu, Sep 19, 2024 at 3:18:55 PM
 		*)
 		on getPassword()
+			if running of application "System Settings" is false then return missing value
+			
+			logger's warn("Broken ATM, use cliclick to make it work.")
+			return missing value
+			
 			script ExtractPassword
 				tell application "System Events" to tell process "System Settings"
 					set frontmost to true
-					set targetUI to static text 6 of group 1 of scroll area 1 of group 1 of sheet 1 of window "Passwords"
-					perform action "AXShowMenu" of targetUI
-					delay 0.1
+					try
+						set targetUI to static text 6 of group 1 of scroll area 1 of group 1 of sheet 1 of window "Passwords"
+					on error -- Changed DOM.
+						set targetUI to UI element 4 of group 1 of scroll area 1 of group 1 of sheet 1 of window "Passwords"
+					end try
+					
+					perform action "AXShowMenu" of targetUI -- Stopped working.
+					-- click targetUI
+					
+					delay 1
 					click menu item "Copy Password" of menu 1 of group 1 of sheet 1 of window "Passwords"
 				end tell
 			end script
@@ -230,6 +278,8 @@ on decorate(mainScript)
 			@timeoutAtLeast - The minimum amount of time in seconds allowed for the code. If the current code is less than this, it will wait for the next one. 
 		*)
 		on getVerificationCode(timeoutAtLeast)
+			if running of application "System Settings" is false then return missing value
+			
 			if isPasswordsLocked() then
 				promptForTouchID()
 				waitForPasswordsUnlock()
@@ -247,4 +297,3 @@ on decorate(mainScript)
 		end getVerificationCode
 	end script
 end decorate
-
