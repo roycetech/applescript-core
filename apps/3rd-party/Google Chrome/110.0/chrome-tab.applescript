@@ -17,10 +17,6 @@ use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
 
-use chromeJavaScript : script "core/chrome-javascript"
-
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 property retry : missing value
 
@@ -30,12 +26,14 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
+	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Open Google Translate
 		Manual: Closed Tab
 		Manual: Move tab to index
 		Manual: Run a Script
+		Manual: Switch Tab
 	")
 	
 	set spotClass to spotScript's new()
@@ -77,6 +75,10 @@ on spotCheck()
 	else if caseIndex is 4 then
 		sut's runScript("alert('Hello')")
 		
+	else if caseIndex is 5 then
+		sut's focusTabIndex(99)
+		-- sut's focusTabIndex(2)
+		
 	end if
 	
 	activate
@@ -102,12 +104,26 @@ on new(windowId, pTabIndex)
 		property appWindow : missing value -- app window, not syseve window.
 		property maxTryTimes : 60
 		property sleepSec : 1
-		property closeOtherTabsOnFocus : false
 		property tabIndex : pTabIndex
-		-- property safari : pSafari
 		
 		property _tab : missing value
 		property _url : missing value
+		
+		
+		on focusTabIndex(tabIndex)
+			if running of application "Google Chrome" is false then return
+			
+			tell application "Google Chrome"
+				set totalTabs to (count of tabs in window 1) -- Get the number of tabs in the first window
+				
+				if tabIndex is less than or equal to the totalTabs and tabIndex > 0 then
+					tell window 1 to set active tab index to tabIndex
+				else
+					logger's debugf("The desired tab index ({}) is out of range. There are only {} tabs.", {tabIndex, totalTabs})
+					
+				end if
+			end tell
+		end focusTabIndex
 		
 		
 		on moveTabToIndex(newIndex)
@@ -333,5 +349,6 @@ on new(windowId, pTabIndex)
 		set _tab of ChromeTabInstance to item pTabIndex of tabs of appWindow of ChromeTabInstance
 	end tell
 	
+	set chromeJavaScript to script "core/chrome-javascript"
 	chromeJavaScript's decorate(ChromeTabInstance)
 end new

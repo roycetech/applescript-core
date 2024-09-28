@@ -23,6 +23,10 @@ install-1password: build-one-password install-cliclick
 install-atom:  ## Deprecated
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Atom/1.60.0/atom
 
+
+build-camera-hub:
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Camera Hub/1.10.2/camera-hub
+
 install-eclipse:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Eclipse/v202306/eclipse
 
@@ -31,9 +35,9 @@ install-git-kraken:
 
 
 build-chrome:
-	$(SUDO) osacompile -o "$(HOME)/Library/Script Libraries/core/chrome.scpt" "scripts/stub.applescript"
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/chrome-javascript
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/chrome-tab
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/dec-chrome-tab-finder
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/chrome-javascript
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/chrome
 
 
@@ -69,10 +73,11 @@ install-pulsar: build-pulsar
 
 
 build-keyboard-maestro:
-	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/keyboard-maestro.scpt" "scripts/stub.applescript"
+# $(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/keyboard-maestro.scpt" "scripts/stub.applescript"
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-variables
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-preferences-variables
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-editor
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-editor-actions
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro-group
