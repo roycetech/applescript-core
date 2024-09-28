@@ -3,6 +3,7 @@
 
 	Notes:
 		Process is synonymous to app in this context.
+		Supports two types of apps derivation: traditional by app name and by bundle id.
 
 	Testing Notes:
 		Debug in logging must be on to see spot check object introspection.
@@ -13,17 +14,20 @@
 
 	@Build:
 		./scripts/build-lib.sh core/process
+
+	@Limitations:
+		Doesn't support Electron apps which can be referenced via its bundle identifier com.github.Electron.
+
+	@Created:
+		< 2024
 *)
 
 use script "core/Text Utilities"
 use scripting additions
 
 use std : script "core/std"
-use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -32,8 +36,9 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
-	set caseId to "process-spotCheck"
 
+	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Nonexistent App
 		Manual: Terminate (Launch Automator). (Running/Not Running)
@@ -54,10 +59,11 @@ on spotCheck()
 		Manual: Is Fullscreen
 
 		Manual: Force Quit
+		Manual: com.github.Electron
 	")
 
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(caseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		logger's finish()
@@ -67,6 +73,8 @@ on spotCheck()
 	(* Common SUTs *)
 	set scriptEditorApp to new("Script Editor")
 	set notRunning to new("App Store")
+
+	logger's infof("Is minimized: {}", scriptEditorApp's isMinimized())
 
 	if caseIndex is 1 then
 		try
@@ -146,21 +154,47 @@ on spotCheck()
 		set sut to new("Safari")
 		sut's forceQuit()
 
+	else if caseIndex is 17 then
+		set sut to new("com.github.Electron")
+		sut's moveWindow(0, 0)
+
+		logger's infof("Frontmost: {}", sut's isFrontMost())
+
 	end if
+
 
 	spot's finish()
 	logger's finish()
 end spotCheck
 
 
-
+(*
+	@pProcessName - the app name or the bundle identifier.
+*)
 on new(pProcessName)
 	loggerFactory's injectBasic(me)
 
-	if std's appExists(pProcessName) is false then tell me to error "App: " & pProcessName & " could not be found."
+	set localProcessName to missing value
+	set localBundleId to missing value
+
+	set appFound to false
+	if std's appExists(pProcessName) then
+		set appFound to true
+		set localProcessName to pProcessName
+
+	else if std's appWithIdExists(pProcessName) then
+		set appFound to true
+		set localBundleId to pProcessName
+	end if
+
+	-- logger's debugf("localBundleId: {}", localBundleId)
+	-- logger's debugf("appFound: {}", appFound)
+
+	if not appFound then error "App: " & pProcessName & " could not be found."
 
 	script ProcessInstance
-		property processName : pProcessName
+		property processName : localProcessName
+		property bundleId : localBundleId
 
 		on forceQuit()
 			tell application "System Events" to tell (first process whose frontmost is true)
@@ -193,7 +227,7 @@ on new(pProcessName)
 
 			if matchedRow is not missing value then
 				tell application "System Events" to tell process "loginwindow"
-				set selected of matchedRow to true
+					set selected of matchedRow to true
 					try
 						click button "Force Quit" of front window
 					end try
@@ -251,7 +285,7 @@ on new(pProcessName)
 		(* Shares the same state as when minimized. *)
 		on isHidden()
 			tell application "System Events" to tell process processName
-				visible
+				not visible
 			end tell
 		end isHidden
 
@@ -312,131 +346,6 @@ on new(pProcessName)
 			running of application processName
 		end isRunning
 
-		(* @windowName is case-insensitive. *)
-		on getWindowsMatchingName(windowName)
-			if running of application processName is false then return missing value
-
-			tell application "System Events" to tell process processName
-				try
-					return windows whose name contains windowName
-				end try
-			end tell
-
-			missing value
-		end getWindowsMatchingName
-
-
-		on getWindowsNotMatchingName(windowName)
-			if running of application processName is false then return missing value
-
-			tell application "System Events" to tell process processName
-				try
-					return first window whose name does not contain windowName
-				end try
-			end tell
-
-			missing value
-		end getWindowsNotMatchingName
-
-
-		on getWindowsEqualName(windowName)
-			if running of application processName is false then return missing value
-
-			tell application "System Events" to tell process processName
-				try
-					return windows whose name is equal to windowName
-				end try
-			end tell
-			missing value
-		end getWindowsEqualName
-
-
-		on getWindowsNotEqualName(windowName)
-			if running of application processName is false then return missing value
-
-			tell application "System Events" to tell process processName
-				try
-					return windows whose name is not equal to windowName
-				end try
-			end tell
-			missing value
-		end getWindowsNotEqualName
-
-
-		on getFirstWindow()
-			if running of application processName is false then return missing value
-
-			set appWindows to getWindows()
-			if the number of appWindows is 0 then return missing value
-
-			first item of appWindows
-		end getFirstWindow
-
-
-		on getWindows()
-			if running of application processName is false then return missing value
-
-			tell application "System Events" to tell process processName
-				windows
-			end tell
-		end getWindows
-
-		on getNonMinimizedWindows()
-			if running of application processName is false then return missing value
-
-			tell application "System Events" to tell process processName
-				try
-					windows whose value of attribute "AXMinimized" is false
-				on error
-					windows
-				end try
-			end tell
-		end getNonMinimizedWindows
-
-		on hasWindows()
-			if running of application processName is false then return false
-
-			return the number of items in getWindows() is greater than 0
-		end hasWindows
-
-
-		on hasWindowsWithTitle(targetTitle)
-			if running of application processName is false then return false
-
-			return the number of items in getWindowsEqualName(targetTitle) is greater than 0
-		end hasWindowsWithTitle
-
-
-		on setFirstWindowDimension(w, h)
-			if running of application processName is false then return
-
-			tell application "System Events" to tell process processName
-				try
-					set size of first window to {w, h}
-				end try
-			end tell
-		end setFirstWindowDimension
-
-
-		on moveWindow(x, y)
-			if processName is not "java" and running of application processName is false then return
-
-			tell application "System Events" to tell process processName
-				try
-					set position of first window to {x, y}
-				end try
-			end tell
-		end moveWindow
-
-		on resizeWindow(w, h)
-			if processName is not "java" and running of application processName is false then return
-
-			tell application "System Events" to tell process processName
-				try
-					set size of first window to {w, h}
-				end try
-			end tell
-		end resizeWindow
 
 		(*  *)
 		on terminate()
@@ -456,6 +365,7 @@ on new(pProcessName)
 			end repeat
 		end terminate
 
+
 		on isFrontMost()
 			if not running of application processName then return false
 
@@ -463,6 +373,22 @@ on new(pProcessName)
 				frontmost
 			end tell
 		end isFrontMost
-
 	end script
+
+	set decoratorWindow to script "core/dec-process-windows"
+	set nonBundleInstance to decoratorWindow's decorate(ProcessInstance)
+
+	set staticDecoratedInstance to missing value
+	if localBundleId is not missing value then
+		set decoratorBundle to script "core/dec-process-bundle"
+		set decoratorBundleWindow to script "core/dec-process-bundle-windows"
+		decoratorBundle's decorate(nonBundleInstance)
+		set staticDecoratedInstance to  decoratorBundleWindow's decorate(result)
+	else
+		set staticDecoratedInstance to nonBundleInstance
+	end if
+
+	-- Add dynamic decoration below if needed.
+
+	staticDecoratedInstance
 end new
