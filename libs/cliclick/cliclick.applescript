@@ -152,6 +152,8 @@ on new()
 			end tell
 
 			if pLeft is not missing value then set theX to pLeft + x
+			if pTop is not missing value then set theY to pTop + y
+
 			if pBottom is not missing value then
 				if y is less than 0 then -- 2nd screen at the top
 					set theY to y + h - pBottom
