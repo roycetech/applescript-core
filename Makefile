@@ -1,4 +1,5 @@
 # Makefile
+# Build the decorators before the main script.
 
 OS_NAME := $(shell osascript -e "system version of (system info)" \
 | cut -d '.' -f 1 \

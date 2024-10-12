@@ -41,6 +41,13 @@ build-chrome:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/110.0/chrome
 
 
+build-google-chrome:
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/129.0/google-chrome-tab
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/129.0/dec-google-chrome-tab-finder
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/129.0/google-chrome-javascript
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/129.0/google-chrome
+
+
 build-guitar-pro:
 	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/guitar-pro.scpt" "scripts/stub.applescript"
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Guitar Pro/7.6/dec-guitar-pro-note
@@ -107,7 +114,7 @@ build-sequel-ace:
 install-sequel-ace: build-sequel-ace
 
 
-install-step-two:
+build-step-two:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Step Two/3.1/step-two
 
 
@@ -134,7 +141,7 @@ install-sublime-text: build-finder
 install-text-mate:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/TextMate/2.0.x/text-mate
 
-install-viscosity:
+build-viscosity: build-step-two
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Viscosity/1.10.x/viscosity
 
 

@@ -29,6 +29,9 @@
 		Reads config-user.plist - AppleScript Projects Path
 		
 	@Known Issues:
+		Sat, Oct 5, 2024 at 5:56:52 PM - Will not be able to create an app in the local namespace if it has a dependency
+			in the user namespace.
+			
 		As of June 28, 2023 11:26 AM, while it is working on Script Editor, 
 		there is a scary "errOSAInternalTableOverflow" dialog when I try to run 
 		this on Script Debugger.
