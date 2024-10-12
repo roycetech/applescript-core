@@ -1,6 +1,10 @@
 (*
 	Passwords handlers for System Settings.
 		
+	@Version:
+		macOS Sonoma 14.7
+		System Settings 15.0
+		
 	@Project:
 		applescript-core
 		
@@ -11,13 +15,16 @@
 		set systemSettingLib to script "core/system-settings"
 		set systemSetting to systemSettingLib's new()
 		systemSetting's revealPasswords()
+		systemSetting's waitForPasswordsUnlock()
+
 		systemSetting's filterCredentials("zoom")
-		systemSetting's clickCredentialInformation()
+		systemSetting's clickFirstCredentialInformation()
 		systemSetting's getVerificationCode(2)
 
 	@Created: Wednesday, November 8, 2023 at 10:41:03 PM
 	@Last Modified: Wednesday, November 8, 2023 at 10:41:03 PM
 	@Change Logs:
+		Sat, Oct 12, 2024 at 3:09:54 PM - Changes on UI to retrieve OTP.
 *)
 
 use scripting additions
@@ -50,8 +57,8 @@ on spotCheck()
 		Main: Reveal Passwords
 		Manual: Filter Credentials
 		Manual: Click Credentials Info
-		
 		Manual: Get Credentials Info
+		
 		Manual: Get Verification Code
 	")
 	
@@ -166,7 +173,16 @@ on decorate(mainScript)
 			end script
 			exec of retry on result for 3
 			
-			if my isPasswordsLocked() then usr's cueForTouchId()
+			if my isPasswordsLocked() then
+				usr's cueForTouchId()
+			else
+				script WindowWaiter
+					tell application "System Events" to tell process "System Settings"
+						return exists (window "Passwords")
+					end tell
+				end script
+				exec of retry on result for 3
+			end if
 		end revealPasswords
 		
 		
@@ -219,8 +235,6 @@ on decorate(mainScript)
 				delay 0.1
 				
 			end tell
-			
-			
 		end clickCredentialInformationWithUsername
 		
 		
@@ -234,11 +248,25 @@ on decorate(mainScript)
 			
 			tell application "System Events" to tell process "System Settings"
 				try
-					return value of static text 4 of group 1 of scroll area 1 of group 1 of sheet 1 of window "Passwords"
-				on error
-					return value of UI element 3 of group 1 of scroll area 1 of group 1 of sheet 1 of window "Passwords"
+					set commonUI to group 1 of scroll area 1 of group 1 of sheet 1 of window "Passwords"
+				on error the errorMessage number the errorNumber
+					logger's warn(errorMasse) -- This needs quick attention.
+					return missing value
 				end try
+				
+				-- if exists (static text 4 of commonUI) then return value of static text 4 of commonUI
+				-- if exists (UI element 3 of commonUI) then return value of UI element 3 of commonUI
+				
+				(* As of macOS Sonoma v14.7 *)
+				value of static texts of commonUI
+				repeat with nextItem in result
+					if nextItem starts with "User Name" then
+						textUtil's split(nextItem, ", ")
+						return last item of result
+					end if
+				end repeat
 			end tell
+			
 			missing value
 		end getUsername
 		
@@ -292,8 +320,27 @@ on decorate(mainScript)
 			end if
 			
 			tell application "System Events" to tell process "System Settings"
-				textUtil's replace(value of static text 3 of group 2 of scroll area 1 of group 1 of sheet 1 of window "Passwords", " ", "")
+				try
+					set commonUI to group 2 of scroll area 1 of group 1 of sheet 1 of window "Passwords"
+				on error the errorMessage number the errorNumber
+					logger's warn(errorMasse) -- This needs quick attention.
+					return missing value
+				end try
+				
+				if exists (static text 3 of commonUI) then return textUtil's replace(value of static text 3 of commonUI, " ", "")
+				
+				value of static texts of group 2 of scroll area 1 of group 1 of sheet 1 of window "Passwords"
 			end tell
+			
+			repeat with nextItem in result
+				if nextItem starts with "Verification Code" then
+					textUtil's split(nextItem, ", ")
+					return last item of result
+					exit repeat
+				end if
+			end repeat
+			
+			missing value
 		end getVerificationCode
 	end script
 end decorate

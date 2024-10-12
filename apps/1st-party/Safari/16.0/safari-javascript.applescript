@@ -26,11 +26,9 @@ use scripting additions
 
 use script "core/Text Utilities"
 use std : script "core/std"
-use listUtil : script "core/list"
 
 use configLib : script "core/config"
 use retryLib : script "core/retry"
-use safariLib : script "core/safari"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -49,6 +47,9 @@ on spotCheck()
 	logger's start()
 
 	(* Tests are based on current apple.com website, very likely to change in the future. *)
+	set safariLib to script "core/safari"
+	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: AWS Login, IAM Radio Option
 		Manual: Link Text Visible
@@ -117,7 +118,6 @@ end spotCheck
 
 on decorate(safariTab)
 	loggerFactory's injectBasic(me)
-	set safari to safariLib's new()
 	set configSystem to configLib's new("system")
 	set retry to retryLib's new()
 
