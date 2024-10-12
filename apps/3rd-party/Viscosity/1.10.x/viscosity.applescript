@@ -2,7 +2,13 @@
 	@Testing:
 		Uses Step Two app for testing. Other apps may be used as well like 1Password.
 
-	@Last Modified
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh apps/3rd-party/Viscosity/1.10.x/viscosity
+
+	@Last Modified: 2024-10-12 17:33:12
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -13,6 +19,11 @@ use configLib : script "core/config"
 use stepTwoLib : script "core/step-two"
 
 property logger : missing value
+property configBusiness : missing value
+
+property CONFIG_KEY_BUSINESS : "business"
+property PLIST_KEY_DOMAIN_KEY : "Domain Key"
+property PLIST_KEY_VPN_KEY : "VPN Key"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -22,12 +33,13 @@ on spotCheck()
 
 	set retry to retryLib's new()
 	set stepTwo to stepTwoLib's new()
-	set configBusiness to configLib's new("business")
+	set configBusiness to configLib's new(my CONFIG_KEY_BUSINESS)
 	set viscosityProcess to processLib's new("Viscosity")
 	viscosityProcess's terminate()
 
-	set domainKey to configBusiness's getValue("Domain Key")
+	set domainKey to configBusiness's getValue(my PLIST_KEY_DOMAIN_KEY)
 	logger's debugf("domainKey: {}", domainKey)
+
 	script OtpRetrieverInstance
 		on getOTP()
 			set OTP_APP_NAME to "Step Two"
@@ -53,6 +65,7 @@ end spotCheck
 *)
 on new(pOtpRetriever)
 	loggerFactory's inject(me)
+	set configBusiness to configLib's new(my CONFIG_KEY_BUSINESS)
 
 	if pOtpRetriever is missing value then
 		error "You need to pass a valid OTP retriever"
@@ -64,16 +77,21 @@ on new(pOtpRetriever)
 		on run {}
 			if not (running of application "Viscosity") then activate application "Viscosity"
 
+			set vpnKey to configBusiness's getValue(my PLIST_KEY_VPN_KEY)
+			logger's debugf("vpnKey: {}", vpnKey)
 			tell application "System Events" to tell process "Viscosity"
 				if (count of windows) is 0 then
+					logger's debug("No window found...")
 					tell application "Viscosity"
-						if state of first connection is "Connected" then return true
-						connect WORK_NAME
+						if state of first connection is "Connected" then
+							logger's info("First connection state is already 'Connected'")
+							return true
+						end if
+						connect vpnKey
 					end tell
 				end if
 
 				if exists (button "OK" of window "") then click button "OK" of window ""
-
 				if exists (window "Preferences") then click first button of window "Preferences"
 				if exists (window "Details") then click first button of window "Details"
 
@@ -95,10 +113,12 @@ on new(pOtpRetriever)
 
 
 		on fillOTP(otp)
-			logger's info("Filling Viscosity with OTP")
+			logger's info("Supplying Viscosity with OTP")
 			tell application "System Events" to tell process "Viscosity"
 				set targetWindow to (first window whose name starts with "Viscosity")
-				set value of text field 2 of targetWindow to otp
+				set focused of text field 1 of targetWindow to true
+
+				set value of text field of targetWindow to otp -- Work as of Sat, Oct 12, 2024 at 5:32:22 PM
 				click button "OK" of targetWindow
 			end tell
 		end fillOTP
