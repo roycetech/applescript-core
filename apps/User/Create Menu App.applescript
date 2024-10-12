@@ -144,7 +144,7 @@ on main()
 	set savedScript to scriptEditorTab's saveAsStayOpenApp(appFilename, targetFolder as text)
 	logger's debugf("savedScript: {}", savedScript)
 	
-	if chosenDeployment is "user" then updateAppToDockless(appFilename, targetFolder)
+	updateAppToDockless(appFilename, targetFolder)
 	
 	tell speech to speakSynchronously("Menu app deployed") -- causing problems.
 	activate application baseScriptName
