@@ -150,6 +150,10 @@ on newBase(pObjectName)
 		end fatal
 
 
+		on fatalf(thisMessage, tokens)
+			warn(textUtil's format(thisMessage, tokens))
+		end fatal
+
 		on _secsToHMS(secs)
 			tell (1000000 + secs div hours * 10000 + secs mod hours div minutes * 100 + secs mod minutes) as string to return text 2 thru 3 & ":" & text 4 thru 5 & ":" & text 6 thru 7
 		end _secsToHMS
