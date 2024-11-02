@@ -32,12 +32,10 @@ use scripting additions
 use std : script "core/std"
 
 use textUtil : script "core/string"
-use listUtil : script "core/list"
+
 use loggerFactory : script "core/logger-factory"
 
 use plutilLib : script "core/plutil"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property session : missing value
@@ -52,12 +50,16 @@ on spotCheck()
 
 	logger's start()
 
+	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
-		Unit Test
+		NOOP:
 		Manual: Click on Show Accessory View - Default
 		Manual: Click on Show Accessory View - Reset
 		Manual: Move To XY
 		Manual: DoubleClick Relative
+
+		Manual: Double Click
 	")
 
 	set spotClass to spotScript's new()
@@ -72,7 +74,6 @@ on spotCheck()
 	logger's infof("Current Coord: {}:{}", sut's getCurrentCoord())
 
 	if caseIndex is 1 then
-		unitTest()
 
 	else
 		tell application "System Events" to tell process "Script Editor"
@@ -93,6 +94,16 @@ on spotCheck()
 				set frontmost to true
 				doubleClickRelative of sut at front window given fromLeft:100, fromTop:200
 			end tell
+
+		else if caseIndex is 6 then
+			tell application "System Events" to tell process "Windows App"
+				set frontmost to true
+				delay 0.1
+
+				first group of list 1 of list 1 of scroll area 1 of group 1 of splitter group 1 of front window whose description of group 1 is "Rose Server Main"
+			end tell
+
+			doubleLeftClick of sut at result
 		end if
 	end if
 
@@ -265,6 +276,25 @@ on new()
 			restorePosition()
 		end lclickAtXy
 
+
+		(*
+			-e is for easing, to make it move human-like, sometimes necessary for some
+				UIs to detect and respond to.
+		*)
+		on doubleLeftClickAtXy(x, y)
+			saveCurrentPosition()
+
+			set formattedCoord to _formatCoordinates(x, y)
+			set clickCommand to CLICLICK_CLI & " -e 1 dc:" & formattedCoord
+
+			try
+				do shell script clickCommand
+			end try -- swallow if the command is not present.
+
+			restorePosition()
+		end doubleLeftClickAtXy
+
+
 		(*
 			Retrofitted from #lclickAtXy.
 		*)
@@ -332,6 +362,37 @@ on new()
 
 			restorePosition()
 		end lclick
+
+
+		(*
+			Copied from lclick at.
+		*)
+		on doubleLeftClick at theUi given reset:resetArg : true, smoothing:smoothingArg : true, relativex:relativexArg : 0, relativey:relativeyArg : 0
+			if theUi is missing value then return
+
+			saveCurrentPosition()
+
+			set smoothingParam to ""
+			if smoothingArg then set smoothingParam to "-e 1 "
+
+			tell application "System Events"
+				tell theUi
+					set {xPosition, yPosition} to position
+					set {xSize, ySize} to size
+				end tell
+
+				set theYPos to yPosition + relativeyArg + (ySize div 2)
+				if theYPos is less than 0 then
+					set theYPos to "=" & theYPos
+				end if
+				set negativeX to relativexArg is less than 0
+				set cliParamX to std's ternary(negativeX, xPosition + xSize + relativexArg, xPosition + relativexArg + (xSize div 2))
+				set clickCommand to CLICLICK_CLI & " " & smoothingParam & "dc:" & cliParamX & "," & theYPos
+				do shell script clickCommand
+			end tell
+
+			restorePosition()
+		end doubleLeftClick
 
 
 		(*
