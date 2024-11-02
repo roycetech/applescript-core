@@ -144,7 +144,7 @@ on new(pPlistName)
 			theCount
 		end totalToday
 
-		(**)
+		(* @returns the incremented value. *)
 		on increment(theKey)
 			set todayDate to _formatDate(short date string of (current date))
 
@@ -158,6 +158,7 @@ on new(pPlistName)
 			if keyTodayCount is missing value then set keyTodayCount to 0
 			set keyTodayCount to keyTodayCount + 1
 			countDaily's setValue(keyToday, keyTodayCount)
+			keyTodayCount
 		end increment
 
 
