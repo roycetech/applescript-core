@@ -29,13 +29,14 @@ use configLib : script "core/config"
 use decoratorLib : script "core/decorator"
 use retryLib : script "core/retry"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 property kb : missing value
 property config : missing value
 property IDEA_CLI : missing value
 property retry : missing value
+
+property CONFIG_SYSTEM : "system"
+property CONFIG_KEY_IDEA_CLI: "IntelliJ CLI"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -43,9 +44,10 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
+	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
-		Noop
+		NOOP: Info
 		Manual: Open Project
 		Manual: Open File Path
 		Manual: Toggle Scheme
@@ -66,11 +68,14 @@ on spotCheck()
 	logger's infof("Current Project Name: {}", sut's getCurrentProjectName())
 	logger's infof("Current Document Name: {}", sut's getCurrentDocumentName())
 	logger's infof("Is Project Selected: {}", sut's isProjectSelected())
+	
 	logger's debugf("sutProjectFilePath: {}", sutProjectFilePath)
 	
 	if caseIndex is 1 then
 		
 	else if caseIndex is 2 then
+		set sutProjectPath to "/Users/" & std's getUsername() & "/Projects/@Work_A2/obsr-core-v10" --  TEMP
+		
 		sut's openProject(sutProjectPath)
 		
 	else if caseIndex is 3 then
@@ -91,8 +96,8 @@ end spotCheck
 on new()
 	loggerFactory's inject(me)
 	set kb to kbLib's new()
-	set configSystem to configLib's new("system")
-	set IDEA_CLI to configSystem's getValue("IntelliJ CLI")
+	set configSystem to configLib's new(CONFIG_SYSTEM)
+	set IDEA_CLI to configSystem's getValue(CONFIG_KEY_IDEA_CLI)
 	set retry to retryLib's new()
 	
 	if std's appExists("IntelliJ IDEA") then
@@ -121,10 +126,26 @@ on new()
 		
 		
 		on getCurrentProjectName()
+			log "Dummy code to prevent crash"
+			(*
+			-- First Version, broken after checking out a feature branch.
 			set mainWindowName to _getMainWindowName()
 			if mainWindowName is missing value then return missing value
 			
 			first item of textUtil's split(mainWindowName, " " & unic's MAIL_SUBDASH & " ")
+			*)
+			
+			tell application "System Events" to tell process "idea"
+				try
+					first group of group 1 of front window whose description is "Status Bar"
+					return description of first button of group 1 of scroll area 1 of result
+				on error the errorMessage number the errorNumber
+					logger's warn(errorMessage)
+					return missing value
+				end try
+			end tell
+			
+			missing value
 		end getCurrentProjectName
 		
 		
