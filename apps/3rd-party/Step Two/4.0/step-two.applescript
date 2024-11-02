@@ -133,7 +133,8 @@ on newRetriever(credKey)
 			
 			-- Below fails to work on actual script.
 			set stepTwoProc to processLib's new("Step Two")
-			stepTwoProc's minimize()
+			-- stepTwoProc's minimize()
+			stepTwoProc's terminate()
 			
 			otp
 		end getOTP
