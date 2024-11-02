@@ -15,7 +15,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Chrome/110.0/google-chrome-javascript
+		./scripts/build-lib.sh 'apps/3rd-party/Google Chrome/129.0/google-chrome-javascript'
 
 	@Created:
 		December 25, 2023 4:00 PM

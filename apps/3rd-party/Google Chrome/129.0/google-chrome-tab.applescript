@@ -119,6 +119,7 @@ on new(windowId, pTabIndex)
 		property _url : missing value
 		
 		
+		(* This probably shouldn't be here, move to google-chrome instead. *)
 		on focusTabIndex(tabIndex)
 			if running of application "Google Chrome" is false then return
 			

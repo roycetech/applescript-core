@@ -3,7 +3,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/3rd-party/Google Chrome/129.0/google-chrome
+		./scripts/build-lib.sh apps/3rd-party/Google Chrome/130.0/google-chrome
 *)
 use scripting additions
 
@@ -17,7 +17,7 @@ use decChromeTabFinder : script "core/dec-google-chrome-tab-finder"
 use decChromeInspector : script "core/dec-google-chrome-inspector"
 
 use retryLib : script "core/retry"
-
+ 
 property winUtil : missing value
 property logger : missing value
 property retry : missing value
@@ -51,6 +51,7 @@ on spotCheck()
 	set sut to new()
 	logger's infof("Is playing: {}", sut's isPlaying())
 	logger's infof("Dev tools active: {}", sut's isDevToolsActive())
+	logger's infof("Is default group: {}", sut's isDefaultGroup())
 	
 	if caseIndex is 1 then
 		
@@ -191,6 +192,10 @@ on new()
 			end tell
 		end focusTabWithIndex
 		
+		(* Handler defined to make it uniform with Safari. *)
+		on isDefaultGroup()
+			true
+		end isDefaultGroup
 	end script
 	
 	decChromeTabFinder's decorate(result)

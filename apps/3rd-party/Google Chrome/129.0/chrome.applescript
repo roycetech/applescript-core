@@ -1,9 +1,11 @@
 (*
+	@Version: 129
+
 	@Project:
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/3rd-party/Google Chrome/129.0/google-chrome
+		./scripts/build-lib.sh 'apps/3rd-party/Google Chrome/129.0/chrome'
 *)
 use scripting additions
 
@@ -12,9 +14,8 @@ use script "core/Text Utilities"
 use loggerFactory : script "core/logger-factory"
 
 use winUtilLib : script "core/window"
-use googleChromeTabLib : script "core/google-chrome-tab"
-use decChromeTabFinder : script "core/dec-google-chrome-tab-finder"
-use decChromeInspector : script "core/dec-google-chrome-inspector"
+use chromeTabLib : script "core/google-chrome-tab"
+use decChromeTabFinder : script "core/dec-chrome-tab-finder"
 
 use retryLib : script "core/retry"
 
@@ -36,7 +37,7 @@ on spotCheck()
 		Manual: New Tab
 		Manual: Open the Developer tools
 		Manual: JavaScript
-
+		
 		Manual: Close Tab By Index
 	")
 	
@@ -50,7 +51,6 @@ on spotCheck()
 	
 	set sut to new()
 	logger's infof("Is playing: {}", sut's isPlaying())
-	logger's infof("Dev tools active: {}", sut's isDevToolsActive())
 	
 	if caseIndex is 1 then
 		
@@ -58,18 +58,18 @@ on spotCheck()
 		sut's newWindow("https://www.example.com")
 		
 	else if caseIndex is 3 then
-		set googleChromeTab to sut's newTab("https://www.example.com")
-		googleChromeTab's waitForPageLoad()
+		set chromeTab to sut's newTab("https://www.example.com")
+		chromeTab's waitForPageLoad()
 		
 	else if caseIndex is 4 then
 		sut's openDeveloperTools()
 		
 	else if caseIndex is 5 then
-		set googleChromeTab to sut's getFrontTab()
-		if googleChromeTab is missing value then
+		set chromeTab to sut's getFrontTab()
+		if chromeTab is missing value then
 			logger's info("Chrome window was not found")
 		else
-			googleChromeTab's runScript("alert('Hello Chrome AppleScript')")
+			chromeTab's runScript("alert('Hello Chrome AppleScript')")
 		end if
 		
 	else if caseIndex is 6 then
@@ -109,7 +109,7 @@ on new()
 				set URL of active tab of newWindow to targetUrl
 				
 				tell front window
-					googleChromeTabLib's new(its id, active tab index)
+					chromeTabLib's new(its id, active tab index)
 				end tell
 			end tell
 		end newWindow
@@ -136,7 +136,7 @@ on new()
 					set newTab to make new tab at end of tabs
 				end if
 				set URL of newTab to targetUrl
-				googleChromeTabLib's new(its id, active tab index)
+				chromeTabLib's new(its id, active tab index)
 			end tell
 		end newTab
 		
@@ -145,7 +145,7 @@ on new()
 			if not winUtil's hasWindow("Google Chrome") then return missing value
 			
 			tell application "Google Chrome" to tell first window
-				googleChromeTabLib's new(its id, active tab index)
+				chromeTabLib's new(its id, active tab index)
 			end tell
 		end getFrontTab
 		
@@ -160,13 +160,14 @@ on new()
 			end tell
 		end openDeveloperTools
 		
+		
 		on closeTabByIndex(tabIndex)
 			-- logger's debugf("tabIndex: {}", tabIndex)			
 			if not winUtil's hasWindow("Google Chrome") then return
 			
 			tell application "Google Chrome"
 				tell front window
-					if (count of tabs) is greater than or equal to tabIndex then
+					if (count of tabs) ³ tabIndex then
 						close tab tabIndex
 					else
 						logger's fatalf("Tab index {} is out of range.", tabIndex)
@@ -174,25 +175,7 @@ on new()
 				end tell
 			end tell
 		end closeTabByIndex
-		
-		
-		on focusTabWithIndex(tabIndex)
-			if running of application "Google Chrome" is false then return
-			
-			tell application "Google Chrome"
-				set totalTabs to (count of tabs in window 1) -- Get the number of tabs in the first window
-				
-				if tabIndex is less than or equal to the totalTabs and tabIndex > 0 then
-					tell window 1 to set active tab index to tabIndex
-				else
-					logger's debugf("The desired tab index ({}) is out of range. There are only {} tabs.", {tabIndex, totalTabs})
-					
-				end if
-			end tell
-		end focusTabWithIndex
-		
 	end script
 	
 	decChromeTabFinder's decorate(result)
-	decChromeInspector's decorate(result)
 end new

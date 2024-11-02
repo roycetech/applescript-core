@@ -45,7 +45,8 @@ build-google-chrome:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/129.0/google-chrome-tab
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/129.0/dec-google-chrome-tab-finder
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/129.0/google-chrome-javascript
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/129.0/google-chrome
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/130.0/dec-google-chrome-inspector
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/130.0/google-chrome
 
 
 build-guitar-pro:
@@ -61,7 +62,7 @@ build-ms-edge:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge
 
 build-opera:
-	$(SUDO) osacompile -o "$(HOME)/Library/Script Libraries/core/opera.scpt" "scripts/stub.applescript"
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Opera/110.0/dec-opera-tab-finder
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Opera/110.0/opera-javascript
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Opera/110.0/opera-tab
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Opera/110.0/opera
@@ -109,7 +110,8 @@ install-script-debugger: build-script-debugger
 
 
 build-sequel-ace:
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Sequel Ace/4.0.x/sequel-ace
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Sequel Ace/4.1.x/sequel-ace-tab
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Sequel Ace/4.1.x/sequel-ace
 
 install-sequel-ace: build-sequel-ace
 
@@ -148,6 +150,9 @@ build-viscosity: build-step-two
 build-visual-studio-code:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Visual Studio Code/1.81/visual-studio-code
 
+
+build-vlc:
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/VLC/3.0.x/vlc
 
 build-zoom:
 	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/zoom.scpt" "scripts/stub.applescript"

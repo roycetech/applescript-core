@@ -9,23 +9,18 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh 'apps/3rd-party/Google Chrome/110.0/dec-google-chrome-tab-finder'
+		./scripts/build-lib.sh 'apps/3rd-party/Google Chrome/129.0/dec-google-chrome-tab-finder'
 
 	@Created: Saturday, March 16, 2024 at 11:13:08 AM
 	@Last Modified: Saturday, March 16, 2024 at 11:13:11 AM
 	@Change Logs:
 *)
-use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 
 use googleChromeTabLib : script "core/google-chrome-tab"
 
-use spotScript : script "core/spot-test"
-use kbLib : script "core/keyboard"
-
 property logger : missing value
-property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -33,6 +28,8 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
+	set listUtil to script "core/list"
+	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Manual: findTabStartingWithUrl
 	")
@@ -61,6 +58,7 @@ on spotCheck()
 		end if
 		
 	else if caseIndex is 2 then
+		set kb to kbLib's new()
 		activate application "Google Chrome"
 		kb's pressCommandKey("r")
 		delay 1
@@ -87,8 +85,6 @@ end newSpotBase
 (*  *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
-	
-	set kb to kbLib's new()
 	
 	script ChromeFinderDecorator
 		property parent : mainScript
