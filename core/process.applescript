@@ -22,14 +22,17 @@
 		< 2024
 *)
 
-use script "core/Text Utilities"
 use scripting additions
+use script "core/Text Utilities"
 
 use std : script "core/std"
 
 use loggerFactory : script "core/logger-factory"
 
+use retryLib : script "core/retry"
+
 property logger : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -60,6 +63,7 @@ on spotCheck()
 
 		Manual: Force Quit
 		Manual: com.github.Electron
+		Manual: Wait App Activate
 	")
 
 	set spotClass to spotScript's new()
@@ -160,6 +164,10 @@ on spotCheck()
 
 		logger's infof("Frontmost: {}", sut's isFrontMost())
 
+	else if caseIndex is 18 then
+		set sut to new("Sequel Ace")
+		sut's waitActivate()
+
 	end if
 
 
@@ -173,7 +181,7 @@ end spotCheck
 *)
 on new(pProcessName)
 	loggerFactory's injectBasic(me)
-
+	set retry to retryLib's new()
 	set localProcessName to missing value
 	set localBundleId to missing value
 
@@ -195,6 +203,31 @@ on new(pProcessName)
 	script ProcessInstance
 		property processName : localProcessName
 		property bundleId : localBundleId
+
+
+		on waitActivate()
+			script WaitAppWindow
+				activate application "Sequel Ace"
+				tell application "System Events" to tell process "Sequel Ace"
+					if exists (window 1) then return true
+				end tell
+			end script
+			exec of retry on result for 6 by 0.5
+		end waitActivate
+
+
+		on focusWindow()
+			script WaitFocus
+				tell application "System Events" to tell process (my processName)
+					set frontmost to true
+				end tell
+
+				tell application "System Events" to tell (first process whose frontmost is true)
+					if name is my processName then return true
+				end tell
+			end script
+			exec of retry on result for 3
+		end focusWindow
 
 		on forceQuit()
 			tell application "System Events" to tell (first process whose frontmost is true)
@@ -383,7 +416,7 @@ on new(pProcessName)
 		set decoratorBundle to script "core/dec-process-bundle"
 		set decoratorBundleWindow to script "core/dec-process-bundle-windows"
 		decoratorBundle's decorate(nonBundleInstance)
-		set staticDecoratedInstance to  decoratorBundleWindow's decorate(result)
+		set staticDecoratedInstance to decoratorBundleWindow's decorate(result)
 	else
 		set staticDecoratedInstance to nonBundleInstance
 	end if
