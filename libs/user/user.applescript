@@ -67,6 +67,7 @@ on spotCheck()
 	set decorator to decoratorLib's new(sut)
 	decorator's printHierarchy()
 
+	logger's infof("WiFi SID: {}", sut's getWifiSID())
 	logger's infof("In Meeting: {}", sut's isInMeeting())
 	logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
 	logger's infof("Is Online?: {}", sut's isOnline())
@@ -98,6 +99,10 @@ on new()
 	set lov to lovLib's new(LOV_KEY)
 
 	script UserInstance
+		on getWifiSID()
+			do shell script "networksetup -getairportnetwork en0 | awk -F\": \" '{ print $2 }'"
+		end getWifiSID
+
 		(*
 			@returns "computer" or "user"
 		*)
