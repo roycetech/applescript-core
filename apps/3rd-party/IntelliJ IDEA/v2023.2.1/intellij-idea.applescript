@@ -36,7 +36,7 @@ property IDEA_CLI : missing value
 property retry : missing value
 
 property CONFIG_SYSTEM : "system"
-property CONFIG_KEY_IDEA_CLI: "IntelliJ CLI"
+property CONFIG_KEY_IDEA_CLI : "IntelliJ CLI"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -126,7 +126,7 @@ on new()
 		
 		
 		on getCurrentProjectName()
-			log "Dummy code to prevent crash"
+			-- log "Dummy code to prevent crash"
 			(*
 			-- First Version, broken after checking out a feature branch.
 			set mainWindowName to _getMainWindowName()
@@ -136,8 +136,9 @@ on new()
 			*)
 			
 			tell application "System Events" to tell process "idea"
+				set mainWindow to first window whose title is not ""
 				try
-					first group of group 1 of front window whose description is "Status Bar"
+					first group of group 1 of mainWindow whose description is "Status Bar"
 					return description of first button of group 1 of scroll area 1 of result
 				on error the errorMessage number the errorNumber
 					logger's warn(errorMessage)
@@ -199,7 +200,9 @@ on new()
 		on _getGroup(groupName)
 			script Failable
 				tell application "System Events" to tell process "idea"
-					first group of group 1 of front window whose description is equal to the groupName
+					set mainWindow to first window whose title is not ""
+
+					first group of group 1 of mainWindow whose description is equal to the groupName
 				end tell
 			end script
 			exec of retry on result for 5
