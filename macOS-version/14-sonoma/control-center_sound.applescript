@@ -12,14 +12,12 @@
 		September 25, 2023 11:35 AM
 *)
 
-use listUtil : script "core/list"
-
 use loggerFactory : script "core/logger-factory"
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 use ccLib : script "core/control-center"
 
-use spotScript : script "core/spot-test"
+
 
 property logger : missing value
 property kb : missing value
@@ -32,10 +30,13 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Is Mic In Use (Off, Mic only, Mic and Camera)
 		Manual: Switch to AirPods (N/A, Happy, Already Selected)
 		Manual: Switch to Default (Happy, Already Selected)
+		Manual: WIP: Activate AirPods Noise Cancellation
 	")
 
 	set spotClass to spotScript's new()
@@ -61,6 +62,17 @@ on spotCheck()
 		set switchResult to sut's switchAudioOutput("MacBook Pro Speakers")
 		logger's infof("Switch Result: {}", switchResult)
 
+	else if caseIndex is 4 then
+		set sutTarget to "unicorn"
+		set sutTarget to "Off" -- Doesn't work, use Transparency instead.
+		set sutTarget to "Transparency"
+		-- set sutTarget to "Adaptive"
+		set sutTarget to "Noise Cancellation"
+
+		logger's debugf("sutTarget: {}", sutTarget)
+		set switchResult to sut's switchNoiseControl(sutTarget)
+
+
 	else
 
 	end if
@@ -84,8 +96,38 @@ on decorate(mainScript)
 	set kb to kbLib's new()
 	set retry to retryLib's new()
 
-	script ControlCenterSoundDecorated
+	script ControlCenterSoundDecorator
 		property parent : mainScript
+
+
+		(*
+			@newValue - Transparency, Adaptive, or Noise Cancellation.  Note that "Off" doesn't work.
+		*)
+		on switchNoiseControl(newValue)
+			_activateControlCenter()
+			_activateSoundPane()
+
+			if newValue is "Off" then
+				set idx to 3
+			else if newValue is "Transparency" then
+				set idx to 4
+			else if newValue is "Adaptive" then
+				set idx to 5
+			else if newValue is "Noise Cancellation" then
+				set idx to 6
+			else
+				logger's warnf("{} unrecognized.", newValue)
+				return
+			end if
+
+			(* Hard-coding checkboxes 2-6. No identifying attribute or ID found. *)
+			tell application "System Events" to tell process "ControlCenter"
+				try
+					click checkbox idx of scroll area 1 of group 1 of window 1
+				end try -- AirPods not connected.
+			end tell
+		end switchNoiseControl
+
 
 		on isMicInUse()
 			(*
