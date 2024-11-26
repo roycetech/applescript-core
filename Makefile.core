@@ -62,7 +62,9 @@ CORE_LIBS :=  \
 	property-list \
 	spot-test \
 	menu \
-	math
+	math \
+	speech-recognition-server
+
 
 APPS_PATH=/Applications/AppleScript
 

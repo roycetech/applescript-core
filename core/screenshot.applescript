@@ -93,7 +93,7 @@ on spotCheck()
 		logger's debugf("generatedFilePath: {}", generatedFilePath)
 
 		(*
-			The app script needs to complete before the file is actually revealable in the finder that's why I
+			The app script needs to complete before the file becomes revealable in the finder that's why I
 			created an optional Delayed AppleScript app for testing only.
 		*)
 		set optionalAppName to "Delayed Applescript"
