@@ -13,7 +13,7 @@
 	@Build:
 		./scripts/build-lib.sh core/string
 
-	@Last Modified: 2024-09-01 19:52:54
+	@Last Modified: 2024-11-25 14:30:13
 *)
 use scripting additions
 
@@ -305,12 +305,15 @@ on ucase(theText)
 end ucase
 
 
+(* TODO: Unit test. *)
 on lcase(theText)
 	lower(theText)
 end lcase
 
 
 on repeatText(theText, ntimes)
+	if ntimes is less than or equal to 0 then return missing value
+
 	set theResult to ""
 	repeat ntimes times
 		set theResult to theResult & theText
