@@ -14,7 +14,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
 
-	@Last Modified: 2024-08-06 14:00:05
+	@Last Modified: 2024-11-10 14:08:25
 *)
 
 use script "core/Text Utilities"
@@ -22,14 +22,11 @@ use scripting additions
 
 use std : script "core/std"
 use textUtil : script "core/string"
-use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 
 use kbLib : script "core/keyboard"
 use decoratorLib : script "core/decorator"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
@@ -41,6 +38,8 @@ on spotCheck()
 	logger's start()
 
 	(* Have a Finder window open and manually verify result. *)
+	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Misc Folders
 		Manual: Selection (None, One, Multi)
@@ -58,6 +57,7 @@ on spotCheck()
 		Manual: Copy File
 		Manual: Rename File
 		Manual: Delete File
+		Manual: Create Folder as Needed
 	")
 
 	set spotClass to spotScript's new()
@@ -178,6 +178,10 @@ on spotCheck()
 			set fileReference to file "spot-delete.txt" of folder "Delete Daily" of (path to home folder)
 		end tell
 		sut's deleteFile(fileReference)
+
+	else if caseIndex is 15 then
+		set websitesFolder to sut's posixToFolder("~/Documents/websites")
+		sut's createFolderAsNeeded("poc", websitesFolder)
 
 	end if
 
@@ -608,6 +612,10 @@ on new()
 				set rootRelativePath to text 2 thru -1 of posixPath
 				if rootRelativePath ends with "/" then set rootRelativePath to text 1 thru -2 of rootRelativePath
 				return _posixSubPathToFolder(rootRelativePath, path to startup disk)
+
+			else if posixPath starts with "~" then
+				set userRelativePath to textUtil's stringAfter(posixPath, "~/")
+				return _posixSubPathToFolder(userRelativePath, path to home folder)
 
 			end if
 		end posixToFolder
