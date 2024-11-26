@@ -70,7 +70,7 @@ build-preview:
 build-safari: build-dock
 #	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/safari.scpt" "scripts/stub.applescript"
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.6/safari-tab
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.0/safari-tab
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact

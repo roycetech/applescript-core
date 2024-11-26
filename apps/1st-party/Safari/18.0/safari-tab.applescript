@@ -1,18 +1,19 @@
 (*
 
+
 	@Project:
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Safari/17.6/safari-tab
+		./scripts/build-lib.sh apps/1st-party/Safari/18.0/safari-tab
 
-	@Version: 17.6
-
-	@Created: Wed, Sep 25, 2024 at 2:36:07 PM
-	@Last Modified: 2024-11-21 10:52:42
+	@Created: Fri, Nov 22, 2024 at 7:29:47 AM
+	@Last Modified: 2024-11-26 07:27:21
 
 	@Change Logs:
-		Sunday, March 31, 2024 at 9:28:23 AM - After Sonoma 14.4.1, document reference could no longer be passed from intermediary reference, it needs to be directly accessed to work.
+		Fri, Nov 22, 2024 at 7:29:51 AM
+			- Add getBaseUrl
+			- Add gotoPath
 *)
 
 use scripting additions
@@ -23,8 +24,6 @@ use retryLib : script "core/retry"
 
 use safariJavaScript : script "core/safari-javascript"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 property retry : missing value
 
@@ -34,13 +33,18 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
+		INFO
 		Manual: Closed Tab
 		Manual: Move tab to index
-		Manual: Switch to Tab Index
+		Manual: Go to Path
+		Manual: Raise Window
 	")
 
+	set usrLib to script "core/user"
+	set usr to usrLib's new()
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -62,8 +66,9 @@ on spotCheck()
 	logger's infof("Has toolbar: {}", sut's hasToolBar())
 	logger's infof("Has alert: {}", sut's hasAlert())
 	logger's infof("Current URL: {}", sut's getURL())
+	logger's infof("Base URL: {}", sut's getBaseURL())
 
-	if caseIndex is 1 then
+	if caseIndex is 2 then
 		(* Prepare a test tab, then close it.*)
 		logger's info("Close the test tab.")
 		delay 8
@@ -74,14 +79,35 @@ on spotCheck()
 		logger's infof("Name: {}", sut's getWindowName())
 		logger's infof("Window ID: {}", sut's getWindowID())
 
-	else if caseIndex is 2 then
+	else if caseIndex is 3 then
 		sut's moveTabToIndex(5)
 		logger's infof("Current Title: {}", sut's getTitle())
 
-	else if caseIndex is 3 then
-		sut's focusTabIndex(99)
-		-- sut's focusTabIndex(2)
+	else if caseIndex is 4 then
+		sut's goto("https://www.apple.com")
+		sut's waitForPageLoad()
 
+		set sutPath to missing value
+		set sutPath to "airpods"
+
+		logger's debugf("sutPath: {}", sutPath)
+
+		sut's gotoPath(sutPath)
+
+	else if caseIndex is 5 then
+		(*
+			Prerequisite:
+				1. Open 2 windows, one of which points to apple.com.
+		*)
+		logger's info("Manually focus on the non-apple window...")
+		usr's afplay("Tink.aiff")
+		delay 2
+
+		tell application "Safari" to tell second window -- Use a different SUT
+			set sut to my new(its id, index of its current tab, missing value)
+		end tell
+
+		sut's raiseWindow()
 	end if
 
 	spot's finish()
@@ -96,7 +122,6 @@ end spotCheck
 on new(windowId, pTabIndex)
 	-- on new(windowId, pTabIndex, pSafari)
 	loggerFactory's inject(me)
-	set localMain to me
 
 	set retry to retryLib's new()
 
@@ -108,25 +133,54 @@ on new(windowId, pTabIndex)
 		property sleepSec : 1
 		property closeOtherTabsOnFocus : false
 		property tabIndex : pTabIndex
-		property main : localMain
 		-- property safari : pSafari
 
 		property _tab : missing value
 		property _url : missing value
 
 
-		on focusTabIndex(tabIndex)
+		on raiseWindow()
+			if running of application "Safari" is false then return
+
+			set targetTitle to getTitle()
+			tell application "System Events" to tell process "Safari"
+				set frontmost to true
+				try
+					click (first menu item of menu 1 of menu bar item "Window" of menu bar 1 whose title ends with targetTitle)
+				on error the errorMessage number the errorNumber
+					log errorMessage
+
+				end try
+			end tell
+		end raiseWindow
+
+
+		on gotoPath(urlPath)
+			if running of application "Safari" is false then return
+			if getBaseURL() is missing value then return
+
+			if urlPath is missing value then
+				goto(getBaseURL())
+				return
+			end if
+
+			set calcSubPath to urlPath
+			if urlPath does not start with "/" then set calcSubPath to "/" & urlPath
+
+			goto(getBaseURL() & calcSubPath)
+		end gotoPath
+
+
+		on getBaseURL()
 			if running of application "Safari" is false then return
 
 			tell application "Safari"
-				set tabCount to (count of tabs in front window)
-				if tabIndex is greater than the tabCount then return
-
-				set tabInstance to main's new(id of front window, tabIndex)
+				set baseUrl to do JavaScript "location.origin" in front document
 			end tell
-			tabInstance's focus()
-		end focusTabIndex
+			if baseUrl is equal to "null" then return missing value
 
+			baseUrl
+		end getBaseURL
 
 		(*
 			@returns void
@@ -218,7 +272,7 @@ on new(windowId, pTabIndex)
 		on focus()
 			try
 				tell application "Safari" to set current tab of my appWindow to _tab
-			end try -- When tab was manually closed
+			end try -- When tab is manually closed
 		end focus
 
 		on closeTab()
