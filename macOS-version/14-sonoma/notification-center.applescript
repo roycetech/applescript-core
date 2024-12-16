@@ -443,12 +443,14 @@ on new()
 				*)
 				on performAction(actionKeyword)
 					tell application "System Events" to tell process "Notification Center"
-						repeat with actionIndex from 1 to (count of (actions of theNotification))
-							if (name of action actionIndex of theNotification) contains actionKeyword then
-								perform action actionIndex of theNotification
-								return true
-							end if
-						end repeat
+						try
+							repeat with actionIndex from 1 to (count of (actions of theNotification))
+								if (name of action actionIndex of theNotification) contains actionKeyword then
+									perform action actionIndex of theNotification
+									return true
+								end if
+							end repeat
+						end try  -- Ignore if notification was closed midway.
 					end tell
 					return false
 				end performAction
