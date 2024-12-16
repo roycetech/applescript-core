@@ -121,7 +121,11 @@ on new()
 			end tell
 
 			set sortedGroup to _simpleSort(noticeGroups)
-			_getNotificationCenterInstance()'s new(last item of sortedGroup)
+			try
+				_getNotificationCenterInstance()'s new(last item of sortedGroup)
+			on error the errorMessage number the errorNumber
+				missing value
+			end try
 		end lastNotice
 
 

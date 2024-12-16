@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.31/marked
 
 	@Created: January 13, 2024 1:29:36 PM
-	@Last Modified: 2024-08-09 17:10:44
+	@Last Modified: 2024-12-17 07:34:09
 *)
 
 use std : script "core/std"
@@ -549,5 +549,3 @@ on new()
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
-
-
