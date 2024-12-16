@@ -2,7 +2,7 @@
 	Library wrapper for Preview app.
 
 		@Created: July 14, 2023 6:57 PM
-		@Last Modified: 2024-06-04 12:10:18
+		@Last Modified: 2024-12-04 09:39:31
 
 	@Project:
 		applescript-core
@@ -12,17 +12,15 @@
 *)
 use scripting additions
 
-use listUtil : script "core/list"
 use textUtil : script "core/string"
 use windowUtilLib : script "core/window"
 use fileUtil : script "core/file"
 
 use loggerFactory : script "core/logger-factory"
 
+use decPreviewMarkup : script "core/dec-preview-markup"
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
@@ -36,13 +34,16 @@ on spotCheck()
 	logger's start()
 
 	(* These test cases are run in order. *)
+	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
+		NOOP:
 		Manual: New From Clipboard
 		Manual: Trigger File > Save
 		Manual: Set export filename
 		Manual: Select format
-		Manual: Set Destination
 
+		Manual: Set Destination
 		Manual: Trigger Save Button
 		Manual: Find Tab
 		Manual: Front Tab (TODO)
@@ -58,19 +59,23 @@ on spotCheck()
 	end if
 
 	set sut to new()
-	if caseIndex is 1 then
+
+	logger's infof("Markup toolbar active: {}", sut's isMarkupToolbarChecked())
+
+	-- TODO: Fix below cases -----------------------------------------------
+	if caseIndex is 2 then
 		sut's newFromClipboard()
 
-	else if caseIndex is 2 then
+	else if caseIndex is 3 then
 		sut's triggerFileSave()
 
-	else if caseIndex is 3 then
+	else if caseIndex is 4 then
 		sut's setExportFilename("spot.png")
 
-	else if caseIndex is 4 then
+	else if caseIndex is 5 then
 		sut's selectFormat("PNG")
 
-	else if caseIndex is 5 then
+	else if caseIndex is 6 then
 		activate application "Preview"
 
 		tell application "Finder"
@@ -81,13 +86,13 @@ on spotCheck()
 		logger's debugf("deleteDailyPath: {}", deleteDailyPath)
 		sut's setSaveLocationPosixPath(deleteDailyPath)
 
-	else if caseIndex is 6 then
+	else if caseIndex is 7 then
 		sut's triggerSave()
 
-	else if caseIndex is 7 then
+	else if caseIndex is 8 then
 		sut's findTabWithName("x")
 
-	else if caseIndex is 8 then
+	else if caseIndex is 9 then
 		set frontTab to sut's getFrontTab()
 		if frontTab is missing value then
 			logger's info("Front tab was not found")
@@ -95,7 +100,7 @@ on spotCheck()
 			logger's infof("File Path: {}", frontTab's getFilePath())
 		end if
 
-	else if caseIndex is 9 then
+	else if caseIndex is 10 then
 		set frontTab to sut's getFrontTab()
 		logger's infof("File Path: {}", frontTab's getFilePath())
 		frontTab's revealInFinder()
@@ -116,7 +121,6 @@ on new()
 	set retry to retryLib's new()
 
 	script PreviewInstance
-
 		(*
 			Creates a new file based on the image available from the clipboard.
 			Grabs focus.
@@ -316,4 +320,6 @@ on new()
 		end _new
 
 	end script
+
+	decPreviewMarkup's decorate(result)
 end new

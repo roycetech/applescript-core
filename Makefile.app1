@@ -64,6 +64,7 @@ build-mail:
 
 
 build-preview:
+	$(SUDO) ./scripts/build-lib.sh core/decorators/dec-preview-markup
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Preview/v11/preview
 
 
