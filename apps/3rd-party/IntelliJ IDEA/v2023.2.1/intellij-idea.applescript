@@ -51,6 +51,7 @@ on spotCheck()
 		Manual: Open Project
 		Manual: Open File Path
 		Manual: Toggle Scheme
+		Manual: Trigger Menu
 	")
 	
 	set spotClass to spotScript's new()
@@ -70,6 +71,7 @@ on spotCheck()
 	logger's infof("Is Project Selected: {}", sut's isProjectSelected())
 	
 	logger's debugf("sutProjectFilePath: {}", sutProjectFilePath)
+	logger's infof("Is code with me running: {}", sut's isCodingWithMe())
 	
 	if caseIndex is 1 then
 		
@@ -84,6 +86,9 @@ on spotCheck()
 	else if caseIndex is 4 then
 		-- This is not working
 		-- sut's toggleScheme()
+		
+	else if caseIndex is 5 then
+		sut's triggerMenu("Run", "Run")
 		
 	end if
 	
@@ -111,6 +116,39 @@ on new()
 	script IntelliJIDEAInstance
 		property intellijAppName : localAppName
 		
+		
+		on triggerMenu(menuTitle, menuSubtitle)
+			set ceAppName to "IntelliJ IDEA CE"
+			set ultAppName to "IntelliJ IDEA Ultimate"
+			
+			set targetProcess to "idea"
+			if codeWithMeIsRunning() then
+				set targetProcess to "jetbrains_client"
+			end if
+			
+			tell application "System Events" to tell process targetProcess
+				try
+					click (first menu item of menu 1 of menu bar item menuTitle of menu bar 1 whose title starts with menuSubtitle)
+				end try
+			end tell
+		end triggerMenu
+		
+		
+		(*
+			Experimental!
+		*)
+		on isCodingWithMe()
+			tell application "System Events" to tell process "Dock"
+				set hasTwoIntelliJ to (count of (UI elements of list 1 whose title starts with "IntelliJ")) is 2
+				if not hasTwoIntelliJ then return false
+				
+				set secondIdeaIsRunning to value of attribute "AXIsApplicationRunning" of (UI element 2 of list 1 whose title starts with "IntelliJ IDEA")
+				
+				hasTwoIntelliJ and secondIdeaIsRunning
+			end tell
+		end codeWithMeIsRunning
+		
+		
 		on openProject(projectPath)
 			logger's debugf("projectPath: {}", projectPath)
 			
@@ -135,6 +173,8 @@ on new()
 			first item of textUtil's split(mainWindowName, " " & unic's MAIL_SUBDASH & " ")
 			*)
 			
+			-- Second Version, fails when project uses another subfolder for the actual project
+			(*
 			tell application "System Events" to tell process "idea"
 				set mainWindow to first window whose title is not ""
 				try
@@ -144,6 +184,12 @@ on new()
 					logger's warn(errorMessage)
 					return missing value
 				end try
+			end tell
+*)
+			
+			tell application "System Events" to tell process "idea"
+				title of first window whose title is not ""
+				return textUtil's trim(first item of textUtil's split(result, unic's MAIL_SUBDASH))
 			end tell
 			
 			missing value
@@ -201,7 +247,7 @@ on new()
 			script Failable
 				tell application "System Events" to tell process "idea"
 					set mainWindow to first window whose title is not ""
-
+					
 					first group of group 1 of mainWindow whose description is equal to the groupName
 				end tell
 			end script
