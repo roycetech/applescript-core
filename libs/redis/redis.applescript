@@ -33,7 +33,7 @@
 	@Known Issues:
 		September 2, 2023 9:53 AM - Records are not currently supported.
 
-	@Last Modified: 2024-05-09 13:46:04
+	@Last Modified: 2024-12-01 19:31:57
  *)
 
 use scripting additions
@@ -108,6 +108,47 @@ on new(pTimeoutSeconds)
 	script RedisInstance
 		-- 0 for no expiration.
 		property timeoutSeconds : pTimeoutSeconds
+
+		(* TODO: Unit Test rpush, lrange, lpop. *)
+		on rpush(listKey, newValue)
+			if listKey is missing value then return
+			set quotedListKey to quoted form of listKey
+			set quotedValue to quoted form of newValue
+
+			set pushValueShellCommand to format {"{} RPUSH {} {}", {REDIS_CLI, quotedListKey, quotedValue}}
+			try
+				do shell script pushValueShellCommand
+			on error the errorMessage number the errorNumber
+				logger's warn(errorMessage)
+			end try
+		end rpush
+
+
+		on lrange(listKey, startIndex, endIndex)
+			if listKey is missing value then return
+			set quotedListKey to quoted form of listKey
+
+			set lrangeShellCommand to format {"{} LRANGE {} {} {}", {REDIS_CLI, quotedListKey, startIndex, endIndex}}
+			try
+				do shell script lrangeShellCommand
+			on error the errorMessage number the errorNumber
+				logger's warn(errorMessage)
+			end try
+		end lrange
+
+
+		on lpop(listKey)
+			if listKey is missing value then return
+			set quotedListKey to quoted form of listKey
+
+			set popValueShellCommand to format {"{} LPOP {}", {REDIS_CLI, quotedListKey}}
+			try
+				do shell script popValueShellCommand
+			on error the errorMessage number the errorNumber
+				logger's warn(errorMessage)
+			end try
+		end lpop
+
 
 		on setValue(plistKey, newValue)
 			if plistKey is missing value then return
