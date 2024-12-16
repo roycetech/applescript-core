@@ -5,7 +5,7 @@
 	@Build:
 		./scripts/build-lib.sh core/date-time
 
-	@Last Modified: 2024-05-08 17:52:57
+	@Last Modified: 2024-12-05 13:21:43
 *)
 use framework "Foundation"
 
@@ -19,8 +19,6 @@ use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -29,6 +27,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
+	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Manual: is24H
 		File Prefix

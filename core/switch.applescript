@@ -7,10 +7,13 @@
 		set yourSwitch to switchLib's new("Switch Name")
 		yourSwitch's turnOn()
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make build-lib SOURCE=core/switch
 
-	@Last Modified: 2023-09-25 14:57:57
+	@Last Modified: 2024-12-05 15:20:38
 	@TODO: Migrate to ASUnit.
 	@Change Log:
 		September 4, 2023 11:42 AM - Removed reference to the built-in unit test.
@@ -69,6 +72,15 @@ on new(pSwitchName)
 		on inactive()
 			not active()
 		end inactive
+
+		on isActive()
+			active()
+		end isActive
+
+		on isInactive()
+			not active()
+		end isActive
+
 
 		on turnOn()
 			setValue(true)
