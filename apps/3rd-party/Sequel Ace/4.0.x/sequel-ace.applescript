@@ -8,7 +8,7 @@
 		applescript-core
 
 	@Build:
-		make install-sequel-ace
+		./scripts/build-lib.sh 'apps/3rd-party/Sequel Ace/4.0.x/sequel-ace'
 
 	@Last Modified: August 18, 2023 9:27 AM
 	@Change Logs:
@@ -28,8 +28,6 @@ use kbLib : script "core/keyboard"
 
 use decoratorLib : script "core/decorator"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 property retry : missing value
 property syseve : missing value
@@ -43,7 +41,9 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 	
+	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
+		INFO
 		Manual: New Tab
 		Manual: Get Front Tab
 		Manual: Find Tab - Not Found, Found and Focus
@@ -57,6 +57,7 @@ on spotCheck()
 		Manual: Run Query
 		
 		Manual: Current Info (Connection Tab, DB Not Selected, Table Not Selected, Happy)
+		Manual: Apply Filters
 	")
 	
 	set spotClass to spotScript's new()
@@ -68,12 +69,16 @@ on spotCheck()
 	end if
 	
 	set sut to new()
+
+		set sutTab to sut's getFrontTab()
+		logger's infof("Tab Name: {}", name of appWindow of sutTab as text)
+		
 	if caseIndex is 1 then
+		
+	else if caseIndex is 2 then
 		set sutTab to sut's newTab(TEST_CONNECTION_NAME)
 		
 	else if caseIndex is 2 then
-		set sutTab to sut's getFrontTab()
-		logger's infof("Tab Name: {}", name of appWindow of sutTab as text)
 		
 	else if caseIndex is 3 then
 		set sut to sut's findTab(TEST_CONNECTION_NAME, "")
@@ -122,6 +127,12 @@ on spotCheck()
 		logger's infof("Connection Name: {}", frontTab's getConnectionName())
 		logger's infof("Database Name: {}", frontTab's getDatabaseName())
 		logger's infof("Table Name: {}", frontTab's getTableName())
+		
+	else if caseIndex is 13 then
+		tell application "System Events" to tell process "Sequel Ace"
+			-- set frontmost to true
+			click button "Apply Filter(s)" of group 1 of splitter group 1 of front window
+		end tell
 		
 	end if
 	
@@ -375,13 +386,13 @@ on new()
 						end tell
 					end script
 					exec of retry on result for 5 by 1
-
+					
 					tell application "System Events" to tell process "Sequel Ace"
 						-- Filter by Table Name. Broken because UI was updated, and the update was automatic!
 						-- click button 2 of text field 1 of splitter group 1 of splitter group 1 of front window
 						set value of text field 1 of splitter group 1 of splitter group 1 of front window to targetTableName
 						-- click button 1 of text field 1 of splitter group 1 of splitter group 1 of front window
-
+						
 						-- Select the Table based on name
 						repeat with nextTable in rows of table 1 of scroll area 1 of splitter group 1 of splitter group 1 of front window
 							if get value of text field 1 of nextTable is equal to targetTableName then
@@ -393,8 +404,8 @@ on new()
 					end tell
 					false
 				end findTable
-
-
+				
+				
 				(*
 					@Deprecated - use switch view instead.
 					@tabName - Structure, Content, Query, etc.
@@ -405,14 +416,14 @@ on new()
 						beep 1
 						return
 					end if
-
+					
 					tell application "System Events" to tell process "Sequel Ace"
 						try
 							click button tabName of toolbar 1 of front window
 						end try -- when button is not visible on small windows, for example the query.
 					end tell
 				end switchTab
-
+				
 				(*
 					Switches the current view between Query, Contents, Structure etc. Use the menu
 					item name for better reliability because some UI elements are hidden when the
@@ -420,7 +431,7 @@ on new()
 				*)
 				on switchView(viewName)
 					if running of application "Sequel Ace" is false then return false
-
+					
 					tell application "System Events" to tell process "Sequel Ace"
 						try
 							click button viewName of toolbar 1 of front window
@@ -433,7 +444,7 @@ on new()
 						end try
 					end tell
 				end switchView
-
+				
 				on getSysEveWindow()
 					tell application "System Events" to tell process "Sequel Ace"
 						window (name of my appWindow)
@@ -444,7 +455,7 @@ on new()
 			decoratorInner's decorate()
 		end new
 	end script
-
+	
 	set decoratorOuter to decoratorLib's new(result)
 	decoratorOuter's decorate()
 end new
