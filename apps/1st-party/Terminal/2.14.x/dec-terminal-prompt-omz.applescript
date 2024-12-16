@@ -315,7 +315,11 @@ on decorate(termTabScript)
 
 
 		on isSSH()
-			regex's matchesInString(ec2SSHPromptPattern(), getRecentOutput())
+			-- 			regex's matchesInString(ec2SSHPromptPattern(), getRecentOutput())
+			tell application "Terminal"
+				set termProcesses to processes of selected tab of front window
+				last item of termProcesses is "ssh"
+			end tell
 		end isSSH
 
 
@@ -326,6 +330,13 @@ on decorate(termTabScript)
 			tell retry to exec on PromptWaiter for 60 by 1
 		end waitForPrompt
 
+
+		(* Clean implementation on how to get last output. *)
+		on __getOutput()
+			tell application "Terminal"
+				textUtil's rtrim(contents of tab 1 of front window)
+			end tell
+		end __getOutput
 
 		(*
 			Based on default implementation.  Override if you have specific theme.
@@ -347,6 +358,10 @@ on decorate(termTabScript)
 			-- 	set theText to the history of selected tab of my appWindow
 			-- 	set termProcesses to processes of selected tab of my appWindow
 			-- end tell
+
+			if isSSH() and __getOutput() ends with "#" then
+				return true
+			end if
 
 			tell application "Terminal"
 				if busy of tab 1 of my appWindow then return false

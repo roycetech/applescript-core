@@ -123,7 +123,12 @@ on decorate(termTabScript)
 
 
 		on isSSH()
-			regex's matchesInString(ec2SSHPromptPattern(), getRecentOutput())
+			-- regex's matchesInString(ec2SSHPromptPattern(), getRecentOutput())
+
+			tell application "Terminal"
+				set termProcesses to processes of selected tab of front window
+				last item of termProcesses is "ssh"
+			end tell
 		end isSSH
 
 

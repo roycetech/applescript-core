@@ -13,13 +13,11 @@
 *)
 
 use unic : script "core/unicodes"
-use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 
-use spotScript : script "core/spot-test"
 use decoratorNetwork : script "core/control-center_network"
 use decoratorSound : script "core/control-center_sound"
 use decoratorFocus : script "core/control-center_focus"
@@ -36,6 +34,8 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set spotScript to script "core/spot-test"
+set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP
 		Manual: Show Widgets
