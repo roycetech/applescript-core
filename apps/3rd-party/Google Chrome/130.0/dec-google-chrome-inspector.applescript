@@ -143,7 +143,9 @@ on decorate(mainScript)
 			if htmlElement is missing value then return
 			
 			tell application "System Events" to tell process "Google Chrome"
-				click button 1 of last group of last group of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of htmlElement
+				-- Broke on the same minor version number.
+				-- click button 1 of last group of last group of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of htmlElement
+				click button 1 of last group of last group of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 2 of group 1 of group 1 of group 1 of group 1 of htmlElement
 			end tell
 		end deactivateDevTools
 		
