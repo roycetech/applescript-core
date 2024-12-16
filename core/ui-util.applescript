@@ -9,15 +9,15 @@
 		./scripts/build-lib.sh core/ui-util
 
 	@Created: Pre-2024.
-	@Last Modified: 2024-06-13 14:02:29
+	@Last Modified: 2024-12-04 07:45:30
+
+	TODO: Register 2 new handlers to the Text Expander.
 *)
 use std : script "core/std"
 
 use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -27,11 +27,15 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
+	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Manual: Find By ID - not found
 		Manual: Find By ID - found
 		Manual: Find Containing ID - found
 		Manual: Print Attributes
+		Manual: Find element with attribute
+
+		Manual: Find element with attribute list containing
 	")
 
 	set spotClass to spotScript's new()
@@ -44,7 +48,9 @@ on spotCheck()
 
 
 	tell application "System Events" to tell process "Safari"
-		set uiButtons to buttons of group 1 of toolbar 1 of front window
+		if (count of windows) is not 0 then
+			set uiButtons to buttons of group 1 of toolbar 1 of front window
+		end if
 	end tell
 	set sut to new()
 
@@ -74,6 +80,15 @@ on spotCheck()
 		tell application "System Events" to tell process "Control Center"
 			sut's printAttributeValues(menu bar item 2 of menu bar 1)
 		end tell
+
+	else if caseIndex is 5 then
+
+	else if caseIndex is 6 then
+		set appName to "Google Chrome"
+		tell application "System Events" to tell process appName
+			sut's findUiWithAttributeContaining(groups of group 1 of group 1 of group 1 of group 1 of UI element "DevTools" of group 1 of group 1 of group 1 of group 1 of front window, "AXDOMClassList", "shadow-split-widget-sidebar")
+		end tell
+
 	end if
 	logger's info("Passed.")
 
@@ -84,6 +99,33 @@ end spotCheck
 
 on new()
 	script UiUtilInstance
+		on findUiWithAttribute(uiList, attributeName, targetAttribute)
+			tell application "System Events"
+				repeat with nextUIElement in uiList
+					try
+						set nextAttributeValue to value of attribute attributeName of nextUIElement
+						if nextAttributeValue as text is equal to the targetAttribute then return nextUIElement
+					end try
+				end repeat
+			end tell
+
+			missing value
+		end findUiWithAttribute
+
+
+		on findUiWithAttributeContaining(uiList, listAttributeName, targetAttribute)
+			tell application "System Events"
+				repeat with nextUIElement in uiList
+					try
+						set nextAttributeList to value of attribute listAttributeName of nextUIElement
+						if listUtil's listContains(nextAttributeList, targetAttribute) then return nextUIElement
+					end try
+				end repeat
+			end tell
+
+			missing value
+		end findUiWithAttributeContaining
+
 		(*
 			Use this when the usual format fails. e.g. 'first static text of group 1 of splitter group 1 of front window whose value of attribute "AXIdentifier" is "notes-field"'
 
@@ -136,7 +178,12 @@ on new()
 		end printAttributeValues
 
 
-		on printUIElements(sourceElement, padding)
+		on printUIElements(sourceElement)
+			_printUIElements(sourceElement, "")
+		end
+
+
+		on _printUIElements(sourceElement, padding)
 			if sourceElement is missing value then return
 
 			tell application "System Events"
@@ -150,9 +197,9 @@ on new()
 
 						log padding & className & ": " & uiDesc & ": " & uiRole & elementValue
 					end try
-					my printUIElements(nextElement, padding & "  ")
+					my _printUIElements(nextElement, padding & "  ")
 				end repeat
 			end tell
-		end printUIElements
+		end _printUIElements
 	end script
 end new
