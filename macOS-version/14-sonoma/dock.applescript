@@ -9,9 +9,10 @@
 		./scripts/build-lib.sh macOS-version/14-sonoma/dock
 
 	@Change Logs:
+		Thu, Dec 12, 2024 at 8:39:52 AM - Handler to check if app menu item exists.
 		Wednesday, May 8, 2024 at 12:45:19 PM - Allow trigger of a single nest menu.
 
-	TODO: Re-code the spotcheck to have idempotent info only as the first case.
+	TODO: Re-code the spot check to have idempotent info only as the first case.
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -31,10 +32,13 @@ on spotCheck()
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
+		NOOP:
+		Manual: App Menu Exists
 		Assign to Desktop 1
 		Assign to Desktop 2
 		Assign to All
 		Assign to None
+
 		Manual: Trigger Menu: (Basic, Nested)
 
 		Position
@@ -64,6 +68,18 @@ on spotCheck()
 	end if
 
 	if caseIndex is 1 then
+
+	else if caseIndex is 2 then
+		set sutApp to "Windows App"
+		set sutMenuTitle to "Main"
+		logger's infof("sutApp: {}", sutApp)
+		logger's infof("sutMenuTitle: {}", sutMenuTitle)
+
+		logger's infof("Menu item exists: {}", lib's appMenuExists(sutApp, sutMenuTitle))
+
+		-- TODO: Adjust below to case one being NOOP
+		(*
+	else if caseIndex is 2 then
 		set assignResult to lib's assignToDesktop(appName, 1)
 
 	else if caseIndex is 2 then
@@ -74,6 +90,7 @@ on spotCheck()
 
 	else if caseIndex is 4 then
 		set assignResult to lib's assignToDesktop(appName, "none")
+*)
 
 	else if caseIndex is 5 then
 		lib's triggerAppMenu("Safari", "New Private Window")
@@ -106,6 +123,7 @@ on spotCheck()
 
 	end if
 
+	(*
 	if caseIndex is less than 5 then
 		logger's debugf("assignResult: {}", assignResult)
 	end if
@@ -119,6 +137,7 @@ on spotCheck()
 			click menu item "Options" of first menu of UI element appName of list 1
 		end tell
 	end if
+*)
 
 	spot's finish()
 	logger's finish()
@@ -146,6 +165,24 @@ on new()
 				end try
 			end tell
 		end clickApp
+
+
+		(* Will pop the app menu temporarily and close it after. *)
+		on appMenuExists(appName, titleKey)
+			set menuExists to false
+			tell application "System Events" to tell process "Dock"
+				if not (exists UI element appName of list 1) then return false
+
+				perform action "AXShowMenu" of UI element appName of list 1
+				delay 0.1
+				set menuExists to exists (first menu item of menu 1 of UI element appName of list 1)
+			end tell
+
+			kb's pressKey("esc")
+
+			menuExists
+		end appMenuExists
+
 
 		(*
 			@returns bottom, left, or right
@@ -205,6 +242,7 @@ on new()
 
 		(*
 			NOTE: Up to single nesting only.
+			WARNING: Uses keyboard to dismiss the menu.
 
 			@appName - Application name in the dock.
 			@menuItemKey - the exact menu item name, index, or the list of either.
