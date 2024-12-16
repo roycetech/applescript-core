@@ -20,6 +20,9 @@ use spotScript : script "core/spot-test"
 
 property logger : missing value
 
+property LF : ASCII character 10
+property CR : ASCII character 13
+
 property ERROR_LIST_COUNT_INVALID : 1000
 property ERROR_OUT_OF_BOUNDS : 1001
 
@@ -147,10 +150,10 @@ end splitString
 on splitByLine(theString)
 	if theString is missing value then return missing value
 
-	if theString contains (ASCII character 10) and (theString contains (ASCII character 13)) then
-		set theString to textUtil's replace(theString, ASCII character 13, ASCII character 10)
+	if theString contains LF and (theString contains CR) then
+		set theString to textUtil's replace(theString, CR, LF)
 	end if
-	if theString contains (ASCII character 13) then return _split(theString, ASCII character 13) -- assuming this is shell command result, we have to split by CR.
+	if theString contains CR then return _split(theString, CR) -- assuming this is shell command result, we have to split by CR.
 
 	-- Only printable ASCII characters below 127 works. tab character don't work.
 	set SEP to "@" -- #%= are probably worth considering.

@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-tab
 
 	@Created: Wednesday, September 20, 2023 at 3:23:31 PM
-	@Last Modified: 2024-09-25 14:55:26
+	@Last Modified: 2024-11-26 07:05:45
 *)
 
 use scripting additions
@@ -17,8 +17,6 @@ use retryLib : script "core/retry"
 
 use safariJavaScript : script "core/safari-javascript"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 property retry : missing value
 
@@ -28,6 +26,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Closed Tab
@@ -80,7 +79,7 @@ end spotCheck
 			@pTabIndex the Safari tab index
 		*)
 on new(windowId, pTabIndex)
--- on new(windowId, pTabIndex, pSafari)
+	-- on new(windowId, pTabIndex, pSafari)
 	loggerFactory's inject(me)
 
 	set retry to retryLib's new()
@@ -178,7 +177,7 @@ on new(windowId, pTabIndex)
 		on focus()
 			try
 				tell application "Safari" to set current tab of my appWindow to _tab
-			end try  -- When tab is manually closed
+			end try -- When tab is manually closed
 		end focus
 
 		on closeTab()

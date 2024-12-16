@@ -33,12 +33,13 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
+		INFO: NOOP
 		Manual: Recent Output
 		Manual: Last Output (With/out lastCommand, Shell, Non-Shell)
 		Complete Output
 		Wait for Output
-		Output Contains
 
+		Output Contains
 		Clear
 	")
 
@@ -50,7 +51,7 @@ on spotCheck()
 		return
 	end if
 
-
+	set terminal to terminalLib's new()
 	set frontTab to terminal's getFrontTab()
 
 	-- override the existing so we can test the current implementation.
@@ -58,9 +59,11 @@ on spotCheck()
 
 
 	if caseIndex is 1 then
-		logger's infof("Recent Output: {}", frontTab's getRecentOutput())
 
 	else if caseIndex is 2 then
+		logger's infof("Recent Output: {}", frontTab's getRecentOutput())
+
+	else if caseIndex is 3 then
 		-- set frontTab's lastCommand to "ls"
 		logger's infof("Last Output: {}", frontTab's getLastOutput())
 

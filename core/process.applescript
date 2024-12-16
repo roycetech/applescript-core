@@ -207,8 +207,8 @@ on new(pProcessName)
 
 		on waitActivate()
 			script WaitAppWindow
-				activate application "Sequel Ace"
-				tell application "System Events" to tell process "Sequel Ace"
+				activate application processName
+				tell application "System Events" to tell process processName
 					if exists (window 1) then return true
 				end tell
 			end script
