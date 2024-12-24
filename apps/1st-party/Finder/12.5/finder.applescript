@@ -14,7 +14,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
 
-	@Last Modified: 2024-11-10 14:08:25
+	@Last Modified: 2024-12-24 19:32:44
 *)
 
 use script "core/Text Utilities"
@@ -552,6 +552,13 @@ on new()
 				(path to desktop folder)
 			end tell
 		end getDesktopFolder
+
+
+		on getDocumentsFolder()
+			tell application "Finder"
+				(path to documents folder)
+			end tell
+		end getDocumentsFolder
 
 
 		on getUserLibraryFolder()
