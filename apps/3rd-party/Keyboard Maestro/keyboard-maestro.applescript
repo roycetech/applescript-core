@@ -3,7 +3,7 @@
 		when working with the app.
 
 	NOTE: Do not reference front window directly in this code because other 
-		non-editor window may be active. Use the "my _getMainWindow()" instead.
+		non-editor window may be active. Use the "my getEditorWindow()" instead.
 
 	@Project:
 		applescript-core
@@ -71,7 +71,7 @@ on spotCheck()
 		return
 	end if
 	
-	set sut to new()
+	set sut to new()	
 	logger's infof("Focused Type: {}", sut's getFocusedType())
 	logger's infof("Actions Window Present: {}", sut's isActionsWindowPresent())
 	logger's infof("Selected Group Name: {}", sut's getSelectedGroupName())
@@ -161,7 +161,7 @@ on new()
 		on macroWithNameExists(macroName)
 			tell application "System Events" to tell process "Keyboard Maestro"
 				try
-					first group of scroll area 2 of splitter group 1 of group 6 of my _getMainWindow() whose title starts with the macroName
+					first group of scroll area 2 of splitter group 1 of group 6 of my getEditorWindow() whose title starts with the macroName
 					return true
 				end try
 			end tell
@@ -207,6 +207,7 @@ on new()
 	
 	set keyboardMaestroPreferenceVariableDecorator to script "core/dec-keyboard-maestro-preferences-variables"
 	set keyboardMaestroVariablesDecorator to script "core/dec-keyboard-maestro-variables"
+	set keyboardMaestroEditorDecorator to script "core/dec-keyboard-maestro-editor"
 	set keyboardMaestroEditorActionsDecorator to script "core/dec-keyboard-maestro-editor-actions"
 	
 	set decorator to decoratorLib's new(KeyboardMaestroInstance)
@@ -214,5 +215,6 @@ on new()
 	
 	keyboardMaestroPreferenceVariableDecorator's decorate(result)
 	keyboardMaestroVariablesDecorator's decorate(result)
+	keyboardMaestroEditorDecorator's decorate(result)
 	keyboardMaestroEditorActionsDecorator's decorate(result)
 end new

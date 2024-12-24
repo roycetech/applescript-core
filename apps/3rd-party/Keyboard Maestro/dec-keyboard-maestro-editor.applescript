@@ -111,7 +111,7 @@ on decorate(mainScript)
 		on selectMacro(macroName)
 			tell application "System Events" to tell process "Keyboard Maestro"
 				try
-					click (the first group of scroll area 2 of splitter group 1 of group 6 of my _getMainWindow() whose name starts with macroName)
+					click (the first group of scroll area 2 of splitter group 1 of group 6 of my getEditorWindow() whose name starts with macroName)
 				end try
 			end tell
 		end selectMacro
@@ -122,7 +122,7 @@ on decorate(mainScript)
 		on createMacro(macroName)
 			tell application "System Events" to tell process "Keyboard Maestro"
 				try
-					click (the first button of my _getMainWindow() whose description is "Add Macro")
+					click (the first button of my getEditorWindow() whose description is "Add Macro")
 					delay 0.1
 					set value of text field 1 of scroll area 3 of splitter group 1 of group 6 of my getEditorWindow() to macroName
 				end try
@@ -167,7 +167,7 @@ on decorate(mainScript)
 			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				try
-					click (first button of group 3 of my _getMainWindow() whose description is "go forward")
+					click (first button of group 3 of my getEditorWindow() whose description is "go forward")
 				end try
 			end tell
 		end nextEdited
@@ -179,7 +179,7 @@ on decorate(mainScript)
 			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				try
-					click (first button of group 3 of my _getMainWindow() whose description is "go back")
+					click (first button of group 3 of my getEditorWindow() whose description is "go back")
 				end try
 			end tell
 		end previouslyEdited
