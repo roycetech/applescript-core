@@ -3,7 +3,7 @@
 
 OS_NAME := $(shell osascript -e "system version of (system info)" \
 | cut -d '.' -f 1 \
-| awk '{if ($$1 ~ /^14/) print "sonoma"; else if ($$1 ~ /^13/) print "ventura"; else if ($$1 ~ /^12/) print "monterey"; else print "unknown"}')
+| awk '{if ($$1 ~ /^15/) print "sequoia"; else if ($$1 ~ /^14/) print "sonoma"; else if ($$1 ~ /^13/) print "ventura"; else if ($$1 ~ /^12/) print "monterey"; else print "unknown"}')
 
 GET_DEPLOY_SCRIPT := ./scripts/get-deploy-type.sh
 DEPLOY_TYPE := $(shell $(GET_DEPLOY_SCRIPT))
