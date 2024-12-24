@@ -230,9 +230,13 @@ build-dock:
 
 
 build-notification-center:
-	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/notification-center.scpt" "scripts/stub.applescript"
+#	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/notification-center.scpt" "scripts/stub.applescript"
 
-ifeq ($(OS_NAME), sonoma)
+ifeq ($(OS_NAME), sequoia)
+	$(SUDO) ./scripts/build-lib.sh "macOS-version/15-sequoia/notification-center-helper"
+	$(SUDO) ./scripts/build-lib.sh "macOS-version/15-sequoia/notification-center"
+
+else ifeq ($(OS_NAME), sonoma)
 	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/notification-center-helper"
 	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/notification-center"
 
