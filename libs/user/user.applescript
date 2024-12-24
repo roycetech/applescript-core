@@ -151,6 +151,11 @@ on new()
 		end done
 
 
+		on cueDone()
+			afplay("Submarine.aiff")
+		end done
+
+
 		on afplay(filename)
 			try
 				do shell script "afplay " & PATH_SOUNDS & "/" & filename
