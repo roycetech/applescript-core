@@ -13,14 +13,11 @@
 	@Build:
 		./scripts/build-lib.sh core/string
 
-	@Last Modified: 2024-11-25 14:30:13
+	@Last Modified: 2024-12-22 15:08:58
 *)
 use scripting additions
 
-use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -31,6 +28,8 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
+set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Wing It!
 		Encode Multi Line Command
@@ -487,7 +486,7 @@ end ltrim
 (* NOTE: For Review! *)
 on trim(theText)
 	-- do shell script "ruby -e \"p '" & theText & "'.strip\" | sed 's/\"//g'"
-	do shell script "echo '" & theText & "' |  sed 's/ *$//g'  |  sed 's/^ *//g'"
+	do shell script "echo '" & theText & "' |  sed 's/ *$//g'  |  sed 's/^[[:space:]]*//g'"
 end trim
 
 

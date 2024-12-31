@@ -33,7 +33,7 @@
 	@Known Issues:
 		September 2, 2023 9:53 AM - Records are not currently supported.
 
-	@Last Modified: 2024-12-01 19:31:57
+	@Last Modified: 2024-12-21 20:40:02
  *)
 
 use scripting additions
@@ -70,6 +70,8 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Manual: Read Value
 		Manual: Zulu Date
+		Manual: Write Value
+
 	")
 
 	set spotClass to spotScript's new()
@@ -89,6 +91,10 @@ on spotCheck()
 		set keyName to "spot-zulu-date"
 		sut's setValue(keyName, current date)
 		logger's infof("Result: {}", sut's getValueAsDate(keyName))
+
+	else if caseIndex is 3 then
+		set sut to new(2)
+		sut's setValue("spot", 1)
 
 	end if
 
