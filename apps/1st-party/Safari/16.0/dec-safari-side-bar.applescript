@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2024-02-21 14:38:36
+	@Last Modified: 2024-12-31 19:29:33
 	@Change Logs: .
 *)
 use listUtil : script "core/list"
@@ -66,13 +66,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

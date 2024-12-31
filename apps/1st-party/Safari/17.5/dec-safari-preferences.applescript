@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-preferences
 
 	@Created: Fri, Jul 12, 2024 at 2:58:38 PM
-	@Last Modified: 2024-07-15 10:55:33
+	@Last Modified: 2024-12-31 19:30:33
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -86,13 +86,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

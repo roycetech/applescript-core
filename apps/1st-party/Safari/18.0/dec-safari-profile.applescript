@@ -7,7 +7,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.0/dec-safari-profile
 
 	@Created: Sunday, October 6, 2024 at 7:27:33 PM
-	@Last Modified: 2024-10-06 20:14:34
+	@Last Modified: 2024-12-31 19:30:45
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -59,13 +59,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

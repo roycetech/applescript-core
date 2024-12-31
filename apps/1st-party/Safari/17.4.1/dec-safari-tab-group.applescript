@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-tab-group
 
 	@Created: Friday, April 26, 2024 at 11:52:07 AM
-	@Last Modified: 2024-06-10 11:38:31
+	@Last Modified: 2024-12-31 19:30:19
 	@Change Logs:
 		Friday, April 26, 2024 at 11:55:54 AM
 			 - Switch to default stopped working because the default group was greyed out when programmatically clicking on the Tab Group menu button. Now we need to steal focus and use a 3rd party tool cliclick to simulate user interaction.
@@ -73,13 +73,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

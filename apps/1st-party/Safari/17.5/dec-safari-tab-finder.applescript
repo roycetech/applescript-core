@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder
 
 	@Created: Mon, Jul 22, 2024 at 12:28:44 PM
-	@Last Modified: 2024-07-22 12:28:57
+	@Last Modified: 2024-12-31 19:30:37
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -73,13 +73,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

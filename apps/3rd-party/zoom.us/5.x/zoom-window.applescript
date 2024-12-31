@@ -1,7 +1,7 @@
 (*
 	Provides handlers about the meeting window.
 
-	@Last Modified: 2023-11-10 10:16:24
+	@Last Modified: 2024-12-31 19:33:11
 
 	@Project:
 		applescript-core
@@ -64,13 +64,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

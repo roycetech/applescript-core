@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting-actions-sharing
 
 	@Created: Wed, Aug 21, 2024 at 2:18:13 PM
-	@Last Modified: 2024-08-21 14:29:51
+	@Last Modified: 2024-12-31 19:33:26
 	@Change Logs:
 *)
 use unic : script "core/unicodes"
@@ -78,13 +78,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

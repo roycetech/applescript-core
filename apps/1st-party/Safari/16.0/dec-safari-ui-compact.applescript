@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2024-07-22 13:29:18
+	@Last Modified: 2024-12-31 19:29:50
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -66,13 +66,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/decorators/dec-process-windows
 
 	@Created: Friday, September 13, 2024 at 2:05:42 PM
-	@Last Modified: 2024-09-13 14:32:32
+	@Last Modified: 2024-12-31 19:34:02
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -58,13 +58,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

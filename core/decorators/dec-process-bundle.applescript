@@ -16,7 +16,7 @@
 		./scripts/build-lib.sh core/decorators/dec-process-bundle
 
 	@Created: Wednesday, September 11, 2024 at 2:06:22 PM
-	@Last Modified: 2024-09-13 13:21:12
+	@Last Modified: 2024-12-31 19:33:57
 	@Change Logs:
 *)
 use scripting additions
@@ -95,13 +95,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

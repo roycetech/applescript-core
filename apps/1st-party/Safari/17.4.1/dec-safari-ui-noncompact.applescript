@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2024-07-22 12:54:10
+	@Last Modified: 2024-12-31 19:30:29
 	@Change Logs:
 		Sat, Jun 29, 2024 at 10:59:40 AM - Added isMuted() and implemented isPlaying()
 *)
@@ -76,13 +76,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

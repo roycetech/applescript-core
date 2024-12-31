@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.3.1/dec-safari-tab-group
 
 	@Created: Sunday, March 17, 2024 at 8:23:55 PM
-	@Last Modified: 2024-03-17 20:25:55
+	@Last Modified: 2024-12-31 19:30:04
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -69,13 +69,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

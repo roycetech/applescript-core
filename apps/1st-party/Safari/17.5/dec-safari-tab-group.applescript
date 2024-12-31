@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-group
 
 	@Created: Monday, June 10, 2024 at 11:42:13 AM
-	@Last Modified: 2024-09-03 17:33:30
+	@Last Modified: 2024-12-31 19:30:41
 	@Change Logs:
 		Monday, June 10, 2024 at 11:47:12 AM - cliclick no longer required.
 *)
@@ -76,13 +76,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

@@ -10,7 +10,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
 
-	@Last Modified: 2024-04-15 11:04:46
+	@Last Modified: 2024-12-31 19:33:03
 *)
 
 use listUtil : script "core/list"
@@ -108,13 +108,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

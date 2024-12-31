@@ -7,7 +7,7 @@
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-authentication
 
 	@Created: Wed, Aug 14, 2024 at 10:20:40 AM
-	@Last Modified: 2024-08-14 11:02:04
+	@Last Modified: 2024-12-31 19:33:18
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -58,13 +58,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

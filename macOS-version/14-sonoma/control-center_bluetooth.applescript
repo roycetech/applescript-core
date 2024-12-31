@@ -79,13 +79,6 @@ on spotCheck()
 end spotCheck
 
 
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
-
-
 (*  *)
 on decorate(mainScript)
 	loggerFactory's inject(me)

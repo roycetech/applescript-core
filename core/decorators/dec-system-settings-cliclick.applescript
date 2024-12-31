@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/decorators/dec-system-settings-cliclick
 
 	@Created: Saturday, September 21, 2024 at 10:36:44 AM
-	@Last Modified: 2024-09-21 10:41:06
+	@Last Modified: 2024-12-31 19:34:06
 	@Change Logs:
 *)
 use script "core/Text Utilities"
@@ -62,13 +62,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

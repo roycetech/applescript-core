@@ -32,8 +32,6 @@ use loggerFactory : script "core/logger-factory"
 use plutilLib : script "core/plutil"
 use notificationCenterHelperLib : script "core/notification-center-helper"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 property plutil : missing value
 property notificationCenterHelper : missing value
@@ -54,6 +52,7 @@ on spotCheck()
 	logger's start()
 
 	(* TODO: Re-organize spot check cases after case 2. *)
+set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Stacked Notice Details - toString()

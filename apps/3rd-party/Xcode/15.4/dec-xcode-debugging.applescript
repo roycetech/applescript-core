@@ -7,7 +7,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Xcode/15.4/dec-xcode-debugging
 
 	@Created: Friday, August 2, 2024 at 5:42:38 PM
-	@Last Modified: 2024-08-02 17:53:49
+	@Last Modified: 2024-12-31 19:32:59
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -57,13 +57,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

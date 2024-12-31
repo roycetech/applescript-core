@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-inspector
 
 	@Created: Friday, April 19, 2024 at 4:35:51 PM
-	@Last Modified: 2024-06-29 11:04:19
+	@Last Modified: 2024-12-31 19:30:10
 	@Change Logs:
 
 *)
@@ -86,13 +86,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

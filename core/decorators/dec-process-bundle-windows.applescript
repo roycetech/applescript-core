@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/decorators/dec-process-bundle-windows
 
 	@Created: Thursday, September 12, 2024 at 5:27:09 PM
-	@Last Modified: 2024-09-12 20:06:21
+	@Last Modified: 2024-12-31 19:33:52
 	@Change Logs:
 *)
 
@@ -119,13 +119,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
 
 	@Created: Sunday, March 31, 2024 at 10:20:13 PM
-	@Last Modified: 2024-03-31 22:21:48
+	@Last Modified: 2024-12-31 19:30:14
 	@Change Logs:
 		Sunday, March 31, 2024 at 10:20:18 PM - Keychain UI layout has changed.
 *)
@@ -69,13 +69,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

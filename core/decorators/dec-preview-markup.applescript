@@ -7,7 +7,7 @@
 		./scripts/build-lib.sh core/decorators/dec-preview-markup
 
 	@Created: Wednesday, December 4, 2024 at 7:39:09 AM
-	@Last Modified: 2024-12-04 13:18:07
+	@Last Modified: 2024-12-31 19:33:47
 	@Change Logs:
 *)
 
@@ -88,13 +88,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)
