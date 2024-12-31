@@ -27,6 +27,12 @@ install-atom:  ## Deprecated
 build-camera-hub:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Camera Hub/1.10.2/camera-hub
 
+build-cleanshot-x:
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/CleanShot X/4.7.4/dec-cleanshot-x-general
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/CleanShot X/4.7.4/dec-cleanshot-x-shortcuts
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/CleanShot X/4.7.4/dec-cleanshot-x-quick-access
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/CleanShot X/4.7.4/cleanshot-x
+
 install-eclipse:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Eclipse/v202306/eclipse
 
@@ -101,6 +107,10 @@ install-marked: build-marked
 
 build-mosaic:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Mosaic/v1.3.x/mosaic
+
+
+build-paste:
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Paste/4.4.2/paste
 
 
 build-script-debugger:
