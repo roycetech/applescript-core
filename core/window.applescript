@@ -1,15 +1,14 @@
 (*
-	@Last Modified: 2023-09-25 14:57:57
+	@Last Modified: 2024-12-25 08:38:54
+
+	@Project:
+		applescript-core
 
 	@Build:
 		make build-lib SOURCE=core/window
 *)
 
-use listUtil : script "core/list"
-
 use loggerFactory : script "core/logger-factory"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -19,6 +18,8 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
+	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Has Window (Check absence, presence, and on another desktop)
 	")
@@ -65,6 +66,5 @@ on new()
 
 			true
 		end hasAllWindows
-
 	end script
 end new

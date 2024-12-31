@@ -16,8 +16,6 @@ use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 
 property LF : ASCII character 10
@@ -51,6 +49,7 @@ on spotCheck()
 		Split By Line - With Dollar Sign
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -164,6 +163,7 @@ on splitByLine(theString)
 	set theQuote to "\""
 	if theString contains "$" then set theQuote to "'"
 	set command to "echo " & theQuote & theString & theQuote & " | awk 'NF {$1=$1;print $0}' | paste -s -d" & linesDelimiter & " - | sed 's/" & linesDelimiter & "[[:space:]]*/" & linesDelimiter & "/g' | sed 's/[[:space:]]*" & linesDelimiter & "/" & linesDelimiter & "/g' | sed 's/^" & linesDelimiter & "//' | sed 's/" & linesDelimiter & linesDelimiter & "//g' | sed 's/" & linesDelimiter & "$//'" -- failed when using escaped/non escaped plus instead of asterisk.
+
 	set csv to do shell script command
 
 	_split(csv, linesDelimiter)

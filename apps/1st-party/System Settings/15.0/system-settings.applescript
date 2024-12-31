@@ -16,7 +16,7 @@
 		https://derflounder.wordpress.com/2022/10/25/opening-macos-venturas-system-settings-to-desired-locations-via-the-command-line/
 *)
 
-use scripting additions 
+use scripting additions
 
 use listUtil : script "core/list"
 
@@ -37,6 +37,7 @@ on spotCheck()
 	logger's start()
 	
 	set cases to listUtil's splitByLine("
+		NOOP
 		Manual: Quit App (Running/Not Running)
 		Manual: Reveal Security & Privacy > Privacy
 		Manual: Unlock Security & Privacy > Privacy (Unlock button must be visible already) 
@@ -49,7 +50,6 @@ on spotCheck()
 		Manual: Filter Commands and Disable
 		Manual: Click Vocabulary
 		
-		Manual: Print Panes
 		Manual: revealKeyboardDictation
 		Manual: Reveal Passwords (decorator)
 	")
@@ -65,7 +65,10 @@ on spotCheck()
 	end if
 	
 	set sut to new()
-	if caseIndex is 1 then
+	
+	sut's printPaneIds()
+	
+	if caseIndex is 2 then
 		sut's quitApp()
 		
 	else if caseIndex is 2 then
@@ -109,7 +112,6 @@ on spotCheck()
 		sut's clickVocabulary()
 		
 	else if caseIndex is 11 then
-		sut's printPaneIds()
 		
 	else if caseIndex is 12 then
 		sut's revealKeyboardDictation()
@@ -123,12 +125,14 @@ on spotCheck()
 	logger's finish()
 end spotCheck
 
+
 on new()
 	loggerFactory's inject(me)
 	set retry to retryLib's new()
 	set usr to usrLib's new()
 	
 	script SystemSettingsInstance
+		(* Strangely, sometimes it only prints the pane of the General pane. *)
 		on printPaneIds()
 			tell application "System Settings"
 				set panesList to id of panes
@@ -182,16 +186,72 @@ on new()
 			end repeat
 		end quitApp
 	end script
-
+	
 	set decPasswords to script "core/dec-system-settings_passwords"
 	set decVoiceControl to script "core/dec-system-settings_accessibility_voice-control"
 	set decVoiceCommand to script "core/dec-system-settings_accessibility_voice-control_voice-commands"
 	set decDisplays to script "core/dec-system-settings_displays"
+	set decSound to script "core/dec-system-settings_sound"
+	set decDesktopAndDock to script "core/dec-system-settings_desktop-and-dock"
+	set decLockScreen to script "core/dec-system-settings_lock-screen"
+	
 	decPasswords's decorate(SystemSettingsInstance)
 	decVoiceControl's decorate(result)
 	decVoiceCommand's decorate(result)
 	decDisplays's decorate(result)
-
+	decSound's decorate(result)
+	decDesktopAndDock's decorate(result)
+	decLockScreen's decorate(result)
+	
 	set decorator to decoratorLib's new(result)
 	decorator's decorateByName("SystemSettingsInstance")
 end new
+
+
+(*com.apple.systempreferences.GeneralSettings*)
+(*com.apple.SystemProfiler.AboutExtension*)
+(*com.apple.Software-Update-Settings.extension*)
+(*com.apple.settings.Storage*)
+(*com.apple.AirDrop-Handoff-Settings.extension*)
+(*com.apple.LoginItems-Settings.extension*)
+(*com.apple.Coverage-Settings.extension*)
+(*com.apple.Localization-Settings.extension*)
+(*com.apple.Date-Time-Settings.extension*)
+(*com.apple.Sharing-Settings.extension*)
+(*com.apple.Time-Machine-Settings.extension*)
+(*com.apple.Transfer-Reset-Settings.extension*)
+(*com.apple.Startup-Disk-Settings.extension*)
+(*com.apple.Profiles-Settings.extension*)
+(*com.apple.Touch-ID-Settings.extension*TouchIDPasswordPrefs*)
+(*com.apple.Siri-Settings.extension*siri-sae*)
+(*com.apple.Battery-Settings.extension*BatteryPreferences*)
+(*com.apple.Spotlight-Settings.extension*)
+(*com.apple.Game-Center-Settings.extension*)
+(*com.apple.Game-Controller-Settings.extension*)
+(*com.apple.ControlCenter-Settings.extension*)
+(*com.apple.Lock-Screen-Settings.extension*)
+(*com.apple.Screen-Time-Settings.extension*)
+(*com.apple.ScreenSaver-Settings.extension*)
+(*com.apple.Trackpad-Settings.extension*)
+(*com.apple.WalletSettingsExtension*)
+(*com.apple.Print-Scan-Settings.extension*)
+(*com.apple.Keyboard-Settings.extension*)
+(*com.apple.systempreferences.AppleIDSettings:icloud*)
+(*com.apple.Displays-Settings.extension*)
+(*com.apple.settings.PrivacySecurity.extension*)
+(*com.apple.Users-Groups-Settings.extension*)
+(*com.apple.Internet-Accounts-Settings.extension*)
+(*com.apple.Desktop-Settings.extension*)
+(*com.apple.Network-Settings.extension*)
+(*com.apple.Accessibility-Settings.extension*)
+(*com.apple.Notifications-Settings.extension*)
+(*com.apple.wifi-settings-extension*)
+(*com.apple.Appearance-Settings.extension*)
+(*com.apple.Focus-Settings.extension*)
+(*com.apple.Wallpaper-Settings.extension*)
+(*com.apple.Sound-Settings.extension*)
+(*com.apple.BluetoothSettings*)
+(*com.apple.systempreferences.AppleIDSettings*AppleIDSettings*)
+(*org.gpgtools.gpgpreferences*)
+(*com.oracle.oss.mysql.prefPane*)
+(*com.apple.Family-Settings.extension*Family*)
