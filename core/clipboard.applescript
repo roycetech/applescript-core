@@ -17,8 +17,8 @@ use scripting additions
 
 use std : script "core/std"
 use loggerFactory : script "core/logger-factory"
-use listUtil : script "core/list"
-use spotScript : script "core/spot-test"
+
+
 
 property logger : missing value
 
@@ -28,11 +28,15 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
+	set listUtil to script "core/list"
+	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
+		NOOP: Info
 		Manual: Extract From a Script
 		Manual: Save the Clipboard value
 		Manual E2E: Save and Restore the Clipboard value
 		Manual: Copy That (None, Selected)
+
 		Manual Copy That Word (None, One Word, Multi)
 	")
 
@@ -45,7 +49,18 @@ on spotCheck()
 	end if
 
 	set sut to new()
-	if caseIndex is 1 then
+
+	try
+		logger's infof("Current Value: {}", sut's getValue())
+	on error the errorMessage number the errorNumber
+		logger's info("Current value could not be printed")
+	end try
+	logger's infof("Is current clipboard value a text: {}", sut's isText())
+	logger's infof("Is current clipboard value an HTML: {}", sut's isHtml())
+
+	if caseIndex is 2 then
+		-- Shift below cases.
+
 		(*
 			Manual Steps:
 			1. Store something in the clipboard.
@@ -108,6 +123,56 @@ end spotCheck
 on new()
 	script ClipboardInstance
 		property _clipValue : missing value
+
+		on getValue()
+			try
+				return the clipboard
+			end try -- On some occasions, a cryptic error pops out and there's nothing we can do, says I.
+
+			missing value
+		end getValue
+
+
+		on setValue(newTextValue)
+			try
+				set the clipboard to newTextValue
+				return true
+			end try
+
+			false
+		end getValue
+
+
+
+		on isHTML()
+			(* Determines if current clipboard content is HTML. *)
+			set clipboardInfo to clipboard info
+
+			if clipboardInfo is {} then return false
+
+			set clipboardType to item 1 of clipboardInfo
+			set firstItem to first item of clipboardType
+
+			if firstItem is Çclass HTMLÈ then return true
+
+			false
+		end isHTML
+
+
+		(* Determines if current clipboard content is text. *)
+		on isText()
+			set clipboardInfo to clipboard info
+
+			if clipboardInfo is {} then return false
+
+			set clipboardType to item 1 of clipboardInfo
+			set firstItem to first item of clipboardType
+
+			if firstItem is Çclass UTF8È or firstItem is Çclass utf8È or firstItem is string or firstItem is Çclass RTF È then return true
+
+			false
+		end isText
+
 
 		(* Retrieve the value of the clipboard from the passed script without altering the actual value of the clipboard. *)
 		on extract(scriptObj)
