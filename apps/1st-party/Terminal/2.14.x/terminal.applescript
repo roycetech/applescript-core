@@ -42,7 +42,6 @@ use scripting additions
 
 use std : script "core/std"
 use textUtil : script "core/string"
-use listUtil : script "core/list"
 use emoji : script "core/emoji"
 use unic : script "core/unicodes"
 use dockLib : script "core/dock"
@@ -53,8 +52,6 @@ use terminalTabLib : script "core/terminal-tab"
 use winUtilLib : script "core/window"
 use syseveLib : script "core/system-events"
 use retryLib : script "core/retry"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property winUtil : missing value
@@ -75,6 +72,8 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Front Tab and Info
 		Manual: New Tab, Find
@@ -103,21 +102,24 @@ on spotCheck()
 	set sut to new()
 	set frontTab to sut's getFrontTab()
 
-	if caseIndex is 1 then
-		logger's infof("Name: {}", name of frontTab)
-		logger's infof("Has Tab Bar: {}", sut's hasTabBar())
-		logger's infof("Tab Name: {}", frontTab's getTabName())
-		logger's infof("Posix Path: {}", frontTab's getPosixPath())
-		logger's infof("Lingering Command: {}", frontTab's getLingeringCommand())
+	logger's infof("Name: {}", name of frontTab)
+	logger's infof("Has Tab Bar: {}", sut's hasTabBar())
+	logger's infof("Tab Name: {}", frontTab's getTabName())
+	logger's infof("Posix Path: {}", frontTab's getPosixPath())
+	logger's infof("Lingering Command: {}", frontTab's getLingeringCommand())
 
-		(* Manually test: zsh, bash, docker, sftp, redis-cli. *)
-		logger's infof("Is Shell Prompt: {}", frontTab's isShellPrompt())
-		logger's infof("Is Bash: {}", frontTab's isBash())
-		logger's infof("Is Zsh: {}", frontTab's isZsh())
-		logger's infof("Is SSH: {}", frontTab's isSSH())
-		logger's infof("Prompt Text: {}", frontTab's getPromptText())
-		logger's infof("Prompt: {}", frontTab's getPrompt())
-		logger's infof("Last Output: {}", frontTab's getLastOutput()) -- BROKEN on @rt
+	(* Manually test: zsh, bash, docker, sftp, redis-cli. *)
+	logger's infof("Is Shell Prompt: {}", frontTab's isShellPrompt())
+	logger's infof("Is Bash: {}", frontTab's isBash())
+	logger's infof("Is Zsh: {}", frontTab's isZsh())
+	logger's infof("Is SSH: {}", frontTab's isSSH())
+	logger's infof("Prompt Text: {}", frontTab's getPromptText())
+	logger's infof("Prompt: {}", frontTab's getPrompt())
+	logger's infof("Last Output: {}", frontTab's getLastOutput()) -- BROKEN on @rt
+
+	logger's infof("Settings dialog present: {}", sut's isSettingsWindowPresent())
+
+	if caseIndex is 1 then
 
 	else if caseIndex is 2 then
 		set spotTab to sut's newWindow("ls", "Main")
@@ -471,5 +473,8 @@ on new()
 
 		end _autoUpdateFrontTab
 	end script
+
+	set decSettings to script "core/dec-terminal-settings"
+	decSettings's decorate(TerminalInstance)
 end new
 

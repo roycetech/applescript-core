@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Automator/2.10/dec-automator-applescript
 
 	@Created: Monday, July 22, 2024 at 10:55:15 PM
-	@Last Modified: 2024-09-28 13:44:42
+	@Last Modified: 2024-12-31 19:29:15
 	@Change Logs:
 *)
 
@@ -58,13 +58,6 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
-
-
-on newSpotBase()
-	script SpotBaseInstance
-		property template : missing value
-	end script
-end newSpotBase
 
 
 (*  *)

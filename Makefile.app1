@@ -52,7 +52,13 @@ build-console:
 
 
 build-finder:
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-mini
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-tab
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-selection
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-files
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-folders
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-paths
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
 
 
 build-home:
@@ -109,13 +115,25 @@ build-system-settings:
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control"
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control_voice-commands"
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_passwords"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_displays"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_sound"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_desktop-and-dock"
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 
 
 build-terminal:
-	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/terminal.scpt" "scripts/stub.applescript"
+#	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/terminal.scpt" "scripts/stub.applescript"
 
-ifeq ($(OS_NAME), sonoma)
+ifeq ($(OS_NAME), sequoia)
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-output
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-path
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-run
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal
+
+else ifeq ($(OS_NAME), sonoma)
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-output
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-path
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt
