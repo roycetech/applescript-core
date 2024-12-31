@@ -64,6 +64,7 @@ on spotCheck()
 		Manual: Force Quit
 		Manual: com.github.Electron
 		Manual: Wait App Activate
+		Manual: Wait Window
 	")
 
 	set spotClass to spotScript's new()
@@ -80,7 +81,7 @@ on spotCheck()
 
 	logger's infof("Is minimized: {}", scriptEditorApp's isMinimized())
 
-	if caseIndex is 1 then
+	if caseIndex is 2 then
 		try
 			set sut to new("Pasadena")
 		on error
@@ -168,6 +169,13 @@ on spotCheck()
 		set sut to new("Sequel Ace")
 		sut's waitActivate()
 
+	else if caseIndex is 19 then
+		set systemSettingsApp to new("System Settings")
+		set sutWindowName to "Unicorn"
+		set sutWindowName to "Sound"
+
+		logger's infof("Window present: {}", systemSettingsApp's waitWindow(sutWindowName))
+
 	end if
 
 
@@ -228,6 +236,18 @@ on new(pProcessName)
 			end script
 			exec of retry on result for 3
 		end focusWindow
+
+
+		(* @returns true if the window was found. *)
+		on waitWindow(windowName)
+			script WindowWaiterScript
+				tell application "System Events" to tell process (my processName)
+					if exists (window windowName) then return true
+				end tell
+			end script
+			exec of retry on result for 3
+		end waitWindow
+
 
 		on forceQuit()
 			tell application "System Events" to tell (first process whose frontmost is true)
