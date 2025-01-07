@@ -1,0 +1,254 @@
+(*
+	For consistency:
+		POSIX directories should never end with "/", it's up to the client to append it along with the file.
+		POSIX Sub-directories must not start with "/", to make it obvious that it is not relative to root.
+
+	WARNING: Finder is slow in general (not just this script). Avoid using the app Finder as much as possible.
+
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
+
+	@Last Modified: 2025-01-03 08:16:48
+*)
+
+use script "core/Text Utilities"
+use scripting additions
+
+use std : script "core/std"
+
+use loggerFactory : script "core/logger-factory"
+
+use finderTabLib : script "core/finder-tab"
+
+use decFinderFolders : script "core/dec-finder-folders"
+use decFinderFiles : script "core/dec-finder-files"
+use decFinderPaths : script "core/dec-finder-paths"
+
+use decoratorLib : script "core/decorator"
+
+property logger : missing value
+property finder : missing value
+
+if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+
+on spotCheck()
+	loggerFactory's injectBasic(me)
+	logger's start()
+
+	(* Have a Finder window open and manually verify result. *)
+	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
+	set cases to listUtil's splitByLine("
+		INFO:
+		Integration: finder-tab
+
+		Misc Folders
+		Manual: Current Folder
+		Manual: Create From Template
+		Get File Path
+
+		Get File List
+		New Tab for Path
+		Find Tab: Projects
+		Manual: Add to SideBar (Manual: Needs/Does not need adding)
+
+		Manual: Posix to Folder (View in Replies: User Path, Non-User Path, Applications)
+		Manual: Create Folder as Needed
+
+		Manual: Add to Sidebar
+	")
+
+	set spotClass to spotScript's new()
+	set spot to spotClass's new(me, cases)
+	set {caseIndex, caseDesc} to spot's start()
+	if caseIndex is 0 then
+		logger's finish()
+		return
+	end if
+
+	set sut to new()
+	logger's infof("Is Busy: {}", sut's isBusy())
+	logger's infof("Decorator: User Path: {}", sut's getUserPath())
+
+	if caseIndex is 1 then
+
+	else if caseIndex is 2 then
+		set frontTab to sut's getFrontTab()
+		logger's infof("Folder Name: {}", frontTab's getFolderName())
+
+	else if caseIndex is 3 then
+
+	else if caseIndex is 4 then
+		tell application "Finder"
+			set sut to file "wordlist.txt" of sut's getUserFolder()
+		end tell
+		log getFilePath(sut)
+
+	else if caseIndex is 5 then
+		tell application "Finder"
+			repeat with nextFilename in my getFileList(folder "Ticket Templates" of folder "Extra Notes" of jada's getNotesFolder())
+				log nextFilename
+			end repeat
+		end tell
+
+	else if caseIndex is 7 then
+		set sutPosixPath to "~/Projectsx"
+		set sutPosixPath to "/Applications"
+		set sutPosixPath to "~/Projects"
+		set finderTab to newTab(sutPosixPath)
+		log finderTab's getPath()
+
+	else if caseIndex is 8 then
+		set foundTab to findTab("Projects")
+		if foundTab is not missing value then
+			foundTab's focus()
+
+		else
+			logger's info("Tab was not found")
+		end if
+
+	else if caseIndex is 9 then
+		set foundTab to findTab("Projects")
+		set addResult to foundTab's addToSideBar()
+		logger's debugf("addResult: {}", addResult)
+
+	else if caseIndex is 11 then
+		logger's infof("Handler result: {}", sut's posixToFolder("/Users/" & std's getUsername() & "/applescript-core/logs"))
+		logger's infof("Handler result: {}", sut's posixToFolder("/Applications"))
+		logger's infof("Handler result: {}", sut's posixToFolder("/Applications/"))
+
+	else if caseIndex is 15 then
+		set websitesFolder to sut's posixToFolder("~/Documents/websites")
+		sut's createFolderAsNeeded("poc", websitesFolder)
+
+	else if caseIndex is 16 then
+		sut's menuAddToSidebar()
+
+	end if
+
+	spot's finish()
+	logger's finish()
+
+
+	return
+
+	openPath(":Macintosh HD:Users:")
+	set theUserName to short user name of (system info)
+	openPosixPath("/Users/" & theUserName)
+
+end spotCheck
+
+
+on new()
+	loggerFactory's inject(me)
+
+	script FinderInstance
+		on menuAddToSidebar()
+			if running of application "Finder" is false then return
+
+			tell application "System Events" to tell process "Finder"
+				set frontmost to true -- This is required to work.
+				try
+					click menu item "Add to Sidebar" of menu 1 of menu bar item "File" of menu bar 1
+				end try
+			end tell
+		end menuAddToSidebar
+
+
+		on isBusy()
+			tell application "System Events" to tell process "Finder"
+				exists (first window whose role description is "dialog")
+			end tell
+		end isBusy
+
+
+
+		on putInTrash(posixPath)
+			set computedPosixPath to _untilde(posixPath)
+			logger's debugf("computedPosixPath: {}", computedPosixPath)
+			-- tell application "Finder" to delete POSIX file computedPosixPath
+			-- Why did I use do shell script instead of running the code directly?
+			do shell script "osascript -e 'tell application \"Finder\" to delete POSIX file \"" & computedPosixPath & "\"'"
+		end putInTrash
+
+
+		on findTab(tabName)
+			tell application "Finder"
+				try
+					set matchedWindow to first window whose name is equal to tabName
+					return finderTabLib's new(id of matchedWindow)
+				end try
+			end tell
+
+			missing value
+		end findTab
+
+
+		on newTab(posixPath)
+			if posixPath is missing value then
+				tell application "Finder"
+					set finderWindow to make new Finder window
+					return finderTabLib's new(id of front window)
+
+				end tell
+			end if
+
+			set computedPosixPath to _untilde(posixPath)
+			set posixFileTarget to POSIX file computedPosixPath
+
+			tell application "Finder"
+				activate
+				set finderWindow to make new Finder window
+				try
+					set target of finderWindow to posixFileTarget
+				end try
+				finderTabLib's new(id of front window)
+			end tell
+		end newTab
+
+
+		on getFrontTab()
+			if running of application "Finder" is false then return missing value
+			if (count of windows of application "Finder") is 0 then return missing value
+
+			tell application "Finder"
+				finderTabLib's new(id of front window)
+			end tell
+		end getFrontTab
+
+
+		on getFileList(folderObject)
+			set filenameList to {}
+			tell application "Finder"
+				set filesInFolder to every item of folderObject
+
+				repeat with nextFile in filesInFolder
+					set end of filenameList to name of nextFile as text
+				end repeat
+			end tell
+			filenameList
+		end getFileList
+
+
+		on _untilde(tildePath)
+			set posixPath to tildePath
+			if tildePath is "~" then
+				set posixPath to format {"/Users/{}/", std's getUsername()}
+			else if tildePath starts with "~" then
+				set posixPath to format {"/Users/{}/{}", {std's getUsername(), text 3 thru -1 of posixPath}}
+			end if
+			-- logger's debugf("posixPath: {}", posixPath)
+			posixPath
+		end _untilde
+	end script
+
+	decFinderFolders's decorate(result)
+	decFinderFiles's decorate(result)
+	decFinderPaths's decorate(result)
+
+	set decorator to decoratorLib's new(result)
+	decorator's decorateByName("FinderInstance")
+end new
