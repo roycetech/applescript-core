@@ -23,15 +23,12 @@
 use scripting additions
 
 use std : script "core/std"
-use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 use ccLib : script "core/control-center"
 use lovLib : script "core/lov"
 
 use decoratorLib : script "core/decorator"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property cc : missing value
@@ -47,6 +44,8 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
+	set listUtil to script "core/list"
+	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Manual: Get Meeting window
 		Manual: Cue for Touch ID
@@ -100,7 +99,11 @@ on new()
 
 	script UserInstance
 		on getWifiSID()
-			do shell script "networksetup -getairportnetwork en0 | awk -F\": \" '{ print $2 }'"
+			if getOsMajorVersion() is greater than or equal to 15 then
+				do shell script "ipconfig getsummary $(networksetup -listallhardwareports | awk '/Hardware Port: Wi-Fi/{getline; print $2}') | awk -F ' SSID : ' '/ SSID : / {print $2}'"
+			else
+				do shell script "networksetup -getairportnetwork en0 | awk -F\": \" '{ print $2 }'"
+			end if
 		end getWifiSID
 
 		(*
@@ -153,7 +156,7 @@ on new()
 
 		on cueDone()
 			afplay("Submarine.aiff")
-		end done
+		end cueDone
 
 
 		on afplay(filename)
