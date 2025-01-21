@@ -32,6 +32,9 @@ on spotCheck()
 	logger's infof("Username: {}", getUsername())
 	logger's infof("App Exists no: {}", appExists("Magneto"))
 	logger's infof("App Exists yes: {}", appExists("Script Editor"))
+	logger's infof("Find app (unicorn): {}", findApp("Unicorn"))
+	logger's infof("Find app (Finder): {}", findApp("Finder"))
+	logger's infof("Find user app (Menu Case): {}", findApp("Menu Case"))
 	return
 
 	assertThat given condition:1 + 3 < 10, messageOnFail:"failed on first assertion"
@@ -50,7 +53,13 @@ on catch(source, errorNumber, errorMessage)
 		return
 	end if
 
+	if errorMessage contains "Scripting Component Error" then
+		logger's warn(errorMessage)
+		return
+	end if
+
 	if errorMessage contains "is not allowed to send keystrokes" or errorMessage contains "is not allowed assistive access" then
+		logger's warn(errorMessage)
 
 		try
 			activate application "System Settings"
@@ -93,11 +102,25 @@ on appExists(appName)
 		tell application "System Events"
 			try
 				return exists (first process whose name is appName)
-			end try
+			end try -- Why do we need this?
 		end tell
 	end try
 	false
 end appExists
+
+
+(*
+	@returns the app name if it exists. It checks the user app name, which is a
+	custom convention in the form of username.appname, if it exists instead.
+*)
+on findApp(appName)
+	if appExists(appName) then return appName
+
+	set userAppName to getUsername() & "." & appName
+	if appExists(userAppName) then return userAppName
+
+	missing value
+end findApp
 
 
 on getUsername()
