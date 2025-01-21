@@ -1,5 +1,5 @@
 (*
-	@Last Modified: 2024-12-25 08:38:54
+	@Last Modified: 2025-01-21 14:28:27
 
 	@Project:
 		applescript-core
@@ -21,6 +21,7 @@ on spotCheck()
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
+		INFO:
 		Manual: Has Window (Check absence, presence, and on another desktop)
 	")
 
@@ -33,8 +34,8 @@ on spotCheck()
 	end if
 
 	set sut to new()
+	logger's infof("Has Window: {}", sut's hasWindow("Safari"))
 	if caseIndex is 1 then
-		logger's infof("Has Window: {}", sut's hasWindow("Safari"))
 
 	else if caseIndex is 2 then
 	end if
@@ -50,8 +51,11 @@ on new()
 			hasAllWindows({appName})
 		end hasWindow
 
+		(*
+			Purpose?
 
-		(* @appNames list of app names *)
+			@appNames list of app names
+		*)
 		on hasAllWindows(appNames)
 			set calcAppNames to appNames
 			if class of appNames is text then set calcAppNames to {appNames}
