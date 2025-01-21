@@ -20,6 +20,7 @@
 use script "core/Text Utilities"
 use scripting additions
 
+use std : script "core/std"
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
 
@@ -71,7 +72,7 @@ on spotCheck()
 		return
 	end if
 	
-	set sut to new()	
+	set sut to new()
 	logger's infof("Focused Type: {}", sut's getFocusedType())
 	logger's infof("Actions Window Present: {}", sut's isActionsWindowPresent())
 	logger's infof("Selected Group Name: {}", sut's getSelectedGroupName())
@@ -210,11 +211,11 @@ on new()
 	set keyboardMaestroEditorDecorator to script "core/dec-keyboard-maestro-editor"
 	set keyboardMaestroEditorActionsDecorator to script "core/dec-keyboard-maestro-editor-actions"
 	
-	set decorator to decoratorLib's new(KeyboardMaestroInstance)
-	decorator's decorate()
-	
-	keyboardMaestroPreferenceVariableDecorator's decorate(result)
+	keyboardMaestroPreferenceVariableDecorator's decorate(KeyboardMaestroInstance)
 	keyboardMaestroVariablesDecorator's decorate(result)
 	keyboardMaestroEditorDecorator's decorate(result)
 	keyboardMaestroEditorActionsDecorator's decorate(result)
+	
+	set decorator to decoratorLib's new(result)
+	decorator's decorateByName("KeyboardMaestroInstance")
 end new
