@@ -1,7 +1,7 @@
 (*
 	This library is implemented as copy from plutil.
-	This is slightly slower than plutil, and different use case so make sure you
-	understand their differences.
+	This is slightly slower than plutil, and is meant for a different use case
+	so make sure you understand their differences.
 
 	Requirements:
 		redis-cli 7.0.5+. Run `redis-cli --version` to check your current version.
@@ -33,7 +33,7 @@
 	@Known Issues:
 		September 2, 2023 9:53 AM - Records are not currently supported.
 
-	@Last Modified: 2024-12-21 20:40:02
+	@Last Modified: 2025-01-19 16:34:12
  *)
 
 use scripting additions
@@ -47,6 +47,7 @@ use spotScript : script "core/spot-test"
 
 property logger : missing value
 property dateTime : missing value
+property isSpot : false
 
 property CR : ASCII character 13
 property REDIS_CLI : do shell script "plutil -extract \"Redis CLI\" raw ~/applescript-core/config-system.plist"
@@ -59,11 +60,13 @@ property ERROR_VALUE_IS_MISSING : 1003
 property ERROR_INVALID_ELEMENT_COUNT : 1004
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then
-	set useBasicLogging to true
 	spotCheck()
 end if
 
 on spotCheck()
+	set isSpot to true
+	set useBasicLogging to true
+
 	loggerFactory's inject(me)
 	logger's start()
 
