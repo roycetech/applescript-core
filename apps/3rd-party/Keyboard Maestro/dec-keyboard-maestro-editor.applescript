@@ -1,5 +1,7 @@
 (*
 
+	NOTE: Macro group is sometimes referred to in this script as just "group".
+
 	@Project:
 		applescript-core
 
@@ -9,6 +11,7 @@
 	@Created: Wednesday, August 14, 2024 at 5:53:03 PM
 	@Last Modified: Wednesday, August 14, 2024 at 5:53:03 PM
 	@Change Logs:
+		Wed, Jan 8, 2025 at 8:33:24 AM - Added #getSelectedMacroName
 *)
 use retryLib : script "core/retry"
 use loggerFactory : script "core/logger-factory"
@@ -43,6 +46,8 @@ on spotCheck()
 	set sut to decorate(sut)
 	
 	logger's infof("Focused Type: {}", sut's getFocusedType())
+	logger's infof("Selected macro group: {}", sut's getSelectedGroupName())
+	logger's infof("Selected macro: {}", sut's getSelectedMacroName())
 	logger's infof("Editable: {}", sut's isEditable())
 	
 	if caseIndex is 1 then
@@ -137,6 +142,22 @@ on decorate(mainScript)
 			end tell
 		end getSelectedGroupName
 		
+		
+		on getSelectedMacroName()
+			tell application "System Events" to tell process "Keyboard Maestro"
+				-- name of first group of scroll area 2 of splitter group 1 of group 6 of my getEditorWindow() whose selected is true
+				-- Pulsar: Text Expander: Extract and Paste Markdown Link of Keyboard Maestro. kklink
+				-- get 
+				try
+					return value of first text field of scroll area 3 of splitter group 1 of group 6 of my getEditorWindow() whose accessibility description is "Macro Name"
+				end try
+				-- Pulsar: Text Expander: Extract and Paste Markdown Link of Keyboard Maestro
+			end tell
+			
+			missing value
+		end getSelectedMacroName
+		
+		
 		(*
 			Focus the currently selected macro group in the editor so it can be 
 			conveniently followed up by a keyboard navigation.
@@ -208,8 +229,8 @@ on decorate(mainScript)
 				end try
 			end tell
 		end focusActionCategory
-
-
+		
+		
 		(* @returns "Sort by Name" or "Sort by Trigger" *)
 		on getMacroSortMode()
 			if running of application "Keyboard Maestro" is false then return missing value
@@ -243,7 +264,7 @@ on decorate(mainScript)
 			end tell
 			delay 0.1
 		end scrollMacrosPane
-				
+		
 		
 		on getEditorWindow()
 			script RetryMainWindow

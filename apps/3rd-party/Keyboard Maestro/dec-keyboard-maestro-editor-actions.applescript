@@ -92,7 +92,7 @@ end spotCheck
 on decorate(mainScript)
 	loggerFactory's inject(me)
 	
-	script KeyboardMaestroEditorDecorator
+	script KeyboardMaestroEditorActionsDecorator
 		property parent : mainScript
 		property show_action_retry_max : 3
 		
