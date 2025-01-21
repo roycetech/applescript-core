@@ -437,7 +437,7 @@ script |plutil getScalarValue tests|
 		property parent : unitTest(me)
 		TopLevel's xmlUtil's __writeValue("date", "date", "2023-07-19T00:01:02Z")
 		-- Will likely fail due to localization.
-		assertEqual(date "Wednesday, July 19, 2023 at 8:01:02 AM", sut's getDate("date"))
+		assertEqual(date "Wednesday, July 19, 2023 at 8:01:02 AM", sut's getDate("date"))
 		TopLevel's xmlUtil's __deleteValue("date")
 	end script
 
