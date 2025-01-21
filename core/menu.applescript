@@ -12,9 +12,9 @@
 		Test with Menu Pinned.  Cannot test the UI functionality because menu apps need to be deployed.
 
 	@Created: Saturday, September 30, 2023 at 5:50:31 PM
-	@Last Modified: 2023-10-12 23:17:13
+	@Last Modified: 2025-01-20 08:53:52
 *)
-
+use scripting additions
 use framework "Foundation"
 use framework "AppKit"
 
@@ -39,21 +39,21 @@ on new(pSourceApp, menuBarTitle)
 
 	if isSpot is false then
 		set bar to current application's NSStatusBar's systemStatusBar
-		set StatusItem to bar's statusItemWithLength:-1.0
+		set localStatusItem to bar's statusItemWithLength:-1.0
 
-		StatusItem's setTitle:menuBarTitle
+		localStatusItem's setTitle:menuBarTitle
 
 		set newMenu to current application's NSMenu's alloc()'s initWithTitle:menuBarTitle
 		newMenu's setDelegate:pSourceApp
-		StatusItem's setMenu:newMenu
+		localStatusItem's setMenu:newMenu
 	else
 		set newMenu to missing value
 	end if
 
 	script MenuUtilInstance
 		property sourceApp : pSourceApp
-		-- property menuElement : pSourceApp's newMenu
 		property menuElement : newMenu
+		property statusItem : localStatusItem
 
 		on addSeparator()
 			if isSpot then return missing value
@@ -63,17 +63,31 @@ on new(pSourceApp, menuBarTitle)
 		end addSeparator
 
 
+		on clearMenuItems()
+			clear()
+		end clearMenuItems
+
+
 		on clear()
-			if isSpot is false then menuElement's removeAllItems()
+			if isSpot then return
+
+			-- menuElement's removeAllItems()
+
+			repeat while (menuElement's numberOfItems() > 0)
+				menuElement's removeItemAtIndex:0
+			end repeat
 		end clear
 
 
 		(*  tea-such
 			@action - e.g. "menuAction:"
-			@useCommand - Use the command for the shortcut key.
+			@useCommand - Use the "Command key" for the shortcut key.
 		*)
 		on createRootMenuItem(title, action, enabledState, shortcutKey, useCommand, checkedState)
 			if isSpot then return missing value
+
+			-- Auto-correction.
+			if action is not missing value and action does not end with ":" then set action to action & ":"
 
 			set newMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:title action:action keyEquivalent:shortcutKey)
 			if useCommand then newMenuItem's setKeyEquivalentModifierMask:(current application's NSEventModifierFlagCommand)
@@ -89,13 +103,17 @@ on new(pSourceApp, menuBarTitle)
 		(*
 			@action - e.g. "menuAltAction:"
 		*)
-		on createOptionalRootMenuItem(title, action)
+		on createOptionalRootMenuItem(title, action, checkedState)
 			if isSpot then return missing value
+
+			-- Auto-correction.
+			if action is not missing value and action does not end with ":" then set action to action & ":"
 
 			set altMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:title action:action keyEquivalent:"")
 			set altMenuItem's alternate to true
 			(altMenuItem's setKeyEquivalentModifierMask:(current application's NSEventModifierFlagOption))
 			(menuElement's addItem:altMenuItem)
+			(altMenuItem's setState:checkedState)
 			(altMenuItem's setTarget:sourceApp)
 
 			altMenuItem
@@ -115,7 +133,7 @@ on new(pSourceApp, menuBarTitle)
 					end if
 				end try
 
-				set nextSubMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle: nextProcessedMenuItemTitle action:action keyEquivalent:"")
+				set nextSubMenuItem to (current application's NSMenuItem's alloc()'s initWithTitle:nextProcessedMenuItemTitle action:action keyEquivalent:"")
 				(newSubMenu's addItem:nextSubMenuItem)
 				set nextItemChecked to selectedItem is equal to nextSourceMenuItem as text
 				(nextSubMenuItem's setState:(nextItemChecked))
@@ -130,6 +148,11 @@ on new(pSourceApp, menuBarTitle)
 			(subMenuItem's setEnabled:true)
 			(subMenuItem's setTarget:sourceApp) -- required for enabling the menu item
 		end createSubMenu
+
+
+		on setTitle(newTitle)
+			statusItem's setTitle:(newTitle)
+		end setTitle
 	end script
 end new
 
