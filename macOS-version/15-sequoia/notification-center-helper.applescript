@@ -49,8 +49,8 @@ on spotCheck()
 
 	set sut to new()
 
-		logger's infof("First Notice: {}", sut's firstNotice()'s toString())
-		logger's infof("Last Notice: {}", sut's lastNotice()'s toString())
+	logger's infof("First Notice: {}", sut's firstNotice()'s toString())
+	logger's infof("Last Notice: {}", sut's lastNotice()'s toString())
 
 	if caseIndex is 2 then
 		set activeMeetings to sut's getActiveMeetingsFromNotices()
@@ -104,6 +104,9 @@ on new()
 				try
 					-- set noticeGroups to groups of UI element 1 of scroll area 1 of group 1 of window "Notification Center"  -- Sonoma
 					set noticeGroups to groups of group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center"
+					if (the number of items in noticeGroups) is 0 then
+						return my _getNotificationCenterInstance()'s new(group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center")
+					end if
 				end try
 			end tell
 
@@ -120,6 +123,10 @@ on new()
 				try
 					-- set noticeGroups to groups of UI element 1 of scroll area 1 of group 1 of window "Notification Center"  -- Sonoma
 					set noticeGroups to groups of group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center"
+
+					if (the number of items in noticeGroups) is 0 then
+						return my _getNotificationCenterInstance()'s new(group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center")
+					end if
 				end try
 			end tell
 
