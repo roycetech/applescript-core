@@ -14,13 +14,20 @@
 	@Build:
 		make build-lib SOURCE=core/spot-test
 
-	@Last Modified: 2024-06-23 22:35:05
+	@Last Modified: 2025-01-21 14:38:45
+
+	@Change Logs:
+		Mon, Jan 20, 2025 at 7:42:38 AM - Trigger Menu Case app refresh
+
 *)
 
 use script "core/Text Utilities"
 use scripting additions
 
+use std : script "core/std"
+
 use loggerFactory : script "core/logger-factory"
+
 use plutilLib : script "core/plutil"
 use switchLib : script "core/switch"
 
@@ -37,6 +44,11 @@ use decoratorLib : script "core/decorator"
 property session : missing value
 
 property logger : missing value
+
+property SWITCH_AUTO_INCREMENT_CASE : "Auto Increment Case Index"
+property SESS_CURRENT_CASE_INDEX : "Current Case Index"
+property SESS_CASE_ID : "Case ID"
+property SESS_CASE_LABELS : "Case Labels"
 
 tell application "System Events"
 	set scriptName to get name of (path to me)
@@ -79,7 +91,7 @@ on new()
 
 	script SpotTestInstance
 		on setSessionCaseIndex(newCaseIndex)
-			session's setValue("Current Case Index", newCaseIndex)
+			session's setValue(SESS_CURRENT_CASE_INDEX, newCaseIndex)
 		end setSessionCaseIndex
 
 		(*
@@ -104,18 +116,18 @@ on new()
 				(* @returns {caseId, caseDescription} *)
 				on start()
 					set newCaseCount to count of cases
-					set caseLabels to session's getList("Case Labels")
+					set caseLabels to session's getList(SESS_CASE_LABELS)
 					if caseLabels is missing value then set caseLabels to {}
 					set _currentCaseCount to length of caseLabels
-					set caseIdChanged to session's getString("Case ID") is not equal to caseId
+					set caseIdChanged to session's getString(SESS_CASE_ID) is not equal to caseId
 					set caseCountChanged to newCaseCount is not equal to _currentCaseCount
 					set REINITIALIZE to caseIdChanged or caseCountChanged
-					session's setValue("Case Labels", cases)
+					session's setValue(SESS_CASE_LABELS, cases)
 
 					if REINITIALIZE is true then
 						if caseIdChanged then
-							session's setValue("Case ID", caseId)
-							session's setValue("Current Case Index", 1)
+							session's setValue(SESS_CASE_ID, caseId)
+							session's setValue(SESS_CURRENT_CASE_INDEX, 1)
 							set my _valid to false
 
 							set noticeText to "Subject Changed, select desired case from menu and re-run"
@@ -125,7 +137,7 @@ on new()
 
 						else
 							if newCaseCount is less than _currentCaseCount then
-								session's setValue("Current Case Index", newCaseCount)
+								session's setValue(SESS_CURRENT_CASE_INDEX, newCaseCount)
 								if my logger is missing value then
 									log "Number of cases reduced, running the last in the list"
 								else
@@ -139,20 +151,20 @@ on new()
 									-- logger's debugf("_currentCaseCount: {}", _currentCaseCount)
 									-- logger's debugf("newCaseCount: {}", newCaseCount)
 								end if
-								session's setValue("Current Case Index", _currentCaseCount + 1)
+								session's setValue(SESS_CURRENT_CASE_INDEX, _currentCaseCount + 1)
 							end if
 							set _currentCaseCount to newCaseCount
 						end if
 					end if
 
-					set _currentCase to session's getInt("Current Case Index")
+					set _currentCase to session's getInt(SESS_CURRENT_CASE_INDEX)
 					-- DEBUG_LOGF("_currentCase", _currentCase)
 
 					if _currentCase is 0 or _currentCase is greater than the number of items in cases then
 						-- DEBUG_LOGF("Resetting case to 1 because of case label count", number of items in caseLabels)
 
 						set _currentCase to 1
-						session's setValue("Current Case Index", _currentCase)
+						session's setValue(SESS_CURRENT_CASE_INDEX, _currentCase)
 					end if
 
 					set autoText to "M"
@@ -167,13 +179,15 @@ on new()
 					{_currentCase as integer, item _currentCase of cases}
 				end start
 
-				(* event a record containing type and or case_index. *)
-				on notifyChange(event)
+
+				(* eventRecord - a record containing event_type and or case_index. *)
+				on notifyChange(eventRecord)
 
 				end notifyChange
 
+
 				on setAutoIncrement(newValue)
-					set incrementSwitch to switchLib's new("Auto Increment Case Index")
+					set incrementSwitch to switchLib's new(SWITCH_AUTO_INCREMENT_CASE)
 					incrementSwitch's setValue(newValue)
 				end setAutoIncrement
 
@@ -182,14 +196,14 @@ on new()
 					if my _valid is false then return
 
 					if autoIncrement then
-						session's setValue("Current Case Index", _currentCase + 1)
+						session's setValue(SESS_CURRENT_CASE_INDEX, _currentCase + 1)
 						if _currentCase is greater than or equal to _currentCaseCount then
 							if my logger is missing value then
 								log "End reached, restarting to 1"
 							else
 								logger's info("End reached, restarting to 1")
 							end if
-							session's setValue("Current Case Index", 1)
+							session's setValue(SESS_CURRENT_CASE_INDEX, 1)
 						end if
 					end if
 
@@ -214,7 +228,7 @@ on new()
 
 			end script
 
-			set incrementSwitch to switchLib's new("Auto Increment Case Index")
+			set incrementSwitch to switchLib's new(SWITCH_AUTO_INCREMENT_CASE)
 			set autoIncrement of SpotTestCaseInstance to incrementSwitch's active()
 
 			set decoratorInner to decoratorLib's new(SpotTestCaseInstance)
