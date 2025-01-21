@@ -11,18 +11,15 @@
 		make build-lib SOURCE=core/regex-pattern
 
 	@Created: October 26, 2023 9:49 PM
-	@Last Modified: 2023-10-29 12:36:35
+	@Last Modified: 2025-01-21 14:37:24
 *)
 
 use framework "Foundation"
 use scripting additions
 
-use textUtil : script "core/string"
-use listUtil : script "core/list"
-
 use loggerFactory : script "core/logger-factory"
 
-use spotScript : script "core/spot-test"
+use textUtil : script "core/string"
 
 property logger : missing value
 property ERROR_INVALID_PATTERN : 1000
