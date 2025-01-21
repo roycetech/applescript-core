@@ -22,16 +22,15 @@ use scripting additions
 use loggerFactory : script "core/logger-factory"
 use cliclickLib : script "core/cliclick"
 use retryLib : script "core/retry"
-use finderMiniLib : script "core/finder-mini"
 
 use decCleanShotXGeneral : script "core/dec-cleanshot-x-general"
 use decCleanShotXShortcuts : script "core/dec-cleanshot-x-shortcuts"
+use decCleanShotXQuickAccess : script "core/dec-cleanshot-x-quick-access"
 use decCleanShotXAdvanced : script "core/dec-cleanshot-x-advanced"
 
 property logger : missing value
 property cliclick : missing value
 property retry : missing value
-property finderMini : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -93,17 +92,23 @@ on spotCheck()
 end spotCheck
 
 
-(*  *)
+(*  *) 
 on new()
 	loggerFactory's inject(me)
 	set cliclick to cliclickLib's new()
 	set retry to retryLib's new()
-	set finderMini to finderMiniLib's new()
 	
 	script CleanShotXInstance
 		on showSettings()
 			-- activate application "CleanShot X"
 			open location "cleanshot://open-settings"
+			
+			script WindowWaiter
+				tell application "System Events" to tell process "CleanShot X"
+					if exists (window 1) then return true
+				end tell
+			end script
+			exec of retry on result for 3
 			
 			tell application "System Events" to tell process "CleanShot X"
 				if not my isAllowApplicationsToControlCleanShot() then
@@ -183,5 +188,6 @@ on new()
 	
 	decCleanShotXGeneral's decorate(result)
 	decCleanShotXShortcuts's decorate(result)
+	decCleanShotXQuickAccess's decorate(result)
 	decCleanShotXAdvanced's decorate(result)
 end new

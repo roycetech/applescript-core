@@ -12,8 +12,12 @@
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
+use retryLib : script "core/retry"
+use finderMiniLib : script "core/finder-mini"
 
 property logger : missing value
+property retry : missing value
+property finderMini : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -138,6 +142,8 @@ end spotCheck
 (*  *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
+	set retry to retryLib's new()
+	set finderMini to finderMiniLib's new("CleanShot X")
 	
 	script CleanshotXGeneralDecorator
 		property parent : mainScript
@@ -239,6 +245,11 @@ on decorate(mainScript)
 				if (count of windows) is 0 then return false
 				
 				set frontmost to true
+				set newPosixPath to finderMini's untilde(newPath)
+				if newPosixPath is equal to my getExportLocation() then 
+					logger's info("New export location is the same, exiting")
+				return
+				end if
 				
 				try
 					click pop up button 1 of front window

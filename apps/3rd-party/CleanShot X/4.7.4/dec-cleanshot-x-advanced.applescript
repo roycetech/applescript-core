@@ -30,6 +30,8 @@ on spotCheck()
 		Manual: Set Ask for name after every capture On
 		
 		Manual: Set Ask for name after every capture Off
+		Manual: Set Add 2x suffix to Retina screenshots On		
+		Manual: Set Add 2x suffix to Retina screenshots Off
 	")
 	
 	set spotClass to spotScript's new()
@@ -48,6 +50,7 @@ on spotCheck()
 	sut's showSettings()
 	
 	logger's infof("Ask for name for every capture: {}", sut's getAskForNameForEveryCapture())
+	logger's infof("Add @2xSuffix to retina screenshots: {}", sut's get2xSuffixToRetinaScreenshots())
 	if caseIndex is 1 then
 		
 	else if caseIndex is 2 then
@@ -62,9 +65,15 @@ on spotCheck()
 		
 	else if caseIndex is 5 then
 		sut's setAskForNameForEveryCaptureOn()
-
+		
 	else if caseIndex is 6 then
 		sut's setAskForNameForEveryCaptureOff()
+		
+	else if caseIndex is 7 then
+		sut's set2xSuffixToRetinaScreenshotsOn()
+		
+	else if caseIndex is 8 then
+		sut's set2xSuffixToRetinaScreenshotsOff()
 		
 	else
 		
@@ -153,6 +162,44 @@ on decorate(mainScript)
 		on setAskForNameForEveryCaptureOff()
 			if getAskForNameForEveryCapture() then toggleAskForNameForEveryCapture()
 		end setAskForNameForEveryCaptureOff
+		
+		
+		on get2xSuffixToRetinaScreenshots()
+			if running of application "CleanShot X" is false then return false
+			
+			tell application "System Events" to tell process "CleanShot X"
+				if not (exists (window "Advanced")) then return false
+				
+				try
+					return (value of first checkbox of window "Advanced" whose name ends with "suffix to Retina screenshots") is 1
+				end try
+			end tell
+			
+			false
+		end get2xSuffixToRetinaScreenshots
+		
+		
+		on toggle2xSuffixToRetinaScreenshots()
+			if running of application "CleanShot X" is false then return false
+			
+			tell application "System Events" to tell process "CleanShot X"
+				if not (exists (window "Advanced")) then return false
+				
+				try
+					click (first checkbox of window "Advanced" whose name ends with "suffix to Retina screenshots")
+				end try
+			end tell
+			
+			false
+		end toggle2xSuffixToRetinaScreenshots
+		
+		on set2xSuffixToRetinaScreenshotsOn()
+			if not get2xSuffixToRetinaScreenshots() then toggle2xSuffixToRetinaScreenshots()
+		end set2xSuffixToRetinaScreenshotsOn
+		
+		on set2xSuffixToRetinaScreenshotsOff()
+			if get2xSuffixToRetinaScreenshots() then toggle2xSuffixToRetinaScreenshots()
+		end set2xSuffixToRetinaScreenshotsOff
 		
 	end script
 end decorate
