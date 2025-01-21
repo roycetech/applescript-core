@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-mini
 
 	@Created: Monday, December 30, 2024 at 11:56:11 AM
-	@Last Modified: 2024-12-30 13:39:59
+	@Last Modified: 2025-01-09 15:22:29
 *)
 use script "core/Text Utilities"
 
@@ -78,22 +78,25 @@ end spotCheck
 
 
 (*  *)
-on new()
+on new(pProcessName)
 	loggerFactory's inject(me)
 	set kb to kbLib's new()
 	set retry to retryLib's new()
 
 	script FinderMiniInstance
-		on triggerGoToFolder()
-			tell application "System Events" to tell (first process whose frontmost is true)
-				perform action "AXRaise" of window "Open"
-			end tell
+		property processName : pProcessName
 
+		on triggerGoToFolder()
+			tell application "System Events" to tell process processName
+				try
+					perform action "AXRaise" of window "Open"
+				end try
+			end tell
 			kb's pressCommandShiftKey("g")
 
 			script WaitInputField
-				tell application "System Events" to tell (first process whose frontmost is true)
-					if exists (text field 1 of sheet 1 of first window) then return true
+				tell application "System Events" to tell process processName
+					if exists (text field 1 of sheet 1 of window "Open") then return true
 				end tell
 			end script
 			exec of retry on result for 10
@@ -105,8 +108,8 @@ on new()
 			kb's insertTextByPasting(newPath)
 
 			script WaitFoundPath
-				tell application "System Events" to tell (first process whose frontmost is true)
-					if exists (row 2 of table 1 of scroll area 1 of sheet 1 of front window) then return true
+				tell application "System Events" to tell process processName
+					if exists (row 2 of table 1 of scroll area 1 of sheet 1 of window "Open") then return true
 				end tell
 			end script
 			exec of retry on result for 10
