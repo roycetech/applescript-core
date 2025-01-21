@@ -15,8 +15,13 @@
 use loggerFactory : script "core/logger-factory"
 use retryLib : script "core/retry"
 use processLib : script "core/process"
+use kbLib : script "core/keyboard" -- The keyboard settings doesn't respond to programmatic changes unfortunately.
+use Math : script "core/math"
 
 property logger : missing value
+property kb : missing value
+property retry : missing value
+
 property PANE_ID_KEYBOARD : "com.apple.Keyboard-Settings.extension"
 
 -- Below does not work inside whose clause.
@@ -24,11 +29,11 @@ property PANE_ID_KEYBOARD : "com.apple.Keyboard-Settings.extension"
 -- property TEXT_REPEAT_DELAY : "Delay until repeat"
 
 property REPEAT_RATE_OFF : 0
-property MIN_REPEAT_DELAY : 1
-
-property MAX_DELAY_UNTIL : 6
+property MIN_REPEAT_RATE : 1
 property MAX_REPEAT_RATE : 7
 
+property MIN_REPEAT_DELAY : 6
+property MAX_REPEAT_DELAY : 1
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -41,12 +46,19 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: Reveal Keyboard Pane
-		Manual: Set key repeat rate (DOESN'T WORK, slider doesn't react to change in value)
-		Manual: Set Delay until repeat (DOESN'T WORK, slider doesn't react to change in value)
+		Manual: Set key repeat rate
+		Manual: Set Delay until repeat
 		Manual: Trigger Keyboards Shortcuts
 		
 		Manual: Select Keyboard Shortcuts Tab
 		Manual: Clear all check boxes
+		Manual: Keyboard Shortcuts: Trigger Done
+		Manual: Trigger Text Input > Edit...
+		Manual: Text Input > Edit... > Toggle Add period with double-space
+
+		Manual: Text Input > Edit... > Set Add period with double-space ON
+		Manual: Text Input > Edit... > Set Add period with double-space OFF
+		Manual: Text Input > Edit... > Trigger Done
 	")
 	
 	set spotClass to spotScript's new()
@@ -64,6 +76,7 @@ on spotCheck()
 	
 	logger's infof("Key repeat rate: {}", sut's getKeyRepeatRate())
 	logger's infof("Delay until repeat: {}", sut's getDelayUntilRepeat())
+	logger's infof("Text Input: Add period with double-space: {}", sut's getAddPeriodWithDoubleSpace())
 	
 	if caseIndex is 1 then
 		
@@ -72,13 +85,18 @@ on spotCheck()
 		
 	else if caseIndex is 3 then
 		set newRepeatRate to REPEAT_RATE_OFF
+		set newRepeatRate to MIN_REPEAT_RATE
+		set newRepeatRate to MIN_REPEAT_RATE + 1
+		set newRepeatRate to MAX_REPEAT_RATE
 		
 		logger's infof("newRepeatRate: {}", newRepeatRate)
 		sut's setKeyRepeatRate(newRepeatRate)
 		
 	else if caseIndex is 4 then
-		set newDelayUntil to MAX_DELAY_UNTIL
-		set newDelayUntil to 5
+		set newDelayUntil to MIN_REPEAT_DELAY
+		set newDelayUntil to MIN_REPEAT_DELAY - 1 -- a point longer than the shortest
+		-- set newDelayUntil to MAX_REPEAT_DELAY
+		-- set newDelayUntil to MAX_REPEAT_DELAY + 1 -- a point shorter than the longest
 		
 		logger's infof("newDelayUntil: {}", newDelayUntil)
 		sut's setDelayUntilRepeat(newDelayUntil)
@@ -95,6 +113,23 @@ on spotCheck()
 	else if caseIndex is 7 then
 		sut's clearAllShortcuts()
 		
+	else if caseIndex is 8 then
+		sut's triggerKeyboardShortcutsDone()
+		
+	else if caseIndex is 9 then
+		sut's triggerTextInputEdit()
+		
+	else if caseIndex is 10 then
+		sut's toggleAddPeriodWithDoubleSpace()
+		
+	else if caseIndex is 11 then
+		sut's setAddPeriodWithDoubleSpaceOn()
+		
+	else if caseIndex is 12 then
+		sut's setAddPeriodWithDoubleSpaceOff()
+		
+	else if caseIndex is 13 then
+		sut's triggerTextInputEditDone()
 	else
 		
 	end if
@@ -107,6 +142,8 @@ end spotCheck
 (*  *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
+	set kb to kbLib's new()
+	set retry to retryLib's new()
 	
 	script SystemSettingsKeyboardDecorator
 		property parent : mainScript
@@ -121,8 +158,7 @@ on decorate(mainScript)
 				reveal pane id PANE_ID_KEYBOARD
 			end tell
 			
-			set retry to retryLib's new()
-			script SoundsPaneWaiter
+			script KeyboardPaneWaiter
 				tell application "System Events" to tell process "System Settings"
 					if exists (window "Keyboard") then return true
 				end tell
@@ -135,23 +171,14 @@ on decorate(mainScript)
 			if running of application "System Settings" is false then return false
 			
 			tell application "System Events" to tell process "System Settings"
-				set repeatKeyRateSlider to first slider of group 1 of scroll area 1 of group 1 of list 2 of splitter group 1 of list 1 of front window whose description is equal to "Key repeat rate"
+				try
+					set repeatKeyRateSlider to first slider of group 1 of scroll area 1 of group 1 of my getRightPaneUI() whose description is equal to "Key repeat rate"
+				end try
 				-- description is equal to "Key repeat rate"
 				
 				value of repeatKeyRateSlider
 			end tell
 		end getKeyRepeatRate
-		
-		
-		on getDelayUntilRepeat()
-			if running of application "System Settings" is false then return false
-			
-			tell application "System Events" to tell process "System Settings"
-				set delayUntilRepeatSlider to first slider of group 1 of scroll area 1 of group 1 of list 2 of splitter group 1 of list 1 of front window whose description is "Delay until repeat"
-				
-				value of delayUntilRepeatSlider
-			end tell
-		end getDelayUntilRepeat
 		
 		
 		(* 
@@ -161,24 +188,73 @@ on decorate(mainScript)
 			if running of application "System Settings" is false then return
 			if newRepeatRate is less than REPEAT_RATE_OFF or newRepeatRate is greater than MAX_REPEAT_RATE then return
 			
+			set currentRepeatRate to getKeyRepeatRate()
+			set repeatRateDelta to currentRepeatRate - newRepeatRate
+			-- logger's debugf("repeatDelta: {}", repeatDelta)
+			
 			tell application "System Events" to tell process "System Settings"
-				set repeatKeyRateSlider to first slider of group 1 of scroll area 1 of group 1 of list 2 of splitter group 1 of list 1 of front window whose description is "Key repeat rate"
+				set frontmost to true
+				set repeatKeyRateSlider to first slider of group 1 of scroll area 1 of group 1 of my getRightPaneUI() whose description is "Key repeat rate"
+				-- set value of attribute "AXAutoInteractable" of repeatKeyRateSlider to true  -- Not useful here.
 				set value of repeatKeyRateSlider to newRepeatRate -- DOESN'T WORK.
+				set focused of repeatKeyRateSlider to true
 			end tell
+			
+			if repeatRateDelta is greater than 0 then
+				repeat repeatRateDelta times
+					kb's pressKey("left")
+				end repeat
+				
+			else
+				repeat Math's abs(repeatRateDelta) times
+					kb's pressKey("right")
+				end repeat
+				
+			end if
 		end setKeyRepeatRate
 		
+		
+		on getDelayUntilRepeat()
+			if running of application "System Settings" is false then return false
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					set delayUntilRepeatSlider to first slider of group 1 of scroll area 1 of group 1 of my getRightPaneUI() whose description is "Delay until repeat"
+				end try
+				
+				value of delayUntilRepeatSlider
+			end tell
+		end getDelayUntilRepeat
+		
+		
 		(* 
-			@newRepeatRate - 1-6, 1 being long and 6 being the shortest.
+			@newRepeatRate - 1-6, 1 being long and 6 being the shortest.  So it maybe a bit confusing because 1 is long (max), and 6 is short (min).
 		*)
 		on setDelayUntilRepeat(newRepeatDelay)
 			if running of application "System Settings" is false then return
-			if newRepeatDelay is less than MIN_REPEAT_DELAY or newRepeatDelay is greater than MAX_REPEAT_RATE then return
+			if newRepeatDelay is less than MAX_REPEAT_DELAY or newRepeatDelay is greater than MIN_REPEAT_DELAY then return
+			
+			set currentRepeatDelay to getDelayUntilRepeat()
+			set repeatDelayDelta to currentRepeatDelay - newRepeatDelay
 			
 			tell application "System Events" to tell process "System Settings"
-				set delayUntilRepeatSlider to first slider of group 1 of scroll area 1 of group 1 of list 2 of splitter group 1 of list 1 of front window whose description is "Delay until repeat"
+				set frontmost to true
+				try
+					set delayUntilRepeatSlider to first slider of group 1 of scroll area 1 of group 1 of my getRightPaneUI() whose description is "Delay until repeat"
+					
+				end try
 				
-				set value of delayUntilRepeatSlider to newRepeatDelay
+				set value of delayUntilRepeatSlider to newRepeatDelay -- DOESN'T WORK
+				set focused of delayUntilRepeatSlider to true
 			end tell
+			
+			set changeDirection to "left"
+			if repeatDelayDelta is less than 0 then set changeDirection to "right"
+			
+			repeat Math's abs(repeatDelayDelta) times
+				kb's pressKey(changeDirection)
+				delay 0.02
+			end repeat
 		end setDelayUntilRepeat
 		
 		
@@ -187,9 +263,7 @@ on decorate(mainScript)
 			
 			tell application "System Events" to tell process "System Settings"
 				try
-					tell application "System Events" to tell process "System Settings"
-						click button 3 of group 2 of scroll area 1 of group 1 of list 2 of splitter group 1 of list 1 of front window
-					end tell
+					click button 1 of group 2 of scroll area 1 of group 1 of my getRightPaneUI()
 				end try
 			end tell
 		end triggerKeyboardShortcuts
@@ -212,6 +286,7 @@ on decorate(mainScript)
 			missing value
 		end selectKeyboardShortcutsTab
 		
+		
 		on clearAllShortcuts()
 			if running of application "System Settings" is false then return
 			
@@ -225,5 +300,79 @@ on decorate(mainScript)
 				end repeat
 			end tell
 		end clearAllShortcuts
+		
+		
+		on triggerKeyboardShortcutsDone()
+			if running of application "System Settings" is false then return
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					click button 2 of my getRightPaneUI() -- Indexed, no attribute, label, description a
+				end try
+			end tell
+		end triggerKeyboardShortcutsDone
+		
+		
+		on triggerTextInputEdit()
+			if running of application "System Settings" is false then return
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					click button 1 of group 3 of scroll area 1 of group 1 of my getRightPaneUI()
+				end try
+			end tell
+			
+			script SheetWaiter
+				tell application "System Events" to tell process "System Settings"
+					if exists sheet 1 of window 1 then return true
+				end tell
+			end script
+			retry's exec on result for 3
+		end triggerTextInputEdit
+		
+		
+		on triggerTextInputEditDone()
+			if running of application "System Settings" is false then return
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					click button 1 of group 2 of splitter group 1 of group 1 of sheet 1 of front window
+				end try
+			end tell
+		end triggerTextInputEditDone
+		
+		
+		on getAddPeriodWithDoubleSpace()
+			if running of application "System Settings" is false then return false
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					return value of checkbox "Add period with double-space" of group 2 of scroll area 1 of group 2 of splitter group 1 of group 1 of sheet 1 of front window is 1
+				end try
+			end tell
+			false
+		end getAddPeriodWithDoubleSpace
+		
+		
+		on toggleAddPeriodWithDoubleSpace()
+			if running of application "System Settings" is false then return false
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					click checkbox "Add period with double-space" of group 2 of scroll area 1 of group 2 of splitter group 1 of group 1 of sheet 1 of front window
+				end try
+			end tell
+		end toggleAddPeriodWithDoubleSpace
+		
+		
+		on setAddPeriodWithDoubleSpaceOn()
+			if not getAddPeriodWithDoubleSpace() then toggleAddPeriodWithDoubleSpace()
+		end setAddPeriodWithDoubleSpaceOn
+		
+		
+		on setAddPeriodWithDoubleSpaceOff()
+			if getAddPeriodWithDoubleSpace() then toggleAddPeriodWithDoubleSpace()
+		end setAddPeriodWithDoubleSpaceOff
+		
 	end script
 end decorate

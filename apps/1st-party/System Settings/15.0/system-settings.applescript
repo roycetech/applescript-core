@@ -67,6 +67,8 @@ on spotCheck()
 	set sut to new()
 	
 	sut's printPaneIds()
+	logger's infof("Left pane UI detected? {}", sut's getLeftPaneUI() is not missing value)
+	logger's infof("Right pane UI detected? {}", sut's getRightPaneUI() is not missing value)
 	
 	if caseIndex is 2 then
 		sut's quitApp()
@@ -185,6 +187,45 @@ on new()
 				delay 0.1
 			end repeat
 		end quitApp
+		
+		
+		(* UI Structure changes from list to group for unknown reasons. We want to anticipate that so that we only have to make changes to fewer places.*)
+		on getLeftPaneUI()
+			if running of application "System Settings" is false then return missing value
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					return group 1 of splitter group 1 of group 1 of front window
+				on error
+					try
+						return list 1 of splitter group 1 of list 1 of front window
+					on error the errorMessage number the errorNumber
+						logger's warn(errorMessage)
+					end try
+				end try
+			end tell
+			
+			missing value
+		end getLeftPaneUI
+		
+		
+		on getRightPaneUI()
+			if running of application "System Settings" is false then return missing value
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					return group 2 of splitter group 1 of group 1 of front window
+				on error
+					try
+						return list 2 of splitter group 1 of list 1 of front window
+					on error the errorMessage number the errorNumber
+						logger's warn(errorMessage)
+					end try
+				end try
+			end tell
+			
+			missing value
+		end getRightPaneUI
 	end script
 	
 	set decPasswords to script "core/dec-system-settings_passwords"
@@ -194,6 +235,7 @@ on new()
 	set decSound to script "core/dec-system-settings_sound"
 	set decDesktopAndDock to script "core/dec-system-settings_desktop-and-dock"
 	set decLockScreen to script "core/dec-system-settings_lock-screen"
+	set decKeyboard to script "core/dec-system-settings_keyboard"
 	
 	decPasswords's decorate(SystemSettingsInstance)
 	decVoiceControl's decorate(result)
@@ -202,6 +244,7 @@ on new()
 	decSound's decorate(result)
 	decDesktopAndDock's decorate(result)
 	decLockScreen's decorate(result)
+	decKeyboard's decorate(result)
 	
 	set decorator to decoratorLib's new(result)
 	decorator's decorateByName("SystemSettingsInstance")

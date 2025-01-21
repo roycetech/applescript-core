@@ -108,7 +108,9 @@ on decorate(mainScript)
 			tell application "System Events" to tell process "System Settings"
 				set frontmost to true
 				delay 0.1
-				set sutPopup to pop up button 1 of group 8 of scroll area 1 of group 1 of list 2 of splitter group 1 of list 1 of front window
+				try
+					set sutPopup to pop up button 1 of group 8 of scroll area 1 of group 1 of my getRightPaneUI()
+				end try
 				click sutPopup
 				delay 0.1
 				try

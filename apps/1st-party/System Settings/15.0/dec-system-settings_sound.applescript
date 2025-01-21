@@ -101,7 +101,7 @@ on decorate(mainScript)
 			if running of application "System Settings" is false then return false
 			
 			tell application "System Events" to tell process "System Settings"
-				value of checkbox "Play feedback when volume is changed" of group 1 of scroll area 1 of group 1 of list 2 of splitter group 1 of list 1 of front window is 1
+				value of checkbox "Play feedback when volume is changed" of group 1 of scroll area 1 of group 1 of my getRightPaneUI() is 1
 			end tell
 		end isPlayFeedbackWhenSoundIsChanged
 		
@@ -109,7 +109,7 @@ on decorate(mainScript)
 			if running of application "System Settings" is false then return false
 			
 			tell application "System Events" to tell process "System Settings"
-				click checkbox "Play feedback when volume is changed" of group 1 of scroll area 1 of group 1 of list 2 of splitter group 1 of list 1 of front window
+				click checkbox "Play feedback when volume is changed" of group 1 of scroll area 1 of group 1 of my getRightPaneUI()
 			end tell
 		end togglePlayFeedbackWhenSoundIsChanged
 		
