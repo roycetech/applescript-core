@@ -56,6 +56,7 @@ on spotCheck()
 		logger's info("Current value could not be printed")
 	end try
 	logger's infof("Is current clipboard value a text: {}", sut's isText())
+	logger's infof("Clipboard (text) size: {}", sut's getTextSize())
 	logger's infof("Is current clipboard value an HTML: {}", sut's isHtml())
 
 	if caseIndex is 2 then
@@ -140,11 +141,11 @@ on new()
 			end try
 
 			false
-		end getValue
+		end setValue
 
 
 
-		on isHTML()
+		on isHtml()
 			(* Determines if current clipboard content is HTML. *)
 			set clipboardInfo to clipboard info
 
@@ -156,7 +157,7 @@ on new()
 			if firstItem is Çclass HTMLÈ then return true
 
 			false
-		end isHTML
+		end isHtml
 
 
 		(* Determines if current clipboard content is text. *)
@@ -172,6 +173,14 @@ on new()
 
 			false
 		end isText
+
+
+		on getTextSize()
+			if not isText() then return -1
+
+			set clipboardText to getValue() as text
+			(length of clipboardText)
+		end getTextSize
 
 
 		(* Retrieve the value of the clipboard from the passed script without altering the actual value of the clipboard. *)
