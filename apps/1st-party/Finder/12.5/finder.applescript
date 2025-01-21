@@ -5,6 +5,8 @@
 
 	WARNING: Finder is slow in general (not just this script). Avoid using the app Finder as much as possible.
 
+	NOTE: This version still works on macOS v15
+
 	@Prerequisites:
 		keyboard.applescript - some handlers require key presses.
 
@@ -14,7 +16,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
 
-	@Last Modified: 2024-12-24 19:32:44
+	@Last Modified: 2024-12-31 15:56:28
 *)
 
 use script "core/Text Utilities"
@@ -58,6 +60,8 @@ on spotCheck()
 		Manual: Rename File
 		Manual: Delete File
 		Manual: Create Folder as Needed
+
+		Manual: Add to Sidebar
 	")
 
 	set spotClass to spotScript's new()
@@ -183,6 +187,9 @@ on spotCheck()
 		set websitesFolder to sut's posixToFolder("~/Documents/websites")
 		sut's createFolderAsNeeded("poc", websitesFolder)
 
+	else if caseIndex is 16 then
+		sut's menuAddToSidebar()
+
 	end if
 
 	spot's finish()
@@ -203,6 +210,17 @@ on new()
 	set kb to kbLib's new()
 
 	script FinderInstance
+		on menuAddToSidebar()
+			if running of application "Finder" is false then return
+
+			tell application "System Events" to tell process "Finder"
+				set frontmost to true
+				try
+					click menu item "Add to Sidebar" of menu 1 of menu bar item "File" of menu bar 1
+				end try
+			end tell
+		end menuAddToSidebar
+
 
 		on isBusy()
 			tell application "System Events" to tell process "Finder"
@@ -375,8 +393,8 @@ on new()
 
 				(* @returns true if successful in adding. *)
 				on addToSideBar()
-					tell application "System Events" to tell process "Finder"
 						set inSideBar to false
+					tell application "System Events" to tell process "Finder"
 						repeat with nextRow in rows of outline 1 of scroll area 1 of splitter group 1 of window (name of appWindow)
 							if value of static text 1 of UI element 1 of nextRow is equal to the name of appWindow then
 								set inSideBar to true

@@ -11,7 +11,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
 
-	@Last Modified: 2025-01-03 08:16:48
+	@Last Modified: 2025-01-17 07:57:03
 *)
 
 use script "core/Text Utilities"
@@ -44,6 +44,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		INFO:
 		Integration: finder-tab
+		Manual: New Tab for Path
 
 		Misc Folders
 		Manual: Current Folder
@@ -51,7 +52,6 @@ on spotCheck()
 		Get File Path
 
 		Get File List
-		New Tab for Path
 		Find Tab: Projects
 		Manual: Add to SideBar (Manual: Needs/Does not need adding)
 
@@ -80,6 +80,14 @@ on spotCheck()
 		logger's infof("Folder Name: {}", frontTab's getFolderName())
 
 	else if caseIndex is 3 then
+		set sutPosixPath to "~/Projectsx"
+		set sutPosixPath to "/Applications"
+		set sutPosixPath to "~/Projects"
+		set sutPosixPath to "~"
+		set finderTab to sut's newTab(sutPosixPath)
+		logger's infof("Handler result: {}", finderTab's getPath())
+
+		-- REVIEW BELOW CASES
 
 	else if caseIndex is 4 then
 		tell application "Finder"
@@ -95,11 +103,6 @@ on spotCheck()
 		end tell
 
 	else if caseIndex is 7 then
-		set sutPosixPath to "~/Projectsx"
-		set sutPosixPath to "/Applications"
-		set sutPosixPath to "~/Projects"
-		set finderTab to newTab(sutPosixPath)
-		log finderTab's getPath()
 
 	else if caseIndex is 8 then
 		set foundTab to findTab("Projects")
@@ -168,7 +171,7 @@ on new()
 
 		on putInTrash(posixPath)
 			set computedPosixPath to _untilde(posixPath)
-			logger's debugf("computedPosixPath: {}", computedPosixPath)
+			-- logger's debugf("computedPosixPath: {}", computedPosixPath)
 			-- tell application "Finder" to delete POSIX file computedPosixPath
 			-- Why did I use do shell script instead of running the code directly?
 			do shell script "osascript -e 'tell application \"Finder\" to delete POSIX file \"" & computedPosixPath & "\"'"
