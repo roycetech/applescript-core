@@ -59,3 +59,10 @@ watch-unit: test-unit
 
 watch-integration: test-integration
 	scripts/run-integration-tests_on-change.sh  # This runs test-unit target on change.
+
+spot:
+	osascript 'apps/3rd-party/Google Chrome/131.0/dec-google-chrome-tab-finder.applescript'
+
+spot-watch: spot
+	scripts/run-spot_on-change.sh
+

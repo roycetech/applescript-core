@@ -1,17 +1,18 @@
 (*
-	Retrofitted from safari-tab.applescript.
-
 	@Project:
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh 'apps/3rd-party/Google Chrome/129.0/google-chrome-tab'
+		./scripts/build-lib.sh 'apps/3rd-party/Google Chrome/131.0/google-chrome-tab'
 
 	@TODO: 
 		Mon, Sep 30, 2024 at 10:46:55 AM - Review all handlers and verify they are converted to work with Google Chrome.
 		
-	@Created: December 25, 2023 3:30 PM
+	@Created: Fri, Jan 17, 2025 at 9:30:20 AM
 	@Last Modified: 2023-12-27 10:41:51
+	
+	@Change Logs:
+		Fri, Jan 17, 2025 at 9:30:32 AM - Fix getURL to get the indexed URL, not the active tab.
 *)
 
 use scripting additions
@@ -39,6 +40,7 @@ on spotCheck()
 		Manual: Run a Script
 		
 		Manual: Switch Tab
+		Manual: Debug: getURL
 	")
 	
 	set spotClass to spotScript's new()
@@ -88,6 +90,29 @@ on spotCheck()
 		sut's focusTabIndex(99)
 		-- sut's focusTabIndex(2)
 		
+	else if caseIndex is 7 then
+		set googleChromeLib to script "core/google-chrome"
+		set googleChrome to googleChromeLib's new()
+		
+		tell application "Google Chrome"
+			if (count of tabs of front window) is less than 2 then
+				error "You need to have at least 2 tabs to test this."
+			end if
+			
+			googleChrome's focusTabIndex(1)
+			
+			tell front window
+				set sut to my new(its id, 1)
+			end tell
+			
+			googleChrome's focusTabIndex(2)
+			delay 1
+			
+			-- 			log sut's tabIndex
+			logger's infof("Handler result: {} ", sut's getURL())
+			
+		end tell
+		
 	end if
 	
 	activate
@@ -119,23 +144,6 @@ on new(windowId, pTabIndex)
 		property _url : missing value
 		
 		
-		(* This probably shouldn't be here, move to google-chrome instead. *)
-		on focusTabIndex(tabIndex)
-			if running of application "Google Chrome" is false then return
-			
-			tell application "Google Chrome"
-				set totalTabs to (count of tabs in window 1) -- Get the number of tabs in the first window
-				
-				if tabIndex is less than or equal to the totalTabs and tabIndex > 0 then
-					tell window 1 to set active tab index to tabIndex
-				else
-					logger's debugf("The desired tab index ({}) is out of range. There are only {} tabs.", {tabIndex, totalTabs})
-					
-				end if
-			end tell
-		end focusTabIndex
-		
-		
 		on moveTabToIndex(newIndex)
 			if running of application "Google Chrome" is false then return
 			
@@ -153,7 +161,7 @@ on new(windowId, pTabIndex)
 				end if
 				set my tabIndex to newIndex
 				set my _tab to tab newIndex of front window
-				set active tab of front window to my _tab
+				set active tab index of front window to my tabIndex
 			end tell
 		end moveTabToIndex
 		
@@ -209,10 +217,15 @@ on new(windowId, pTabIndex)
 			the newInstance
 		end newTab
 		
-		
-		(* It checks the starting characters to match because Safari trims it in the menu when then name is more than 30 characters. *)
+		(*
 		on focus()
-			tell application "Google Chrome" to set active tab of my appWindow to _tab
+			tell application "Google Chrome" to set active tab of my appWindow to my _tab
+		end focus
+		*)
+		on focus()
+			tell application "Google Chrome"
+				set active tab index of my appWindow to my tabIndex
+			end tell
 		end focus
 		
 		on closeTab()
@@ -276,12 +289,13 @@ on new(windowId, pTabIndex)
 		on getURL()
 			tell application "Google Chrome"
 				try
-					return URL of active tab of front window
+					return URL of my _tab
 				end try
 			end tell
 			
 			missing value
 		end getURL
+		
 		
 		on getAddressBarValue()
 			if hasToolBar() is false then return missing value
@@ -296,10 +310,9 @@ on new(windowId, pTabIndex)
 			missing value
 		end getAddressBarValue
 		
+		
 		on goto(targetUrl)
 			script PageWaiter
-				
-				-- tell application "Google Chrome" to set URL of document (name of my appWindow) to targetUrl
 				tell application "Google Chrome" to set URL of my getDocument() to targetUrl
 				true
 			end script
@@ -355,7 +368,8 @@ on new(windowId, pTabIndex)
 	
 	tell application "Google Chrome"
 		set appWindow of GoogleChromeTabInstance to window id windowId
-		set _url of GoogleChromeTabInstance to URL of active tab of window id windowId
+		-- 		set _url of GoogleChromeTabInstance to URL of active tab of window id windowId
+		set _url of GoogleChromeTabInstance to URL of item pTabIndex of tabs of window id windowId
 		set _tab of GoogleChromeTabInstance to item pTabIndex of tabs of appWindow of GoogleChromeTabInstance
 	end tell
 	
