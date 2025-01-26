@@ -3,6 +3,8 @@
 	Author(s): Philip Regan
 	License: Copyright 2012 Philip Regan, https://github.com/oatmealandcoffee/ASDictionary
 
+	TODO: Determine if keys are ordered by default
+
 	NOT SUPPORTED:
 		- Map of Maps!
 		- Saving to plist.
@@ -43,6 +45,7 @@ on spotCheck()
 
 	set config to configLib's new("system")
 	set cases to listUtil's splitByLine("
+		NOOP
 		From PList - Skip this
 		From String
 		From JSON String
@@ -65,17 +68,17 @@ on spotCheck()
 		return
 	end if
 
-	if caseIndex is 1 then
+	if caseIndex is 2 then
 		-- TOFIX:
 		-- set plistMap to config's getValue("test map")
 		-- set sut to fromRecord(plistMap)
-		set sut to fromRecord({adhoc: 1})
+		set sut to fromRecord({adhoc:1})
 		repeat with nextKey in sut's getKeys()
 			log nextKey & " - " & sut's getValue(nextKey)
 		end repeat
 		log sut's toString()
 
-	else if caseIndex is 2 then
+	else if caseIndex is 3 then
 		set sut to newFromString("
 		ts: TypeScript
 		md: Markdown

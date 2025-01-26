@@ -77,6 +77,18 @@ on new()
 			missing value
 		end getFrontWindow
 
+
+		on getFrontWindowTitle()
+			tell application "System Events"
+				try
+					return title of my getFrontWindow()
+				end try
+			end tell
+
+			missing value
+		end getFrontWindowTitle
+
+
 		on getFrontAppName()
 			set frontAppName to missing value
 			tell application "System Events"
