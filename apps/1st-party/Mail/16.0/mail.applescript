@@ -167,6 +167,7 @@ on new()
 			set settingsWindow to getSettingsWindow()
 
 			tell application "System Events" to tell process "Mail"
+				set frontmost to true
 				set currentSettingsWindowTitle to the title of settingsWindow
 				logger's debugf("currentSettingsWindowTitle: {}", currentSettingsWindowTitle)
 
@@ -197,10 +198,13 @@ on new()
 			General Settings
 		*)
 		on triggerNewMessageNotificationsPopup()
-			if not isSettingsWindowPresent() then return
+			set settingsWindow to getSettingsWindow()
+			if settingsWindow is missing value then return
+
 			tell application "System Events" to tell process "Mail"
 				try
-					click pop up button "New message notifications:" of group 1 of front window
+					-- click pop up button "New message notifications:" of group 1 of settingsWindow
+					click pop up button 5 of group 1 of settingsWindow
 					delay 0.1
 				end try
 			end tell
@@ -213,7 +217,8 @@ on new()
 			if settingsWindow is missing value then return
 
 			tell application "System Events" to tell process "Mail"
-				set newMassegNotificationPopup to pop up button "New message notifications:" of group 1 of settingsWindow
+				-- set newMassegNotificationPopup to pop up button "New message notifications:" of group 1 of settingsWindow
+				set newMassegNotificationPopup to pop up button 5 of group 1 of settingsWindow
 				try
 					click (last menu item of menu 1 of newMassegNotificationPopup whose title is optionTitle)
 					delay 0.1
