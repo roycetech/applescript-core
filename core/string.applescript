@@ -13,7 +13,7 @@
 	@Build:
 		./scripts/build-lib.sh core/string
 
-	@Last Modified: 2024-12-22 15:08:58
+	@Last Modified: 2025-01-30 12:06:10
 *)
 use scripting additions
 
@@ -120,6 +120,14 @@ on stringBetween(sourceText, substringStart, substringEnd)
 
 	text ((offset of substringStart in sourceText) + (count of substringStart)) thru ((offset of substringEnd in sourceText) - 1) of sourceText
 end stringBetween
+
+
+on shortestStringBetween(sourceText, substringStart, substringEnd)
+	if sourceText does not contain substringStart then return missing value
+	if sourceText does not contain substringEnd then return missing value
+
+	text (lastIndexOf(sourceText, substringStart) + (count of substringStart)) thru ((offset of substringEnd in sourceText) - 1) of sourceText
+end stringBetweencommand
 
 
 on replaceFirst(sourceText, substring, replacement)
