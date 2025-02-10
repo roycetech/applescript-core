@@ -13,7 +13,8 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh core/process
+		make build-lib SOURCE=core/process
+
 
 	@Limitations:
 		Doesn't support Electron apps which can be referenced via its bundle identifier com.github.Electron.
@@ -65,6 +66,7 @@ on spotCheck()
 		Manual: com.github.Electron
 		Manual: Wait App Activate
 		Manual: Wait Window
+		Manual: Fullscreen a window
 	")
 
 	set spotClass to spotScript's new()
@@ -176,6 +178,10 @@ on spotCheck()
 
 		logger's infof("Window present: {}", systemSettingsApp's waitWindow(sutWindowName))
 
+	else if caseIndex is 20 then
+		set scriptEditorApp to new("Script Editor")
+		scriptEditorApp's fullscreen()
+
 	end if
 
 
@@ -211,7 +217,6 @@ on new(pProcessName)
 	script ProcessInstance
 		property processName : localProcessName
 		property bundleId : localBundleId
-
 
 		on waitActivate()
 			script WaitAppWindow
@@ -366,10 +371,24 @@ on new(pProcessName)
 
 			tell application "System Events" to tell process processName
 				try
-					click (first button of front window whose description contains "minimize")
+					click (first button of front window whose description is "minimize button") -- There is no maximize equivalent, only "fullscreen"
 				end try
 			end tell
 		end minimize
+
+
+		on fullscreen()
+			if running of application processName is false then return
+
+			tell application "System Events" to tell process processName
+				try
+					click (first button of front window whose description is "full screen button")
+				on error the errorMessage number the errorNumber
+					log errorMessage
+
+				end try
+			end tell
+		end fullscreen
 
 
 		on unminimize()
