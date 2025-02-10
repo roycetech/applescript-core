@@ -11,7 +11,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
 
-	@Last Modified: 2025-01-17 07:57:03
+	@Last Modified: 2025-01-31 11:39:38
 *)
 
 use script "core/Text Utilities"
@@ -26,6 +26,7 @@ use finderTabLib : script "core/finder-tab"
 use decFinderFolders : script "core/dec-finder-folders"
 use decFinderFiles : script "core/dec-finder-files"
 use decFinderPaths : script "core/dec-finder-paths"
+use decFinderSelection : script "core/dec-finder-selection"
 
 use decoratorLib : script "core/decorator"
 
@@ -251,6 +252,7 @@ on new()
 	decFinderFolders's decorate(result)
 	decFinderFiles's decorate(result)
 	decFinderPaths's decorate(result)
+	decFinderSelection's decorate(result)
 
 	set decorator to decoratorLib's new(result)
 	decorator's decorateByName("FinderInstance")
