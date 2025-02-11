@@ -73,6 +73,8 @@ build-opera:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Opera/110.0/opera-tab
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Opera/110.0/opera
 
+build-iterm:
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/iTerm2/3.5.x/iterm2
 
 build-intellij:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/IntelliJ IDEA/v2023.2.1/intellij-idea
