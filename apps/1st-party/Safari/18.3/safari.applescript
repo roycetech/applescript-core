@@ -1,9 +1,6 @@
 (*
 	This script library is a wrapper to Safari application.
 
-	@Version:
-		18.2
-
 	@Prerequisites
 		This library is designed initially to handle when new windows are opened
 		with Start Page. To support other configurations.
@@ -12,7 +9,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Safari/18.2/safari
+		./scripts/build-lib.sh apps/1st-party/Safari/18.3/safari
 
 	This library creates 2 instances:
 		SafariInstance - this library
@@ -33,8 +30,8 @@
 		13")
 		end tell
 
-	@Created: Fri, Jul 12, 2024 at 3:01:31 PM
-	@Last Modified: 2025-02-10 07:35:25
+	@Created: Mon, Feb 10, 2025 at 7:30:44 AM
+	@Last Modified: 2025-02-10 13:27:56
 *)
 
 use scripting additions
@@ -48,7 +45,6 @@ use unic : script "core/unicodes"
 use loggerFactory : script "core/logger-factory"
 
 use safariTabLib : script "core/safari-tab"
-use processLib : script "core/process"
 use retryLib : script "core/retry"
 
 use winUtilLib : script "core/window"
@@ -56,8 +52,6 @@ use winUtilLib : script "core/window"
 property logger : missing value
 property winUtil : missing value
 property retry : missing value
-
-property KEYWORD_LOCATION_PROMPT : "use your current location"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -84,7 +78,7 @@ on spotCheck()
 		Get Tab by Window ID - Manual
 		Manual: Address Bar is Focused
 		Manual: Select OTP
-		Manual: Allow Use Location (bundy website)
+
 	")
 
 	set spotClass to spotScript's new()
@@ -98,6 +92,7 @@ on spotCheck()
 	set sut to new()
 	logger's infof("Selection: {}", sut's getSelectedText())
 	logger's infof("Is Location Prompt Present: {}", sut's isLocationPromptPresent())
+	logger's infof("Is Camera Prompt Present: {}", sut's isCameraPromptPresent())
 
 	if caseIndex is 2 then
 		(*
@@ -228,9 +223,6 @@ on spotCheck()
 		set adhocCredKey to "core.keychain"
 		sut's selectKeychainItem(adhocCredKey)
 
-	else if caseIndex is 15 then
-		sut's allowLocationAccess()
-
 	end if
 
 	spot's finish()
@@ -251,6 +243,7 @@ on new()
 	set decSafariInspector to script "core/dec-safari-inspector"
 	set decSafariPreferences to script "core/dec-safari-preferences"
 	set decSafariProfile to script "core/dec-safari-profile"
+	set decSafariPrivaceAndSecurity to script "core/dec-safari-privacy-and-security"
 
 	try
 		set decSafariTabGroup to script "core/dec-safari-tab-group"
@@ -259,41 +252,6 @@ on new()
 	end try
 
 	script SafariInstance
-		on allowLocationAccess()
-			if running of application "Safari" is false then return
-			if not isLocationPromptPresent() then return
-
-			set safariProcess to processLib's new("Safari")
-			safariProcess's focusWindow()
-
-			script AllowRetrier
-				tell application "System Events" to tell process "Safari"
-					try
-						click button "Allow" of sheet 1 of front window -- Needs the dialog to be front most at this point.
-					end try
-				end tell
-				if not isLocationPromptPresent() then return true
-
-			end script
-			set retryResult to exec of retry on result for 3
-
-			if retryResult is missing value then
-				logger's warn("Allow location failed after retries")
-			end if
-		end allowLocationAccess
-
-		on isLocationPromptPresent()
-			if running of application "Safari" is false then return false
-
-			tell application "System Events" to tell process "Safari"
-				try
-					return value of static text 1 of sheet 1 of front window contains my KEYWORD_LOCATION_PROMPT
-				end try
-			end tell
-
-			false
-		end isLocationPromptPresent
-
 		(*
 			TOFIX: False positive detected when a dialog was detected.  The
 			Developer settings window is not a dialog btw.
@@ -532,6 +490,7 @@ on new()
 	decSafariKeychain's decorate(result)
 	decSafariPreferences's decorate(result)
 	decSafariProfile's decorate(result)
+	decSafariPrivaceAndSecurity's decorate(result)
 	set baseInstance to decSafariInspector's decorate(result)
 
 	(* Optionally add tab group handlers if the decorator is available. *)

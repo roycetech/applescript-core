@@ -87,7 +87,8 @@ build-safari: build-dock
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-inspector
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-preferences
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.0/dec-safari-profile
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.0/safari
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-privacy-and-security
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/safari
 
 install-safari: build-safari
 	osascript ./scripts/allow-apple-events-in-safari.applescript
