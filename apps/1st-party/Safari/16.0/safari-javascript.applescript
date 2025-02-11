@@ -214,7 +214,7 @@ on decorate(safariTab)
 		end click
 
 		on clickByIndex(selector, idx)
-			if idx is less than 0 then  -- -1 for the last element.
+			if idx is less than 0 then -- -1 for the last element.
 				runScriptPlain(format {"
 					var elements = document.querySelectorAll('{}');
 					var elCount = elements.length;
@@ -458,7 +458,7 @@ on decorate(safariTab)
 						}
 					") in _tab of safariTab
 				end tell
-			end try  -- Ignore when _tab is de-referenced.
+			end try -- Ignore when _tab is de-referenced.
 		end runScript
 
 		(*
@@ -478,8 +478,15 @@ on decorate(safariTab)
 			if scriptText does not end with ";" then set scriptText to scriptText & ";"
 			try
 				tell application "Safari" to return do JavaScript ("try {" & scriptText & "} catch(e) { e.message; }") in _tab of safariTab
-			end try  -- WHen _tab is de-referenced.
+			end try -- WHen _tab is de-referenced.
 		end runScriptPlain
+
+
+		on runScriptDirect(scriptText)
+			tell application "Safari"
+				do JavaScript scriptText in _tab of safariTab
+			end tell
+		end runScriptDirect
 
 
 		on submitFirstForm()
