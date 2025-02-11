@@ -137,8 +137,9 @@ build-step-two:
 
 
 build-stream-deck:
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Stream Deck/6.5/stream-deck
+	# 6.x is the OLDEST version.
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Stream Deck/6.x/dec-spot-stream-deck
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Stream Deck/6.6/stream-deck
 
 install-stream-deck: build-stream-deck
 	plutil \
