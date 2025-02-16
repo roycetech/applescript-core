@@ -486,7 +486,7 @@ on decorate(mainScript)
 			_findWindowTab(TopLevel's newTabByUrlFinder(tabUrl), DESC)
 		end findLastTabByUrl
 		
-		on findTabByUrlPrefix(titlePrefix)
+		on findTabByUrlPrefix(urlPrefix)
 			_findWindowTab(TopLevel's newTabByUrlPrefixFinder(urlPrefix), DEFAULT)
 		end findFirstTabByUrlPrefix
 
