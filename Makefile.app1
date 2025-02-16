@@ -80,7 +80,7 @@ build-safari: build-dock
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.0/safari-tab
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-compact
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-ui-compact
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-group
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain

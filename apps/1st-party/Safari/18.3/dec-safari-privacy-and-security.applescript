@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-privacy-and-security
 
 	@Created: Monday, February 10, 2025 at 12:52:14 PM
-	@Last Modified: 2025-02-10 13:23:24
+	@Last Modified: 2025-02-11 14:51:08
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -25,6 +25,7 @@ property TopLevel : me
 
 property KEYWORD_LOCATION_PROMPT : "use your current location"
 property KEYWORD_CAMERA_PROMPT : "to use your camera"
+property KEYWORD_PASSWORD_PROMPT : "Save Password"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -43,6 +44,8 @@ on spotCheck()
 		Manual: Allow Use Camera (bundy website)
 		Manual: Deny Use Camera (bundy website)
 		Manual: Never Use Camera (bundy website)
+
+		Manual: Not Now Password (work_a2)
 	")
 
 	set spotClass to spotScript's new()
@@ -60,6 +63,7 @@ on spotCheck()
 
 	logger's infof("Is Location Prompt Present: {}", sut's isLocationPromptPresent())
 	logger's infof("Is Camera Prompt Present: {}", sut's isCameraPromptPresent())
+	logger's infof("Save Password Prompt Present: {}", sut's isSavePasswordPromptPresent())
 	if caseIndex is 1 then
 
 	else if caseIndex is 2 then
@@ -80,7 +84,8 @@ on spotCheck()
 	else if caseIndex is 7 then
 		sut's neverAllowCameraAccess()
 
-	else if caseIndex is 3 then
+	else if caseIndex is 8 then
+		sut's declineSavePassword()
 
 	else
 
@@ -128,6 +133,21 @@ on decorate(mainScript)
 		on neverAllowCameraAccess()
 			_respondToAccessRequest(TopLevel's newCameraPromptPresenceLambda(), TopLevel's newNeverButton())
 		end neverAllowCameraAccess
+
+
+		on isSavePasswordPromptPresent()
+			run TopLevel's newSavePasswordPromptPresenceLambda()
+		end isSavePasswordPromptPresent
+
+
+		on confirmSavePassword()
+			_respondToAccessRequest(TopLevel's newSavePasswordPromptPresenceLambda(), TopLevel's newSavePasswordButton())
+		end confirmSavePassword
+
+
+		on declineSavePassword()
+			_respondToAccessRequest(TopLevel's newSavePasswordPromptPresenceLambda(), TopLevel's newNotNowButton())
+		end declineSavePassword
 
 
 		on _respondToAccessRequest(PresenceLambda, UiLambda)
@@ -209,6 +229,36 @@ on newNeverButton()
 end newNeverButton
 
 
+on newSavePasswordButton()
+	script SavePasswordButtonFactory
+		property name : "Save Password"
+		on run {} -- NOTE: This needs to be called explicitly.
+			tell application "System Events" to tell process "Safari"
+				try
+					return button (my name) of sheet 1 of front window
+				end try
+			end tell
+			missing value
+		end run
+	end script
+end newSavePasswordButton
+
+
+on newNotNowButton()
+	script NotNowButtonFactory
+		property name : "Not Now"
+		on run {} -- NOTE: This needs to be called explicitly.
+			tell application "System Events" to tell process "Safari"
+				try
+					return button (my name) of sheet 1 of front window
+				end try
+			end tell
+			missing value
+		end run
+	end script
+end newNotNowButton
+
+
 on newLocationPromptPresenceLambda()
 	script LocationPromptPresenceLambda
 		on run {}
@@ -242,6 +292,22 @@ on newCameraPromptPresenceLambda()
 	end script
 end newCameraPromptPresenceLambda
 
+
+on newSavePasswordPromptPresenceLambda()
+	script CameraPromptPresenceLambda
+		on run {}
+			if running of application "Safari" is false then return false
+
+			tell application "System Events" to tell process "Safari"
+				try
+					return value of static text 1 of sheet 1 of front window contains my KEYWORD_PASSWORD_PROMPT
+				end try
+			end tell
+
+			false
+		end run
+	end script
+end newSavePasswordPromptPresenceLambda
 
 
 
