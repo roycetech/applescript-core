@@ -56,6 +56,8 @@ property backUpSwitch : missing value
 
 property SUBPATH_STAY_OPEN : "Stay Open"
 
+property SESSION_KEY_LAST_DEPLOYED_SCRIPT : "Last Deployed Menu Script"
+
 tell application "System Events" to set scriptName to get name of (path to me)
 if {"Script Editor", "Script Debugger"} contains the name of current application then set isSpot to true
 
@@ -106,7 +108,8 @@ on main()
 	logger's infof("Current File Open: {}", scriptEditorTab's getScriptName())
 	
 	set baseScriptName to scriptEditorTab's getBaseScriptName()
-	session's setValue("Last deployed script", baseScriptName)
+	-- session's setValue("Last deployed script", baseScriptName)
+	session's setValue(SESSION_KEY_LAST_DEPLOYED_SCRIPT, baseScriptName)
 	try
 		logger's debugf("baseScriptName: {}", baseScriptName)
 		do shell script "osascript -e 'tell application \"" & baseScriptName & "\" to quit'"
