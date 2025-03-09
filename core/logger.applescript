@@ -151,7 +151,7 @@ on newBase(pObjectName)
 
 
 		on fatalf(thisMessage, tokens)
-			warn(textUtil's format(thisMessage, tokens))
+			fatal(textUtil's format(thisMessage, tokens))
 		end fatal
 
 		on _secsToHMS(secs)
