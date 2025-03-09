@@ -7,9 +7,11 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.0/dec-safari-profile
 
 	@Created: Sunday, October 6, 2024 at 7:27:33 PM
-	@Last Modified: 2024-12-31 19:30:45
+	@Last Modified: 2025-02-20 06:42:51
 	@Change Logs:
 *)
+use textUtil : script "core/string"
+
 use loggerFactory : script "core/logger-factory"
 
 use safariTabLib : script "core/safari-tab"
@@ -46,6 +48,12 @@ on spotCheck()
 	logger's infof("Has profile Personal: {}", sut's hasWindowWithProfile("Personal"))
 	logger's infof("Has profile Business: {}", sut's hasWindowWithProfile("Business"))
 
+	set safariTab to sut's getFrontTab()
+	if safariTab is not missing value then
+		set sutTab to decorateTab(safariTab)
+		logger's infof("Front tab profile: {}", sutTab's getProfile())
+	end if
+
 	if caseIndex is 1 then
 
 	else if caseIndex is 2 then
@@ -61,11 +69,30 @@ on spotCheck()
 end spotCheck
 
 
+
+on decorateTab(safariTabScript)
+	loggerFactory's inject(me)
+
+	script SafariTabProfileDecorator
+		property parent : safariTabScript
+
+		on getProfile()
+			if running of application "Safari" is false then return missing value
+
+			tell application "System Events" to tell process "Safari"
+				menu button 1 of group 1 of toolbar 1 of front window
+				textUtil's stringBetween(value of attribute "AXIdentifier" of result, "Profile=", "&")
+			end tell
+		end getProfile
+	end script
+end decorateTab
+
+
 (*  *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
 
-	script SafariDecorator
+	script SafariProfileDecorator
 		property parent : mainScript
 
 
