@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-ui-compact
 
 	@Created: Wed, Feb 12, 2025 at 11:23:10 AM
-	@Last Modified: 2025-02-12 11:25:29
+	@Last Modified: 2025-02-27 13:04:30
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -48,6 +48,7 @@ on spotCheck()
 	set sut to decorate(sut)
 
 	logger's infof("Is Playing: {}", sut's isPlaying())
+	logger's infof("Is page loading: {}", sut's isLoading())
 	logger's infof("HTML Content Found?: {}", sut's getHtmlUi() is not missing value)
 
 	if caseIndex is 1 then

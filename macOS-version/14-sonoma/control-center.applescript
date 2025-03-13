@@ -34,7 +34,6 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set spotScript to script "core/spot-test"
 set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP
@@ -55,6 +54,7 @@ set listUtil to script "core/list"
 
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

@@ -14,6 +14,9 @@
 	@Build:
 		make build-lib SOURCE=libs/user/user
 
+	@Change Logs:
+		Sun, Mar 09, 2025 at 09:00:59 AM - Added #getBrowserAppNames
+
 	@Troubleshooting:
 		Zoom is not yet tested at this time. June 25, 2023 5:22 PM. Test that library set before adding it to the config-lib-factory.
 
@@ -27,6 +30,7 @@ use std : script "core/std"
 use loggerFactory : script "core/logger-factory"
 use ccLib : script "core/control-center"
 use lovLib : script "core/lov"
+use textUtil : script "core/string"
 
 use decoratorLib : script "core/decorator"
 
@@ -50,6 +54,7 @@ on spotCheck()
 		Manual: Get Meeting window
 		Manual: Cue for Touch ID
 		Manual: Done Audible Cue
+		Manual: Sound: Funk - Successful build
 	")
 
 	set spotClass to spotScript's new()
@@ -71,8 +76,13 @@ on spotCheck()
 	logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
 	logger's infof("Is Online?: {}", sut's isOnline())
 	logger's infof("Major OS Version?: {}", sut's getOsMajorVersion())
-	logger's infof("Sound output device: {}", sut's getAudioOutputDevice()) -- Decorated from dec-user-sound-device.
+	-- 	logger's infof("Integration: Sound output device: {}", sut's getAudioOutputDevice()) -- Decorated from another project, dec-user-sound-device.
 	logger's infof("Deployment Type: {}", sut's getDeploymentType())
+
+	set browserAppNames to sut's getBrowserAppNames()
+	repeat with nextBrowserAppName in browserAppNames
+		logger's infof("Next browser: {}", nextBrowserAppName)
+	end repeat
 
 	if caseIndex is 1 then
 		logger's logObj("Meeting Window", sut's getMeetingWindow())
@@ -84,6 +94,7 @@ on spotCheck()
 		sut's done()
 
 	else if caseIndex is 4 then
+		sut's afplay("funk.aiff")
 
 	end if
 
@@ -98,6 +109,16 @@ on new()
 	set lov to lovLib's new(LOV_KEY)
 
 	script UserInstance
+		(*
+			Note: New browser app name must be manually added here in the future.
+		*)
+		on getBrowserAppNames()
+			set browserList to do shell script "ls /Applications | grep -E '^(Google Chrome|Firefox|Safari|Microsoft Edge|Brave|Opera|Vivaldi)'"
+			textUtil's replace(browserList, ".app", "")
+			paragraphs of result
+		end getBrowserAppNames
+
+
 		on getWifiSID()
 			if getOsMajorVersion() is greater than or equal to 15 then
 				do shell script "ipconfig getsummary $(networksetup -listallhardwareports | awk '/Hardware Port: Wi-Fi/{getline; print $2}') | awk -F ' SSID : ' '/ SSID : / {print $2}'"
@@ -159,6 +180,10 @@ on new()
 		end cueDone
 
 
+		(*
+			Use funk.aiff for soft success like successful build.
+			Use bottle.aiff for soft failure like build fail, unable to open file
+		*)
 		on afplay(filename)
 			try
 				do shell script "afplay " & PATH_SOUNDS & "/" & filename
