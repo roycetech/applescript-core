@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-privacy-and-security
 
 	@Created: Monday, February 10, 2025 at 12:52:14 PM
-	@Last Modified: 2025-02-11 14:51:08
+	@Last Modified: 2025-02-19 06:16:20
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -40,6 +40,7 @@ on spotCheck()
 		Manual: Allow Use Location (bundy website)
 		Manual: Deny Use Location (bundy website)
 		Manual: Never Use Location (bundy website)
+		Manual: Toggle Remember My Location Decision (bundy website)
 
 		Manual: Allow Use Camera (bundy website)
 		Manual: Deny Use Camera (bundy website)
@@ -62,6 +63,7 @@ on spotCheck()
 	set sut to decorate(sut)
 
 	logger's infof("Is Location Prompt Present: {}", sut's isLocationPromptPresent())
+
 	logger's infof("Is Camera Prompt Present: {}", sut's isCameraPromptPresent())
 	logger's infof("Save Password Prompt Present: {}", sut's isSavePasswordPromptPresent())
 	if caseIndex is 1 then
@@ -76,15 +78,18 @@ on spotCheck()
 		sut's neverAllowLocationAccess()
 
 	else if caseIndex is 5 then
-		sut's allowCameraAccess()
+		sut's rememberMyLocationDecisionForOneDay()
 
 	else if caseIndex is 6 then
-		sut's denyCameraAccess()
+		sut's allowCameraAccess()
 
 	else if caseIndex is 7 then
-		sut's neverAllowCameraAccess()
+		sut's denyCameraAccess()
 
 	else if caseIndex is 8 then
+		sut's neverAllowCameraAccess()
+
+	else if caseIndex is 9 then
 		sut's declineSavePassword()
 
 	else
@@ -115,6 +120,15 @@ on decorate(mainScript)
 		on denyLocationAccess()
 			_respondToAccessRequest(TopLevel's newLocationPromptPresenceLambda(), TopLevel's newDenyButton())
 		end denyLocationAccess
+
+		on rememberMyLocationDecisionForOneDay()
+			tell application "System Events" to tell process "Safari"
+				if the value of checkbox 1 of sheet 1 of front window is not 1 then
+				click checkbox 1 of sheet 1 of front window
+				end if
+			end tell
+		end rememberMyLocationDecisionForOneDay
+
 
 		on isCameraPromptPresent()
 			run TopLevel's newCameraPromptPresenceLambda()
