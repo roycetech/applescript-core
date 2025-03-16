@@ -5,7 +5,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh 'apps/3rd-party/Google Chrome/130.0/dec-google-chrome-inspector'
+		./scripts/build-lib.sh 'apps/3rd-party/Google Chrome/133.0/dec-google-chrome-inspector'
 
 	@Created: Saturday, October 26, 2024 at 8:59:40 PM
 	@Last Modified: Saturday, October 26, 2024 at 8:59:40 PM
@@ -61,6 +61,7 @@ on spotCheck()
 	logger's infof("DevTools is floating: {}", sut's isDevToolsFloating())
 	logger's infof("DevTools menu is visible (triggered): {}", sut's isDevToolsMenuVisible())
 	logger's infof("Device Toolbar active?: {}", sut's isDeviceToolbarActive())
+	logger's infof("Inspector Tab Name: {}", sut's getInspectorTabName())
 	
 	if caseIndex is 1 then
 		
@@ -140,7 +141,10 @@ on decorate(mainScript)
 			if isDevToolsActive() is false then return
 			
 			set htmlElement to my getDevToolsUiHtml()
-			if htmlElement is missing value then return
+			if htmlElement is missing value then
+				logger's debug("HTML Element was not found")
+				return
+			end if
 			
 			tell application "System Events" to tell process "Google Chrome"
 				-- Broke on the same minor version number.
@@ -311,6 +315,14 @@ on decorate(mainScript)
 		on toggleDeviceToolbar()
 			triggerDeviceToolbarItem()
 		end toggleDeviceToolbar
+		
+		
+		on getInspectorTabName()
+			if running of application "Google Chrome" is false then return missing value
+			if not isDevToolsActive() then return missing value
+			
+			"TODO"
+		end getInspectorTabName
 		
 		
 		on focusInspectorPrompt()

@@ -5,7 +5,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh 'apps/3rd-party/Google Chrome/130.0/dec-google-chrome-inspector'
+		./scripts/build-lib.sh 'apps/3rd-party/Google Chrome/134.0/dec-google-chrome-inspector'
 
 	@Created: Saturday, October 26, 2024 at 8:59:40 PM
 	@Last Modified: Saturday, October 26, 2024 at 8:59:40 PM
@@ -16,10 +16,13 @@ use loggerFactory : script "core/logger-factory"
 
 use uiutilLib : script "core/ui-util"
 use kbLib : script "core/keyboard"
+use processLib : script "core/process"
+use retryLib : script "core/retry"
 
 property logger : missing value
 property uiUtil : missing value
 property kb : missing value
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -28,7 +31,6 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: Activate DevTools
@@ -43,6 +45,7 @@ on spotCheck()
 		Manual: Focus Inspector Prompt
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -61,6 +64,7 @@ on spotCheck()
 	logger's infof("DevTools is floating: {}", sut's isDevToolsFloating())
 	logger's infof("DevTools menu is visible (triggered): {}", sut's isDevToolsMenuVisible())
 	logger's infof("Device Toolbar active?: {}", sut's isDeviceToolbarActive())
+	logger's infof("Inspector Tab Name: {}", sut's getInspectorTabName())
 	
 	if caseIndex is 1 then
 		
@@ -113,10 +117,11 @@ on decorate(mainScript)
 	
 	set uiUtil to uiutilLib's new()
 	set kb to kbLib's new()
+	set retry to retryLib's new()
 	
 	script GoogleChromeInspectorDecorator
 		property parent : mainScript
-		
+		property waitSecondsAfterRunViaJavaScriptViaInspector : 0.1
 		
 		on isDevToolsActive()
 			getDevToolsUiHtml() is not missing value
@@ -133,20 +138,55 @@ on decorate(mainScript)
 					click menu item "Developer Tools" of menu 1 of menu item "Developer" of menu 1 of menu bar item "View" of menu bar 1
 				end try
 			end tell
+			delay 0.1
+			script ActiveWaiter
+				if isDevToolsActive() then return true
+			end script
+			exec of retry on result for 3
 		end activateDevTools
 		
+		
+		(*
+			This is hard to implement using UI Elements because Google Chrome updates too fast.
+		*)
 		on deactivateDevTools()
 			if running of application "Google Chrome" is false then return
 			if isDevToolsActive() is false then return
 			
+			
+			(*
 			set htmlElement to my getDevToolsUiHtml()
-			if htmlElement is missing value then return
+			if htmlElement is missing value then
+				logger's debug("HTML Element was not found")
+				return
+			end if
 			
 			tell application "System Events" to tell process "Google Chrome"
+				set frontmost to true
+				delay 0.2
 				-- Broke on the same minor version number.
 				-- click button 1 of last group of last group of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of htmlElement
-				click button 1 of last group of last group of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 2 of group 1 of group 1 of group 1 of group 1 of htmlElement
+				-- click button 1 of last group of last group 
+				-- click 
+				
+				-- perform action "AXPress" of 
+				-- click 
+				button 1 of last group of toolbar 2 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 2 of group 1 of group 1 of group 1 of group 1 of htmlElement -- Fails to work.
+				
+				set cliclick to cliclickLib's new()
+				lclick of cliclick at result with smoothing
 			end tell
+*)
+			
+			set googleChromeProcess to processLib's new("Google Chrome")
+			googleChromeProcess's focusWindow()
+			kb's pressKey("F12")
+			
+			script DeactivateWaiter
+				delay 0.1
+				if not isDevToolsActive() then return true
+			end script
+			exec of retry on result for 3
 		end deactivateDevTools
 		
 		
@@ -313,6 +353,14 @@ on decorate(mainScript)
 		end toggleDeviceToolbar
 		
 		
+		on getInspectorTabName()
+			if running of application "Google Chrome" is false then return missing value
+			if not isDevToolsActive() then return missing value
+			
+			"TODO"
+		end getInspectorTabName
+		
+		
 		on focusInspectorPrompt()
 			if running of application "Google Chrome" is false then return
 			if not isDevToolsActive() then return
@@ -333,8 +381,10 @@ on decorate(mainScript)
 			end if
 			focusInspectorPrompt()
 			
-			kb's typeText(javaScriptCode)
+-- 			kb's typeText(javaScriptCode)
+			kb's insertTextByPasting(javaScriptCode)
 			kb's pressKey(return)
+			delay waitSecondsAfterRunViaJavaScriptViaInspector
 		end runJavaScriptViaInspector
 		
 	end script
