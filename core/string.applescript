@@ -13,7 +13,7 @@
 	@Build:
 		./scripts/build-lib.sh core/string
 
-	@Last Modified: 2025-01-30 12:06:10
+	@Last Modified: 2025-02-26 07:35:00
 *)
 use scripting additions
 
@@ -28,11 +28,12 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
-set spotScript to script "core/spot-test"
+	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Wing It!
 		Encode Multi Line Command
+		Manual: Improve format to be allow more tokens than placeholders
 	")
 
 	set spotClass to spotScript's new()
@@ -63,6 +64,9 @@ set spotScript to script "core/spot-test"
 			-p 4306:3306 \\
 			mysql:5
 		")
+
+	else if caseIndex is 3 then
+		log format("Body: {}, {}", 1)
 
 	else
 		-- log encodeUrl("hello kansas")
@@ -127,7 +131,7 @@ on shortestStringBetween(sourceText, substringStart, substringEnd)
 	if sourceText does not contain substringEnd then return missing value
 
 	text (lastIndexOf(sourceText, substringStart) + (count of substringStart)) thru ((offset of substringEnd in sourceText) - 1) of sourceText
-end stringBetweencommand
+end shortestStringBetween
 
 
 on replaceFirst(sourceText, substring, replacement)
@@ -265,9 +269,10 @@ end formatClassic
 
 
 (*
-	Passing in "!" as part of the parameters will use the slow implementation
-	@sourceText the string with place holders for interpolation.
-	@theTokens list of the token replacements
+	NOTE: Passing in "!" as part of the parameters will use the slow implementation
+
+	@sourceText - the string with placeholders for interpolation.
+	@theTokens - list of the token replacements
 *)
 on format(sourceText, theTokens)
 	if sourceText is missing value then return missing value
@@ -280,8 +285,15 @@ on format(sourceText, theTokens)
 	set theArray to every text item of sourceText
 	set AppleScript's text item delimiters to theTokens
 	set theListAsText to first item of theArray
+
 	repeat with i from 2 to number of items in theArray
-		set nextToken to item (i - 1) of theTokens
+		set placeholderIndex to i - 1
+		set isNoMoreToken to placeholderIndex is greater than the number of items in theTokens
+		if isNoMoreToken then
+			set nextToken to the last item of the theTokens
+		else
+			set nextToken to item (i - 1) of theTokens
+		end if
 		set theListAsText to theListAsText & nextToken & item i of theArray
 	end repeat
 
