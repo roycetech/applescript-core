@@ -1,5 +1,5 @@
 (*
-	@Last Modified: 2024-08-14 10:59:36
+	@Last Modified: 2025-03-16 09:43:24
 
 	@Project:
 		applescript-core
@@ -8,14 +8,14 @@
 		make build-lib SOURCE=core/dialog
 *)
 use scripting additions
+
 use script "core/Text Utilities"
 use std : script "core/std"
 
 use loggerFactory : script "core/logger-factory"
+
 use listUtil : script "core/list"
 use speechLib : script "core/speech"
-use spotScript : script "core/spot-test"
-use testLib : script "core/simple-test"
 
 property logger : missing value
 
@@ -27,7 +27,6 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
-	set test to testLib's new()
 	set cases to listUtil's splitByLine("
 		Show 2 Choices
 		Manual: Show 2 Choices with Timeout (Timeout/Non-Timeout)
@@ -39,8 +38,10 @@ on spotCheck()
 		Manual: Show 2 Choices with default
 		Manual: Show choices from a list (Options: missing value, empty, happy, mismatch-default)
 		Manual: List with default selections
+		Manual: Prompt Input
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotLib to spotScript's new()
 	set spot to spotLib's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -95,6 +96,10 @@ on spotCheck()
 	else if caseIndex is 9 then
 		logger's infof("Result: {}", sut's showListWithDefault("Choices with default", {"One", "Two", "Three", "Four"}, {"Two", "Three"}) as text)
 
+	else if caseIndex is 10 then
+		set userInput to sut's promptForInput("Input title", "Input description")
+		logger's infof("userInput: {}", userInput)
+
 	end if
 
 	spot's finish()
@@ -108,6 +113,17 @@ on new()
 
 	script DialogInstance
 		property speechOn : false
+
+
+		on promptForInput(title)
+			try
+				set inputDialog to display dialog title default answer ""
+				return text returned of inputDialog
+			end try
+
+			missing value -- When canceled.
+		end promptForInput
+
 
 		on showChoicesFromList(title, message, optionsList, defaultChoice)
 			assertThat of std given condition:optionsList is not missing value, messageOnFail:"optionsList must be a valid list " & optionsList
@@ -172,8 +188,8 @@ on new()
 			end if
 
 			try
-			display dialog message with title theTitle with icon 1 buttons choices default button defaultButton
-			return button returned of result
+				display dialog message with title theTitle with icon 1 buttons choices default button defaultButton
+				return button returned of result
 			end try
 
 			"Cancel"
