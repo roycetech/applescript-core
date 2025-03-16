@@ -41,7 +41,7 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2024-07-23 16:00:50
+	@Last Modified: 2025-02-19 07:01:43
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
@@ -52,13 +52,10 @@ use script "core/Text Utilities"
 use std : script "core/std"
 
 use textUtil : script "core/string"
-use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 use dateLib : script "core/date-time"
 
 use decoratorLib : script "core/decorator"
-
-use spotScript : script "core/spot-test"
 
 -- PROPERTIES =================================================================
 property logger : missing value
@@ -94,11 +91,14 @@ on spotCheck()
 	logger's start()
 
 	(* Plist creation already tested. *)
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
+		NOOP: (Below to shift down)
 		Unit Test
 		Instantiate non-existent plist
 		(Broken, unchecked subsequest cases) Debug Note Menu Links
 		Get String
+
 		Get Boolean
 
 		Get Date - Cannot read date as string
@@ -112,6 +112,7 @@ on spotCheck()
 		Manual: Plist Exists (Basic, SubPath, Non-existing)
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -126,7 +127,11 @@ on spotCheck()
 	if not plutil's plistExists(plistName) then plutil's createNewPList(plistName)
 	set spotPList to plutil's new("spot-plist")
 
+	logger's infof("Plist user path: {}", spotPList's getPlistUserPath())
+
 	if caseIndex is 1 then
+
+	else if caseIndex is 2 then
 		spotPList's setValue("spot-key", current date)
 
 	else if caseIndex is 2 then
@@ -181,7 +186,7 @@ on spotCheck()
 
 	else if caseIndex is 11 then
 		set session to plutil's new("session")
-		log session's appendValue("Pinned Notes", "Safari-$Title-udemy.com-AWS Certified Developer - Associate 2020 | Udemy.md")
+		log session's appendValue("Pinned Notes", "Safari-@Title-udemy.com-AWS Certified Developer - Associate 2020 | Udemy.md")
 
 	else if caseIndex is 12 then
 		spotPList's deletePlist()
@@ -276,7 +281,8 @@ on new()
 			-- 	error "Invalid PList Name: " & pPlistName number ERROR_PLIST_PATH_INVALID
 			-- end if
 
-			set calcPlistFilename to format {"~/applescript-core/{}.plist", {pPlistName}}
+			set localPlistUserPath to format {"applescript-core/{}.plist", {pPlistName}}
+			set localPlistTildePath to format {"~/{}", {localPlistUserPath}}
 
 			set knownPlists to {"config-default", "session", "switches"} -- WET: 2/2
 			set isKnown to knownPlists contains pPlistName
@@ -285,14 +291,19 @@ on new()
 			set localPlistPosixPath to AS_CORE_PATH & pPlistName & ".plist"
 
 			script PlutilPlistInstance
-				property plistFilename : calcPlistFilename
+				property plistTildePath : localPlistTildePath
+				property plistUserPath : localPlistUserPath
 				property plistName : pPlistName
 				property quotedPlistPosixPath : quoted form of localPlistPosixPath
 
 				-- HANDLERS ==================================================================
 
+				on getPlistUserPath()
+					plistUserPath
+				end getPlistUserPath
+
 				on deletePlist()
-					do shell script "rm " & plistFilename
+					do shell script "rm " & plistTildePath
 				end deletePlist
 
 				(*
@@ -337,7 +348,7 @@ on new()
 
 					tell application "System Events"
 						if newValue is equal to missing value and my getValue(plistKeyOrKeyList) is not missing value then
-							tell property list file plistFilename to set value of property list item plistKeyOrKeyList to ""
+							tell property list file plistTildePath to set value of property list item plistKeyOrKeyList to ""
 							return
 						end if
 
@@ -346,7 +357,7 @@ on new()
 							my _newValue(partialEscaped, newValue)
 						else
 							set partialEscaped to my _escapeStartingNumber(plistKeyOrKeyList)
-							tell property list file plistFilename to set value of property list item partialEscaped to newValue
+							tell property list file plistTildePath to set value of property list item partialEscaped to newValue
 						end if
 					end tell
 				end setValue
@@ -503,7 +514,7 @@ on new()
 
 					else if dataType is "dictionary" then
 						(* Use the traditional way via property list. *)
-						tell application "System Events" to tell property list file plistFilename
+						tell application "System Events" to tell property list file plistTildePath
 							set partialEscaped to my _escapeStartingNumber(plistKeyOrKeyList)
 							try
 								return value of property list item partialEscaped
@@ -520,7 +531,7 @@ on new()
 						return _convertType(plistValue, dataType)
 					end if
 
-					tell application "System Events" to tell property list file plistFilename
+					tell application "System Events" to tell property list file plistTildePath
 						try
 							return value of property list item plistKeyOrKeyList
 						on error errorText
@@ -904,7 +915,7 @@ on new()
 				end _convertType
 
 				on _newValue(mapKey, newValue)
-					tell application "System Events" to tell property list file plistFilename
+					tell application "System Events" to tell property list file plistTildePath
 						make new property list item at end with properties {kind:class of newValue, name:mapKey, value:newValue}
 					end tell
 				end _newValue

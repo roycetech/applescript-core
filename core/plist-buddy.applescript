@@ -12,7 +12,7 @@
 
 	TODO: Reduce the spot checks and move to Test plist-buddy.
 
-	@Last Modified: 2024-09-12 18:33:30
+	@Last Modified: 2025-02-19 06:45:31
 *)
 
 use script "core/Text Utilities"
@@ -21,15 +21,12 @@ use scripting additions
 use std : script "core/std"
 
 use textUtil : script "core/string"
-use listUtil : script "core/list"
 
 use regexPatternLib : script "core/regex-pattern"
 
 use loggerFactory : script "core/logger-factory"
 
 use configLib : script "core/config"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property CLI : "/usr/libexec/PlistBuddy"
@@ -46,6 +43,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Add a key-value pair (existing, non-existing, root not/found)
 		Manual: Delete a root key (existing, non-existing)
@@ -57,6 +55,7 @@ on spotCheck()
 		Manual: Get Date
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -66,6 +65,9 @@ on spotCheck()
 	end if
 
 	set sut to new("plist-spot")
+	logger's infof("quotedPlistPosixPath: {}", quotedPlistPosixPath of sut)
+	logger's infof("Plist user path: {}", sut's getPlistUserPath())
+
 	if caseIndex is 1 then
 		logger's infof("Handler result: {}", sut's addDictionaryKeyValue("added", "add subkey", "add subvalue"))
 
@@ -126,14 +128,20 @@ on new(pPlistName)
 		end if
 	end try -- undefined when used with system library.
 
-	set calcPlistFilename to format {"~/applescript-core/{}.plist", {pPlistName}}
+	set localPlistUserPath to format {"applescript-core/{}.plist", {pPlistName}}
 
 	script PlistBuddyInstance
-		property plistFilename : calcPlistFilename
+		property plistUserPath : localPlistUserPath
 		property quotedPlistPosixPath : quoted form of localPlistPosixPath
 
 		(* Unused here but present so it can be queried when debugging. *)
 		property plistName : pPlistName
+
+
+		on getPlistUserPath()
+			my plistUserPath
+		end getPlistUserPath
+
 
 		(* Unit Tested *)
 		on getValue(keyNameOrList)
@@ -291,10 +299,10 @@ on new(pPlistName)
 			end if
 
 			if newValue is missing value then
-				if count of keyNameList is greater than 2 or count of keyNameList is 0 then
+				if (count of keyNameList) is greater than 2 or (count of keyNameList) is 0 then
 					error "Unsupported nesting level" number ERROR_LIST_COUNT_INVALID
 				end if
-				if count of keyNameList is 1 then return deleteRootKey(keyNameOrList)
+				if (count of keyNameList) is 1 then return deleteRootKey(keyNameOrList)
 				return deleteDictionaryKeyValue(item 1 of keyNameList, item 2 of keyNameList)
 			end if
 
@@ -306,8 +314,8 @@ on new(pPlistName)
 			try
 				do shell script command
 				return true
-			-- on error the errorMessage number the errorNumber
-			-- 	log errorMessage
+				-- on error the errorMessage number the errorNumber
+				-- 	log errorMessage
 			end try
 
 			false
