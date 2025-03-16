@@ -2,6 +2,8 @@
 	@Purpose:
 		Windows-related handlers for a process.
 
+		How is this different from the dec-process-windows?
+
 	@Project:
 		applescript-core
 
@@ -9,7 +11,7 @@
 		./scripts/build-lib.sh core/decorators/dec-process-bundle-windows
 
 	@Created: Thursday, September 12, 2024 at 5:27:09 PM
-	@Last Modified: 2024-12-31 19:33:52
+	@Last Modified: 2025-03-12 15:43:44
 	@Change Logs:
 *)
 

@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/decorators/dec-process-windows
 
 	@Created: Friday, September 13, 2024 at 2:05:42 PM
-	@Last Modified: 2024-12-31 19:34:02
+	@Last Modified: 2025-03-13 08:29:02
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -23,13 +23,13 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: Move Window with Title Containing
 		Manual: Move Window with Title Not Containing
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -40,8 +40,14 @@ on spotCheck()
 
 	-- activate application ""
 	set sutLib to script "core/process"
-	set sut to sutLib's new("Safari")
+	-- 	set sut to sutLib's new("Safari")
+	set sut to sutLib's new("Script Editor")
 	set sut to decorate(sut)
+
+	logger's infof("First window height: {}", sut's getFirstSystemEventsWindowHeight())
+	logger's infof("First window width: {}", sut's getFirstSystemEventsWindowWidth())
+	logger's infof("First window horizontal position: {}", sut's getFirstSystemEventsHorizontalWindowPosition())
+	logger's infof("First window vertical position: {}", sut's getFirstSystemEventsVerticalWindowPosition())
 
 	if caseIndex is 1 then
 
@@ -126,6 +132,60 @@ on decorate(mainScript)
 
 			first item of appWindows
 		end getFirstWindow
+
+
+		on getSystemEventsWindows()
+			getWindows()
+		end getSystemEventsWindows
+
+
+		on getFirstSystemEventsWindow()
+			getFirstWindow()
+		end getFirstSystemEventsWindow
+
+
+		on getFirstSystemEventsWindowHeight()
+			set firstWindow to getFirstSystemEventsWindow()
+			if firstWindow is missing value then return 0
+
+			tell application "System Events"
+				size of firstWindow
+				last item of result
+			end tell
+		end getFirstSystemEventsWindowHeight
+
+
+		on getFirstSystemEventsVerticalWindowPosition()
+			set firstWindow to getFirstSystemEventsWindow()
+			if firstWindow is missing value then return 0
+
+			tell application "System Events"
+				position of firstWindow
+				last item of result
+			end tell
+		end getFirstSystemEventsVerticalWindowPosition
+
+
+		on getFirstSystemEventsHorizontalWindowPosition()
+			set firstWindow to getFirstSystemEventsWindow()
+			if firstWindow is missing value then return 0
+
+			tell application "System Events"
+				position of firstWindow
+				first item of result
+			end tell
+		end getFirstSystemEventsHorizontalWindowPosition
+
+
+		on getFirstSystemEventsWindowWidth()
+			set firstWindow to getFirstSystemEventsWindow()
+			if firstWindow is missing value then return 0
+
+			tell application "System Events"
+				size of firstWindow
+				first item of result
+			end tell
+		end getFirstSystemEventsWindowWidth
 
 
 		on getWindows()
