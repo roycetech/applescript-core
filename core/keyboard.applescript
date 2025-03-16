@@ -1,4 +1,8 @@
 (*
+	Note:
+		For the handler naming, order by how it is on the left side of the mac
+		keyboard, so shift, control, option, then command.
+
 	@Usage:
 		use kbLib : script "core/keyboard"
 		Or type (Text Expander): uuse kb
@@ -255,40 +259,65 @@ on new()
 
 
 		on pressCommandControlKey(keyToPress)
+			pressControlCommandKey(keyToPress)
+		end pressCommandControlKey
+
+
+		on pressControlCommandKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down, control down}
 			end tell
 			delay delayAfterKeySeconds
+		end pressControlCommandKey
 
-		end pressCommandControlKey
 
 		on pressCommandShiftKey(keyToPress)
+			pressShiftCommandKey(keyToPress)
+		end pressCommandShiftKey
+
+
+		on pressShiftCommandKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down, shift down}
 			end tell
 			delay delayAfterKeySeconds
-		end pressCommandShiftKey
+		end pressShiftCommandKey
 
 		on pressCommandOptionKey(keyToPress)
+			pressOptionCommandKey(keyToPress)
+		end pressCommandOptionKey
+
+		on pressOptionCommandKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down, option down}
 			end tell
 			delay delayAfterKeySeconds
-		end pressCommandOptionKey
+		end pressOptionCommandKey
+
 
 		on pressCommandOptionShiftKey(keyToPress)
+			pressShifOptionCommandtKey(keyToPress)
+		end pressCommandOptionShiftKey
+
+		on pressShifOptionCommandtKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {command down, option down, shift down}
 			end tell
 			delay delayAfterKeySeconds
 		end pressCommandOptionShiftKey
 
+
 		on pressOptionShiftKey(keyToPress)
+			pressShiftOptionKey(keyToPress)
+		end pressOptionShiftKey
+
+		on pressShiftOptionKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {option down, shift down}
 			end tell
 			delay delayAfterKeySeconds
-		end pressOptionShiftKey
+		end pressShiftOptionKey
+
 
 		on pressControlKey(keyToPress)
 			tell application "System Events"
@@ -297,12 +326,18 @@ on new()
 			delay delayAfterKeySeconds
 		end pressControlKey
 
+
 		on pressControlShiftKey(keyToPress)
+			pressShiftControlKey(keyToPress)
+		end pressControlShiftKey
+
+		on pressShiftControlKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {control down, shift down}
 			end tell
 			delay delayAfterKeySeconds
-		end pressControlShiftKey
+		end pressShiftControlKey
+
 
 		on pressOptionKey(keyToPress)
 			tell application "System Events"
