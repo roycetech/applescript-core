@@ -82,6 +82,8 @@ on spotCheck()
 	set notRunning to new("App Store")
 
 	logger's infof("Is minimized: {}", scriptEditorApp's isMinimized())
+	logger's infof("Front window title: {}", scriptEditorApp's getFrontWindowTitle())
+	logger's infof("Integration: process-dock-aware: {}", scriptEditorApp's isDockOverlappingWindow())
 
 	if caseIndex is 2 then
 		try
@@ -217,6 +219,27 @@ on new(pProcessName)
 	script ProcessInstance
 		property processName : localProcessName
 		property bundleId : localBundleId
+
+
+		on getName()
+			processName
+		end getProcessName
+
+
+		on getFrontWindowTitle()
+			if running of application processName is false then return missing value
+
+			tell application "System Events" to tell process processName
+				if (count windows) is 0 then return missing value
+
+				try
+					return title of front window
+				end try
+			end tell
+
+			missing value
+		end getFrontWindowTitle
+
 
 		on waitActivate()
 			script WaitAppWindow
@@ -448,7 +471,10 @@ on new(pProcessName)
 	end script
 
 	set decoratorWindow to script "core/dec-process-windows"
-	set nonBundleInstance to decoratorWindow's decorate(ProcessInstance)
+	set decoratorDockAware to script "core/dec-process-dock-aware"
+	decoratorWindow's decorate(ProcessInstance)
+	decoratorDockAware's decorate(result)
+	set nonBundleInstance to result
 
 	set staticDecoratedInstance to missing value
 	if localBundleId is not missing value then
