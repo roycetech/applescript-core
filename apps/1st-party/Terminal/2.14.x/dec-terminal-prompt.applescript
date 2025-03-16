@@ -127,8 +127,12 @@ on decorate(termTabScript)
 
 			tell application "Terminal"
 				set termProcesses to processes of selected tab of front window
-				last item of termProcesses is "ssh"
+				try
+					return last item of termProcesses is "ssh"
+				end try -- Fails on "Process completed" state
 			end tell
+
+			false
 		end isSSH
 
 
@@ -154,6 +158,8 @@ on decorate(termTabScript)
 				Zsh on Home Path ~
 		*)
 		on isShellPrompt()
+			if not hasProcess() then return false
+
 			-- logger's info("isShellPrompt...")
 			set {history, lastProcess} to _getHistoryAndLastProcess()
 
@@ -223,9 +229,12 @@ on decorate(termTabScript)
 
 		(* @returns the history and last process *)
 		on _getHistoryAndLastProcess()
+			set lastProcess to missing value
+
 			tell application "Terminal"
 				set termProcesses to processes of selected tab of my appWindow
-				{the history of selected tab of my appWindow, last item of termProcesses}
+				if my hasProcess() then set lastProcess to the last item of termProcesses
+				{the history of selected tab of my appWindow, lastProcess}
 			end tell
 		end _getHistoryAndLastProcess
 

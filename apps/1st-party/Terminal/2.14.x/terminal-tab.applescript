@@ -10,8 +10,11 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
 
+	@Testing Note:
+		WARNING: This script requires re-compilation each time there's a change on this file.
+
 	@Created: Sunday, January 28, 2024 at 2:35:54 PM
-	@Last Modified: 2024-07-20 22:14:29
+	@Last Modified: 2025-02-25 07:43:32
 *)
 use script "core/Text Utilities"
 use scripting additions
@@ -33,8 +36,6 @@ use extOutput : script "core/dec-terminal-output"
 use extRun : script "core/dec-terminal-run"
 use extPath : script "core/dec-terminal-path"
 use extPrompt : script "core/dec-terminal-prompt"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
@@ -60,6 +61,7 @@ on spotCheck()
 		Manual: Clear Lingering Command
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -80,7 +82,11 @@ on spotCheck()
 
 	set sut to new(frontWinID)
 	logger's infof("Name: {}", name of sut)
+
+	log 111
+	log name of sut
 	logger's infof("Lingering Command: {}", sut's getLingeringCommand())
+	log 222
 
 	logger's infof("Tab Name: {}", sut's getTabName())
 	logger's infof("POSIX Path: {}", sut's getPosixPath())
@@ -133,8 +139,10 @@ on new(pWindowId)
 		set localPromptEndChar to "$"
 		tell application "Terminal"
 			set termProcesses to processes of selected tab of window id pWindowId
-			if last item of termProcesses is "zsh" then set localPromptEndChar to ")"
-			if termProcesses contains "-zsh" then set localPromptEndChar to "%"
+			if (the number of items in termProcesses) is not 0 then
+				if last item of termProcesses is "zsh" then set localPromptEndChar to ")"
+				if termProcesses contains "-zsh" then set localPromptEndChar to "%"
+			end if
 		end tell
 	end tell
 
@@ -165,6 +173,19 @@ on new(pWindowId)
 		*)
 		property refreshPrompt : false
 
+
+		(*
+			Used to detect if the tab is in the state "Process Completed"
+		*)
+		on hasProcess()
+			if running of application "Terminal" is false then return false
+
+			tell application "Terminal"
+				(the number of items in termProcesses) is not 0
+			end tell
+		end hasProcess
+
+
 		on hasDuplicatedName()
 
 		end hasDuplicatedName
@@ -172,6 +193,8 @@ on new(pWindowId)
 
 		(* With test/s *)
 		on scrollToTop()
+			if running of application "Terminal" is false then return
+
 			tell application "System Events" to tell process "Terminal"
 				try
 					set value of scroll bar 1 of scroll area 1 of splitter group 1 of window (name of my appWindow) to 0
@@ -186,6 +209,8 @@ on new(pWindowId)
 
 		(* With test/s *)
 		on scrollToEnd()
+			if running of application "Terminal" is false then return
+
 			tell application "System Events" to tell process "Terminal"
 				try
 					set value of scroll bar 1 of scroll area 1 of splitter group 1 of window (name of my appWindow) to 1
@@ -317,13 +342,18 @@ on new(pWindowId)
 
 
 		on isBash()
+			if not hasProcess() then return false
+
 			tell application "Terminal" to processes of selected tab of my appWindow contains "-bash"
 		end isBash
 
 		on isZsh()
+			if not hasProcess() then return false
+
 			tell application "Terminal"
 				set termProcesses to processes of selected tab of my appWindow
 			end tell
+
 			set lastItem to last item of termProcesses
 
 			termProcesses contains "-zsh" and {"com.docker.cli", "bash", "ssh"} does not contain the lastItem or lastItem contains "zsh"
@@ -332,6 +362,8 @@ on new(pWindowId)
 
 
 		on hasLingeringCommand()
+			if not hasProcess() then return false
+
 			getLingeringCommand() is not missing value
 		end hasLingeringCommand
 
@@ -346,6 +378,8 @@ on new(pWindowId)
 			@returns missing value if there are no lingering commands.
 		*)
 		on getLingeringCommand()
+			if not hasProcess() then return missing value
+
 			set recentBuffer to getPromptText()
 			if recentBuffer is missing value then return missing value
 
@@ -370,6 +404,8 @@ on new(pWindowId)
 
 
 		on clearLingeringCommand()
+			if not hasProcess() then return
+
 			set lingeringCommand to getLingeringCommand()
 			if lingeringCommand is missing value then return
 
@@ -387,7 +423,7 @@ on new(pWindowId)
 
 		on closeTab()
 			tell application "Terminal" to close my appWindow
-			if autoDismissDialogue and  hasDialogue() then
+			if autoDismissDialogue and hasDialogue() then
 				delay 0.2
 				dismissDialogue()
 			end if
@@ -453,6 +489,8 @@ on new(pWindowId)
 			if isBash() then return name of appWindow
 
 			set nameTokens to textUtil's split(name of appWindow, SEPARATOR)
+			if (the number of items in nameTokens) is 0 then return missing value
+
 			last item of nameTokens
 		end getTabName
 

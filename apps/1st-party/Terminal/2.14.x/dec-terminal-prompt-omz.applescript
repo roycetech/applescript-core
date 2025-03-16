@@ -16,7 +16,6 @@ use script "core/Text Utilities"
 use scripting additions
 
 use std : script "core/std"
-use listUtil : script "core/list"
 use textUtil : script "core/string"
 use regex : script "core/regex"
 use fileUtil : script "core/file"
@@ -30,8 +29,6 @@ use loggerFactory : script "core/logger-factory"
 use retryLib : script "core/retry"
 use terminalLib : script "core/terminal"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 property retry : missing value
 property terminal : missing value
@@ -44,6 +41,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: INFO
 		Manual: Wait for Shell Prompt
@@ -57,6 +55,7 @@ on spotCheck()
 		Manual: Last Command (Git/Non, With/out, Waiting for MFA)
 	*)
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -318,8 +317,12 @@ on decorate(termTabScript)
 			-- 			regex's matchesInString(ec2SSHPromptPattern(), getRecentOutput())
 			tell application "Terminal"
 				set termProcesses to processes of selected tab of front window
-				last item of termProcesses is "ssh"
+				try
+					return last item of termProcesses is "ssh"
+				end try
 			end tell
+
+			false
 		end isSSH
 
 
@@ -352,6 +355,8 @@ on decorate(termTabScript)
 				Zsh on Home Path ~
 		*)
 		on isShellPrompt()
+			if not hasProcess() then return false
+
 			-- logger's debugf("isZsh: {}", isZsh())
 
 			-- tell application "Terminal"
@@ -417,6 +422,8 @@ on decorate(termTabScript)
 			@returns the prompt text along with any of the lingering commands typed that hasn't executed.
 		*)
 		on getPromptText()
+			if not hasProcess() then return missing value
+
 			-- logger's debug("getPromptText...")
 			if not isZsh() then
 				logger's warn("Bash is not yet implemented.")
@@ -439,6 +446,8 @@ on decorate(termTabScript)
 
 		(* @returns the history and last process *)
 		on _getHistoryAndLastProcess()
+			if not hasProcess() then return missing value
+
 			tell application "Terminal"
 				set termProcesses to processes of selected tab of my appWindow
 				{the history of selected tab of my appWindow, last item of termProcesses}
@@ -475,6 +484,8 @@ on decorate(termTabScript)
 			Trailing space is included when present.
 		*)
 		on getPrompt()
+			if not hasProcess() then return missing value
+
 			-- logger's debug("getPrompt...")
 			if isGitDirectory() then
 				-- logger's debug("Git Directory...")
