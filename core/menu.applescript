@@ -12,7 +12,7 @@
 		Test with Menu Pinned.  Cannot test the UI functionality because menu apps need to be deployed.
 
 	@Created: Saturday, September 30, 2023 at 5:50:31 PM
-	@Last Modified: 2025-01-20 08:53:52
+	@Last Modified: 2025-03-09 09:54:45
 *)
 use scripting additions
 use framework "Foundation"
@@ -34,7 +34,7 @@ end spotCheck
 
 
 (*  *)
-on new(pSourceApp, menuBarTitle)
+on new(pMenuAppObject, menuBarTitle)
 	loggerFactory's inject(me)
 
 	if isSpot is false then
@@ -44,14 +44,14 @@ on new(pSourceApp, menuBarTitle)
 		localStatusItem's setTitle:menuBarTitle
 
 		set newMenu to current application's NSMenu's alloc()'s initWithTitle:menuBarTitle
-		newMenu's setDelegate:pSourceApp
+		newMenu's setDelegate:pMenuAppObject
 		localStatusItem's setMenu:newMenu
 	else
 		set newMenu to missing value
 	end if
 
 	script MenuUtilInstance
-		property sourceApp : pSourceApp
+		property menuAppObject : pMenuAppObject
 		property menuElement : newMenu
 		property statusItem : localStatusItem
 
@@ -94,7 +94,7 @@ on new(pSourceApp, menuBarTitle)
 			(menuElement's addItem:newMenuItem)
 			(newMenuItem's setEnabled:enabledState)
 			(newMenuItem's setState:checkedState)
-			if enabledState then (newMenuItem's setTarget:sourceApp)
+			if enabledState then (newMenuItem's setTarget:menuAppObject)
 
 			newMenuItem
 		end createRootMenuItem
@@ -114,7 +114,7 @@ on new(pSourceApp, menuBarTitle)
 			(altMenuItem's setKeyEquivalentModifierMask:(current application's NSEventModifierFlagOption))
 			(menuElement's addItem:altMenuItem)
 			(altMenuItem's setState:checkedState)
-			(altMenuItem's setTarget:sourceApp)
+			(altMenuItem's setTarget:menuAppObject)
 
 			altMenuItem
 		end createOptionalRootMenuItem
@@ -137,7 +137,7 @@ on new(pSourceApp, menuBarTitle)
 				(newSubMenu's addItem:nextSubMenuItem)
 				set nextItemChecked to selectedItem is equal to nextSourceMenuItem as text
 				(nextSubMenuItem's setState:(nextItemChecked))
-				(nextSubMenuItem's setTarget:sourceApp)
+				(nextSubMenuItem's setTarget:menuAppObject)
 			end repeat
 
 			-- Add the sub-menu to the main menu
@@ -146,11 +146,13 @@ on new(pSourceApp, menuBarTitle)
 			(subMenuItem's setSubmenu:newSubMenu)
 			(menuElement's addItem:subMenuItem)
 			(subMenuItem's setEnabled:true)
-			(subMenuItem's setTarget:sourceApp) -- required for enabling the menu item
+			(subMenuItem's setTarget:menuAppObject) -- required for enabling the menu item
 		end createSubMenu
 
 
 		on setTitle(newTitle)
+			if isSpot then return
+
 			statusItem's setTitle:(newTitle)
 		end setTitle
 	end script
