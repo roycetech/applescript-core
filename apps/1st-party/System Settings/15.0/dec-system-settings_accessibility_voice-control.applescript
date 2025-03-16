@@ -12,15 +12,14 @@
 	@Change Logs:
 		Sunday, February 11, 2024 at 3:37:39 PM - Update to macOS Sonoma 14.3.1
 *)
-use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 property retry : missing value
+
+property PANE_ID_DESKTOP_AND_DOCK : "com.apple.Desktop-Settings.extension"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -28,6 +27,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		INFO
 		Manual: Set Microphone
@@ -35,6 +35,7 @@ on spotCheck()
 		Manual: Trigger Vocabulary...
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -220,7 +221,7 @@ on decorate(mainScript)
 				tell application "System Events" to tell process "System Settings"
 					checkbox 1 of group 1 of scroll area 1 of group 1 of last UI element of splitter group 1 of UI element 1 of window "Voice Control"
 				end tell
- 			end script
+			end script
 			exec of retry on result for 6 by 0.5
 		end _getVoiceControlToggleUI
 	end script

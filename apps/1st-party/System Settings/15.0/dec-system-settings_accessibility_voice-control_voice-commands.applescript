@@ -17,20 +17,18 @@
 	@Change Logs:
 		Saturday, April 27, 2024 at 5:44:50 PM - set when I say need to be user typed.
 *)
-use listUtil : script "core/list"
-
 use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
 use cliclickLib : script "core/cliclick"
 use kbLib : script "core/keyboard"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 property retry : missing value
 property cliclick : missing value
 property kb : missing value
+
+property PANE_ID_ACCESSIBILITY : "com.apple.Accessibility-Settings.extension"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -38,6 +36,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Reveal the Voice Control Panel
 		Manual: Trigger the Commands... button
@@ -50,6 +49,7 @@ on spotCheck()
 		Manual: Flip Voice Control switch
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -144,7 +144,7 @@ on decorate(mainScript)
 			set motorGroup to missing value
 			script PanelWaiter
 				tell application "System Settings"
-					set current pane to pane id "com.apple.Accessibility-Settings.extension"
+					set current pane to pane id (my PANE_ID_ACCESSIBILITY)
 					-- reveal anchor "Voice Control" of current pane
 				end tell
 				
