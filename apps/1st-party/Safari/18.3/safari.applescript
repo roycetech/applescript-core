@@ -31,7 +31,7 @@
 		end tell
 
 	@Created: Mon, Feb 10, 2025 at 7:30:44 AM
-	@Last Modified: 2025-02-10 13:27:56
+	@Last Modified: 2025-03-07 14:13:14
 *)
 
 use scripting additions
@@ -46,12 +46,14 @@ use loggerFactory : script "core/logger-factory"
 
 use safariTabLib : script "core/safari-tab"
 use retryLib : script "core/retry"
+use dockLib : script "core/dock"
 
 use winUtilLib : script "core/window"
 
 property logger : missing value
 property winUtil : missing value
 property retry : missing value
+property dock : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -64,13 +66,13 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		INFO
 		Manual: Front Tab
-		Manual: First Tab
 		Manual: Show Side Bar (Visible,Hidden)
 		Manual: Close Side Bar (Visible,Hidden)
+		Manual: New Window
 
+		Manual: First Tab
 		Manual: Get Group Name(default, group selected)
 		Manual: Switch Group(not found, found, no app, no window, missing value for default)
-		Manual: New Window
 		Manual: Find Tab With Name ()
 		New Tab - Manually Check when no window is present in current space.
 
@@ -91,8 +93,8 @@ on spotCheck()
 
 	set sut to new()
 	logger's infof("Selection: {}", sut's getSelectedText())
-	logger's infof("Is Location Prompt Present: {}", sut's isLocationPromptPresent())
-	logger's infof("Is Camera Prompt Present: {}", sut's isCameraPromptPresent())
+	logger's infof("Integration: Is Location Prompt Present: {}", sut's isLocationPromptPresent())
+	logger's infof("Integration: Current Group Name: {}", sut's getGroupName())
 
 	if caseIndex is 2 then
 		(*
@@ -147,15 +149,28 @@ on spotCheck()
 
 		sut's showSideBar()
 		assertThat of std given condition:sut's isSideBarVisible(), messageOnFail:"Failed spot check"
-		logger's info("Passed.")
+		logger's info("Sidebar detected.")
 
 	else if caseIndex is 4 then
 		sut's closeSideBar()
 		assertThat of std given condition:sut's isSideBarVisible() is false, messageOnFail:"Failed spot check"
-		logger's info("Passed.")
+		logger's info("Sidebar not detected.")
 
 	else if caseIndex is 5 then
-		logger's infof("Current Group Name: {}", sut's getGroupName())
+		sut's newWindow("https://www.example.com")
+
+	else if caseIndex is 5 then
+		set frontTab to getFrontTab()
+
+		if frontTab is missing value then
+			log "Front Tab not found"
+		else
+			set newTab to frontTab's newTab("https://www.example.com")
+			newTab's waitForPageLoad()
+			log _url of newTab
+		end if
+
+	else if caseIndex is 5 then
 
 	else if caseIndex is 6 then
 		set newSutGroup to "Unicorn" -- not found
@@ -183,19 +198,6 @@ on spotCheck()
 			log aurl of firstTab
 		end if
 
-	else if caseIndex is 4 then
-		newWindow("https://www.example.com")
-
-	else if caseIndex is 5 then
-		set frontTab to getFrontTab()
-
-		if frontTab is missing value then
-			log "Front Tab not found"
-		else
-			set newTab to frontTab's newTab("https://www.example.com")
-			newTab's waitForPageLoad()
-			log _url of newTab
-		end if
 
 	else if caseIndex is 6 then
 		sut's newTab("https://www.example.com")
@@ -234,8 +236,10 @@ on new()
 	loggerFactory's inject(me)
 	set winUtil to winUtilLib's new()
 	set retry to retryLib's new()
+	set dock to dockLib's new()
 
 	set decSafariTabFinder to script "core/dec-safari-tab-finder"
+	set decSafariTabFinder2 to script "core/dec-safari-tab-finder2"
 	set decSafariUiNoncompact to script "core/dec-safari-ui-noncompact"
 	set decSafariUiCompact to script "core/dec-safari-ui-compact"
 	set decSafariSideBar to script "core/dec-safari-side-bar"
@@ -484,6 +488,7 @@ on new()
 	end script
 
 	decSafariTabFinder's decorate(result)
+	decSafariTabFinder2's decorate(result)
 	decSafariUiNoncompact's decorate(result)
 	decSafariUiCompact's decorate(result)
 	decSafariSideBar's decorate(result)
