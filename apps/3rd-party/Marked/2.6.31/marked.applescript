@@ -1,6 +1,5 @@
 (*
 	This is built for the standalone version (non-Setapp)
-	@Version: 2.16.31
 
 	@Project:
 		applescript-core
@@ -9,12 +8,11 @@
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.31/marked
 
 	@Created: January 13, 2024 1:29:36 PM
-	@Last Modified: 2024-12-17 07:34:09
+	@Last Modified: 2025-02-17 06:40:03
 *)
 
 use std : script "core/std"
 
-use listUtil : script "core/list"
 use fileUtil : script "core/file"
 use regexPatternLib : script "core/regex-pattern"
 
@@ -24,8 +22,6 @@ use loggerLib : script "core/logger"
 use configLib : script "core/config"
 
 use decoratorLib : script "core/decorator"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -37,6 +33,8 @@ on spotCheck()
 
 	set configSystem to configLib's new("system")
 
+	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		INFO
 
@@ -64,6 +62,7 @@ on spotCheck()
 		Manual: Scroll Page Down
 
 		Manual: Scroll Page Up
+		Manual: Show Settings
 	")
 
 	set examplesPath to configSystem's getValue("AppleScript Core Project Path") & "/apps/3rd-party/Marked"
@@ -79,6 +78,8 @@ on spotCheck()
 	end if
 
 	set sut to new()
+	logger's infof("Settings window presence: {}", sut's isSettingsWindowPresent())
+
 	if caseIndex is 1 then
 		set markedTab to sut's getFrontTab()
 		if markedTab is missing value then
@@ -194,6 +195,9 @@ on spotCheck()
 		set markdownTab to sut's getFrontTab()
 		markdownTab's scrollPageUp()
 
+	else if caseIndex is 22 then
+		sut's showSettings()
+
 	end if
 
 	spot's finish()
@@ -205,6 +209,46 @@ on new()
 	loggerFactory's injectBasic(me)
 
 	script MarkedInstance
+		on showSettings()
+			if running of application "Marked 2" is false then return
+
+			tell application "System Events" to tell process "Marked 2"
+				-- set frontmost to true
+				try
+					click (first menu item of menu 1 of menu bar item "Marked 2" of menu bar 1 whose title starts with "Setting")
+					delay 0.1
+				end try
+			end tell
+		end showSettings
+
+
+		on getSettingsWindow()
+			tell application "System Events" to tell process "Marked 2"
+				try
+					return first window whose role description of toolbar 1 is "toolbar"
+				end try
+			end tell
+
+			missing value
+		end getSettingsWindow
+
+
+		on isSettingsWindowPresent()
+			getSettingsWindow() is not missing value
+		end isSettingsWindowPresent
+
+
+		on switchSettingsTab(tabTitle)
+			if not isSettingsWindowPresent() then return
+
+			tell application "System Events" to tell process "Marked 2"
+				try
+					click button tabTitle of toolbar 1 of settingsWindow
+				end try
+			end tell
+		end switchSettingsTab
+
+
 		on startInspection()
 			if running of application "Marked 2" is false then return
 
