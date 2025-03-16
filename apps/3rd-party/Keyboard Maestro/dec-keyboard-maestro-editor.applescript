@@ -11,13 +11,16 @@
 	@Created: Wednesday, August 14, 2024 at 5:53:03 PM
 	@Last Modified: Wednesday, August 14, 2024 at 5:53:03 PM
 	@Change Logs:
+		Wed, Feb 19, 2025 at 01:34:30 PM - Added Delete/Add Macro Group app.
 		Wed, Jan 8, 2025 at 8:33:24 AM - Added #getSelectedMacroName
 *)
 use retryLib : script "core/retry"
 use loggerFactory : script "core/logger-factory"
+use kbLib : script "core/keyboard" -- Used to dismiss popup on error
 
 property logger : missing value
 property retry : missing value
+property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -30,6 +33,11 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: Set macro name (un/focused)
+		Manual: Select macro group by name
+		Manual: Delete macro group last app
+		Manual: Add macro group app
+		
+		Manual: Set app availability option
 	")
 	
 	set spotClass to spotScript's new()
@@ -56,6 +64,28 @@ on spotCheck()
 		sut's setMacroName("Spot Check Macro")
 		
 	else if caseIndex is 3 then
+		set sutMacroGroupName to "Unicorn"
+		set sutMacroGroupName to "App: Duolingo Mobile"
+		logger's debugf("sutMacroGroupName: {}", sutMacroGroupName)
+		
+		sut's selectMacroGroup(sutMacroGroupName)
+		
+	else if caseIndex is 4 then
+		sut's deleteLastMacroGroupApp()
+		
+	else if caseIndex is 5 then
+		set sutAppName to "Unicorn"
+		logger's debugf("sutAppName: {}", sutAppName)
+		sut's addMacroGroupApp(sutAppName)
+		
+	else if caseIndex is 6 then
+		set sutAppAvailabilityOption to "Unicorn"
+		set sutAppAvailabilityOption to "Available in these applications:"
+		logger's infof("sutAppAvailabilityOption: {}", sutAppAvailabilityOption)
+		
+		sut's setApplicationAvailabilityOption(sutAppAvailabilityOption)
+		
+	else if caseIndex is 7 then
 		
 	else
 		
@@ -70,6 +100,7 @@ end spotCheck
 on decorate(mainScript)
 	loggerFactory's inject(me)
 	set retry to retryLib's new()
+	set kb to kbLib's new()
 	
 	script KeyboardMaestroEditorDecorator
 		property parent : mainScript
@@ -127,16 +158,92 @@ on decorate(mainScript)
 			end tell
 		end createMacro
 		
+		
 		on selectMacroGroup(groupName)
+			if running of application "Keyboard Maestro Engine" is false then return
+			activate application "Keyboard Maestro" -- Make the editor window active			
+			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				try
-					click group "App: Script Editor" of scroll area 1 of splitter group 1 of group 6 of my getEditorWindow()
+					click group groupName of scroll area 1 of splitter group 1 of group 6 of my getEditorWindow()
 				end try
 			end tell
 		end selectMacroGroup
 		
 		
+		on deleteLastMacroGroupApp()
+			if running of application "Keyboard Maestro" is false then return
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					click (last button of scroll area 3 of splitter group 1 of group 6 of my getEditorWindow() whose description is "Delete Application")
+				end try
+			end tell
+		end deleteLastMacroGroupApp
+		
+		
+		(*
+			NOTE: Using index because there is no available UI identifier.
+		*)
+		on setApplicationAvailabilityOption(targetOption)
+			if running of application "Keyboard Maestro" is false then return
+			
+			set editorWindow to getEditorWindow()
+			if editorWindow is missing value then return missing value
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				set appAvailabilityPopup to pop up button 3 of scroll area 3 of splitter group 1 of group 6 of editorWindow
+				click appAvailabilityPopup
+				delay 0.1
+				try
+					click menu item targetOption of menu 1 of appAvailabilityPopup
+					delay 0.1
+				on error the errorMessage number the errorNumber
+					kb's pressKey("escape")
+				end try
+			end tell
+		end setApplicationAvailabilityOption
+		
+		on addMacroGroupApp(appNamePrefix)
+			if running of application "Keyboard Maestro" is false then return
+			set editorWindow to getEditorWindow()
+			if editorWindow is missing value then return missing value
+			
+			tell application "System Events"
+				set targetScrollArea to scroll area 3 of splitter group 1 of group 6 of editorWindow
+			end tell
+			
+			script AddButtonWaiter
+				tell application "System Events"
+					if exists (last button of targetScrollArea whose description is "Add Application") then return true
+				end tell
+			end script
+			set waitResult to exec of retry on result for 3
+			if waitResult is missing value then return
+			
+			tell application "System Events"
+				try
+					click (last button of targetScrollArea whose description is "Add Application")
+				on error the errorMessage number the errorNumber
+					logger's warn(errorMessage)
+				end try
+			end tell
+			
+			delay 0.1
+			script PopupWaiter
+				tell application "System Events"
+					click (first menu item of menu 1 of targetScrollArea whose title starts with appNamePrefix)
+				end tell
+				true
+			end script
+			exec of retry on result for 3
+			
+		end addMacroGroupApp
+		
+		
 		on getSelectedGroupName()
+			if getEditorWindow() is missing value then return missing value
+			
 			tell application "System Events" to tell process "Keyboard Maestro"
 				name of first group of scroll area 1 of splitter group 1 of group 6 of my getEditorWindow() whose selected is true
 			end tell
@@ -267,6 +374,19 @@ on decorate(mainScript)
 		
 		
 		on getEditorWindow()
+			if running of application "Keyboard Maestro" is false then return missing value
+			
+			try
+				with timeout of 1 second
+					tell application "System Events" to tell application process "Keyboard Maestro"
+						if (count of windows) is 0 then return missing value
+					end tell
+				end timeout
+			on error the errorMessage number the errorNumber
+				log errorMessage
+				return missing value
+			end try
+			
 			script RetryMainWindow
 				tell application "System Events" to tell process "Keyboard Maestro"
 					first window whose title starts with "Keyboard Maestro Editor"
