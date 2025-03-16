@@ -168,6 +168,16 @@ on newWithLocale(pLocalizationConfigName)
 
 		(* @returns the translated text if present, otherwise the original text to passed. *)
 		on speak(rawText)
+			speakWithVolume(rawText, -1)
+		end speak
+
+		(*
+			@Example usage:
+				speakWithVolume("Hello, this is a test.", 25)
+
+			@theVolume - 0 to 1. Use -1 to use the current volume.
+		*)
+		on speakWithVolume(rawText, theVolume)
 			if not _translationsLoaded then _loadTranslations()
 
 			(*
@@ -191,21 +201,34 @@ on newWithLocale(pLocalizationConfigName)
 			if my quiet then return textToSpeak
 
 			if my waitNextWords then
-				say textToSpeak
+				if the theVolume is -1 then
+					say textToSpeak
+				else
+					say textToSpeak volume theVolume
+				end if
 				set my waitNextWords to false
 
 			else if my synchronous then
-				-- log "synchronous"
-				say textToSpeak
+				(* Synchronous *)
+				if the theVolume is -1 then
+					say textToSpeak
+				else
+					say textToSpeak volume theVolume
+				end if
 
 			else
-				-- log "asynchronous"
-				say textToSpeak without waiting until completion
+				(* Asynchronous *)
+				-- say textToSpeak without waiting until completion
+				if the theVolume is -1 then
+					say textToSpeak without waiting until completion
+				else
+					say textToSpeak volume theVolume without waiting until completion
+				end if
 			end if
 
 			set my _lastTranslation to textToSpeak
 			my _lastTranslation
-		end speak
+		end speakWithVolume
 
 
 		on speakSynchronously(rawText)
