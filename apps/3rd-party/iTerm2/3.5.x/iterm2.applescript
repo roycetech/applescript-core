@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/iTerm2/3.5.x/iterm2
 
 	@Created: Tuesday, February 11, 2025 at 6:30:28 AM
-	@Last Modified: 2025-02-11 07:24:17
+	@Last Modified: 2025-03-09 13:35:54
 *)
 
 use textUtil : script "core/string"
@@ -45,7 +45,7 @@ on spotCheck()
 	end if
 
 	set sut to new()
-		logger's infof("Window title: {}", sut's getWindowTitle())
+	logger's infof("Window title: {}", sut's getWindowTitle())
 	logger's infof("Tab count: {}", sut's getTabCount())
 	-- logger's infof("Recent output: {}", sut's getRecentOutput())  -- Too noisy
 	if caseIndex is 1 then
@@ -96,10 +96,14 @@ on new()
 		on getWindowTitle()
 			if running of application "iTerm" is false then return missing value
 
-		tell application "System Events" to tell process "iTerm2"
-	title of front window
-end tell
-		end
+			tell application "System Events" to tell process "iTerm2"
+				try
+					return title of front window
+				end try -- Failed Mon, Feb 24, 2025 at 08:57:35 AM
+			end tell
+
+			missing value
+		end getWindowTitle
 
 
 		on getRecentOutput()
