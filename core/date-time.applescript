@@ -5,7 +5,7 @@
 	@Build:
 		./scripts/build-lib.sh core/date-time
 
-	@Last Modified: 2024-12-05 13:21:43
+	@Last Modified: 2025-03-08 17:07:05
 *)
 use framework "Foundation"
 
@@ -27,7 +27,6 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
-	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Manual: is24H
 		File Prefix
@@ -36,6 +35,7 @@ on spotCheck()
 		Manual: Zulu Date
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -213,6 +213,19 @@ on new()
 			set currentYear to year of pDate as integer
 
 			listUtil's join({currentMonth, currentDom, currentYear}, delimiter)
+		end formatMmDdYyyy
+
+
+		on formatDdMmYyyy(pDate as date, delimiter)
+			set currentMonth to month of pDate as integer
+			if currentMonth is less than 10 then set currentMonth to "0" & currentMonth
+
+			set currentDom to day of pDate as integer
+			if currentDom is less than 10 then set currentDom to "0" & currentDom
+
+			set currentYear to year of pDate as integer
+
+			listUtil's join({currentDom, currentMonth, currentYear}, delimiter)
 		end formatMmDdYyyy
 
 
