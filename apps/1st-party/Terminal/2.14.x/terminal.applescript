@@ -26,6 +26,9 @@
 		Under Tab:
 			Uncheck all except "Show activity indicator"
 
+	@TODO:
+		Refactor using uniform handler names.
+
 	@Project:
 		applescript-core
 
@@ -72,7 +75,6 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Front Tab and Info
@@ -89,8 +91,12 @@ on spotCheck()
 
 		Find Tab with Title
 		Manual: Set Tab Name
+		Manual: Find First non-ssh tab
+		Manual: Find First ssh tab
+		Manual: Find First Tab by Process
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -144,6 +150,10 @@ on spotCheck()
 		frontTab's focus()
 
 	else if caseIndex is 6 then
+		frontTab's clearLingeringCommand()
+
+	else if caseIndex is 7 then
+		sut's waitForPrompt()
 
 	else if caseIndex is 9 then
 		sut's newWindow("echo case 9", "spot")
@@ -156,10 +166,35 @@ on spotCheck()
 		frontTab's _setTabName("Spot Tab " & emoji's TUBE)
 
 	else if caseIndex is 13 then
-		frontTab's clearLingeringCommand()
+		set firstNonSshTab to sut's findFirstNonSshTab()
+		if firstNonSshTab is missing value then
+			logger's info("Non-ssh tab was not found.")
+		else
+			logger's info("Non-ssh tab was found.")
+			firstNonSshTab's focus()
+		end if
 
 	else if caseIndex is 14 then
-		sut's waitForPrompt()
+		set firstSshTab to sut's findFirstSshTab()
+		if firstSshTab is missing value then
+			logger's info("Ssh tab was not found.")
+		else
+			logger's info("Ssh tab was found.")
+			firstSshTab's focus()
+		end if
+
+	else if caseIndex is 15 then
+		set sutProcessName to "Unicorn"
+		set sutProcessName to "-zsh"
+		logger's infof("sutProcessName: {}", sutProcessName)
+
+		set firstSshTab to sut's findFirstTabByProcess(sutProcessName)
+		if firstSshTab is missing value then
+			logger's infof("Tab with process {} is not found.", sutProcessName)
+		else
+			logger's infof("Tab with process {} is found.", sutProcessName)
+			firstSshTab's focus()
+		end if
 
 	else if caseIndex is 15 then
 		log sut's findTabWithName("AppleScript", "applescript logs")
@@ -177,6 +212,7 @@ on spotCheck()
 			logger's info("Tab was not found")
 		else
 			logger's info("Tab was found")
+			foundTab's focus()
 
 		end if
 
@@ -200,6 +236,51 @@ on new()
 	set dock to dockLib's new()
 
 	script TerminalInstance
+		on findFirstNonSshTab()
+			if running of application "Terminal" is false then return false
+
+			tell application "Terminal"
+				repeat with nextWindow in windows
+					set termProcesses to processes of selected tab of nextWindow
+					set hasProcess to (the number of items in termProcesses) is not 0
+					if hasProcess and the last item of termProcesses is not "ssh" then return terminalTabLib's new(id of nextWindow)
+
+				end repeat
+			end tell
+			missing value
+		end findFirstNonSshTab
+
+
+		on findFirstTabByProcess(processKey)
+			if running of application "Terminal" is false then return false
+
+			tell application "Terminal"
+				repeat with nextWindow in windows
+					set termProcesses to processes of selected tab of nextWindow
+					set hasProcess to (the number of items in termProcesses) is not 0
+					if hasProcess and the last item of termProcesses is processKey then return terminalTabLib's new(id of nextWindow)
+
+				end repeat
+			end tell
+			missing value
+		end findFirstTabByProcess
+
+
+		on findFirstSshTab()
+			if running of application "Terminal" is false then return false
+
+			tell application "Terminal"
+				repeat with nextWindow in windows
+					set termProcesses to processes of selected tab of nextWindow
+					set hasProcess to (the number of items in termProcesses) is not 0
+					if hasProcess and the last item of termProcesses is "ssh" then return terminalTabLib's new(id of nextWindow)
+
+				end repeat
+			end tell
+			missing value
+		end findFirstSshTab
+
+
 		on getFrontTab()
 			if running of application "Terminal" is false then return missing value
 
