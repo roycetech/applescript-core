@@ -3,17 +3,19 @@
 
 	TODO: Unit Test
 
+	@Project:
+		applescript-core
+		
+	@Build:
+		./scripts/build-lib.sh 'apps/1st-party/Script Editor/2.11/dec-script-editor-content'
+
 	@Created: Wednesday, July 26, 2023 at 6:33:55 PM
 	@Last Modified: July 26, 2023 9:49 PM
 *)
 use scripting additions
 
-use listUtil : script "core/list"
 use textUtil : script "core/string"
 use loggerFactory : script "core/logger-factory"
-
-use spotScript : script "core/spot-test"
-
 
 property logger : missing value
 
@@ -25,6 +27,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: New Document
@@ -35,6 +38,7 @@ on spotCheck()
 		Manual: Insert text after last line with text
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -88,7 +92,7 @@ end spotCheck
 on decorate(mainScript)
 	loggerFactory's inject(me)
 	
-	script ScriptEditorContentDecoratedInstance
+	script ScriptEditorContentDecorator
 		property parent : mainScript
 		property textView : missing value
 		property windowTitle : "Temp Document"

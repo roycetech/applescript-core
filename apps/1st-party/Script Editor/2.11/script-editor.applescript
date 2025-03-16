@@ -27,23 +27,24 @@ use script "core/Text Utilities"
 use scripting additions
 
 use fileUtil : script "core/file"
-use listUtil : script "core/list"
 use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
 
-use contentDecorator : script "core/dec-script-editor-content"
+use decContent : script "core/dec-script-editor-content"
+use decCursor : script "core/dec-script-editor-cursor"
 
 use configLib : script "core/config"
 use retryLib : script "core/retry"
 
 use decoratorLib : script "core/decorator"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 property configSystem : missing value
 property retry : missing value
+
+property CONFIG_SYSTEM : "system"
+property CONFIG_KEY_AS_PROJECT_CORE_PATH : "AppleScript Core Project Path"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -51,6 +52,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 	
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: File Info (Core Project, Other Project)
 		Open file
@@ -63,6 +65,7 @@ on spotCheck()
 		Manual: Replace and Select
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -75,14 +78,16 @@ on spotCheck()
 	set frontTab to sut's getFrontTab()
 	frontTab's focus()
 	
-	set projectPath to configSystem's getValue("AppleScript Core Project Path")
+	set projectPath to configSystem's getValue(CONFIG_KEY_AS_PROJECT_CORE_PATH)
+	logger's infof("getScriptLocation: {}", frontTab's getScriptLocation())
+	logger's infof("getScriptDirectory: {}", frontTab's getScriptDirectory())
+	logger's infof("getScriptName: {}", frontTab's getScriptName())
+	logger's infof("getBaseScriptName: {}", frontTab's getBaseScriptName())
+	logger's infof("getPosixPath: {}", frontTab's getPosixPath())
+	logger's infof("(BROKEN, not possible when there's multiple projects) getResourcePath(): {}", frontTab's getResourcePath())
+	log frontTab's getContents()
+	
 	if caseIndex is 1 then
-		logger's infof("getScriptLocation: {}", frontTab's getScriptLocation())
-		logger's infof("getScriptDirectory: {}", frontTab's getScriptDirectory())
-		logger's infof("getScriptName: {}", frontTab's getScriptName())
-		logger's infof("getBaseScriptName: {}", frontTab's getBaseScriptName())
-		logger's infof("getPosixPath: {}", frontTab's getPosixPath())
-		logger's infof("(BROKEN, not possible when there's multiple projects) getResourcePath(): {}", frontTab's getResourcePath())
 		
 	else if caseIndex is 2 then
 		openFile(projectPath & "/examples/hello.applescript")
@@ -300,7 +305,10 @@ on new()
 				on getContents()
 					if running of application "Script Editor" is false then return
 					
-					contents of document of my appWindow
+					script RetryFailing
+						return contents of document of my appWindow
+					end script
+					exec of retry on result for 2
 				end getContents
 				
 				on setContents(newText as text)
@@ -488,7 +496,9 @@ on new()
 		end _new
 	end script
 	
-	contentDecorator's decorate(result)
+	decContent's decorate(result)
+	decCursor's decorate(result)
+	
 	set decorator to decoratorLib's new(result)
-	decorator's decorate()
+	decorator's decorateByName("ScriptEditorInstance")
 end new
