@@ -5,7 +5,7 @@
 	@Build:
 		./scripts/build-lib.sh core/date-time
 
-	@Last Modified: 2025-03-08 17:07:05
+	@Last Modified: 2025-03-23 11:32:21
 *)
 use framework "Foundation"
 
@@ -44,6 +44,7 @@ on spotCheck()
 		return
 	end if
 
+	logger's infof("Current day of week: ", sut's getCurrentDayOfWeek())
 	set sut to new()
 	if caseIndex is 1 then
 		logger's infof("is24H: {}", sut's is24H())
@@ -73,6 +74,12 @@ on new()
 
 		-- For test-ability only.
 		property _today : missing value
+
+
+		on getCurrentDayOfWeek()
+			weekday of (current date) as text
+		end getCurrentDayOfWeek
+
 
 		on today()
 			std's nvl(_today, current date)
@@ -226,7 +233,7 @@ on new()
 			set currentYear to year of pDate as integer
 
 			listUtil's join({currentDom, currentMonth, currentYear}, delimiter)
-		end formatMmDdYyyy
+		end formatDdMmYyyy
 
 
 

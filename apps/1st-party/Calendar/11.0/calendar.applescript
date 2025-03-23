@@ -25,7 +25,7 @@
 		applescript-core
 
 	@Build:
-		make build-calendar
+		./scripts/build-lib.sh apps/1st-party/Calendar/11.0/calendar
 *)
 
 
