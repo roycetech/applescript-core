@@ -420,6 +420,20 @@ on new()
 		end findTabWithWindowNameEndingWith
 
 
+		on findTabByWindowNameSuffix(nameSuffix)
+			if winUtil's hasWindow("Terminal") is false then return missing value
+
+			tell application "Terminal"
+				try
+					set appWindow to first window whose name ends with nameSuffix
+					return terminalTabLib's new(id of appWindow)
+				end try
+			end tell
+
+			missing value
+		end findTabWithWindowNameEndingWith
+
+
 		on hasTabBar()
 			if winUtil's hasWindow("Terminal") is false then return false
 

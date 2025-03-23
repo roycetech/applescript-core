@@ -109,7 +109,6 @@ endif
 	@echo "Installation done"
 
 $(STUB_LIBS): Makefile
-# 	osacompile -o "$(HOME)/Library/Script Libraries/core/$(patsubst stubs/%,%,$@).scpt" "scripts/stub.applescript"
 	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/$(patsubst stubs/%,%,$@).scpt" "scripts/stub.applescript"
 
 $(CORE_LIBS): Makefile
