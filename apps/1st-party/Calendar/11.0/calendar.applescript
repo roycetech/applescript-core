@@ -89,7 +89,7 @@ on spotCheck()
 	")
 
 	(* Manually configure this. *)
-	set spotData to {online_only:date "Wednesday, January 26, 2022 at 7:30:00 AM", online_and_offline:date "Wednesday, November 23, 2022 at 7:00:00 AM"}
+	set spotData to {online_only:date "Wednesday, January 26, 2022 at 7:30:00 AM", online_and_offline:date "Wednesday, November 23, 2022 at 7:00:00 AM"}
 
 	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
@@ -291,7 +291,7 @@ on new()
 
 			if TEST_DATETIME is missing value then
 				-- logger's debugf("IS_TEST: {}", IS_TEST)
-				return date "Monday, February 27, 2023 at 7:30:00 AM"
+				return date "Monday, February 27, 2023 at 7:30:00 AM"
 			end if
 
 			TEST_DATETIME
