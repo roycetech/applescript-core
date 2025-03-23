@@ -7,29 +7,29 @@
 		config-system.plist
 			AppleScript Core Project Path - This is required for testing only.
 
+	@Project:
+		applescript-core
+
 	@Build:
-		make compile-json
+		./scripts/build-lib.sh libs/json/json
 *)
 
 use scripting additions
 
-use listUtil : script "core/list"
+use loggerFactory : script "core/logger-factory"
 
-
-use loggerLib : script "core/logger"
-use configLib : script "core/config"
-
-use spotScript : script "core/spot-test"
-
-property logger : loggerLib's new("json")
+property logger : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
 	logger's start()
 
+	set configLib to script "core/config"
 	set configSystem to configLib's new("system")
 	set asProjectPath to configSystem's getValue("AppleScript Core Project Path")
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Read JSON File - Dictionary
 		Read JSON File - List
@@ -37,6 +37,7 @@ on spotCheck()
 		From JSON String
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

@@ -9,13 +9,13 @@
 
 DEPLOY_TYPE_KEY="[app-core] Deployment Type - LOV Selected"
 PLIST_PATH="$HOME/applescript-core/session.plist"
-DEPLOY_TYPE=$(plutil -extract "$DEPLOY_TYPE_KEY" raw $PLIST_PATH)
+DEPLOY_TYPE=$(plutil -extract "$DEPLOY_TYPE_KEY" raw "$PLIST_PATH")
 # echo "DEBUG: Deployment Type: [$DEPLOY_TYPE]"
 
 input_file_path=$(echo "$1 $2 $3 $4 $5" | sed 's/ *$//')
 # echo "DEBUG: input_file_path: [$input_file_path]"
 
-base_filename=$(echo $input_file_path | awk -F/ '{print $NF}' | sed 's/ *$//')
+base_filename=$(echo "$input_file_path" | awk -F/ '{print $NF}' | sed 's/ *$//')
 # echo "DEBUG: base_filename: [$base_filename]"
 
 deployment_path="$HOME/Library/Script Libraries/core/"
