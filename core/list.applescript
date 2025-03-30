@@ -7,6 +7,9 @@
 
 	@Build:
 		./scripts/build-lib.sh core/list
+
+	@Change Logs:
+		Sat, Mar 29, 2025 at 09:01:37 PM - Added #splitByParagraph which uses a natural way to split lines.
 *)
 
 use scripting additions
@@ -47,6 +50,8 @@ on spotCheck()
 		Split By Line / Index Of
 
 		Split By Line - With Dollar Sign
+		Split By Paragraph
+		Split By Paragraph with Trim
 	")
 
 	set spotScript to script "core/spot-test"
@@ -119,6 +124,23 @@ two'"
 		log list11
 		log (count of list11)
 
+	else if caseIndex is 12 then
+		set list12 to splitByParagraph("
+			Hello
+			$Special
+		")
+		repeat with nextElement in list12
+			log nextElement
+		end repeat
+
+	else if caseIndex is 13 then
+		set list13 to splitAndTrimParagraphs("
+			Hello
+			$Special
+		")
+		repeat with nextElement in list13
+			log nextElement
+		end repeat
 	end if
 
 	spot's finish()
@@ -168,6 +190,33 @@ on splitByLine(theString)
 
 	_split(csv, linesDelimiter)
 end splitByLine
+
+
+(*
+	TODO: Unit test
+*)
+on splitByParagraph(theText)
+	if theText is missing value then return {}
+
+	set listResult to {}
+	set textLines to paragraphs of theText
+	repeat with nextLine in textLines
+		set end of listResult to nextLine
+	end repeat
+	listResult
+end splitByParagraph
+
+on splitAndTrimParagraphs(theText)
+	if theText is missing value then return {}
+
+	set listResult to {}
+	set textLines to paragraphs of theText
+	repeat with nextLine in textLines
+		set trimmedLine to do shell script "echo '" & nextLine & "' |  sed 's/ *$//g'  |  sed 's/^[[:space:]]*//g'"
+		if trimmedLine is not "" then set end of listResult to trimmedLine
+	end repeat
+	listResult
+end splitAndTrimParagraphs
 
 
 (* Too Slow! *)
