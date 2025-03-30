@@ -6,6 +6,7 @@
 		use switchLib : script "core/switch"
 		set yourSwitch to switchLib's new("Switch Name")
 		yourSwitch's turnOn()
+		yourSwitch's isActive()
 
 	@Project:
 		applescript-core
@@ -13,7 +14,7 @@
 	@Build:
 		make build-lib SOURCE=core/switch
 
-	@Last Modified: 2024-12-05 15:20:38
+	@Last Modified: 2025-03-25 07:09:52
 	@TODO: Migrate to ASUnit.
 	@Change Log:
 		September 4, 2023 11:42 AM - Removed reference to the built-in unit test.
@@ -79,7 +80,7 @@ on new(pSwitchName)
 
 		on isInactive()
 			not active()
-		end isActive
+		end isInactive
 
 
 		on turnOn()

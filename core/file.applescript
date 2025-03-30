@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2024-08-23 10:29:57
+	@Last Modified: 2025-03-30 08:50:37
 *)
 
 use script "core/Text Utilities"
@@ -19,11 +19,8 @@ use scripting additions
 
 use std : script "core/std"
 
-use listUtil : script "core/list"
 use textUtil : script "core/string"
 use loggerFactory : script "core/logger-factory"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -33,12 +30,14 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Read Text File
 		Manual: Modification Date
 		Manual: Creation Date
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

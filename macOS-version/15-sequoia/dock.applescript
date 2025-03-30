@@ -63,6 +63,7 @@ on spotCheck()
 	end if
 
 
+	logger's infof("Position: {}", lib's getPosition())
 	logger's infof("Is Autohide?: {}", lib's isAutoHide())
 	logger's infof("Dock Position: {}", lib's getPosition())
 	logger's infof("Dock x-position: {}", sut's getHorizontalPosition())
@@ -203,7 +204,7 @@ on new()
 
 		on isHorizontal()
 			tell application "System Events" to tell dock preferences
-				my getPosition() is bottom
+				my getPosition() is equal to "bottom"
 			end tell
 		end isHorizontal
 
