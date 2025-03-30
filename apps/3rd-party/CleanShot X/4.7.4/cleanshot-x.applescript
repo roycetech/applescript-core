@@ -39,7 +39,6 @@ on spotCheck()
 	logger's start()
 	
 	set processLib to script "core/process"
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP:
@@ -47,8 +46,12 @@ on spotCheck()
 		Manual: Switch Tab
 		Manual: Wallpaper: Set Transparent
 		Manual: Wallpaper: Set With wallpaper
+
+		Manual: Wallpaper: Set Capture Window Shadow ON
+		Manual: Wallpaper: Set Capture Window Shadow OFF
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -61,6 +64,7 @@ on spotCheck()
 	sut's showSettings()
 	
 	logger's infof("Window: Screenshot: {}", sut's getWindowScreenshot())
+	logger's infof("Window: Capture window shadow: {}", sut's isCaptureWindowShadow())
 	
 	if caseIndex is 1 then
 		
@@ -85,6 +89,13 @@ on spotCheck()
 		
 	else if caseIndex is 5 then
 		sut's setScreenshot("With wallpaper")
+
+	else if caseIndex is 6 then
+		sut's setCaptureWindowShadowOn()
+
+	else if caseIndex is 7 then
+		sut's setCaptureWindowShadowOff()
+		
 	end if
 	
 	spot's finish()
@@ -92,7 +103,7 @@ on spotCheck()
 end spotCheck
 
 
-(*  *) 
+(*  *)
 on new()
 	loggerFactory's inject(me)
 	set cliclick to cliclickLib's new()
@@ -184,6 +195,39 @@ on new()
 				if newValue is "With wallpaper" then click radio button 4 of window 1
 			end tell
 		end setScreenshot
+		
+		
+		on isCaptureWindowShadow()
+			if running of application "CleanShot X" is false then return false
+			
+			tell application "System Events" to tell process "CleanShot X"
+				value of checkbox "Capture window shadow" of front window
+			end tell
+			
+			false
+		end isCaptureWindowShadow
+		
+		on toggleCaptureWindowShadow()
+			if running of application "CleanShot X" is false then return false
+			
+			tell application "System Events" to tell process "CleanShot X"
+				click checkbox "Capture window shadow" of front window
+			end tell
+			
+			false
+		end toggleCaptureWindowShadow
+		
+		on setCaptureWindowShadowOn()
+			if isCaptureWindowShadow() then return
+			
+			toggleCaptureWindowShadow()
+		end setCaptureWindowShadowOn
+		
+		on setCaptureWindowShadowOff()
+			if not isCaptureWindowShadow() then return
+			
+			toggleCaptureWindowShadow()
+		end setCaptureWindowShadowOff
 	end script
 	
 	decCleanShotXGeneral's decorate(result)
