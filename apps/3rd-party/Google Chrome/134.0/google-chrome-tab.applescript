@@ -40,6 +40,7 @@ on spotCheck()
 		
 		Manual: Switch Tab
 		Manual: Debug: getURL
+		Manual: Reload
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -112,6 +113,9 @@ on spotCheck()
 			logger's infof("Handler result: {} ", sut's getURL())
 			
 		end tell
+		
+	else if caseIndex is 8 then
+		sut's reload()
 		
 	end if
 	
@@ -240,8 +244,8 @@ on new(windowId, pTabIndex)
 		on reload()
 			focus()
 			tell application "Google Chrome"
-				set currentUrl to URL of my getDocument()
-				set URL of my getDocument() to currentUrl
+				set currentUrl to URL of my _tab
+				set URL of my _tab to currentUrl
 			end tell
 			delay 0.01
 		end reload
@@ -265,7 +269,7 @@ on new(windowId, pTabIndex)
 		on isDocumentLoading()
 			tell application "Google Chrome"
 				if my getWindowName() is equal to "Failed to open page" then return false
-				if source of my getDocument() is not "" then return true
+				if source of my _tab is not "" then return true
 			end tell
 			false
 		end isDocumentLoading
@@ -281,7 +285,7 @@ on new(windowId, pTabIndex)
 		on getSource()
 			tell application "Google Chrome"
 				try
-					return (source of my getDocument()) as text
+					return (source of my _tab) as text
 				end try
 			end tell
 			
@@ -315,7 +319,7 @@ on new(windowId, pTabIndex)
 		
 		on goto(targetUrl)
 			script PageWaiter
-				tell application "Google Chrome" to set URL of my getDocument() to targetUrl
+				tell application "Google Chrome" to set URL of my _tab to targetUrl
 				true
 			end script
 			exec of retry on result for 2
