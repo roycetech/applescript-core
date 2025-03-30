@@ -94,7 +94,8 @@ on decorate(mainScript)
 			if running of application "System Settings" is false then return
 			
 			tell application "System Events" to tell process "System Settings"
-				click button buttonIndex of UI element 1 of group 1 of scroll area 2 of group 1 of list 2 of splitter group 1 of list 1 of front window
+				-- click button buttonIndex of UI element 1 of group 1 of scroll area 2 of group 1 of list 2 of splitter group 1 of list 1 of front window
+				click button buttonIndex of UI element 1 of group 1 of scroll area 2 of group 1 of last group of splitter group 1 of UI element 1 of front window
 			end tell
 		end switchDisplayResolution
 		
