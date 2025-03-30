@@ -40,8 +40,9 @@ uninstall-automator:
 
 build-calendar:
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/11.0/dec-calendar-view"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/11.0/calendar-event"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/11.0/calendar"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/15.0/dec-calendar-meetings"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/15.0/calendar-event"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/15.0/calendar"
 
 install-calendar: build-calendar
 	osascript ./scripts/enter-user-country.applescript
