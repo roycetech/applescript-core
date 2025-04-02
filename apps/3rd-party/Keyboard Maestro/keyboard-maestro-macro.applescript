@@ -18,9 +18,6 @@
 use std : script "core/std"
 
 use loggerFactory : script "core/logger-factory"
-use listUtil : script "core/list"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -30,13 +27,18 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: New Instance (Missing, Present)
 		Manual: Enable Macro, get state
 		Manual: Disable Macro, get state
-		Manual: Find By Name Containing
+		Manual: Find By Name Containing		
+		Manual: Disable Macro
+
+		Manual: Enable Macro
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -45,7 +47,7 @@ on spotCheck()
 		return
 	end if
 	
-	set sutMacroName to "POC"
+	set sutMacroName to "POC: _AppleScript Core Test Macro"
 	set sut to new(sutMacroName)
 	logger's infof("sutMacroName: {}", sutMacroName)
 	logger's infof("Macro UUID: {}", sut's getUUID())
@@ -77,6 +79,13 @@ on spotCheck()
 		else
 			logger's info("No macro was found")
 		end if
+		
+	else if caseIndex is 5 then
+		sut's disable()
+
+	else if caseIndex is 6 then
+		sut's enable()
+		
 	end if
 	
 	spot's finish()

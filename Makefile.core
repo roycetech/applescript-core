@@ -50,8 +50,8 @@ CORE_LIBS :=  \
 	keyboard \
 	lov \
 	plist-buddy \
-	process \
 	retry \
+	process \
 	string-builder \
 	stack \
 	system-events \

@@ -11,7 +11,6 @@ use scripting additions
 
 use loggerFactory : script "core/logger-factory"
 use listUtil : script "core/list"
-use spotScript : script "core/spot-test"
 use idlerLib : script "core/idler"
 
 property logger : missing value
@@ -28,6 +27,7 @@ on spotCheck()
 		Manual: Success on retry
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
