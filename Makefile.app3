@@ -160,6 +160,9 @@ install-sublime-text: build-finder
 install-text-mate:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/TextMate/2.0.x/text-mate
 
+build-talon:
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Talon/0.4/talon
+
 build-viscosity: build-step-two
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Viscosity/1.10.x/viscosity
 
