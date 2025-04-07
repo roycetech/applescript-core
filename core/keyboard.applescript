@@ -32,9 +32,7 @@ property NSEvent : a reference to current application's NSEvent
 use std : script "core/std"
 
 use loggerFactory : script "core/logger-factory"
-use listUtil : script "core/list"
 use emoji : script "core/emoji"
-use spotScript : script "core/spot-test"
 use decoratorLib : script "core/decorator"
 
 property logger : missing value
@@ -50,6 +48,7 @@ on spotCheck()
 	logger's start()
 
 	-- All spot check cases are manual.
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual Checks
 		Paste Text with Emoji
@@ -58,6 +57,7 @@ on spotCheck()
 	")
 
 
+	set spotScript to script "core/spot-test"
 	set spotLib to spotScript's new()
 	set spot to spotLib's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -247,7 +247,7 @@ on new()
 		on keyUp(keyToPress)
 			keyU(keyToPress)
 			delay delayAfterKeySeconds
-		end keyU
+		end keyUp
 
 
 		on pressCommandKey(keyToPress)
@@ -304,7 +304,7 @@ on new()
 				key code my _charToKeycode(keyToPress) using {command down, option down, shift down}
 			end tell
 			delay delayAfterKeySeconds
-		end pressCommandOptionShiftKey
+		end pressShifOptionCommandtKey
 
 
 		on pressOptionShiftKey(keyToPress)
@@ -345,6 +345,15 @@ on new()
 			end tell
 			delay delayAfterKeySeconds
 		end pressOptionKey
+
+
+		on pressControlOptionKey(keyToPress)
+			tell application "System Events"
+				key code my _charToKeycode(keyToPress) using {control down, option down}
+			end tell
+			delay delayAfterKeySeconds
+		end pressControlOptionKey
+
 
 		on pressShiftKey(keyToPress)
 			tell application "System Events"
@@ -439,6 +448,9 @@ on _charToKeycode(key)
 	if key as text is "7" then return 26
 	if key as text is "8" then return 28
 	if key as text is "9" then return 25
+
+	if key as text is "$" then return 21
+	if key as text is "%" then return 23
 
 	if key is "=" then return 24
 	if key is "-" then return 27
