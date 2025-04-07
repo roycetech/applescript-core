@@ -20,7 +20,7 @@
 		and the only why I found to do this is via manual iteration. - TODO: Verify if this is the same case with Safari.
 
 	@Created: Thu, Feb 20, 2025 at 07:12:25 AM
-	@Last Modified: 2025-02-20 07:15:15
+	@Last Modified: 2025-03-26 06:55:19
 	@Change Logs:
 
 *)
@@ -527,39 +527,41 @@ on decorate(mainScript)
 			set tabIterateDirection to direction
 			set isReverseIteration to direction is DESC
 
-			tell application "Safari"
-				repeat with nextWindow in windows
-					try
-						if direction is DEFAULT and scriptObj's accept(current tab of nextWindow) then
+			tell application "Safari" to set safariWindows to windows
+			repeat with nextWindow in safariWindows
+				tell application "Safari" to set currentWindowTab to current tab of nextWindow
+				try
+					if direction is DEFAULT and scriptObj's accept(currentWindowTab) then
+						tell application "Safari"
 							return safariTabLib's new(id of nextWindow, index of current tab of nextWindow)
+						end tell
+					end if
+
+					tell application "Safari" to set tabsToIterate to the tabs of nextWindow
+					if tabIterateDirection is DESC then set tabsToIterate to the reverse of tabsToIterate
+
+					set matchedTab to missing value
+					set calculatedTabIndex to 0
+					if isReverseIteration then set calculatedTabIndex to (the count of tabsToIterate) + 1
+
+					repeat with nextTab in tabsToIterate
+						set step to 1
+						if isReverseIteration then set step to -1
+						set calculatedTabIndex to calculatedTabIndex + step
+						if scriptObj's accept(nextTab) then
+							set matchedTab to nextTab
+							exit repeat
 						end if
+					end repeat
 
-						set tabsToIterate to the tabs of nextWindow
-						if tabIterateDirection is DESC then set tabsToIterate to the reverse of tabsToIterate
+					if matchedTab is missing value then return missing value
 
-						set matchedTab to missing value
-						set calculatedTabIndex to 0
-						if isReverseIteration then set calculatedTabIndex to (the count of tabsToIterate) + 1
+					return safariTabLib's new(id of nextWindow, calculatedTabIndex)
+				on error the errorMessage number the errorNumber
+					logger's warn(errorMessage)
 
-						repeat with nextTab in tabsToIterate
-							set step to 1
-							if isReverseIteration then set step to -1
-							set calculatedTabIndex to calculatedTabIndex + step
-							if scriptObj's accept(nextTab) then
-								set matchedTab to nextTab
-								exit repeat
-							end if
-						end repeat
-
-						if matchedTab is missing value then return missing value
-
-						return safariTabLib's new(id of nextWindow, calculatedTabIndex)
-					on error the errorMessage number the errorNumber
-						logger's warn(errorMessage)
-
-					end try
-				end repeat
-			end tell
+				end try
+			end repeat
 			missing value
 
 		end _findWindowTab
