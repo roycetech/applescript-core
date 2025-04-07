@@ -72,6 +72,7 @@ on spotCheck()
 	
 	logger's debugf("sutProjectFilePath: {}", sutProjectFilePath)
 	logger's infof("Is code with me running: {}", sut's isCodingWithMe())
+	logger's debugf("Integration: Current file path: {}", sut's getCurrentFilePath())
 	
 	if caseIndex is 1 then
 		
@@ -112,6 +113,7 @@ on new()
 	else
 		error "IntelliJ app was not found."
 	end if
+	logger's debugf("localAppName: {}", localAppName)
 	
 	script IntelliJIDEAInstance
 		property intellijAppName : localAppName
@@ -146,7 +148,7 @@ on new()
 				
 				hasTwoIntelliJ and secondIdeaIsRunning
 			end tell
-		end codeWithMeIsRunning
+		end isCodingWithMe
 		
 		
 		on openProject(projectPath)
@@ -187,18 +189,40 @@ on new()
 			end tell
 *)
 			
+			(*
 			tell application "System Events" to tell process "idea"
 				title of first window whose title is not ""
 				return textUtil's trim(first item of textUtil's split(result, unic's MAIL_SUBDASH))
 			end tell
+			*)
 			
-			missing value
+			(*
+			tell application "System Events"
+	if exists (first process whose name is "IntelliJ IDEA") then
+	
+	else if 	exists (first process whose name is "jetbrains_client")  then -- CWM
+	
+	end if
+			*)
+			
+			tell application "System Events" to tell process intellijAppName
+				set targetWindow to missing value
+				try				
+					set targetWindow to first window whose title is not ""
+				end try
+				if targetWindow is missing value then return missing value
+				set windowTitle to title of targetWindow
+			end tell
+			if isCodingWithMe() then return textUtil's trim(second item of textUtil's split(windowTitle, unic's MAIL_SUBDASH))
+			
+			textUtil's trim(first item of textUtil's split(windowTitle, unic's MAIL_SUBDASH))
 		end getCurrentProjectName
 		
 		
 		on getCurrentDocumentName()
 			
 			set mainWindowName to _getMainWindowName()
+			logger's debugf("mainWindowName: {}", mainWindowName)
 			if mainWindowName is missing value then return missing value
 			
 			last item of textUtil's split(mainWindowName, " " & unic's MAIL_SUBDASH & " ")
@@ -216,7 +240,8 @@ on new()
 			if statusBarGroup is missing value then return false
 			
 			-- tell application "System Events" to tell process "IntelliJ IDEA"
-			tell application "System Events" to tell process "idea"
+			-- 			tell application "System Events" to tell process "idea"
+			tell application "System Events" to tell my _getProcessName()
 				try
 					return (count of buttons of group 1 of scroll area 1 of statusBarGroup) is 1
 				end try -- Fails when only a file is open instead of a project.
@@ -245,7 +270,8 @@ on new()
 		
 		on _getGroup(groupName)
 			script Failable
-				tell application "System Events" to tell process "idea"
+				-- tell application "System Events" to tell process "idea"
+				tell application "System Events" to tell process (my _getProcessName())
 					set mainWindow to first window whose title is not ""
 					
 					first group of group 1 of mainWindow whose description is equal to the groupName
@@ -257,7 +283,8 @@ on new()
 		on _getMainWindowName()
 			if running of application intellijAppName is false then return missing value
 			
-			tell application "System Events" to tell process "idea"
+			-- 			tell application "System Events" to tell process "idea"
+			tell application "System Events" to tell process (my intellijAppName)
 				set mainWindow to missing value
 				try
 					return the name of first window whose name is not ""
@@ -266,6 +293,16 @@ on new()
 			
 			missing value
 		end _getMainWindowName
+		
+		
+		on _getProcessName()
+			tell application "System Events"
+				if exists (first process whose name is "IntelliJ IDEA") then return "IntelliJ IDEA"
+				if exists (first process whose name is "jetbrains_client") then return "jetbrains_client"
+			end tell
+			
+			missing value
+		end _getProcessName
 	end script
 	
 	set decorator to decoratorLib's new(result)
