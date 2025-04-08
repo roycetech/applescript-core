@@ -9,6 +9,7 @@
 	@Last Tue, Feb 18, 2025 at 10:21:58 AM
 
 	@Change Logs:
+		Tue, Apr 08, 2025 at 11:41:12 AM - Fix #focus to trigger via menu.
 		Fri, Feb 28, 2025 at 09:15:44 AM - Added #isUnableToConnect
 		Tue, Feb 18, 2025 at 10:21:41 AM - Add #waitForAlert
 *)
@@ -16,6 +17,7 @@
 use scripting additions
 
 use unic : script "core/unicodes"
+use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -318,6 +320,31 @@ on new(windowId, pTabIndex)
 			try
 				tell application "Safari" to set current tab of my appWindow to _tab
 			end try -- When tab is manually closed
+
+
+			set tabTitle to getTitle()
+
+			tell application "System Events" to tell process "Safari"
+				try
+					set menuTitles to title of menu items of menu 1 of menu bar item "Window" of menu bar 1
+				end try
+			end tell
+
+			set menuTitles to reverse of menuTitles
+
+			repeat with nextMenuTitle in menuTitles
+				if nextMenuTitle as text is "" then return
+
+				set {prefix, suffix} to textUtil's split(nextMenuTitle, unic's ELLIPSIS)
+				set prefix to textUtil's stringAfter(prefix, unic's SEPARATOR)
+				if tabTitle starts with prefix and tabTitle ends with suffix then
+					-- log "FOUND: " & nextMenuTitle
+					exit repeat
+				else
+					-- log prefix
+					-- log suffix
+				end if
+			end repeat
 		end focus
 
 		on closeTab()
