@@ -43,6 +43,7 @@ on spotCheck()
 		Manual: Raise Window
 
 		Manual: Move to New Window
+		Manual: Focus
 	")
 
 	set usrLib to script "core/user"
@@ -116,6 +117,9 @@ on spotCheck()
 
 	else if caseIndex is 6 then
 		sut's moveToNewWindow()
+
+	else if caseIndex is 7 then
+		sut's focus()
 
 	end if
 
@@ -331,20 +335,40 @@ on new(windowId, pTabIndex)
 			end tell
 
 			set menuTitles to reverse of menuTitles
+			set foundMenuTitle to missing value
 
 			repeat with nextMenuTitle in menuTitles
 				if nextMenuTitle as text is "" then return
 
-				set {prefix, suffix} to textUtil's split(nextMenuTitle, unic's ELLIPSIS)
-				set prefix to textUtil's stringAfter(prefix, unic's SEPARATOR)
-				if tabTitle starts with prefix and tabTitle ends with suffix then
-					-- log "FOUND: " & nextMenuTitle
-					exit repeat
+				if nextMenuTitle contains unic's ELLIPSIS then
+					set {prefix, suffix} to textUtil's split(nextMenuTitle, unic's ELLIPSIS)
+					set prefix to textUtil's stringAfter(prefix, unic's SEPARATOR)
+					if tabTitle starts with prefix and tabTitle ends with suffix then
+						-- log "FOUND: " & nextMenuTitle
+						set foundMenuTitle to nextMenuTitle
+						exit repeat
+					else
+						-- log prefix
+						-- log suffix
+					end if
 				else
-					-- log prefix
-					-- log suffix
+					if nextMenuTitle is equal to tabTitle then
+						set foundMenuTitle to nextMenuTitle
+						exit repeat
+					end if
 				end if
 			end repeat
+
+			logger's debugf("foundMenuTitle: {}", foundMenuTitle)
+			if foundMenuTitle is not missing value then
+				tell application "System Events" to tell process "Safari"
+
+					try
+						click menu item "Show Bookmarks" of menu 1 of menu bar item "Windows" of menu bar 1
+					end try
+				end tell
+			end if
+
 		end focus
 
 		on closeTab()
