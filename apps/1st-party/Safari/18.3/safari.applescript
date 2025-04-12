@@ -31,7 +31,7 @@
 		end tell
 
 	@Created: Mon, Feb 10, 2025 at 7:30:44 AM
-	@Last Modified: 2025-03-07 14:13:14
+	@Last Modified: 2025-04-12 18:57:16
 *)
 
 use scripting additions
@@ -256,6 +256,17 @@ on new()
 	end try
 
 	script SafariInstance
+		on reload()
+			if running of application "Safari" is false then return
+
+			tell application "System Events" to tell process "Safari"
+				set frontmost to true
+				try
+					click menu item "Reload Page" of menu 1 of menu bar item "View" of menu bar 1
+				end try
+			end tell
+		end reload
+
 		(*
 			TOFIX: False positive detected when a dialog was detected.  The
 			Developer settings window is not a dialog btw.
