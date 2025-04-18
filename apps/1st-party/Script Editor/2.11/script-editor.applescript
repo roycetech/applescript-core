@@ -5,10 +5,6 @@
 		This script expects that finder preferences has to always
 	display the file extension.
 
-	@Plists:
-		config-system
-			AppleScript Core Project Path
-
 	@Project:
 		applescript-core
 	
@@ -63,6 +59,7 @@ on spotCheck()
 		Manual: Focus
 		Manual: Save as app
 		Manual: Replace and Select
+		Manual: Close Search
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -131,6 +128,8 @@ on spotCheck()
 	else if caseIndex is 8 then
 		sut's replaceAndSelect("xxx", "yyy") -- This line will be updated.
 		
+	else if caseIndex is 9 then
+		sut's closeSearch()
 	end if
 	
 	spot's finish()
@@ -145,6 +144,30 @@ on new()
 	set retry to retryLib's new()
 	
 	script ScriptEditorInstance
+		
+		on closeSearch()
+			if running of application "Script Editor" is false then return missing value
+			
+			set editorWindow to getEditorWindow()
+			tell application "System Events" to tell process "Script Editor"
+				try
+					click button "Done" of scroll area 1 of splitter group 1 of splitter group 1 of editorWindow
+				end try -- In case it is not even present
+			end tell
+		end closeSearch
+		
+		on getEditorWindow()
+			if running of application "Script Editor" is false then return missing value
+			
+			tell application "System Events" to tell process "Script Editor"
+				try
+					return first window whose title contains "."
+				end try
+				
+				missing value
+			end tell
+			
+		end getEditorWindow
 		
 		(* @return  missing value of tab is not found. ScriptEditorInstance *)
 		on findTabWithName(theName as text)
