@@ -43,6 +43,7 @@ on spotCheck()
 
 		Manual: Trigger Menu: (Basic, Nested)
 		Manual: Click App
+		Manual: Trigger Menu By Prefix
 	")
 
 	set spotScript to script "core/spot-test"
@@ -109,6 +110,7 @@ on spotCheck()
 	else if caseIndex is 8 then
 
 	else if caseIndex is 9 then
+		lib's triggerAppMenuByPrefix("Safari", "Business")
 
 	else if caseIndex is 11 then
 		logger's infof("Coordinates: {}, {}", lib's getCoordinates())
@@ -331,6 +333,81 @@ on new()
 			set clickResult to exec of retry on result for waitMax by waitSeconds
 			if clickResult is missing value then kb's pressKey("escape")
 		end triggerAppMenu
+
+		(*
+			NOTE: Up to single nesting only.
+			WARNING: Uses keyboard to dismiss the menu.
+
+			WIP: Nested isn't implemented.
+
+			@appName - Application name in the dock.
+		*)
+		on triggerAppMenuByPrefix(appName, menuItemKeyPrefix)
+			if class of menuItemKeyPrefix is not list then
+				set menuItemNames to {menuItemKeyPrefix}
+			else
+				set menuItemNames to menuItemKeyPrefix
+			end if
+			if the number of items in menuItemNames is greater than 2 then
+				logger's warn("Deeply nested menu items are not yet supported. ")
+				return
+			end if
+
+			tell application "System Events" to tell process "Dock"
+				if not (exists UI element appName of list 1) then return false
+
+				perform action "AXShowMenu" of UI element appName of list 1 -- This is required.
+			end tell
+
+			set dockAppMenu to missing value
+			script MenuWaiter
+				tell application "System Events" to tell process "Dock"
+					set dockAppMenu to menu 1 of UI element appName of list 1
+				end tell
+				true
+			end script
+			set waitResult to exec of retry on result for 3
+
+			if waitResult is missing value then
+				logger's warn("Dock: Could not get reference to the menu item")
+				return
+			end if
+
+			set isNestedMenu to the number of items in menuItemNames is 2
+			set menuItemMain to item 1 of menuItemNames
+
+			-- Verify if the menu keys provided are valid.
+			tell application "System Events" to tell process "Dock"
+				if isNestedMenu then
+					set menuItemSub to item 2 of menuItemNames
+					if not (exists (menu item menuItemSub of menu 1 of menu item menuItemMain of dockAppMenu)) then
+						logger's fatalf("Menu key {} was not found.", menuItemNames as text)
+						return false
+					end if
+				else
+					if not (exists (first menu item of dockAppMenu whose title starts with menuItemMain)) then
+						logger's fatalf("Menu key prefix '{}' was not found.", menuItemMain)
+						return false
+					end if
+
+				end if
+			end tell
+
+			set retry to retryLib's new()
+			script MenuClickRetrier
+				tell application "System Events" to tell process "Dock"
+					if isNestedMenu then
+						click menu item menuItemSub of menu 1 of menu item menuItemMain of dockAppMenu
+
+					else
+						click (first menu item of dockAppMenu whose title starts with menuItemMain)
+					end if
+					true
+				end tell
+			end script
+			set clickResult to exec of retry on result for waitMax by waitSeconds
+			if clickResult is missing value then kb's pressKey("escape")
+		end triggerAppMenuByPrefix
 
 
 		(* @deprecated. No longer available as of December 10, 2022
