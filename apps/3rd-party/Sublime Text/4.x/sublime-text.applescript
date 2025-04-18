@@ -17,6 +17,7 @@
 		not have a saved project.
 
 	@Change Logs:
+		Sat, Apr 12, 2025 at 08:51:21 AM - [fix] getCurrentProjectPath with more robust implementation.
 		Thursday, May 23, 2024 at 11:55:01 AM - Add runCommandPalette handler.
 		August 30, 2023 9:44 AM - New handler getCurrentFileDirectory()
 		
@@ -35,16 +36,15 @@ use AppleScript version "2.8"
 use std : script "core/std"
 
 use textUtil : script "core/string"
-use listUtil : script "core/list"
 use unic : script "core/unicodes"
+use listUtil : script "core/list"
+
 use loggerFactory : script "core/logger-factory"
 
 use loggerLib : script "core/logger"
 use finderLib : script "core/finder"
 use configLib : script "core/config"
 use kbLib : script "core/keyboard"
-
-use spotScript : script "core/spot-test"
 
 use decoratorLib : script "core/decorator"
 
@@ -73,6 +73,7 @@ on spotCheck()
 		Manual: Run Command Palette
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -80,10 +81,10 @@ on spotCheck()
 	set sut to new()
 	
 	-- Manual: Current File details (No file, Find Result, Ordinary File)
-	set currentProject to sut's getCurrentProjectName()
-	logger's infof("Current Project: {}", currentProject)
+	set currentProjectName to sut's getCurrentProjectName()
+	logger's infof("Current Project Name: {}", currentProjectName)
 	
-	if currentProject is not missing value then
+	if currentProjectName is not missing value then
 		logger's infof("Current File Path: {}", sut's getCurrentFilePath())
 		logger's infof("Current Filename: {}", sut's getCurrentFilename())
 		logger's infof("Current Directory: {}", sut's getCurrentFileDirectory())
@@ -204,8 +205,15 @@ on new()
 			set filePath to getCurrentFilePath()
 			if filePath is missing value then return missing value
 			
+			-- logger's debugf("filePath: {}", filePath)
+			-- text 1 thru ((offset of currentProjectName in filePath) + (length of currentProjectName) - 1) of filePath  -- Breaks for the talon project under ~/.talon.
 			
-			text 1 thru ((offset of currentProjectName in filePath) + (length of currentProjectName) - 1) of filePath
+			set pathTokens to textUtil's split(filePath, "/")
+			set pathTokensReversed to reverse of pathTokens
+			set pathTokensWithoutHead to rest of pathTokensReversed
+			set calculatedPathTokens to reverse of pathTokensWithoutHead
+			textUtil's join(calculatedPathTokens, "/")
+			
 		end getCurrentProjectPath
 		
 		
@@ -272,7 +280,7 @@ on new()
 			
 			set filename to textUtil's stringAfter(filename, "file://")
 			if filename is missing value then return missing value
-
+			
 			textUtil's replace(filename, "%20", " ")
 		end getCurrentFilePath
 		
@@ -449,7 +457,7 @@ on new()
 				end tell
 			end tell
 			if windowTitle is "" or windowTitle is missing value then return missing value
-
+			
 			set csv to textUtil's split(windowTitle, ",")
 			set projectPart to first item of csv
 			set filenameAndProject to textUtil's split(projectPart, unic's SEPARATOR)
@@ -486,11 +494,11 @@ on new()
 		(* Sends a close tab key stroke combination. *)
 		on closeTab()
 			if not _isAppWindowAvailable() then return
-
+			
 			kb's pressCommandKey("w")
 		end closeTab
-
-
+		
+		
 		(* NOTE:  *)
 		on focusGroup1()
 			if not _isAppWindowAvailable() then return
@@ -506,8 +514,8 @@ on new()
 				end try
 			end tell
 		end focusGroup1
-
-
+		
+		
 		(* NOTE: Toggle's the focus group. *)
 		on focusGroup2()
 			if not _isAppWindowAvailable() then return
@@ -523,18 +531,18 @@ on new()
 				end try
 			end tell
 		end focusGroup2
-
-
+		
+		
 		-- Private Codes below =======================================================
 		on _isAppWindowAvailable()
 			try
 				return getWindowsCount() is greater than 0
 			end try
-
+			
 			false
 		end _isAppWindowAvailable
-
-
+		
+		
 		(*
 			Determines the project name by tokenizing the Sublime Text title and checking if the token exists in the full filename of the
 			active editor file.
@@ -548,7 +556,7 @@ on new()
 			tell me to error "I can't find your project folder from: " & projectNameRaw
 		end _findProjectFolder
 	end script
-
+	
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()
 end new
