@@ -252,7 +252,7 @@ on new(pProcessName)
 		end waitActivate
 
 
-		on focusWindow()
+		on focusWindows()
 			script WaitFocus
 				tell application "System Events" to tell process (my processName)
 					set frontmost to true
@@ -263,6 +263,14 @@ on new(pProcessName)
 				end tell
 			end script
 			exec of retry on result for 3
+		end focusWindow
+
+
+		(*
+			@Deprecated: use focusWindows because this actually raises all windows of the given app.
+		*)
+		on focusWindow()
+			focusWindows()
 		end focusWindow
 
 
