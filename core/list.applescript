@@ -212,7 +212,8 @@ on splitAndTrimParagraphs(theText)
 	set listResult to {}
 	set textLines to paragraphs of theText
 	repeat with nextLine in textLines
-		set trimmedLine to do shell script "echo '" & nextLine & "' |  sed 's/ *$//g'  |  sed 's/^[[:space:]]*//g'"
+		-- set trimmedLine to do shell script "echo '" & nextLine & "' |  sed 's/ *$//g'  |  sed 's/^[[:space:]]*//g'"
+		set trimmedLine to do shell script "echo " & quoted form of nextLine & " | sed 's/[[:space:]]*$//' | sed 's/^[[:space:]]*//'"
 		if trimmedLine is not "" then set end of listResult to trimmedLine
 	end repeat
 	listResult
@@ -392,8 +393,14 @@ on newWithElements(element, elementCount)
 end newWithElements
 
 
-(* What's the benefit of this over _split? *)
+(*
+	What's the benefit of this over _split?
+		Why am I shelling the split?
+*)
 on split(theString, theDelimiter)
+	_split(theString, theDelimiter)
+
+(*
 	if theString contains "$" and theString contains "'" then error "Sorry, but you can't have a dollar sign and a single quote in your string"
 
 	set theQuote to "\""
@@ -408,6 +415,7 @@ on split(theString, theDelimiter)
 	set command to "echo " & theQuote & theString & theQuote & " | paste -s -d, - | sed 's" & sedDelimiter & theDelimiter & "[[:space:]]*" & sedDelimiter & theDelimiter & sedDelimiter & "g'"
 	set csv to do shell script command
 	_split(csv, theDelimiter)
+*)
 end split
 
 

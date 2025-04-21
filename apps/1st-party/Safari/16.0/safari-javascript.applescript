@@ -32,8 +32,6 @@ use retryLib : script "core/retry"
 
 use loggerFactory : script "core/logger-factory"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 
 property configSystem : missing value
@@ -48,7 +46,6 @@ on spotCheck()
 
 	(* Tests are based on current apple.com website, very likely to change in the future. *)
 	set safariLib to script "core/safari"
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: AWS Login, IAM Radio Option
@@ -58,6 +55,7 @@ on spotCheck()
 		Retrieve Value
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
