@@ -20,7 +20,7 @@
 		and the only why I found to do this is via manual iteration. - TODO: Verify if this is the same case with Safari.
 
 	@Created: Thu, Feb 20, 2025 at 07:12:25 AM
-	@Last Modified: 2025-03-26 06:55:19
+	@Last Modified: 2025-04-21 13:18:08
 	@Change Logs:
 
 *)
@@ -554,9 +554,8 @@ on decorate(mainScript)
 						end if
 					end repeat
 
-					if matchedTab is missing value then return missing value
+					if matchedTab is not missing value then return safariTabLib's new(id of nextWindow, calculatedTabIndex)
 
-					return safariTabLib's new(id of nextWindow, calculatedTabIndex)
 				on error the errorMessage number the errorNumber
 					logger's warn(errorMessage)
 
