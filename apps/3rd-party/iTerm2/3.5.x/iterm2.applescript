@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/iTerm2/3.5.x/iterm2
 
 	@Created: Tuesday, February 11, 2025 at 6:30:28 AM
-	@Last Modified: 2025-03-09 13:35:54
+	@Last Modified: 2025-04-13 10:37:49
 *)
 
 use textUtil : script "core/string"
@@ -24,7 +24,6 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP
@@ -36,6 +35,7 @@ on spotCheck()
 		Manual: Close current tab
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
