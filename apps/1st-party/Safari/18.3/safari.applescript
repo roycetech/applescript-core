@@ -31,7 +31,7 @@
 		end tell
 
 	@Created: Mon, Feb 10, 2025 at 7:30:44 AM
-	@Last Modified: 2025-04-12 18:57:16
+	@Last Modified: 2025-04-14 09:05:19
 *)
 
 use scripting additions
@@ -256,11 +256,15 @@ on new()
 	end try
 
 	script SafariInstance
+		(*
+			NOTE: App window must already be at the frontmost. Recommend the
+			user use dock's triggerAppMenu to accomplish this. setting to
+			frontmost will bring all Safari windows to the front.
+		*)
 		on reload()
 			if running of application "Safari" is false then return
 
 			tell application "System Events" to tell process "Safari"
-				set frontmost to true
 				try
 					click menu item "Reload Page" of menu 1 of menu bar item "View" of menu bar 1
 				end try
