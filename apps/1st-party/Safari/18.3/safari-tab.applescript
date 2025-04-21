@@ -9,6 +9,7 @@
 	@Last Tue, Feb 18, 2025 at 10:21:58 AM
 
 	@Change Logs:
+		Wed, Apr 16, 2025 at 01:53:17 PM - Allow dynamic decoration.
 		Tue, Apr 08, 2025 at 11:41:12 AM - Fix #focus to trigger via menu.
 		Fri, Feb 28, 2025 at 09:15:44 AM - Added #isUnableToConnect
 		Tue, Feb 18, 2025 at 10:21:41 AM - Add #waitForAlert
@@ -22,8 +23,8 @@ use textUtil : script "core/string"
 use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
-
 use safariJavaScript : script "core/safari-javascript"
+use decoratorLib : script "core/decorator"
 
 property logger : missing value
 property retry : missing value
@@ -48,6 +49,7 @@ on spotCheck()
 
 	set usrLib to script "core/user"
 	set usr to usrLib's new()
+
 	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
@@ -210,7 +212,11 @@ on new(windowId, pTabIndex)
 			tell application "Safari"
 				set baseUrl to do JavaScript "location.origin" in front document
 			end tell
-			if baseUrl is equal to "null" then return missing value
+			try
+				if baseUrl is equal to "null" then return missing value
+			on error
+				return missing value
+			end try -- When web page is not connected or a web app connection is expired.
 
 			baseUrl
 		end getBaseURL
@@ -337,15 +343,25 @@ on new(windowId, pTabIndex)
 			set menuTitles to reverse of menuTitles
 			set foundMenuTitle to missing value
 
+			set foundWindow to missing value
 			repeat with nextMenuTitle in menuTitles
 				if nextMenuTitle as text is "" then return
 
 				if nextMenuTitle contains unic's ELLIPSIS then
 					set {prefix, suffix} to textUtil's split(nextMenuTitle, unic's ELLIPSIS)
-					set prefix to textUtil's stringAfter(prefix, unic's SEPARATOR)
+					-- set prefix to textUtil's stringAfter(prefix, unic's SEPARATOR)
+
+					(*
+					log prefix
+					log suffix
+*)
+
 					if tabTitle starts with prefix and tabTitle ends with suffix then
 						-- log "FOUND: " & nextMenuTitle
 						set foundMenuTitle to nextMenuTitle
+						tell application "Safari"
+							set foundWindow to (first window whose name starts with prefix and name ends with suffix)
+						end tell
 						exit repeat
 					else
 						-- log prefix
@@ -354,6 +370,7 @@ on new(windowId, pTabIndex)
 				else
 					if nextMenuTitle is equal to tabTitle then
 						set foundMenuTitle to nextMenuTitle
+						set foundWindow to window nextMenuTitle
 						exit repeat
 					end if
 				end if
@@ -361,10 +378,13 @@ on new(windowId, pTabIndex)
 
 			logger's debugf("foundMenuTitle: {}", foundMenuTitle)
 			if foundMenuTitle is not missing value then
-				tell application "System Events" to tell process "Safari"
+				tell application "Safari"
+					set index of foundWindow to 1
+				end tell
 
+				tell application "System Events" to tell process "Safari"
 					try
-						click menu item "Show Bookmarks" of menu 1 of menu bar item "Windows" of menu bar 1
+						click menu item foundMenuTitle of menu 1 of menu bar item "Windows" of menu bar 1
 					end try
 				end tell
 			end if
@@ -512,4 +532,7 @@ on new(windowId, pTabIndex)
 	end tell
 	safariJavaScript's decorate(SafariTabInstance)
 	decSafariProfile's decorateTab(result)
+
+	set decorator to decoratorLib's new(result)
+	decorator's decorateByName("SafariTabInstance")
 end new
