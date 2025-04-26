@@ -32,21 +32,25 @@ else
 endif
 
 
-deploy-type:  # Detects configured deployment type
-	@deploy_type=$$(plutil -extract "[app-core] Deployment Type - LOV Selected" raw ~/applescript-core/session.plist); \
-	if [ "$$deploy_type" = "computer" ]; then \
-		echo "computer"; \
-	else \
-		echo "user"; \
-	fi
+# deploy-type:  # Detects configured deployment type
+# 	@deploy_type=$$(plutil -extract "[app-core] Deployment Type - LOV Selected" raw ~/applescript-core/session.plist); \
+# 	if [ "$$deploy_type" = "computer" ]; then \
+# 		echo "computer"; \
+# 	else \
+# 		echo "user"; \
+# 	fi
 
 set-user-deploy-type:
+	mkdir ~/applescript-core
+	cp -n plist.template ~/applescript-core/session.plist || true
 	$$(plutil -replace '[app-core] Deployment Type - LOV Selected' -string 'user' ~/applescript-core/session.plist);
 	echo "Deployment type changed to 'user-scope'"
 
 
 set-computer-deploy-type:
-	$$(plutil -replace '[app-core] Deployment Type - LOV Selected' -string 'computer' ~/applescript-core/session.plist);
+	mkdir ~/applescript-core
+	cp -n plist.template ~/applescript-core/session.plist || true
+	plutil -replace '[app-core] Deployment Type - LOV Selected' -string 'computer' ~/applescript-core/session.plist
 	echo "Deployment type changed to 'computer-scope'"
 
 

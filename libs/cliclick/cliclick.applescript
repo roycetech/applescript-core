@@ -2,8 +2,6 @@
 	Download cli at https://www.bluem.net/en
 	For some reason if you are not moving the mouse pointer far enough, the repositioning of the cursor doesn't change or change but off by a small size.
 
-	TODO: Refactor to use an instance.
-
 	@Usage:
 		lclick at "UI element" with reset and smoothing
 
@@ -13,6 +11,13 @@
 	@Plists
 		config-system
 			cliclick CLI
+
+	@Client Codes:
+		System Settings
+		Zoom
+		1Password 6
+		Clean Shot X
+		Eclipse
 
 	@Change Log:
 		September 20, 2023 11:46 AM - Removed smoothing for movePointer because having it, the pointer doesn't move to the given coordinates.
