@@ -27,6 +27,7 @@ on spotCheck()
 		NOOP
 		Manual: Connect
 		Manual: Switch Tab
+		Manual: Close Devices Window
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -60,6 +61,9 @@ on spotCheck()
 		logger's debugf("sutTabName: {}", sutTabName)
 		
 		sut's switchTab(sutTabName)
+		
+	else if caseIndex is 4 then
+		sut's closeDevicesWindow()
 	end if
 	
 	spot's finish()
@@ -148,5 +152,16 @@ on new()
 				click button "Continue" of group 2 of sheet 1 of front window
 			end tell
 		end connect
+		
+		
+		on closeDevicesWindow()
+			if running of application "Windows App" is false then return
+			
+			tell application "System Events" to tell process "Windows App"
+				try
+					click (first button of window "Devices" whose description is "close button")
+				end try
+			end tell
+		end closeDevicesWindow
 	end script
 end new
