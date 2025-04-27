@@ -31,7 +31,7 @@
 		end tell
 
 	@Created: Mon, Feb 10, 2025 at 7:30:44 AM
-	@Last Modified: 2025-04-14 09:05:19
+	@Last Modified: 2025-04-25 06:20:05
 *)
 
 use scripting additions
@@ -50,10 +50,14 @@ use dockLib : script "core/dock"
 
 use winUtilLib : script "core/window"
 
+property TopLevel : me
+
 property logger : missing value
 property winUtil : missing value
 property retry : missing value
 property dock : missing value
+
+property KEYWORD_FORM_SUBMIT_PROMPT : "send a form again"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -80,7 +84,9 @@ on spotCheck()
 		Get Tab by Window ID - Manual
 		Manual: Address Bar is Focused
 		Manual: Select OTP
+		Manual: Cancel Form Submit Again
 
+		Manual: Send Form Submit Again
 	")
 
 	set spotClass to spotScript's new()
@@ -95,6 +101,7 @@ on spotCheck()
 	logger's infof("Selection: {}", sut's getSelectedText())
 	logger's infof("Integration: Is Location Prompt Present: {}", sut's isLocationPromptPresent())
 	logger's infof("Integration: Current Group Name: {}", sut's getGroupName())
+	logger's infof("Is form submit again prompt present: {}", sut's isFormSubmitAgainPresent())
 
 	if caseIndex is 2 then
 		(*
@@ -225,6 +232,11 @@ on spotCheck()
 		set adhocCredKey to "core.keychain"
 		sut's selectKeychainItem(adhocCredKey)
 
+	else if caseIndex is 15 then
+		sut's cancelFormSubmitAgain()
+
+	else if caseIndex is 16 then
+		sut's confirmFormSubmitAgain()
 	end if
 
 	spot's finish()
@@ -256,6 +268,31 @@ on new()
 	end try
 
 	script SafariInstance
+		on hideOtherWindows()
+			tell application "System Events" to tell process "Safari"
+				set nonMatchedWindows to windows whose title does not contain my getTitle()
+				repeat with nextUnmatched in nonMatchedWindows
+					click (first button of nextUnmatched whose description is "minimize button")
+				end repeat
+			end tell
+		end hideOtherWindows
+
+
+		on isFormSubmitAgainPresent()
+			run TopLevel's newPromptPresenceLambda(KEYWORD_FORM_SUBMIT_PROMPT)
+		end isFormSubmitAgainPresent
+
+
+		on confirmFormSubmitAgain()
+			_respondToAccessRequest(TopLevel's newPromptPresenceLambda(KEYWORD_FORM_SUBMIT_PROMPT), TopLevel's newPromptButtonFactory("Send"))
+		end confirmFormSubmitAgain
+
+
+		on cancelFormSubmitAgain()
+			_respondToAccessRequest(TopLevel's newPromptPresenceLambda(KEYWORD_FORM_SUBMIT_PROMPT), TopLevel's newPromptButtonFactory("Cancel"))
+		end cancelFormSubmitAgain
+
+
 		(*
 			NOTE: App window must already be at the frontmost. Recommend the
 			user use dock's triggerAppMenu to accomplish this. setting to
@@ -520,3 +557,34 @@ on new()
 		baseInstance
 	end if
 end new
+
+
+on newPromptButtonFactory(buttonLabel)
+	script FormSubmitAgainButtonFactory
+		on run {} -- NOTE: This needs to be called explicitly.
+			tell application "System Events" to tell process "Safari"
+				try
+					return button buttonLabel of sheet 1 of front window
+				end try
+			end tell
+			missing value
+		end run
+	end script
+end newPromptButtonFactory
+
+
+on newPromptPresenceLambda(promptKeyword)
+	script PromptPresenceLambda
+		on run {}
+			if running of application "Safari" is false then return false
+
+			tell application "System Events" to tell process "Safari"
+				try
+					return value of static text 1 of sheet 1 of front window contains promptKeyword
+				end try
+			end tell
+
+			false
+		end run
+	end script
+end newPromptPresenceLambda
