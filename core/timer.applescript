@@ -15,7 +15,7 @@
 		./scripts/build-lib.sh core/timer
 
 	@Created: Thu, Apr 17, 2025 at 09:33:38 PM
-	@Last Modified: 2025-04-17 21:51:44
+	@Last Modified: 2025-04-22 08:09:18
 *)
 
 use scripting additions
@@ -88,6 +88,7 @@ on new()
 
 
 		on getElapsedTimeSeconds()
+			if startTime is missing value then return 0
 			((current date) - startTime)
 		end getElapsedTimeSeconds
 	end script
