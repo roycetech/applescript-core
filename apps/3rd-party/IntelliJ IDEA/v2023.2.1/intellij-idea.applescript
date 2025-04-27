@@ -29,6 +29,8 @@ use configLib : script "core/config"
 use decoratorLib : script "core/decorator"
 use retryLib : script "core/retry"
 
+use decIntelliJIdeaFindLib : script "core/dec-intellij-idea-find"
+
 property logger : missing value
 property kb : missing value
 property config : missing value
@@ -52,6 +54,9 @@ on spotCheck()
 		Manual: Open File Path
 		Manual: Toggle Scheme
 		Manual: Trigger Menu
+		
+		Manual: Open Class via UI
+		Manual: Open File via UI
 	")
 	
 	set spotClass to spotScript's new()
@@ -73,6 +78,7 @@ on spotCheck()
 	logger's debugf("sutProjectFilePath: {}", sutProjectFilePath)
 	logger's infof("Is code with me running: {}", sut's isCodingWithMe())
 	logger's debugf("Integration: Current file path: {}", sut's getCurrentFilePath())
+	logger's infof("Integration: Find dialog probably present: {}", sut's isDialogWindowPresent())
 	
 	if caseIndex is 1 then
 		
@@ -91,6 +97,12 @@ on spotCheck()
 	else if caseIndex is 5 then
 		sut's triggerMenu("Run", "Run")
 		
+	else if caseIndex is 6 then
+		sut's openClassViaUI("cbs.obs.access.user.EditUser")
+		
+	else if caseIndex is 7 then
+		sut's openFileViaUI("editUser.jsp")
+		
 	end if
 	
 	spot's finish()
@@ -108,6 +120,7 @@ on new()
 	
 	if std's appExists("IntelliJ IDEA") then
 		set localAppName to "IntelliJ IDEA"
+		
 	else if std's appExists("IntelliJ IDEA CE") then
 		set localAppName to "IntelliJ IDEA CE"
 	else
@@ -117,6 +130,28 @@ on new()
 	
 	script IntelliJIDEAInstance
 		property intellijAppName : localAppName
+		
+		on openClassViaUI(dottedPath)
+			tell application "System Events" to tell process (my _getProcessName())
+				set frontmost to true
+				
+				kb's pressCommandKey("o")
+				kb's typeText(dottedPath)
+				delay 1
+				kb's pressKey(return)
+			end tell
+		end openClassViaUI
+		
+		on openFileViaUI(filePath)
+			tell application "System Events" to tell process (my _getProcessName())
+				set frontmost to true
+				
+				kb's pressShiftCommandKey("o")
+				kb's typeText(filePath)
+				delay 1
+				kb's pressKey(return)
+			end tell
+		end openFileViaUI
 		
 		
 		on triggerMenu(menuTitle, menuSubtitle)
@@ -207,7 +242,7 @@ on new()
 			
 			tell application "System Events" to tell process intellijAppName
 				set targetWindow to missing value
-				try				
+				try
 					set targetWindow to first window whose title is not ""
 				end try
 				if targetWindow is missing value then return missing value
@@ -305,6 +340,7 @@ on new()
 		end _getProcessName
 	end script
 	
+	decIntelliJIdeaFindLib's decorate(result)
 	set decorator to decoratorLib's new(result)
-	decorator's decorate()
+	decorator's decorateByName("IntelliJIDEAInstance")
 end new
