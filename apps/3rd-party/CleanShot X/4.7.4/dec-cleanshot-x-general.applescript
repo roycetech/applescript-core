@@ -26,31 +26,33 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: Set Start at Login On
 		Manual: Set Start at Login Off
-
 		Manual: Set Export Location
 		Manual: Set Hide Desktop icons On
+		
 		Manual: Set Hide Desktop icons Off
 		Manual: Set Show Quick Access Overlay - Screenshot On
 		Manual: Set Show Quick Access Overlay - Screenshot Off
-
 		Manual: Set Show Quick Access Overlay - Recording On
 		Manual: Set Show Quick Access Overlay - Recording Off
+		
 		Manual: Set Copy file to clipboard - Screenshot On
 		Manual: Set Copy file to clipboard - Screenshot Off
 		Manual: Set Copy file to clipboard - Recording On
-
 		Manual: Set Copy file to clipboard - Recording Off
 		Manual: Set Save - Screenshot On
+		
 		Manual: Set Save - Screenshot Off
 		Manual: Set Save - Recording On
 		Manual: Set Save - Recording Off
+		Manual: Set Open annotate tool - Screenshot On
+		Manual: Set Open annotate tool - Screenshot Off
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -78,6 +80,8 @@ on spotCheck()
 	
 	logger's infof("Save-Screenshot: {}", sut's isSaveScreenshot())
 	logger's infof("Save-Recording: {}", sut's isSaveRecording())
+	
+	logger's infof("Open annotate tool-Screenshot: {}", sut's isOpenAnnotateTool())
 	
 	if caseIndex is 1 then
 		
@@ -131,6 +135,12 @@ on spotCheck()
 		
 	else if caseIndex is 18 then
 		sut's setSaveRecordingOff()
+		
+	else if caseIndex is 19 then
+		sut's setOpenAnnotateToolOn()
+		
+	else if caseIndex is 20 then
+		sut's setOpenAnnotateToolOff()
 		
 	end if
 	
@@ -246,9 +256,9 @@ on decorate(mainScript)
 				
 				set frontmost to true
 				set newPosixPath to finderMini's untilde(newPath)
-				if newPosixPath is equal to my getExportLocation() then 
+				if newPosixPath is equal to my getExportLocation() then
 					logger's info("New export location is the same, exiting")
-				return
+					return
 				end if
 				
 				try
@@ -477,6 +487,37 @@ on decorate(mainScript)
 			if isSaveRecording() then toggleSaveRecording()
 		end setSaveRecordingOff
 		
+		
+		on isOpenAnnotateTool()
+			if running of application "CleanShot X" is false then return
+			
+			tell application "System Events" to tell process "CleanShot X"
+				if (count of windows) is 0 then return false
+				try
+					return (value of checkbox 1 of UI element 1 of row 5 of table 1 of scroll area 1 of front window) is 1
+				end try
+			end tell
+			
+			false
+		end isOpenAnnotateTool
+		
+		on toggleOpenAnnotateTool()
+			if running of application "CleanShot X" is false then return
+			
+			tell application "System Events" to tell process "CleanShot X"
+				if (count of windows) is 0 then return
+				
+				click checkbox 1 of UI element 1 of row 5 of table 1 of scroll area 1 of front window
+			end tell
+		end toggleOpenAnnotateTool
+		
+		on setOpenAnnotateToolOn()
+			if not isOpenAnnotateTool() then toggleOpenAnnotateTool()
+		end setOpenAnnotateToolOn
+		
+		on setOpenAnnotateToolOff()
+			if isOpenAnnotateTool() then toggleOpenAnnotateTool()
+		end setOpenAnnotateToolOff
 		(* After capture handlers =End =============================================================*)
 	end script
 end decorate
