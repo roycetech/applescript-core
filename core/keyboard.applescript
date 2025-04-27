@@ -372,6 +372,24 @@ on new()
 		end typeText
 
 		(*
+		*)
+		on typeTextByKeys(theText)
+			if theText is missing value then return
+
+			repeat with nextChar in characters of theText
+				set nextCharText to nextChar as text
+				if nextCharText is "$" then
+					pressShiftKey(4)
+				else if nextCharText is "%"
+					pressShiftKey(5)
+					-- TODO: All shift characters.
+				else
+					pressKey(nextCharText)
+				end if
+			end repeat
+		end typeText
+
+		(*
 			Looks to still have failed as of December 3, 2023 10:38 AM. May
 			still be failing intermittently still.
 		*)
