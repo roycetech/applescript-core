@@ -21,22 +21,23 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's injectBasic(me)
-
+	
+	logger's infof("Username: {}", getUsername())
+	
 	try
 		noo
 	on error the errorMessage number the errorNumber
 		-- catch("spotCheck-std", errorNumber, errorMessage)
 		catch("spotCheck-std", errorNumber, "is not allowed to send keystrokes")
 	end try
-
-	logger's infof("Username: {}", getUsername())
+	
 	logger's infof("App Exists no: {}", appExists("Magneto"))
 	logger's infof("App Exists yes: {}", appExists("Script Editor"))
 	logger's infof("Find app (unicorn): {}", findApp("Unicorn"))
 	logger's infof("Find app (Finder): {}", findApp("Finder"))
 	logger's infof("Find user app (Menu Case): {}", findApp("Menu Case"))
 	return
-
+	
 	assertThat given condition:1 + 3 < 10, messageOnFail:"failed on first assertion"
 	assertThat given condition:1 + 3 < 4, messageOnFail:"failed on second assertion"
 end spotCheck
@@ -46,35 +47,35 @@ end spotCheck
 (* My general catch handler for all my scripts. Used as top most only. *)
 on catch(source, errorNumber, errorMessage)
 	loggerFactory's injectBasic(me)
-
+	
 	if errorMessage contains "user canceled" or errorMessage contains "abort" then
 		logger's warn(errorMessage)
 		say "aborted"
 		return
 	end if
-
+	
 	if errorMessage contains "Scripting Component Error" then
 		logger's warn(errorMessage)
 		return
 	end if
-
+	
 	if errorMessage contains "is not allowed to send keystrokes" or errorMessage contains "is not allowed assistive access" then
 		logger's warn(errorMessage)
-
+		
 		try
 			activate application "System Settings"
 			delay 1 -- required or else set current pane will fail
-
+			
 			tell application "System Settings"
 				set current pane to pane id "com.apple.settings.PrivacySecurity.extension"
 				anchors of current pane
 				reveal anchor "Privacy_Accessibility" of current pane
 			end tell
 		end try
-
+		
 		return
 	end if
-
+	
 	if class of source is text then
 		set scriptName to source
 	else
@@ -115,30 +116,31 @@ end appExists
 *)
 on findApp(appName)
 	if appExists(appName) then return appName
-
+	
 	set userAppName to getUsername() & "." & appName
 	if appExists(userAppName) then return userAppName
-
+	
 	missing value
 end findApp
 
 
 on getUsername()
 	if my username is missing value then set my username to short user name of (system info)
+	if my username is equal to "root" then set my username to do shell script "whoami"
 	my username
 end getUsername
 
 
 on getComputerName()
-	computer name of (system info)
+	computer name of (system info) 
 end getComputerName
 
 
 on assertThat given condition:condition as boolean, messageOnFail:message : missing value
-
+	
 	if condition is false then
 		if message is missing value then set message to "Assertion failed"
-
+		
 		tell me to error message
 		logger's fatal(message)
 	end if
@@ -148,7 +150,7 @@ end assertThat
 (*  *)
 on ternary(condition, ifTrue, otherwise)
 	if condition then return ifTrue
-
+	
 	otherwise
 end ternary
 
@@ -156,7 +158,7 @@ end ternary
 (*  *)
 on nvl(nonMissingValue, ifMissingValue)
 	if nonMissingValue is missing value then return ifMissingValue
-
+	
 	nonMissingValue
 end nvl
 

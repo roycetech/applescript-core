@@ -1,11 +1,18 @@
 #!/usr/bin/osascript
 
 (* 
-	Browse the AppleScript subdirector from the user's Applications directory so it can referenced by user 
-	scripts for testing. *)
+	Browse the AppleScript subdirectory of the user's Applications directory so it can referenced by user 
+	scripts for testing. 	
+*)
 
 set username to short user name of (system info)
-set USER_APPS_PATH_KEY to "AppleScript Apps path"
+
+property PLIST_KEY_DEPLOY_TYPE : "[app-core] Deployment Type - LOV Selected"
+property USER_APPS_PATH_KEY : "AppleScript Apps path"
+
+try
+	set deployType to do shell script "plutil -extract '" & PLIST_KEY_DEPLOY_TYPE & "' raw ~/applescript-core/session.plist"
+end try
 
 set currentPath to missing value
 try
@@ -14,6 +21,10 @@ end try
 
 if currentPath is not missing value and currentPath is not "" then
 	set defaultPosixPath to currentPath
+	
+else if deployType is "computer" then
+	set defaultPosixPath to "/Applications/AppleScript/"
+	
 else
 	set defaultPosixPath to "/Users/" & username & "/Applications/AppleScript/"
 end if

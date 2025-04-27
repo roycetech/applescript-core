@@ -31,7 +31,7 @@ build-automator:
 install-automator: build-automator
 	mkdir -p /Applications/AppleScript
 	# cp -n plist.template ~/applescript-core/config-system.plist || true
-	osascript scripts/setup-applescript-apps-path.applescript
+	osascript scripts/setup-apps-applescript-path.applescript
 
 uninstall-automator:
 	@echo "TODO"
@@ -40,8 +40,8 @@ uninstall-automator:
 
 build-calendar:
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/11.0/dec-calendar-view"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/15.0/dec-calendar-meetings"
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/15.0/calendar-event"
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/15.0/dec-calendar-meetings"
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/15.0/calendar"
 
 install-calendar: build-calendar
@@ -54,11 +54,11 @@ build-console:
 
 build-finder:
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-mini
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-selection
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-tab
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-folders
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-files
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-paths
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-selection
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
 
 
