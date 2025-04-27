@@ -73,6 +73,7 @@ on spotCheck()
 	logger's infof("Has alert: {}", sut's hasAlert())
 	logger's infof("Current URL: {}", sut's getURL())
 	logger's infof("Base URL: {}", sut's getBaseURL())
+	logger's infof("URL Path: {}", sut's getUrlPath())
 	-- logger's infof("Is page Loading: {}", sut's isLoading())  -- I think this is on the safari instance, not the safari tab instance.
 	logger's infof("Is unable to connect: {}", sut's isUnableToConnect())
 
@@ -220,6 +221,15 @@ on new(windowId, pTabIndex)
 
 			baseUrl
 		end getBaseURL
+
+
+		on getUrlPath()
+			try
+				return textUtil's stringAfter(getURL(), getBaseURL())
+			end try
+
+			missing value
+		end getUrlPath
 
 		(*
 			@returns void
