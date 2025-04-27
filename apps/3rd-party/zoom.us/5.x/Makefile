@@ -10,5 +10,5 @@ $(OS_LIBS): Makefile
 	../../scripts/compile-lib.sh $@
 
 install: $(OS_LIBS)
-	./setup-configurations.applescript
+	./setup-zoom-configurations.applescript
 

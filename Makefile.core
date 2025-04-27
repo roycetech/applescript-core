@@ -9,19 +9,6 @@ else
   SUDO :=
 endif
 
-# 	The stub prefix is intentional to avoid the warning for Makefile, which
-# 	wants to avoid having a similar target.
-STUB_LIBS :=  \
-	stubs/config \
-	stubs/list \
-	stubs/logger \
-	stubs/logger-factory \
-	stubs/plist-buddy \
-	stubs/string \
-	stubs/string-builder \
-	stubs/spot-test \
-	stubs/user
-
 # 	config
 
 # Needs to be ordered because the use script will compile dependent scripts.
@@ -108,15 +95,16 @@ endif
 	./scripts/setup-switches.sh
 	@echo "Installation done"
 
-$(STUB_LIBS): Makefile
-	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/$(patsubst stubs/%,%,$@).scpt" "scripts/stub.applescript"
-
 $(CORE_LIBS): Makefile
 	$(SUDO) ./scripts/build-lib.sh core/$@
 
 
 build-standard:
-ifeq ($(OS_NAME), sonoma)
+ifeq ($(OS_NAME), sequoia)
+	# Prior version is compatible.
+	$(SUDO) ./scripts/build-lib.sh macOS-version/14-sonoma/std
+
+else ifeq ($(OS_NAME), sonoma)
 	$(SUDO) ./scripts/build-lib.sh macOS-version/14-sonoma/std
 
 else ifeq ($(OS_NAME), ventura)
@@ -126,7 +114,6 @@ else ifeq ($(OS_NAME), monterey)
 	$(SUDO) ./scripts/build-lib.sh macOS-version/12-monterey/std
 
 else
-	$(SUDO) ./scripts/build-lib.sh macOS-version/12-monterey/std
 	@echo "build-core unimplemented macOS version error"
 endif
 
@@ -139,7 +126,6 @@ build-core-bundle:
 # to re-order the build of the script depending on which script is needed first.
 
 build: \
-	build-stub \
 	build-standard \
 	build-core-bundle \
 	build-core \
@@ -158,11 +144,6 @@ build-all: \
 	build-macos-apps
 
 install-all: build-all
-
-build-stub: $(STUB_LIBS)
-	@echo "Stubs compiled. This target is meant to help compile other scripts. \
-Make sure this is not the last target you run, otherwise the scripts that \
-need the real library will fail."
 
 build-core: $(CORE_LIBS)
 	@echo "Core libraries compiled."
@@ -197,7 +178,6 @@ build-apps: \
 
 
 build-control-center:
-	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/control-center.scpt" "scripts/stub.applescript"
 ifeq ($(OS_NAME), sonoma)
 	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_network"
 	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_sound"
@@ -232,8 +212,6 @@ endif
 
 
 build-notification-center:
-#	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/notification-center.scpt" "scripts/stub.applescript"
-
 ifeq ($(OS_NAME), sequoia)
 	$(SUDO) ./scripts/build-lib.sh "macOS-version/15-sequoia/notification-center-helper"
 	$(SUDO) ./scripts/build-lib.sh "macOS-version/15-sequoia/notification-center"

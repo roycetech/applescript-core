@@ -19,6 +19,13 @@ For the more comprehensive documentation, see [README-Full.md](./README-Full.md)
 
 Optionally install individual wrappers as needed. (e.g. `make install-safari`)
 
+### Installation Scope
+
+This framework is typically installed under the users scope but may also be installed on the computer scope so that multiple users of the same mac can use the libraries.
+
+To install on the computer scope run: `$ make set-computer-deploy-type`.
+
+
 ## Uninstall
 
 Run `$ make uninstall` to remove the installed scripts under Script Libraries.

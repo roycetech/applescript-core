@@ -22,9 +22,6 @@ use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
 use plutilLib : script "core/plutil"
-use terminalLib : script "core/terminal"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property retry : missing value
@@ -44,6 +41,7 @@ on spotCheck()
 		Manual: Run and Wait
 	")
 
+set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -52,6 +50,7 @@ on spotCheck()
 		return
 	end if
 
+set terminalLib to script "core/terminal"
 	set terminal to terminalLib's new()
 	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)

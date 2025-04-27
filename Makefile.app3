@@ -56,13 +56,11 @@ build-google-chrome:
 
 
 build-guitar-pro:
-	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/guitar-pro.scpt" "scripts/stub.applescript"
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Guitar Pro/7.6/dec-guitar-pro-note
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Guitar Pro/7.6/guitar-pro
 
 
 build-ms-edge:
-	$(SUDO) osacompile -o "$(HOME)/Library/Script Libraries/core/microsoft-edge.scpt" "scripts/stub.applescript"
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge-javascript
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge-tab
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge
@@ -175,7 +173,6 @@ build-vlc:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/VLC/3.0.x/vlc
 
 build-zoom:
-	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/zoom.scpt" "scripts/stub.applescript"
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-authentication
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting-actions
@@ -194,7 +191,7 @@ build-zoom:
 install-zoom: build-zoom
 	mkdir -p ~/applescript-core/zoom.us/
 	cp -n plist.template ~/applescript-core/zoom.us/config.plist || true
-	osascript ./apps/3rd-party/zoom.us/setup-configurations.applescript
+	osascript ./apps/3rd-party/zoom.us/setup-zoom-configurations.applescript
 	# plutil -replace 'UserInstance' -string 'core/dec-user-zoom' ~/applescript-core/config-lib-factory.plist
 	./scripts/plist-insert.sh ~/applescript-core/config-lib-factory.plist "UserInstance" "core/dec-user-zoom"
 

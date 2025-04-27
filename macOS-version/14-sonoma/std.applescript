@@ -22,6 +22,8 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's injectBasic(me)
 
+	logger's infof("Username: {}", getUsername())
+
 	try
 		noo
 	on error the errorMessage number the errorNumber
@@ -29,7 +31,6 @@ on spotCheck()
 		catch("spotCheck-std", errorNumber, "is not allowed to send keystrokes")
 	end try
 
-	logger's infof("Username: {}", getUsername())
 	logger's infof("App Exists no: {}", appExists("Magneto"))
 	logger's infof("App Exists yes: {}", appExists("Script Editor"))
 	logger's infof("Find app (unicorn): {}", findApp("Unicorn"))
@@ -125,6 +126,7 @@ end findApp
 
 on getUsername()
 	if my username is missing value then set my username to short user name of (system info)
+	if my username is equal to "root" then set my username to do shell script "whoami"
 	my username
 end getUsername
 
