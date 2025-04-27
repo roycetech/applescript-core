@@ -289,6 +289,14 @@ on new()
 					runResult
 				end runScript
 				
+				on stopScript()
+					focus()
+					
+						tell application "System Events" to tell process "Script Editor"
+							click (first button of toolbar 1 of front window whose description is "Stop")
+						end tell
+				end runScript
+				
 				
 				on newTab()
 					if running of application "Script Editor" is false then return
