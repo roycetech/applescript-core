@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2025-03-30 08:50:37
+	@Last Modified: 2025-04-28 09:32:50
 *)
 
 use script "core/Text Utilities"
@@ -212,6 +212,7 @@ end writeTextToTempFile
 *)
 on getBaseFilename(filePath)
 	if filePath is missing value then return missing value
+	if filePath is "" then return missing value
 
 	-- if (offset of ":" in filePath) is greater than 0 then  -- Mac OS Notation
 	if (offset of "/" in filePath) is greater than 0 then -- POSIX Notation
@@ -221,7 +222,7 @@ on getBaseFilename(filePath)
 		set theDelimiter to ":"
 
 	else
-		error "Could not determine the file separator"
+		error "Could not determine the file separator: " & filePath
 
 	end if
 
