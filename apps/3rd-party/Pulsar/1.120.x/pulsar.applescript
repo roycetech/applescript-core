@@ -193,6 +193,7 @@ on new()
 
 				set windowTitle to name of window 1
 			end tell
+			if isTreeViewFocused() then return missing value
 
 			set tokens to textUtil's split(windowTitle, unic's SEPARATOR)
 			if (count of tokens) is 0 then return missing value
@@ -200,7 +201,7 @@ on new()
 			set docNameFromTitle to first item of tokens
 			if docNameFromTitle is not "Project" then return docNameFromTitle
 
-			logger's debugf("docNameFromTitle: {}", docNameFromTitle)
+			-- logger's debugf("docNameFromTitle: {}", docNameFromTitle)
 
 			-- set docPath to _extractDocPathByHotkey()
 
@@ -212,7 +213,7 @@ on new()
 
 		on getCurrentFileDirectory()
 			set currentFilePath to getCurrentFilePath()
-			if currentFilePath is missing value then return missing value
+			if currentFilePath is missing value or currentFilePath is "" then return missing value
 
 			textUtil's split(currentFilePath, "/")
 			textUtil's join(items 1 thru -2 of result, "/")
@@ -232,6 +233,7 @@ on new()
 
 				set windowTitle to name of front window
 			end tell
+			if isTreeViewFocused() then return missing value
 
 			set titleTokens to textUtil's split(windowTitle, unic's SEPARATOR)
 			if the number of titleTokens is less than 2 then return missing value
@@ -276,6 +278,7 @@ on new()
 
 		on getCurrentBaseFilename()
 			if running of application "Pulsar" is false then return missing value
+			if isTreeViewFocused() then return missing value
 
 			set docName to getCurrentDocumentName()
 			if docName is missing value then return missing value
@@ -301,6 +304,7 @@ on new()
 
 				set windowTitle to name of front window
 			end tell
+			if isTreeViewFocused() then return missing value
 
 			set titleTokens to textUtil's split(windowTitle, unic's SEPARATOR)
 			set folderPath to last item of titleTokens
@@ -337,7 +341,10 @@ on new()
 
 			script GetFromClipboard2
 				tell application "System Events" to tell process "Pulsar"
-					click of static text 1 of group 1 of group 1 of group 1 of group 1 of group 2 of group 1 of group 1 of UI element 1 of front window
+					try
+						click of static text 1 of group 1 of group 1 of group 1 of group 1 of group 2 of group 1 of group 1 of UI element 1 of front window
+					end try -- Focusing + delay didn't work at all.
+
 				end tell
 			end script
 			clip's extract(GetFromClipboard2)
