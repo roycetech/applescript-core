@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/iTerm2/3.5.x/iterm2
 
 	@Created: Tuesday, February 11, 2025 at 6:30:28 AM
-	@Last Modified: 2025-04-13 10:37:49
+	@Last Modified: 2025-04-29 06:33:47
 *)
 
 use textUtil : script "core/string"
@@ -33,6 +33,7 @@ on spotCheck()
 		Manual: New Tab
 
 		Manual: Close current tab
+		Manual: Clear Console
 	")
 
 	set spotScript to script "core/spot-test"
@@ -77,6 +78,9 @@ on spotCheck()
 
 	else if caseIndex is 6 then
 		sut's closeCurrentTab()
+
+	else if caseIndex is 7 then
+		sut's clearConsole()
 	end if
 
 	spot's finish()
@@ -90,8 +94,36 @@ on new()
 	set kb to kbLib's new()
 
 	script ITerm2Instance
+
 		property RECENT_OUTPUT_THRESHOLD : 1024
 
+		on clearConsole()
+			if running of application "iTerm" is false then return
+
+			tell application "System Events" to tell process "iTerm2"
+				-- set frontmost to true  -- For testing only, app requires to be focused.
+				try
+					click menu item "Clear Buffer" of menu 1 of menu bar item "Edit" of menu bar 1
+				end try
+			end tell
+		end clearConsole
+
+		on scrollToBottom()
+			if running of application "iTerm" is false then return
+
+			tell application "System Events" to tell process "iTerm2"
+				set value of scroll bar 1 of scroll area 1 of splitter group 1 of group 1 of window 1 to 1
+			end tell
+		end scrollToBottom
+
+
+		on scrollToTop()
+			if running of application "iTerm" is false then return
+
+			tell application "System Events" to tell process "iTerm2"
+				set value of scroll bar 1 of scroll area 1 of splitter group 1 of group 1 of window 1 to 0
+			end tell
+		end scrollToTop
 
 		on getWindowTitle()
 			if running of application "iTerm" is false then return missing value
