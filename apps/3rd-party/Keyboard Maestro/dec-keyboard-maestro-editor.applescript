@@ -11,6 +11,7 @@
 	@Created: Wednesday, August 14, 2024 at 5:53:03 PM
 	@Last Modified: Wednesday, August 14, 2024 at 5:53:03 PM
 	@Change Logs:
+		Tue, Apr 29, 2025 at 12:53:30 PM - Added focusSelectedMacro handler
 		Wed, Feb 19, 2025 at 01:34:30 PM - Added Delete/Add Macro Group app.
 		Wed, Jan 8, 2025 at 8:33:24 AM - Added #getSelectedMacroName
 *)
@@ -29,7 +30,6 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: Set macro name (un/focused)
@@ -38,8 +38,11 @@ on spotCheck()
 		Manual: Add macro group app
 		
 		Manual: Set app availability option
+		Manual: Focus Macro
+		Manual: Focus Action By Index
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -53,9 +56,12 @@ on spotCheck()
 	set sut to sutLib's new()
 	set sut to decorate(sut)
 	
-	logger's infof("Focused Type: {}", sut's getFocusedType())
+	set currentFocusType to sut's getFocusedType()
+	logger's infof("Focused Type: {}", currentFocusType)
 	logger's infof("Selected macro group: {}", sut's getSelectedGroupName())
 	logger's infof("Selected macro: {}", sut's getSelectedMacroName())
+	logger's infof("Selected action index: {}", sut's getSelectedActionIndex())
+	
 	logger's infof("Editable: {}", sut's isEditable())
 	
 	if caseIndex is 1 then
@@ -86,6 +92,10 @@ on spotCheck()
 		sut's setApplicationAvailabilityOption(sutAppAvailabilityOption)
 		
 	else if caseIndex is 7 then
+		sut's focusSelectedMacro()
+		
+	else if caseIndex is 8 then
+		sut's setSelectedActionByIndex(1)
 		
 	else
 		
@@ -104,6 +114,42 @@ on decorate(mainScript)
 	
 	script KeyboardMaestroEditorDecorator
 		property parent : mainScript
+		
+		
+		(*
+			@Caveat: Returns last selected action index even if no more action is selected after changing the macro selection.
+		*)
+		on getSelectedActionIndex()
+			if running of application "Keyboard Maestro" is false then return missing value
+			
+			set selectedIndex to 0
+			tell application "System Events" to tell process "Keyboard Maestro"
+				set macroActions to groups of scroll area 3 of splitter group 1 of group 6 of my getEditorWindow()
+				repeat with nextAction in macroActions
+					set selectedIndex to selectedIndex + 1
+					if selected of nextAction is true then
+						exit repeat
+					end if
+				end repeat
+			end tell
+			
+			selectedIndex
+		end getSelectedActionIndex
+		
+		
+		(* DOES NOT WORK! *)
+		on setSelectedActionByIndex(actionIndex)
+			if running of application "Keyboard Maestro" is false then return missing value
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				set frontmost to true
+				set selected of group actionIndex of scroll area 3 of splitter group 1 of group 6 of my getEditorWindow() to true
+				try
+					click group actionIndex of scroll area 3 of splitter group 1 of group 6 of my getEditorWindow()
+				end try
+			end tell
+		end setSelectedActionByIndex
+		
 		(* 
 			NOTE: Menu doesn't immediately reflect reality unless the menu was actually clicked by the user.
 			
@@ -264,6 +310,16 @@ on decorate(mainScript)
 			missing value
 		end getSelectedMacroName
 		
+		on getSelectedActionID()
+			tell application "System Events" to tell process "Keyboard Maestro"
+				try
+					return value of first text field of scroll area 3 of splitter group 1 of group 6 of my getEditorWindow() whose accessibility description is "Macro Name"
+				end try
+			end tell
+			
+			missing value
+		end getSelectedActionID
+		
 		
 		(*
 			Focus the currently selected macro group in the editor so it can be 
@@ -280,6 +336,22 @@ on decorate(mainScript)
 				end try
 			end tell
 		end focusSelectedMacroGroup
+		
+		
+		(*
+			Focus the currently selected macro in the editor.
+		*)
+		on focusSelectedMacro()
+			if running of application "Keyboard Maestro" is false then return
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				set frontmost to true
+				
+				try
+					click menu item "Select Macros Column" of menu 1 of menu bar item "View" of menu bar 1
+				end try
+			end tell
+		end focusSelectedMacro
 		
 		
 		(* Click on the next macro history button. *)
