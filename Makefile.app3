@@ -36,6 +36,9 @@ build-cleanshot-x:
 install-eclipse:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Eclipse/v202306/eclipse
 
+install-file-zilla:
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/FileZilla/3.69.x/file-zilla
+
 install-git-kraken:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/GitKraken/v9.8.2/git-kraken
 
