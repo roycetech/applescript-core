@@ -49,6 +49,7 @@ on spotCheck()
 
 		Manual: Wallpaper: Set Capture Window Shadow ON
 		Manual: Wallpaper: Set Capture Window Shadow OFF
+		Manual: Hide Settings
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -62,9 +63,15 @@ on spotCheck()
 	
 	set sut to new()
 	sut's showSettings()
+	delay 1 -- Previous command runs asynchronously, causing the close window to fire before the settings window is actually shown.
 	
-	logger's infof("Window: Screenshot: {}", sut's getWindowScreenshot())
-	logger's infof("Window: Capture window shadow: {}", sut's isCaptureWindowShadow())
+	set settingsCurrentTabName to sut's getSettingsTabName()
+	logger's infof("Settings tab: {}", settingsCurrentTabName)
+	
+	if settingsCurrentTabName is "Window" then
+		logger's infof("Window: Screenshot: {}", sut's getWindowScreenshot())
+		logger's infof("Window: Capture window shadow: {}", sut's isCaptureWindowShadow())
+	end if
 	
 	if caseIndex is 1 then
 		
@@ -89,12 +96,15 @@ on spotCheck()
 		
 	else if caseIndex is 5 then
 		sut's setScreenshot("With wallpaper")
-
+		
 	else if caseIndex is 6 then
 		sut's setCaptureWindowShadowOn()
-
+		
 	else if caseIndex is 7 then
 		sut's setCaptureWindowShadowOff()
+		
+	else if caseIndex is 8 then
+		sut's hideSettings()
 		
 	end if
 	
@@ -127,6 +137,25 @@ on new()
 				end if
 			end tell
 		end showSettings
+		
+		on hideSettings()
+			if running of application "CleanShot X" is false then return
+			
+			tell application "System Events" to tell process "CleanShot X"
+				set settingsWindow to missing value
+				try
+					set settingsWindow to first window whose subrole is "AXStandardWindow"
+					click (first button of settingsWindow whose description is "close button")
+				on error the errorMessage number the errorNumber
+					log errorMessage
+					
+				end try
+			end tell
+		end hideSettings
+		
+		on closeSettings()
+		hideSettings()
+		end
 		
 		
 		on toggleAllowApplicationsToControlCleanShot()
@@ -170,6 +199,22 @@ on new()
 			end tell
 		end switchTab
 		
+		
+		(*
+			@returns the settings tab name.
+		*)
+		on getSettingsTabName()
+			if running of application "CleanShot X" is false then return missing value
+			
+			set settingsWindow to missing value
+			tell application "System Events" to tell process "CleanShot X"
+				try
+					set settingsWindow to first window whose subrole is "AXStandardWindow"
+					return title of settingsWindow
+				end try
+			end tell
+			missing value
+		end getSettingsTabName
 		
 		(* 
 			Wall paper tab settings
