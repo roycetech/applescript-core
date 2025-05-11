@@ -1,4 +1,7 @@
 (*
+	@Project:
+		applescript-hub
+
 	@Build:
 		make build-lib SOURCE=core/emoji
 
@@ -6,6 +9,7 @@
 		errOSAInternalTableOverflow - Just by adding new line, sometime it even crashes the app.
 *)
 
+property CHICKEN : "🐔"
 property WORK : "🚧"
 property FAUCET : "🚰"
 property TUBE : "📺"
