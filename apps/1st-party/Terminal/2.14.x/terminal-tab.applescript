@@ -14,7 +14,7 @@
 		WARNING: This script requires re-compilation each time there's a change on this file.
 
 	@Created: Sunday, January 28, 2024 at 2:35:54 PM
-	@Last Modified: 2025-02-25 07:43:32
+	@Last Modified: 2025-05-02 08:19:44
 *)
 use script "core/Text Utilities"
 use scripting additions
@@ -162,7 +162,7 @@ on new(pWindowId)
 		property preferredName : ""
 		property windowId : pWindowId
 		property recentOutputChars : 300
-		property tabIndex : initialTabIndex -- Will be affeted when tab is closed.
+		property tabIndex : initialTabIndex -- Will be affected when tab is closed.
 		property storedTabTitle : ""
 		property autoDismissDialogue : false
 

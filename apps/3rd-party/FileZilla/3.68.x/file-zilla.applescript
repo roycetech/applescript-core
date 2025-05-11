@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/FileZilla/3.68.x/file-zilla
 
 	@Created: Wednesday, January 15, 2025 at 9:46:35 AM
-	@Last Modified: 2025-01-15 09:54:25
+	@Last Modified: 2025-05-08 06:42:29
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -19,13 +19,13 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP
 		Manual: Reconnect Latest
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

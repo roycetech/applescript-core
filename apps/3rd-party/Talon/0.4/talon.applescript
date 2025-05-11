@@ -10,8 +10,9 @@
 		./scripts/build-lib.sh apps/3rd-party/Talon/0.4/talon
 
 	@Created: Sat, Apr 05, 2025 at 12:24:07 PM
-	@Last Modified: 2025-04-23 06:58:34
+	@Last Modified: 2025-05-02 07:42:40
 *)
+use std : script "core/std"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -42,6 +43,7 @@ on spotCheck()
 	end if
 
 	set sut to new()
+	logger's infof("Running: {}", sut's isRunning())
 	logger's infof("Listening: {}", sut's isListening())
 
 	if caseIndex is 1 then
@@ -70,13 +72,20 @@ on new()
 
 	script TalonInstance
 
+		property appName : "Talon"
+
+		on isRunning()
+			if not std's appExists(appName) then return false
+			running of application appName
+		end isRunning
+
 		(*
 			No straight forward way to implement this. Let's use a dedicated terminal tab for this
 		*)
 		on isListening()
-			if running of application "Talon" is false then return false
+			if not isRunning() then return false
 
-			tell application "System Events" to tell process "Talon"
+			tell application "System Events" to tell process appName
 				try
 					-- Assuming the first menu item contains the state.
 					set menuItemMarker to value of attribute "AXMenuItemMarkChar" of menu item 1 of menu "Speech Recognition" of menu item "Speech Recognition" of menu "Talon" of menu bar item 1 of menu bar 2
@@ -92,9 +101,9 @@ on new()
 		(*
 		*)
 		on toggleSpeech()
-			if running of application "Talon" is false then return
+			if not isRunning() then return false
 
-			tell application "System Events" to tell process "Talon"
+			tell application "System Events" to tell process appName
 				try
 					-- Assuming the first menu item contains the state.
 					(* NOTE: To insert the correct menu, run entire contents of a known menu element. *)
@@ -106,7 +115,7 @@ on new()
 
 		(*		*)
 		on enableSpeech()
-			if running of application "Talon" is false then return
+			if not isRunning() then return
 			if isListening() then return
 
 			toggleSpeech()
@@ -115,7 +124,7 @@ on new()
 
 		(*		*)
 		on disableSpeech()
-			if running of application "Talon" is false then return
+			if not isRunning() then return
 
 			if not isListening() then return
 
@@ -124,19 +133,20 @@ on new()
 
 
 		on showLogs()
-			if running of application "Talon" is false then return
+			if not isRunning() then return
 
-			tell application "System Events" to tell process "Talon"
+			tell application "System Events" to tell process appName
 				try
 					click menu item "View Log" of menu "Scripting" of menu item "Scripting" of menu "Talon" of menu bar item 1 of menu bar 2
 				end try
 			end tell
 		end showLogs
 
+
 		on showConsole()
 			if running of application "Talon" is false then return
 
-			tell application "System Events" to tell process "Talon"
+			tell application "System Events" to tell process appName
 				try
 					click menu item "Console (REPL)" of menu "Scripting" of menu item "Scripting" of menu "Talon" of menu bar item 1 of menu bar 2
 				end try
