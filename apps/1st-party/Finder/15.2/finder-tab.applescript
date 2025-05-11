@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-tab
 
 	@Created: Tuesday, December 31, 2024 at 6:01:47 PM
-	@Last Modified: 2025-01-03 08:18:20
+	@Last Modified: 2025-05-04 10:36:21
 *)
 use scripting additions
 
@@ -26,13 +26,13 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		INFO
 		Manual: Focus
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

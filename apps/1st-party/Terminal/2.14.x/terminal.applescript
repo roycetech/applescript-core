@@ -308,6 +308,20 @@ on new()
 		end getFrontMostInstance
 
 
+		-- = New naming format = ----------------------------------------------
+		on findTabByTitle(tabTitle)
+			findTabWithTitle(tabTitle)
+		end findTabByTitle
+
+
+		on findTabByTitlePrefix(titlePrefix)
+			findTabStartingWith(titlePrefix)
+		end findTabByTitlePrefix
+
+		on findTabByTitleSuffix(titleSuffix)
+			findTabEndingWith(titleSuffix)
+		end findTabByTitleSuffix
+
 		on findTabWithTitle(windowTitle)
 			if winUtil's hasWindow("Terminal") is false then return missing value
 
