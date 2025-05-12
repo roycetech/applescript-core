@@ -59,6 +59,7 @@ build-finder:
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-folders
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-files
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-paths
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-view
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
 
 

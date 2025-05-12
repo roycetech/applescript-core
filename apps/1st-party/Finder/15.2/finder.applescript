@@ -11,7 +11,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
 
-	@Last Modified: 2025-01-31 11:39:38
+	@Last Modified: 2025-05-04 11:26:48
 *)
 
 use script "core/Text Utilities"
@@ -27,6 +27,7 @@ use decFinderFolders : script "core/dec-finder-folders"
 use decFinderFiles : script "core/dec-finder-files"
 use decFinderPaths : script "core/dec-finder-paths"
 use decFinderSelection : script "core/dec-finder-selection"
+use decFinderView : script "core/dec-finder-view"
 
 use decoratorLib : script "core/decorator"
 
@@ -72,7 +73,8 @@ on spotCheck()
 
 	set sut to new()
 	logger's infof("Is Busy: {}", sut's isBusy())
-	logger's infof("Decorator: User Path: {}", sut's getUserPath())
+	logger's infof("Integration: User Path: {}", sut's getUserPath())
+	logger's infof("Integration: View Type: {}", sut's getFileObjectViewType())
 
 	if caseIndex is 1 then
 
@@ -174,7 +176,10 @@ on new()
 			set computedPosixPath to _untilde(posixPath)
 			-- logger's debugf("computedPosixPath: {}", computedPosixPath)
 			-- tell application "Finder" to delete POSIX file computedPosixPath
-			-- Why did I use do shell script instead of running the code directly?
+			(*
+				The Finder delete action is executed via a shell script to
+				prevent the main script from blocking during the operation.
+			*)
 			do shell script "osascript -e 'tell application \"Finder\" to delete POSIX file \"" & computedPosixPath & "\"'"
 		end putInTrash
 
@@ -253,6 +258,7 @@ on new()
 	decFinderFiles's decorate(result)
 	decFinderPaths's decorate(result)
 	decFinderSelection's decorate(result)
+	decFinderView's decorate(result)
 
 	set decorator to decoratorLib's new(result)
 	decorator's decorateByName("FinderInstance")
