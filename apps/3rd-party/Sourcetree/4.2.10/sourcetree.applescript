@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Sourcetree/4.2.10/sourcetree
 
 	@Created: Monday, November 25, 2024 at 3:32:55 PM
-	@Last Modified: 2024-11-26 09:00:42
+	@Last Modified: 2025-05-13 06:28:16
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -21,7 +21,6 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		INFO
@@ -34,9 +33,14 @@ on spotCheck()
 		Manual: Select next file
 		Manual: Select previous file
 		Manual: Stage First Hunk
+
 		Manual: Stage Selected File
+		Manual: Toggle Push Changes Immediately
+		Manual: Scroll down a page
+		Manual: Scroll up a page
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -46,6 +50,8 @@ on spotCheck()
 	end if
 
 	set sut to new()
+	logger's infof("Push changes immediately {}", sut's isPushChangesImmediately())
+
 	if caseIndex is 1 then
 
 	else if caseIndex is 2 then
@@ -83,6 +89,14 @@ on spotCheck()
 	else if caseIndex is 10 then
 		sut's stageSelectedFile()
 
+	else if caseIndex is 11 then
+		sut's togglePushChangesImmediately()
+
+	else if caseIndex is 12 then
+		sut's scrollPageDown()
+
+	else if caseIndex is 13 then
+		sut's scrollPageUp()
 	end if
 
 	spot's finish()
@@ -95,6 +109,47 @@ on new()
 	loggerFactory's inject(me)
 
 	script SourcetreeInstance
+
+		on scrollPageDown()
+			if running of application "Sourcetree" is false then return
+
+			tell application "System Events" to tell process "Sourcetree"
+				click (first button of scroll bar 1 of scroll area 2 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window whose description is "increment page button")
+			end tell
+		end scrollPageDown
+
+		on scrollPageUp()
+			if running of application "Sourcetree" is false then return
+
+			tell application "System Events" to tell process "Sourcetree"
+				click (first button of scroll bar 1 of scroll area 2 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window whose description is "decrement page button")
+			end tell
+		end scrollPageUp
+
+		on isPushChangesImmediately()
+			if running of application "Sourcetree" is false then return false
+
+			tell application "System Events" to tell process "Sourcetree"
+				try
+					return value of first checkbox of splitter group 1 of splitter group 1 of splitter group 1 of window front window whose title starts with "Push changes immediately" is 1
+				end try
+			end tell
+
+			false
+		end isPushChangesImmediately
+
+
+		on togglePushChangesImmediately()
+			if running of application "Sourcetree" is false then return
+
+			tell application "System Events" to tell process "Sourcetree"
+				try
+					click (first checkbox of splitter group 1 of splitter group 1 of splitter group 1 of front window whose title starts with "Push changes immediately")
+				end try
+			end tell
+		end togglePushChangesImmediately
+
+
 		on triggerMenuShowOnly()
 			if running of application "Sourcetree" is false then return
 
