@@ -156,6 +156,7 @@ on new()
 		
 		on runCommandPalette(commandKey)
 			kb's pressCommandShiftKey("p")
+			delay 0.1
 			kb's typeText(commandKey)
 			kb's pressKey(return)
 		end runCommandPalette
