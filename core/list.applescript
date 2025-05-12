@@ -171,6 +171,8 @@ end splitString
 on splitByLine(theString)
 	if theString is missing value then return missing value
 
+	-- return splitByParagraph(theString)
+
 	if theString contains LF and (theString contains CR) then
 		set theString to textUtil's replace(theString, CR, LF)
 	end if
@@ -180,7 +182,10 @@ on splitByLine(theString)
 	set SEP to "@" -- #%= are probably worth considering.
 
 	if theString contains linesDelimiter or theString contains "\"" then error "Sorry but you can't have " & linesDelimiter & " or double quote in the text :("
-	if theString contains "$" and theString contains "'" then error "Sorry, but you can't have a dollar sign and a single quote in your string"
+	if theString contains "$" and theString contains "'" then
+		return splitByParagraph(theString)
+		error "Sorry, but you can't have a dollar sign and a single quote in your string"
+	end if
 
 	set theQuote to "\""
 	if theString contains "$" then set theQuote to "'"
