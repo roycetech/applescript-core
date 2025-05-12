@@ -355,7 +355,7 @@ on new(windowId, pTabIndex)
 
 			set foundWindow to missing value
 			repeat with nextMenuTitle in menuTitles
-				if nextMenuTitle as text is "" then return
+				if nextMenuTitle as text is "" then exit repeat
 
 				if nextMenuTitle contains unic's ELLIPSIS then
 					set {prefix, suffix} to textUtil's split(nextMenuTitle, unic's ELLIPSIS)
@@ -399,6 +399,19 @@ on new(windowId, pTabIndex)
 				end tell
 			end if
 
+			logger's debugf("tabTitle: {}", tabTitle)
+			tell application "System Events" to tell process "Safari"
+				set safariSystemEventWindow to missing value
+				try
+				set safariSystemEventWindow to first window whose title ends with tabTitle
+				end try
+				if value of attribute "AXMinimized" of safariSystemEventWindow then
+					logger's debug("Unminimizing")
+					try
+						set value of attribute "AXMinimized" of safariSystemEventWindow to false
+					end try
+				end if
+			end tell
 		end focus
 
 		on closeTab()
