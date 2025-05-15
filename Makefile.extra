@@ -70,6 +70,10 @@ build-screenshot: build-math
 	$(SUDO) ./scripts/build-lib.sh core/screenshot
 
 
+build-security:
+	$(SUDO) ./scripts/build-lib.sh libs/security-cli/security-cli
+
+
 install-timed-cache:
 	cp -n plist.template ~/applescript-core/timed-cache.plist || true
 	$(SUDO) ./scripts/build-lib.sh libs/timed-cache-plist/timed-cache-plist
