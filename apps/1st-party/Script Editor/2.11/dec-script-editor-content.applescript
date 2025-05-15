@@ -112,7 +112,7 @@ on decorate(mainScript)
 					set my textView to document (my windowTitle)
 				end tell
 			end try
-			textView
+			my textView
 		end createTempDocument
 		
 		on writeDataToTempDocument(textContent)
