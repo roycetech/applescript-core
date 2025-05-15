@@ -33,24 +33,22 @@
 	@Known Issues:
 		September 2, 2023 9:53 AM - Records are not currently supported.
 
-	@Last Modified: 2025-01-19 16:34:12
+	@Last Modified: 2025-05-14 13:37:09
  *)
 
 use scripting additions
 use script "core/Text Utilities"
 
 use textUtil : script "core/string"
-use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 use dateTimeLib : script "core/date-time"
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property dateTime : missing value
 property isSpot : false
 
 property CR : ASCII character 13
-property REDIS_CLI : do shell script "plutil -extract \"Redis CLI\" raw ~/applescript-core/config-system.plist"
+property REDIS_CLI : missing value
 property useBasicLogging : false
 
 property ERROR_UNSUPPORTED_TYPE : 1000
@@ -70,6 +68,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Read Value
 		Manual: Zulu Date
@@ -77,6 +76,7 @@ on spotCheck()
 
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -113,6 +113,7 @@ on new(pTimeoutSeconds)
 	loggerFactory's inject(me)
 
 	set dateTime to dateTimeLib's new()
+	set my REDIS_CLI to do shell script "plutil -extract \"Redis CLI\" raw ~/applescript-core/config-system.plist"
 
 	script RedisInstance
 		-- 0 for no expiration.
