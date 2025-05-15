@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/FileZilla/3.69.x/file-zilla
 
 	@Created: Wednesday, January 15, 2025 at 9:46:35 AM
-	@Last Modified: 2025-05-10 14:48:50
+	@Last Modified: 2025-05-13 13:28:55
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -29,6 +29,11 @@ on spotCheck()
 
 		Manual: Connect
 		Manual: Disconnect
+		Manual: Files pane: Scroll to top
+		Manual: Files pane: Scroll to bottom
+		Manual: Directories pane: Scroll to top
+
+		Manual: Directories pane: Scroll to bottom
 	")
 
 	set spotScript to script "core/spot-test"
@@ -67,6 +72,19 @@ on spotCheck()
 
 	else if caseIndex is 7 then
 		sut's disconnect()
+
+	else if caseIndex is 8 then
+		sut's scrollFilesPaneToTop()
+
+	else if caseIndex is 9 then
+		sut's scrollFilesPaneToBottom()
+
+	else if caseIndex is 10 then
+		sut's scrollDirectoryPaneToTop()
+
+	else if caseIndex is 11 then
+		sut's scrollDirectoryPaneToBottom()
+
 	end if
 
 	spot's finish()
@@ -95,13 +113,57 @@ on new()
 		end connect
 
 
+		on scrollDirectoryPaneToTop()
+			if running of application "FileZilla" is false then return
+
+			tell application "System Events" to tell process "FileZilla"
+				try
+					set value of value indicator 1 of scroll bar 5 of front window to 0
+				end try
+			end tell
+
+		end scrollDirectoryPaneToTop
+
+
+		on scrollDirectoryPaneToBottom()
+			if running of application "FileZilla" is false then return
+
+			tell application "System Events" to tell process "FileZilla"
+				try
+					set value of value indicator 1 of scroll bar 5 of front window to 1
+				end try
+			end tell
+		end scrollDirectoryPaneToBottom
+
+
+		on scrollFilesPaneToTop()
+			if running of application "FileZilla" is false then return
+
+			tell application "System Events" to tell process "FileZilla"
+				try
+					set value of value indicator 1 of scroll bar 6 of front window to 0
+				end try
+			end tell
+		end scrollFilesPaneToTop
+
+
+		on scrollFilesPaneToBottom()
+			if running of application "FileZilla" is false then return
+
+			tell application "System Events" to tell process "FileZilla"
+				try
+					set value of value indicator 1 of scroll bar 6 of front window to 1
+				end try
+			end tell
+		end scrollFilesPaneToBottom
+
+
 		on disconnect()
 			if running of application "FileZilla" is false then return
 
-		end connect
 
 
-
+		end disconnect
 
 
 		on setHost(host)
