@@ -83,6 +83,7 @@ on spotCheck()
 	-- Manual: Current File details (No file, Find Result, Ordinary File)
 	set currentProjectName to sut's getCurrentProjectName()
 	logger's infof("Current Project Name: {}", currentProjectName)
+	logger's infof("Window title: {}", sut's getWindowTitle())
 	
 	if currentProjectName is not missing value then
 		logger's infof("Current File Path: {}", sut's getCurrentFilePath())
@@ -409,6 +410,16 @@ on new()
 			end tell
 			projectNames
 		end getOpenProjectNames
+		
+		
+		on getWindowTitle()
+			if not running of application "Sublime Text" then return missing value
+			if not _isAppWindowAvailable() then return missing value
+			
+			tell application "System Events" to tell process "Sublime Text"
+				title of front window
+			end tell
+		end getWindowTitle
 		
 		
 		on getWindowsCount()
