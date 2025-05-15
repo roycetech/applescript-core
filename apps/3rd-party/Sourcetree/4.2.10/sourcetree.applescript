@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Sourcetree/4.2.10/sourcetree
 
 	@Created: Monday, November 25, 2024 at 3:32:55 PM
-	@Last Modified: 2025-05-13 06:28:16
+	@Last Modified: 2025-05-16 06:26:11
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -33,11 +33,13 @@ on spotCheck()
 		Manual: Select next file
 		Manual: Select previous file
 		Manual: Stage First Hunk
-
 		Manual: Stage Selected File
+
 		Manual: Toggle Push Changes Immediately
 		Manual: Scroll down a page
 		Manual: Scroll up a page
+		Manual: Ignore Whitespace
+		Manual: Show Whitespace
 	")
 
 	set spotScript to script "core/spot-test"
@@ -50,7 +52,10 @@ on spotCheck()
 	end if
 
 	set sut to new()
+	logger's infof("Commit message input focused: {}", sut's isCommitMessageFocused())
 	logger's infof("Push changes immediately {}", sut's isPushChangesImmediately())
+
+	activate application "Sourcetree"
 
 	if caseIndex is 1 then
 
@@ -75,7 +80,7 @@ on spotCheck()
 		sut's selectFirstUnstagedFile()
 
 	else if caseIndex is 6 then
-		sut's selectLastFile()
+		sut's selectFirstFile()
 
 	else if caseIndex is 7 then
 		sut's selectNextFile()
@@ -97,6 +102,12 @@ on spotCheck()
 
 	else if caseIndex is 13 then
 		sut's scrollPageUp()
+
+	else if caseIndex is 14 then
+		sut's setIgnoreWhiteSpace()
+
+	else if caseIndex is 15 then
+		sut's setShowWhiteSpace()
 	end if
 
 	spot's finish()
@@ -109,6 +120,37 @@ on new()
 	loggerFactory's inject(me)
 
 	script SourcetreeInstance
+
+		on setIgnoreWhiteSpace()
+			if running of application "Sourcetree" is false then return
+
+			tell application "System Events" to tell process "Sourcetree"
+				click menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+				-- entire contents of menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+				-- menu item "Show whitespace" of menu 1 of menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of window 1
+				click menu item "Ignore whitespace" of menu 1 of menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of window 1
+			end tell
+		end setIgnoreWhiteSpace
+
+
+		on setShowWhiteSpace()
+			tell application "System Events" to tell process "Sourcetree"
+				click menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+				click menu item "Show whitespace" of menu 1 of menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of window 1
+			end tell
+		end setShowWhiteSpace
+
+		on isCommitMessageFocused()
+			if running of application "Sourcetree" is false then return false
+
+			tell application "System Events" to tell process "Sourcetree"
+				try
+					return focused of text area 1 of scroll area 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+				end try
+			end tell
+
+			false
+		end isCommitMessageFocused
 
 		on scrollPageDown()
 			if running of application "Sourcetree" is false then return
@@ -211,11 +253,27 @@ on new()
 			end tell
 		end selectFirstUnstagedFile
 
+
+		(*
+			Does not work.
+		*)
+		on selectFirstFile()
+			if running of application "Sourcetree" is false then return
+
+			tell application "System Events" to tell process "Sourcetree"
+				try
+					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+				end try
+
+				set selected of second item of targetRows to true
+			end tell
+		end selectFirstFile
+
+
 		(* Requires flat view. See #selectFilesViewSubMenu *)
 		on selectLastFile()
 			if running of application "Sourcetree" is false then return
 
-			set unstagedLabelFound to false
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
@@ -224,6 +282,7 @@ on new()
 				set selected of last item of targetRows to true
 			end tell
 		end selectLastFile
+
 
 		on selectNextFile()
 			if running of application "Sourcetree" is false then return
