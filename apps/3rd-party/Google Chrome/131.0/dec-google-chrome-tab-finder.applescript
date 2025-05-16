@@ -644,9 +644,7 @@ on decorate(mainScript)
 							end if
 						end repeat 
 						
-						if matchedTab is missing value then return missing value
-						
-						return chromeTabLib's new(id of nextWindow, calculatedTabIndex)
+						if matchedTab is not missing value then return chromeTabLib's new(id of nextWindow, calculatedTabIndex)
 					on error the errorMessage number the errorNumber
 						logger's warn(errorMessage)
 						
