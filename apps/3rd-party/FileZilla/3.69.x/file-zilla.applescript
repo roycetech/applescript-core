@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/FileZilla/3.69.x/file-zilla
 
 	@Created: Wednesday, January 15, 2025 at 9:46:35 AM
-	@Last Modified: 2025-05-13 13:28:55
+	@Last Modified: 2025-05-17 07:39:10
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -68,7 +68,7 @@ on spotCheck()
 
 	else if caseIndex is 6 then
 
-		sut's connect("sftp://127.0.0.1", missing value, missing value) -- NO COMMIT
+		-- sut's connect("127.0.0.1", missing value, missing value)  -- Commit this empty credentials, NOT THE ACTUAL VALUES!
 
 	else if caseIndex is 7 then
 		sut's disconnect()
@@ -161,14 +161,18 @@ on new()
 		on disconnect()
 			if running of application "FileZilla" is false then return
 
-
-
+			tell application "System Events" to tell process "FileZilla"
+				try
+					click menu item "Disconnect" of menu 1 of menu bar item "Server" of menu bar 1
+				end try
+			end tell
 		end disconnect
 
 
 		on setHost(host)
 			if running of application "FileZilla" is false then return
 
+			if host does not start with "sftp://" then set host to "sftp://" & host
 			tell application "System Events" to tell process "FileZilla"
 				set value of text field 1 of my _getMainWindow() to host
 			end tell
@@ -179,7 +183,7 @@ on new()
 			if running of application "FileZilla" is false then return
 
 			tell application "System Events" to tell process "FileZilla"
-				set value of text field 2 of my _getMainWindow() to host
+				set value of text field 2 of my _getMainWindow() to username
 			end tell
 		end setUsername
 
@@ -188,7 +192,7 @@ on new()
 			if running of application "FileZilla" is false then return
 
 			tell application "System Events" to tell process "FileZilla"
-				set value of text field 3 of my _getMainWindow() to host
+				set value of text field 3 of my _getMainWindow() to password
 			end tell
 		end setPassword
 
