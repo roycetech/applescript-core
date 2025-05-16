@@ -225,6 +225,7 @@ on new(windowId, pTabIndex)
 		on focus()
 			tell application "Google Chrome"
 				set active tab index of my appWindow to my tabIndex
+				set index of my appWindow to 1
 			end tell
 		end focus
 		
