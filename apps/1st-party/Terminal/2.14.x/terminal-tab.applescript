@@ -14,7 +14,7 @@
 		WARNING: This script requires re-compilation each time there's a change on this file.
 
 	@Created: Sunday, January 28, 2024 at 2:35:54 PM
-	@Last Modified: 2025-05-02 08:19:44
+	@Last Modified: 2025-05-17 08:06:32
 *)
 use script "core/Text Utilities"
 use scripting additions
@@ -153,7 +153,7 @@ on new(pWindowId)
 		property appWindow : missing value -- will be set to app window (not system event window)
 		property |instance name| : missing value
 
-		(* Will only for for bash and zsh, not for ohmyzsh. *)
+		(* Will only work for bash and zsh, not for ohmyzsh. *)
 		property promptEndChar : localPromptEndChar -- designed for bash only.
 		property commandRunMax : 100
 		property commandRetrySleepSeconds : 3
@@ -431,13 +431,22 @@ on new(pWindowId)
 
 
 		(*
-			@returns the value in the Window Title field (1st text field) when you view the inspector.
+			@Deprecated: Move to #getTitle(). Confusing because the first tab
+			title is also called window title which can mean the title of the
+			Terminal window.
+
+			@returns the value in the Window Title field (1st text field) when
+			you view the inspector.
 		*)
 		(* With test/s *)
 		on getWindowTitle()
 			tell application "Terminal"
 				custom title of selected tab of my appWindow
 			end tell
+		end getWindowTitle
+
+		on getTitle()
+			getWindowTitle()
 		end getWindowTitle
 
 		(* With test/s *)

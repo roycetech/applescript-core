@@ -1,8 +1,14 @@
+(*
+	@Project:
+		applescript-core
+
+	@Build:
+		./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-path
+*)
 use scripting additions
 
 use std : script "core/std"
 use textUtil : script "core/string"
-use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -15,11 +21,12 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP
 	")
 
-set spotScript to script "core/spot-test"
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -28,7 +35,7 @@ set spotScript to script "core/spot-test"
 		return
 	end if
 
-set terminalLib to script "core/terminal"
+	set terminalLib to script "core/terminal"
 	set terminal to terminalLib's new()
 	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)
@@ -61,15 +68,16 @@ end spotCheck
 
 on decorate(termTabScript)
 	loggerFactory's inject(me)
-	set terminal to terminalLib's new()
 
 	script TerminalPathDecorator
 		property parent : termTabScript
 		property _posixPath : missing value
 
 		on getPosixPath()
+
 			tell application "Terminal"
-				set termProcesses to processes of selected tab of my appWindow
+				set thisTab to tab 1 of my appWindow
+				set termProcesses to processes of thisTab
 			end tell
 
 			set isZsh to termProcesses contains "-zsh"
@@ -77,11 +85,11 @@ on decorate(termTabScript)
 			if isZsh then set shellType to "zsh"
 
 			tell application "Terminal"
-				set frontTty to tty of selected tab of my appWindow
+				set frontTty to tty of thisTab
 			end tell
 
 			tell application "Terminal"
-				set my _posixPath to do shell script "lsof -a -p `lsof -a -c zsh -u $USER -d 0 -n | tail -n +2 | awk '{if($NF==\"" & (tty of front tab of front window) & "\"){print $2}}'` -d cwd -n | tail -n +2 | awk '{$1=$2=$3=$4=$5=$6=$7=$8=\"\"; print $0}' | xargs"
+				set my _posixPath to do shell script "lsof -a -p `lsof -a -c zsh -u $USER -d 0 -n | tail -n +2 | awk '{if($NF==\"" & (tty of thisTab) & "\"){print $2}}'` -d cwd -n | tail -n +2 | awk '{$1=$2=$3=$4=$5=$6=$7=$8=\"\"; print $0}' | xargs"
 			end tell
 
 			if _posixPath is equal to "" then
