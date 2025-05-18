@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-privacy-and-security
 
 	@Created: Monday, February 10, 2025 at 12:52:14 PM
-	@Last Modified: 2025-04-22 14:18:45
+	@Last Modified: 2025-05-18 13:17:40
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -26,6 +26,7 @@ property TopLevel : me
 property KEYWORD_LOCATION_PROMPT : "use your current location"
 property KEYWORD_CAMERA_PROMPT : "to use your camera"
 property KEYWORD_PASSWORD_PROMPT : "Save Password"
+property KEYWORD_STRONG_PASSWORD_PROMPT : "Many people use this password"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -66,6 +67,8 @@ on spotCheck()
 
 	logger's infof("Is Camera Prompt Present: {}", sut's isCameraPromptPresent())
 	logger's infof("Save Password Prompt Present: {}", sut's isSavePasswordPromptPresent())
+	logger's infof("Strong password prompt present: {}", sut's isStrongPasswordPromptPresent())
+
 	if caseIndex is 1 then
 
 	else if caseIndex is 2 then
@@ -124,7 +127,7 @@ on decorate(mainScript)
 		on rememberMyLocationDecisionForOneDay()
 			tell application "System Events" to tell process "Safari"
 				if the value of checkbox 1 of sheet 1 of front window is not 1 then
-				click checkbox 1 of sheet 1 of front window
+					click checkbox 1 of sheet 1 of front window
 				end if
 			end tell
 		end rememberMyLocationDecisionForOneDay
@@ -163,6 +166,18 @@ on decorate(mainScript)
 			_respondToAccessRequest(TopLevel's newSavePasswordPromptPresenceLambda(), TopLevel's newNotNowButton())
 		end declineSavePassword
 
+
+		on isStrongPasswordPromptPresent()
+			run TopLevel's newStrongPasswordPromptPresenceLambda()
+		end isStrongPasswordPromptPresent
+
+		on confirmChangePassword()
+			_respondToAccessRequest(TopLevel's newStrongPasswordPromptPresenceLambda(), TopLevel's newChangePasswordButton())
+		end confirmSavePassword
+
+		on declineChangePassword()
+			_respondToAccessRequest(TopLevel's newStrongPasswordPromptPresenceLambda(), TopLevel's newNotNowButton())
+		end declineChangePassword
 
 		on _respondToAccessRequest(PresenceLambda, UiLambda)
 			if running of application "Safari" is false then return
@@ -258,6 +273,21 @@ on newSavePasswordButton()
 end newSavePasswordButton
 
 
+on newChangePasswordButton()
+	script ChangePasswordButtonFactory
+		property name : "Change Password"
+		on run {} -- NOTE: This needs to be called explicitly.
+			tell application "System Events" to tell process "Safari"
+				try
+					return button (my name) of sheet 1 of front window
+				end try
+			end tell
+			missing value
+		end run
+	end script
+end newSavePasswordButton
+
+
 on newNotNowButton()
 	script NotNowButtonFactory
 		property name : "Not Now"
@@ -308,7 +338,7 @@ end newCameraPromptPresenceLambda
 
 
 on newSavePasswordPromptPresenceLambda()
-	script CameraPromptPresenceLambda
+	script SavePasswordPromptPresenceLambda
 		on run {}
 			if running of application "Safari" is false then return false
 
@@ -322,3 +352,20 @@ on newSavePasswordPromptPresenceLambda()
 		end run
 	end script
 end newSavePasswordPromptPresenceLambda
+
+
+on newStrongPasswordPromptPresenceLambda()
+	script StrongPasswordPromptPresenceLambda
+		on run {}
+			if running of application "Safari" is false then return false
+
+			tell application "System Events" to tell process "Safari"
+				try
+					return value of static text 1 of sheet 1 of front window contains my KEYWORD_STRONG_PASSWORD_PROMPT
+				end try
+			end tell
+
+			false
+		end run
+	end script
+end newStrongPasswordPromptPresenceLambda
