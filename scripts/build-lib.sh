@@ -26,4 +26,12 @@ if [[ $DEPLOY_TYPE != *"error"* ]]; then
 # else
 #     echo "DEBUG: Deployment type was not configured, using defaults"
 fi
-osacompile -o "$deployment_path$base_filename.scpt" "${input_file_path}.applescript"
+
+
+# osacompile -o "$deployment_path$base_filename.scpt" "${input_file_path}.applescript"
+
+staging_directory="/tmp/"
+osacompile -o "$staging_directory$base_filename.scpt" "${input_file_path}.applescript"
+
+chown "$(whoami)":staff "$staging_directory$base_filename.scpt"
+mv "$staging_directory$base_filename.scpt" "$deployment_path$base_filename.scpt"
