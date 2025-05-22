@@ -11,8 +11,10 @@
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
+use cliclickLib : script "core/cliclick"
 
 property logger : missing value
+property cliclick : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -21,7 +23,6 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: Rebind OCR Hotkey
@@ -30,8 +31,10 @@ on spotCheck()
 		Manual: Rebind Screen Recording: Toggle Hotkey
 		
 		Manual: Rebind Screenshot: Capture Fullscreen Hotkey
+		Manual: Clear General: All-In-One
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -62,6 +65,9 @@ on spotCheck()
 	else if caseIndex is 6 then
 		sut's rebindScreenshotsCaptureFullscreen()
 		
+	else if caseIndex is 7 then
+		sut's clearGeneralAllInOne()
+		
 	else
 		
 	end if
@@ -74,9 +80,21 @@ end spotCheck
 (*  *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
+	set cliclick to cliclickLib's new()
 	
 	script CleanshotXDecorator
 		property parent : mainScript
+		
+		
+		on clearGeneralAllInOne()
+			tell application "System Events" to tell process "CleanShot X"
+				click button 1 of UI element 2 of row 2 of table 1 of scroll area 1 of front window
+				set frontmost to true
+				delay 0.1
+				button "   Type shortcut…" of UI element 2 of row 2 of table 1 of scroll area 1 of window 1
+				lclick of cliclick at result given relativex:90
+			end tell
+		end clearGeneralAllInOne 
 		
 		
 		on rebindOcrCaptureText()
