@@ -56,21 +56,24 @@ on newBase(pObjectName)
 		property level : 1
 
 		on start()
+			set currentDate to current date
 			set theLabel to "Running: [" & objectName & "]"
 			set theBar to _repeatText("=", count of theLabel)
 
-			info(theBar)
-			info(theLabel)
+			_info(theBar, currentDate)
+			_info(theLabel, currentDate)
 
-			set my startSeconds to time of (current date)
+			-- set my startSeconds to time of (current date)
+			set my startSeconds to time of currentDate
 		end start
 
 
 		on finish()
-			set T2s to time of (current date)
+			set currentDate to current date
+			-- set T2s to time of (current date)
+			set T2s to time of currentDate
 			set elapsed to T2s - startSeconds
-
-			info("*** End: [" & my objectName & "] - " & elapsed & "s")
+			_info("*** End: [" & my objectName & "] - " & elapsed & "s", currentDate)
 		end finish
 
 
@@ -99,7 +102,47 @@ on newBase(pObjectName)
 		end debugf
 
 
+		(*
+			Try not to query the date again to reduce reply logging.
+		*)
+		on _info(objectToLog, currentDate)
+			set thisInfo to _toString(objectToLog)
+
+			set {year:y, month:m, day:d, time:t} to currentDate
+			set theTime to _secsToHMS(t as integer)
+			set theDate to short date string of currentDate
+			set customDateTime to theDate & " " & theTime
+
+			-- What's "the"?
+			set the info_log to logFilePath
+
+			set log_message to customDateTime & " " & my objectName & "> " & thisInfo
+			log log_message
+
+			-- do shell script "echo \"" & log_message & "\" > ~/AppleScript/logs/applescript.log" -- hard coded experimental
+			-- return
+
+			try
+				open for access file logFilePath with write permission
+
+				write (log_message & "
+	") to file logFilePath starting at eof
+				close access file logFilePath
+			on error the errorMessage number the errorNumber
+				log "Error encountered: " & errorMessage & ":" & logFilePath
+				try
+					close access file logFilePath
+				end try
+			end try
+		end _info
+
+
 		on info(objectToLog)
+			_info(objectToLog, current date)
+			return
+
+
+			(*
 			set thisInfo to _toString(objectToLog)
 
 			set currentDate to (current date)
@@ -129,6 +172,8 @@ on newBase(pObjectName)
 					close access file logFilePath
 				end try
 			end try
+		*)
+
 		end info
 
 
@@ -152,7 +197,7 @@ on newBase(pObjectName)
 
 		on fatalf(thisMessage, tokens)
 			fatal(textUtil's format(thisMessage, tokens))
-		end fatal
+		end fatalf
 
 		on _secsToHMS(secs)
 			tell (1000000 + secs div hours * 10000 + secs mod hours div minutes * 100 + secs mod minutes) as string to return text 2 thru 3 & ":" & text 4 thru 5 & ":" & text 6 thru 7

@@ -1,10 +1,13 @@
 (*
 	This script provides a convenient way to inject an appropriate logging instance to a library.
 
+	@Project:
+		applescript-core
+
 	@Build:
 		make build-lib SOURCE=core/logger-factory
 
-	@Last Modified: 2023-09-25 14:57:57
+	@Last Modified: 2025-05-22 13:55:29
 *)
 
 use loggerLib : script "core/logger"
@@ -25,11 +28,13 @@ on inject(target)
 	end try
 
 	try
+		(*
 		if useBasicLogging of target is true then
 			set logger of target to loggerLib's newBase(objectName)
 			return true
 
-		end if
+			end if
+		*)
 	end try
 	set logger of target to loggerLib's new(objectName)
 end inject
