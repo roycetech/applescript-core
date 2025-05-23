@@ -17,6 +17,9 @@ use loggerFactory : script "core/logger-factory"
 property logger : missing value
 property username : missing value
 
+(* Cache the system info *)
+property systemInfo : missing value
+
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
@@ -125,14 +128,14 @@ end findApp
 
 
 on getUsername()
-	if my username is missing value then set my username to short user name of (system info)
+	if my username is missing value then set my username to short user name of my _systemInfo()
 	if my username is equal to "root" then set my username to do shell script "whoami"
 	my username
 end getUsername
 
 
 on getComputerName()
-	computer name of (system info)
+	computer name of my _systemInfo()
 end getComputerName
 
 
@@ -162,3 +165,10 @@ on nvl(nonMissingValue, ifMissingValue)
 	nonMissingValue
 end nvl
 
+(*
+	Intended to quiet the replies a little mit.
+*)
+on _systemInfo()
+	if my systemInfo is missing value then set my systemInfo to (system info)
+	my systemInfo
+end _systemInfo
