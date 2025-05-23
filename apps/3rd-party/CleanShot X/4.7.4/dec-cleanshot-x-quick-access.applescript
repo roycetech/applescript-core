@@ -70,7 +70,7 @@ on spotCheck()
 	else if caseIndex is 6 then
 		set sutInterval to "5 seconds"
 		set sutInterval to "15 seconds"
-(*
+		(*
 		set sutInterval to "10 seconds"
 		set sutInterval to "1 minute"
 		set sutInterval to "10 minutes"

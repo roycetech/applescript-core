@@ -85,7 +85,6 @@ on decorate(mainScript)
 	script CleanshotXDecorator
 		property parent : mainScript
 		
-		
 		on clearGeneralAllInOne()
 			tell application "System Events" to tell process "CleanShot X"
 				click button 1 of UI element 2 of row 2 of table 1 of scroll area 1 of front window
@@ -94,7 +93,7 @@ on decorate(mainScript)
 				button "   Type shortcut…" of UI element 2 of row 2 of table 1 of scroll area 1 of window 1
 				lclick of cliclick at result given relativex:90
 			end tell
-		end clearGeneralAllInOne 
+		end clearGeneralAllInOne
 		
 		
 		on rebindOcrCaptureText()

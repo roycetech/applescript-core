@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings
 
 	@Created: Monday, December 23, 2024 at 6:55:56 AM
-	@Last Modified: 2024-12-31 19:32:03
+	@Last Modified: 2025-05-22 14:35:10
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -90,6 +90,7 @@ on spotCheck()
 		set settingsTitle to "Unicorn"
 		set settingsTitle to "General"
 		set settingsTitle to "Profiles"
+		set settingsTitle to "Window Groups"
 
 		sut's switchSettingsTab(settingsTitle)
 
@@ -97,7 +98,8 @@ on spotCheck()
 		set profileTabTitle to "Unicorn"
 		set profileTabTitle to "Window"
 		-- 		set profileTabTitle to "Tab"
-		-- 		set profileTabTitle to "Keyboard"
+		set profileTabTitle to "Keyboard"
+		logger's infof("profileTabTitle: {}", profileTabTitle)
 
 		sut's switchProfilesTab(profileTabTitle)
 
@@ -228,9 +230,12 @@ on decorate(mainScript)
 					return
 				end try
 
-				try
+				if exists (button tabTitle of toolbar 1 of settingsWindow) then
 					click button tabTitle of toolbar 1 of settingsWindow
-				end try
+
+				else if exists (radio button tabTitle of tab group 1 of group 1 of settingsWindow) then
+					click radio button tabTitle of tab group 1 of group 1 of settingsWindow
+				end if
 			end tell
 		end switchSettingsTab
 
@@ -449,3 +454,4 @@ on decorate(mainScript)
 		end iterateProfiles
 	end script
 end decorate
+
