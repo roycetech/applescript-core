@@ -132,6 +132,17 @@ on decorate(mainScript)
 		end rebindScreenshotsCaptureFullscreen
 		
 		
+		on clearScreenshotsCaptureFullscreen()
+			tell application "System Events" to tell process "CleanShot X"
+				click button 1 of UI element 2 of row 9 of table 1 of scroll area 1 of front window
+				set frontmost to true
+				delay 0.1
+				button "   Type shortcut…" of UI element 2 of row 9 of table 1 of scroll area 1 of window 1
+				lclick of cliclick at result given relativex:90
+			end tell
+		end clearScreenshotsCaptureFullscreen
+		
+		
 		on rebindScreenRecordingToggleRecording()
 			tell application "System Events" to tell process "CleanShot X"
 				click button 1 of UI element 2 of row 18 of table 1 of scroll area 1 of front window
