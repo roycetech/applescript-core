@@ -37,12 +37,12 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-
+	
 	set cases to listUtil's splitByLine("
 		Manual: INFO
 		Manual: Wait for Shell Prompt
 	")
-
+	
 	(*
 		Manual: Wait for Prompt
 		Manual: Prompt With Command (Git/Non Git, Parens, Lingering Command)
@@ -50,8 +50,8 @@ on spotCheck()
 
 		Manual: Last Command (Git/Non, With/out, Waiting for MFA)
 	*)
-
-set spotScript to script "core/spot-test"
+	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -59,37 +59,37 @@ set spotScript to script "core/spot-test"
 		logger's finish()
 		return
 	end if
-
-set terminalLib to script "core/terminal"
+	 
+	set terminalLib to script "core/terminal"
 	set terminal to terminalLib's new()
 	terminal's getFrontTab()
 	decorate(result)
 	set sut to extOutput's decorate(result)
-
+	
 	----------------------------------------------------------------------------
 	-- Check: zsh, bash, docker with/out command, redis, sftp, EC2 ssh
 	logger's infof("Is Shell Prompt: {}", sut's isShellPrompt())
-
+	
 	----------------------------------------------------------------------------
 	-- Check (Git/Non Git, With/out Parens, With/out Lingering Command)
 	logger's infof("Prompt: [{}]", sut's getPrompt())
 	logger's infof("Prompt With Command (if command is present): {}", sut's getPromptText())
-
-
+	
+	
 	logger's infof("Is SSH: {}", sut's isSSH())
 	logger's infof("Is zsh: {}", sut's isZsh())
 	logger's infof("Is bash: {}", sut's isBash())
-
+	
 	logger's infof("Git directory?: [{}]", sut's isGitDirectory())
-
+	
 	logger's infof("Last Command: [{}]", sut's getLastCommand())
-
+	
 	if caseIndex is 2 then
 		(* Can use "sleep 5" to test. *)
 		sut's waitForPrompt()
-
+		
 	end if
-
+	
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -98,51 +98,50 @@ end spotCheck
 on decorate(termTabScript)
 	loggerFactory's inject(me)
 	set retry to retryLib's new()
-	set terminal to terminalLib's new()
-
+	
 	set computedDefaultPrompt to short user name of (system info) & "@" & textUtil's stringBefore(host name of (system info), ".local")
 	-- logger's debugf("computedDefaultPrompt: {}", computedDefaultPrompt)
-
+	
 	script TerminalPromptDecorator
 		property parent : termTabScript
 		property defaultPrompt : computedDefaultPrompt
-
-
+		
+		
 		on ec2SSHPromptPattern()
 			"\\[.+\\]\\$$"
 		end ec2SSHPromptPattern
-
-
+		
+		
 		(*
 
 		*)
 		on isGitDirectory()
 			fileUtil's posixFolderPathExists(getPosixPath() & "/.git")
 		end isGitDirectory
-
-
+		
+		
 		on isSSH()
 			-- regex's matchesInString(ec2SSHPromptPattern(), getRecentOutput())
-
+			
 			tell application "Terminal"
 				set termProcesses to processes of selected tab of front window
 				try
 					return last item of termProcesses is "ssh"
 				end try -- Fails on "Process completed" state
 			end tell
-
+			
 			false
 		end isSSH
-
-
+		
+		
 		on waitForPrompt()
 			script PromptWaiter
 				if isShellPrompt() then return true
 			end script
 			tell retry to exec on PromptWaiter for 60 by 1
 		end waitForPrompt
-
-
+		
+		
 		(*
 			Based on default implementation.  Override if you have specific theme.
 
@@ -158,29 +157,29 @@ on decorate(termTabScript)
 		*)
 		on isShellPrompt()
 			if not hasProcess() then return false
-
+			
 			-- logger's info("isShellPrompt...")
 			set {history, lastProcess} to _getHistoryAndLastProcess()
-
+			
 			if isSSH() then return true
-
+			
 			if isZsh() then
 				-- logger's debug("zsh...")
 				set promptText to getPromptText()
 				-- logger's debugf("promptText: {}", promptText)
-
+				
 				if promptText is missing value then return false
-
+				
 				-- logger's debugf("defaultPrompt: {}", defaultPrompt)
-
+				
 				set atHomePath to getPosixPath() is equal to "/Users/" & std's getUsername()
 				-- logger's debugf("atHomePath: {}", atHomePath)
-
+				
 				if atHomePath and promptText is equal to defaultPrompt & " ~ %" then return true
-
+				
 				return promptText is equal to defaultPrompt & " " & getDirectoryName() & " %"
 			end if
-
+			
 			set rtrimmedHistory to textUtil's rtrim(history as text)
 			-- set isSsh to last item of termProcesses is "ssh"
 			set localIsSSH to lastProcess is "ssh"
@@ -194,13 +193,13 @@ on decorate(termTabScript)
 			-- logger's debugf("isSshShell: {}", isSshShell)
 			isDocker and rtrimmedHistory ends with "#" or isSshShell or rtrimmedHistory ends with my promptEndChar or regex's matchesInString("bash-\\d(?:\\.\\d)?[#\\$]$", rtrimmedHistory)
 		end isShellPrompt
-
-
+		
+		
 		on getPromptWithCommand()
 			getPromptText()
 		end getPromptWithCommand
-
-
+		
+		
 		(*
 			@returns the prompt text along with any of the lingering commands typed that hasn't executed.
 		*)
@@ -210,34 +209,34 @@ on decorate(termTabScript)
 				logger's warn("Bash is not yet implemented.")
 				return missing value
 			end if
-
+			
 			set recentBuffer to getRecentOutput()
 			-- logger's debugf("recentBuffer: {}", recentBuffer)
-
+			
 			set position to textUtil's lastIndexOf(recentBuffer, my defaultPrompt)
 			-- logger's debugf("position: {}", position)
-
+			
 			if position is not 0 then
 				set promptText to (text position thru -1 of recentBuffer)
 				return promptText
 			end if
-
+			
 			missing value
 		end getPromptText
-
-
+		
+		
 		(* @returns the history and last process *)
 		on _getHistoryAndLastProcess()
 			set lastProcess to missing value
-
+			
 			tell application "Terminal"
 				set termProcesses to processes of selected tab of my appWindow
 				if my hasProcess() then set lastProcess to the last item of termProcesses
 				{the history of selected tab of my appWindow, lastProcess}
 			end tell
 		end _getHistoryAndLastProcess
-
-
+		
+		
 		(*
 			How is last command different from the unexecuted command?
 				>
@@ -274,26 +273,26 @@ on decorate(termTabScript)
 		*)
 		on getLastCommand()
 			set recentBuffer to getRecentOutput()
-
+			
 			set prompt to getPrompt()
 			-- logger's debugf("prompt: {}", prompt)
 			if prompt is missing value then return missing value
 			-- logger's debugf("defaultPrompt: {}", defaultPrompt)
-
+			
 			set rawList to textUtil's split(recentBuffer, defaultPrompt)
 			set outputTokens to _removeDirectory(rawList)
 			set tokenCount to the count of outputTokens
-
+			
 			-- repeat with nextToken in outputTokens
 			-- log nextToken
 			-- end repeat
-
+			
 			set aShellPrompt to isShellPrompt()
 			-- logger's debugf("isShellPrompt(): {}", aShellPrompt)
 			if aShellPrompt then
 				set subject to item (tokenCount - 1) of outputTokens
 				-- logger's debugf("subject: {}", subject)
-
+				
 				set subjectLines to textUtil's split(subject, ASCII character 10)
 				try
 					-- return text 2 thru -1 of first item of subjectLines
@@ -302,24 +301,24 @@ on decorate(termTabScript)
 					return missing value
 				end try
 			end if
-
+			
 			set recentBuffer to getPromptText()
 			set firstLine to first item of textUtil's split(recentBuffer, ASCII character 10)
 			-- logger's debugf("firstLine: {}", firstLine)
 			-- logger's debugf("recentBuffer: {}", recentBuffer)
 			-- logger's debugf("getPrompt(): {}", getPrompt())
-
+			
 			set promptLess to textUtil's replace(firstLine, getPrompt(), "")
 			-- logger's debugf("promptLess: {}", promptLess)
-
+			
 			if promptLess is "" then return missing value
-
+			
 			set replaceResult to text 2 thru -1 of promptLess
 			if replaceResult is "" then return missing value
-
+			
 			return replaceResult
 		end getLastCommand
-
+		
 		on _removeDirectory(theList)
 			set cleanList to {}
 			repeat with nextElement in theList
@@ -330,14 +329,14 @@ on decorate(termTabScript)
 				else
 					set cleanELement to the nextElement
 				end if
-
+				
 				set cleanELement to textUtil's rtrim(cleanELement)
 				set end of cleanList to the cleanELement
 			end repeat
-
+			
 			cleanList
 		end _removeDirectory
-
+		
 		(*
 			@Test Cases
 				Git directory (with/out command)
@@ -353,27 +352,27 @@ on decorate(termTabScript)
 			if not isShellPrompt() then
 				-- logger's debug("Non-shell")
 				if getPromptText() is missing value then return missing value
-
+				
 				set firstLine to first item of textUtil's split(my getPromptText(), ASCII character 10)
 				-- logger's debugf("firstLine: {}", firstLine)
-
+				
 				set directoryName to getDirectoryName()
 				-- logger's debugf("directoryName: {}", directoryName)
-
+				
 				if getPosixPath() is equal to "/Users/" & std's getUsername() then
 					return text 1 thru ((offset of "~" in firstLine) + 2) of firstLine
 				end if
-
+				
 				set directoryNameLength to the length of directoryName
 				set directoryNameOffset to offset of directoryName in firstLine
 				return text 1 thru (directoryNameLength + directoryNameOffset + 1) of firstLine
 			end if
-
+			
 			set lingeringText to getLingeringCommand()
 			-- logger's debugf("lingeringText: {}", lingeringText)
-
+			
 			if lingeringText is missing value then return getPromptText()
-
+			
 			set promptAndCommand to getPromptText()
 			text 1 thru (-(length of lingeringText) - 2) of promptAndCommand
 		end getPrompt

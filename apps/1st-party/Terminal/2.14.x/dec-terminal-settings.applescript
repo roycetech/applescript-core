@@ -28,7 +28,6 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: Show Settings
@@ -51,6 +50,7 @@ on spotCheck()
 		Manual: Iterate Profiles
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

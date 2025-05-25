@@ -89,7 +89,6 @@ on decorate(termTabScript)
 	loggerFactory's inject(me)
 	set kb to kbLib's new()
 	set retry to retryLib's new()
-	set terminal to terminalLib's new()
 
 	script TerminalOutputDecorator
 		property parent : termTabScript

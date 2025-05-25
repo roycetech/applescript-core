@@ -111,7 +111,6 @@ end spotCheck
 on decorate(termTabScript)
 	loggerFactory's inject(me)
 	set retry to retryLib's new()
-	-- set terminal to terminalLib's new()
 
 	set computedDefaultPrompt to omz's OMZ_ARROW & "  "
 	-- logger's debugf("computedDefaultPrompt: {}", computedDefaultPrompt)
