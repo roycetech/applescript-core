@@ -29,6 +29,9 @@ use loggerFactory : script "core/logger-factory"
 
 use decContent : script "core/dec-script-editor-content"
 use decCursor : script "core/dec-script-editor-cursor"
+use decSettings : script "core/dec-script-editor-settings"
+use decSettingsGeneral : script "core/dec-script-editor-settings-general"
+use decSettingsEditing : script "core/dec-script-editor-settings-editing"
 
 use configLib : script "core/config"
 use retryLib : script "core/retry"
@@ -60,6 +63,7 @@ on spotCheck()
 		Manual: Save as app
 		Manual: Replace and Select
 		Manual: Close Search
+		Manual: Show Settings
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -82,7 +86,7 @@ on spotCheck()
 	logger's infof("getBaseScriptName: {}", frontTab's getBaseScriptName())
 	logger's infof("getPosixPath: {}", frontTab's getPosixPath())
 	logger's infof("(BROKEN, not possible when there's multiple projects) getResourcePath(): {}", frontTab's getResourcePath())
-	log frontTab's getContents()
+	-- log frontTab's getContents()
 	
 	if caseIndex is 1 then
 		
@@ -130,6 +134,10 @@ on spotCheck()
 		
 	else if caseIndex is 9 then
 		sut's closeSearch()
+		
+	else if caseIndex is 10 then
+		sut's showSettings()
+		
 	end if
 	
 	spot's finish()
@@ -144,7 +152,6 @@ on new()
 	set retry to retryLib's new()
 	
 	script ScriptEditorInstance
-		
 		on closeSearch()
 			if running of application "Script Editor" is false then return missing value
 			
@@ -153,6 +160,9 @@ on new()
 				try
 					click button "Done" of scroll area 1 of splitter group 1 of splitter group 1 of editorWindow
 				end try -- In case it is not even present
+				try
+					click button "Done" of scroll area 1 of group 1 of group 1 of splitter group 1 of splitter group 1 of editorWindow
+				end try
 			end tell
 		end closeSearch
 		
@@ -168,6 +178,18 @@ on new()
 			end tell
 			
 		end getEditorWindow
+		
+		
+		on showSettings()
+			if running of application "Script Editor" is false then return
+			
+			tell application "System Events" to tell process "Script Editor"
+				try
+					click (first menu item of menu 1 of menu bar item "Script Editor" of menu bar 1 whose title starts with "Settings")
+				end try
+			end tell
+			
+		end showSettings
 		
 		(* @return  missing value of tab is not found. ScriptEditorInstance *)
 		on findTabWithName(theName as text)
@@ -292,10 +314,10 @@ on new()
 				on stopScript()
 					focus()
 					
-						tell application "System Events" to tell process "Script Editor"
-							click (first button of toolbar 1 of front window whose description is "Stop")
-						end tell
-				end runScript
+					tell application "System Events" to tell process "Script Editor"
+						click (first button of toolbar 1 of front window whose description is "Stop")
+					end tell
+				end stopScript
 				
 				
 				on newTab()
@@ -529,6 +551,9 @@ on new()
 	
 	decContent's decorate(result)
 	decCursor's decorate(result)
+	decSettings's decorate(result)
+	decSettingsGeneral's decorate(result)
+	decSettingsEditing's decorate(result)
 	
 	set decorator to decoratorLib's new(result)
 	decorator's decorateByName("ScriptEditorInstance")
