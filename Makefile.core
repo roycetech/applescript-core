@@ -50,7 +50,8 @@ CORE_LIBS :=  \
 	spot-test \
 	menu \
 	math \
-	speech-recognition-server
+	speech-recognition-server \
+	timer
 
 
 APPS_PATH=/Applications/AppleScript
