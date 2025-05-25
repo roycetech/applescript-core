@@ -22,11 +22,8 @@
 
 use std : script "core/std"
 
-use listUtil : script "core/list"
 use mapLib : script "core/map"
 use plistBuddyLib : script "core/plist-buddy"
-
-use spotScript : script "core/spot-test"
 
 (* A bit confusing initially but the idea is, the higher the number, the more chances of getting logged. *)
 property level : {debug:1, info:2, warn:3, ERR:4, OFF:5}
@@ -45,41 +42,44 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 *)
 on spotCheck()
 	-- logger's start()
-
+	
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Config Info
 		Manual: Is Printable (un/registered, less, equal, greater, OFF)
 	")
-
+	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 	if caseIndex is 0 then
 		return
 	end if
-
+	
 	set sut to new()
 	if caseIndex is 1 then
-		log "Default Level: " & LOG4AS_CONFIG's getValue("defaultLevel")
-		log "Print to console: " & LOG4AS_CONFIG's getValue("printToConsole")
-		log "Write to file: " & LOG4AS_CONFIG's getValue("writeToFile")
-		set categories to LOG4AS_CONFIG's getValue("categories")
+		log "Default Level: " & plistBuddyLog4as's getValue("defaultLevel")
+		log "Print to console: " & plistBuddyLog4as's getValue("printToConsole")
+		log "Write to file: " & plistBuddyLog4as's getValue("writeToFile")
+		set categories to plistBuddyLog4as's getValue("categories")
 		if categories is missing value then
 			log "no categories"
 		else
 			log "categories:"
-			log LOG4AS_CONFIG's getValue("categories")'s toString()
+			-- log plistBuddyLog4as's getValue("categories")'s toString()
+			log plistBuddyLog4as's getValue("categories")
 		end if
-
+		
 	else if caseIndex is 2 then
 		(* Matched, Manually create appropriate entry in log4as.plist *)
-
+		
 		log "Is 'log4as' Printable on info? : " & sut's isPrintable("log4as", info of level)
 		log "Is log4as.log4as Printable on debug: " & sut's isPrintable("log4as", debug of level)
 		log "Is log4as.log4as Printable on warn: " & sut's isPrintable("log4as", warn of level)
 		log "Is log4as.log4as Printable on ERR: " & sut's isPrintable("log4as", ERR of level)
 		log "Is 'log4as' Printable on OFF? : " & sut's isPrintable("log4as", OFF of level)
-
+		
 		log "---"
 		(* Unmatched, make sure there is no matching entry in log4as.plist *)
 		set defaultLevel of sut to info of level
@@ -87,15 +87,15 @@ on spotCheck()
 		set defaultLevel of sut to warn of level
 		set defaultLevel of sut to ERR of level
 		set defaultLevel of sut to OFF of level
-
+		
 		log "Default level: " & sut's defaultLevel
-
+		
 		log "Will info() print on " & sut's defaultLevel & ": " & sut's isPrintable("$absent", info of level)
 		log "Will debug() print on " & sut's defaultLevel & ": " & sut's isPrintable("$absent", debug of level)
 		log "Will warn() print on " & sut's defaultLevel & ": " & sut's isPrintable("$absent", warn of level)
 		log "Will fatal() print on " & sut's defaultLevel & ": " & sut's isPrintable("$absent", ERR of level)
 	end if
-
+	
 	spot's finish()
 end spotCheck
 
@@ -103,9 +103,9 @@ end spotCheck
 on new()
 	-- if my logClasses is missing value then loadPlist()
 	loadPlist()
-
+	
 	script Log4asInstance
-
+		
 		(*
 			@moduleName - the complete script name. e.g. "log4as" or "Menu Case" or "Edit Notes.app".
 			@targetLogLevel - the method used to log, info(), debug(), etc.
@@ -123,16 +123,16 @@ on new()
 					set subjectLevelInt to _textToInt(nextClassLevel)
 					-- log "matched moduleName: " & moduleName & ", nextClassLevel: " & nextClassLevel & ", subject's value: " & subjectLevelInt & ", Target Log Level: " & targetLogLevel
 					if subjectLevelInt is equal to the OFF of level then return false
-
+					
 					return targetLogLevel is greater than or equal to subjectLevelInt
 				end if
 			end repeat
-
+			
 			-- log "un registered"
-
+			
 			-- when moduleName is not found in the plist.
 			if my defaultLevel is equal to OFF of level then return false
-
+			
 			-- log "targetLogLevel: " & targetLogLevel & ", default level: " & my defaultLevel
 			targetLogLevel is greater than or equal to my defaultLevel
 		end isPrintable
@@ -147,16 +147,16 @@ end new
 on loadPlist()
 	set my plistBuddyLog4as to plistBuddyLib's new(plistName)
 	set defaultLevelConfig to std's nvl(plistBuddyLog4as's getValue("defaultLevel"), "INFO")
-
+	
 	-- log "LOG4AS: defaultLevelConfig: " & defaultLevelConfig
 	set my defaultLevel to _textToInt(defaultLevelConfig)
-
+	
 	set my logClasses to plistBuddyLog4as's getDictionaryKeys("categories")
 end loadPlist
 
 
 on initDefaultLevel()
-	set defaultLevelConfig to LOG4AS_CONFIG's getValueWithDefault("defaultLevel", "INFO")
+	set defaultLevelConfig to plistBuddyLog4as's getValueWithDefault("defaultLevel", "INFO")
 	set my defaultLevel to _textToInt(defaultLevelConfig)
 end initDefaultLevel
 
@@ -166,6 +166,6 @@ on _textToInt(logLevel)
 	if logLevel is "DEBUG" then return debug of level
 	if logLevel is "WARN" then return warn of level
 	if logLevel is "ERR" then return ERR of level
-
+	
 	OFF of level
 end _textToInt

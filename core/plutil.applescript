@@ -809,7 +809,8 @@ on new()
 							set nextElementValue to nextElement
 							if nextElement contains "$" and nextElement does not contain "\\$" and nextElement contains "&" then
 								set nextElementValue to _escapeDollarAndAmpersand(nextElement)
-							else if (offset of "$" in nextElement) is 0 then
+							-- else if (offset of "$" in nextElement) is 0 then
+							else if nextElement does not contain "$" then
 								set nextElementValue to _escapeSpecialCharacters(nextElement)
 							end if
 

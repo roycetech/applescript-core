@@ -6,7 +6,7 @@
 		applescript-core
 
 	@Build:
-		make build-lib SOURCE=core/file
+		./scripts/build-lib.sh core/file
 
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
@@ -29,14 +29,14 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
-
+	
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Read Text File
 		Manual: Modification Date
 		Manual: Creation Date
 	")
-
+	
 	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
@@ -45,37 +45,37 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-
+	
 	set userPath to format {"/Users/{}", std's getUsername()}
 	set existingFilePath to format {"{}/.zprofile", userPath}
 	logger's infof("Existing file exists: {}", posixFilePathExists(existingFilePath))
-
+	
 	set nonExistingFilePath to format {"{}/virus.txt", userPath}
 	logger's infof("Non-Existing file does not exist: {}", posixFilePathExists(nonExistingFilePath))
-
+	
 	set posixPath to "/Users/" & std's getUsername() & "/Desktop"
 	logger's infof("Existing Posix Folder Path exists: {}", posixFolderPathExists(posixPath))
 	set posixPath to "/Users/" & std's getUsername() & "/Unicorn"
 	logger's infof("Non-existing Posix Folder Path does not exists: {}", posixFolderPathExists(posixPath))
-
+	
 	if caseIndex is 1 then
 		set posixPath to "/etc/hosts"
 		logger's debugf("posixPath: {}", posixPath)
 		logger's infof("File contents: {}", readFile(POSIX file posixPath))
-
+		
 	else if caseIndex is 2 then
 		getModificationDate("/Users/" & std's getUsername() & "/wordlist.txt")
 		logger's infof("Modification Date: {}", getModificationDate("/Users/" & std's getUsername() & "/wordlist.txt"))
-
+		
 	else if caseIndex is 3 then
 		logger's infof("Creation Date: {}", getCreationDate("/Users/" & std's getUsername() & "/wordlist.txt"))
-
+		
 	else if caseIndex is 4 then
-
+		
 	else if caseIndex is 5 then
-
+		
 	end if
-
+	
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -122,7 +122,7 @@ on deleteFile(filePath)
 		do shell script command
 		return true
 	end try
-
+	
 	false
 end deleteFile
 
@@ -137,11 +137,11 @@ end _quotePath
 on replaceText(filePath, substring, replacement)
 	set quotedFilePath to filePath
 	if filePath does not start with "~" then set quotedFilePath to quoted form of filePath
-
+	
 	set escapedReplacement to replacement
 	if replacement contains "&" then set escapedReplacement to textUtil's replace(replacement, "&", "\\&")
 	if replacement contains "|" then set escapedReplacement to textUtil's replace(replacement, "|", "\\|")
-
+	
 	set command to "sed -i '' \"s/" & substring & "/" & escapedReplacement & "/\" " & quotedFilePath
 	do shell script command
 end replaceText
@@ -173,9 +173,9 @@ end posixFolderPathExists
 
 on readTempFile()
 	tell application "Finder" to set theFile to file "applescript.tmp" of folder "AppleScript" of (path to home folder)
-
+	
 	set theFile to theFile as string
-
+	
 	read file theFile
 end readTempFile
 
@@ -186,17 +186,17 @@ on writeTextToTempFile(theText as text)
 		if not (exists of file "applescript.tmp" of targetFolder) then
 			make new file at targetFolder with properties {name:"applescript.tmp", file type:"text"}
 		end if
-
+		
 		set theFile to file "applescript.tmp" of folder "AppleScript" of (path to home folder)
 	end tell
-
+	
 	try
 		set theFile to theFile as string
 		set theOpenedFile to open for access file theFile with write permission
 		set eof of theOpenedFile to 0
 		write theText to theOpenedFile starting at eof
 		close access theOpenedFile
-
+		
 		return true
 	on error
 		try
@@ -213,19 +213,21 @@ end writeTextToTempFile
 on getBaseFilename(filePath)
 	if filePath is missing value then return missing value
 	if filePath is "" then return missing value
-
+	
 	-- if (offset of ":" in filePath) is greater than 0 then  -- Mac OS Notation
-	if (offset of "/" in filePath) is greater than 0 then -- POSIX Notation
+	-- if (offset of "/" in filePath) is greater than 0 then -- POSIX Notation
+	if filePath contains "/" then -- POSIX Notation
 		set theDelimiter to "/"
-
-	else if (offset of ":" in filePath) is greater than 0 then -- assume Mac OS Notation
+		
+		-- else if (offset of ":" in filePath) is greater than 0 then -- assume Mac OS Notation
+	else if filePath contains ":" then -- assume Mac OS Notation
 		set theDelimiter to ":"
-
+		
 	else
 		error "Could not determine the file separator: " & filePath
-
+		
 	end if
-
+	
 	set theList to textUtil's split(filePath, theDelimiter)
 	last item of theList
 end getBaseFilename
@@ -233,23 +235,23 @@ end getBaseFilename
 
 on getFolderName(filePath)
 	if filePath is missing value then return missing value
-
+	
 	set tokens to textUtil's split(filePath, "/")
 	if the (count of tokens) is 2 and filePath starts with "~" then return std's getUsername()
 	if the (count of tokens) is less than 3 then return missing value
-
+	
 	item -2 of tokens
 end getFolderName
 
 
 on getContainingDirectory(filePath)
 	if filePath is missing value then return missing value
-
+	
 	set cleanFilePath to expandTildePath(filePath)
 	if cleanFilePath ends with "/" then set cleanFilePath to text 1 thru -2 of cleanFilePath
 	set tokens to textUtil's split(cleanFilePath, "/")
 	if the (count of tokens) is 2 then return "/"
-
+	
 	textUtil's join(reverse of rest of reverse of tokens, "/")
 end getContainingDirectory
 
@@ -257,7 +259,7 @@ end getContainingDirectory
 on quoteFilePath(posixFilePath)
 	if posixFilePath is missing value then return missing value
 	if posixFilePath starts with "~" then return posixFilePath
-
+	
 	quoted form of posixFilePath
 end quoteFilePath
 
@@ -286,7 +288,7 @@ on convertPathToTilde(filePath)
 	if filePath starts with markerText then
 		return textUtil's replace(filePath, markerText, "~")
 	end if
-
+	
 	filePath
 end convertPathToTilde
 
@@ -308,10 +310,10 @@ end containsText
 
 on getModificationDate(filePath)
 	if filePath is missing value then return missing value
-
+	
 	set modificationDateStr to do shell script "stat -f %Sm -t \"%Y %m %d %H:%M:%S\" " & quoted form of filePath
 	set {ye, mo, da, Ho, mi, se} to words of modificationDateStr
-
+	
 	set t to Ho * hours + mi * minutes + se
 	set modificationDate to current date
 	set modificationDate's year to ye
@@ -324,10 +326,10 @@ end getModificationDate
 
 on getCreationDate(filePath)
 	if filePath is missing value then return missing value
-
+	
 	set creationDateStr to do shell script "stat -f %Sc -t \"%Y %m %d %H:%M:%S\" " & quoted form of filePath
 	set {ye, mo, da, Ho, mi, se} to words of creationDateStr
-
+	
 	set t to Ho * hours + mi * minutes + se
 	set creationDate to current date
 	set creationDate's year to ye

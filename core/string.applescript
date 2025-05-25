@@ -135,6 +135,9 @@ end shortestStringBetween
 
 
 on replaceFirst(sourceText, substring, replacement)
+	if sourceText is missing value then return missing value
+	if sourceText does not contain substring then return sourceText
+	
 	set substringOffset to offset of substring in sourceText
 	if substringOffset is 0 then return sourceText
 	if replacement is missing value then set replacement to ""
@@ -392,7 +395,8 @@ end indexOf
 on lastIndexOf(sourceText, substring)
 	if substring is missing value then return 0
 	if sourceText is missing value then return 0
-	if (offset of substring in sourceText) is 0 then return 0
+	-- if (offset of substring in sourceText) is 0 then return 0
+	if sourceText does not contain substring then return 0
 
 	set theList to split(sourceText, substring)
 	return (length of sourceText) - (length of last item of theList) - (length of substring) + 1
@@ -406,6 +410,8 @@ end replaceAll
 
 on replace(sourceText, substring, replacement)
 	if replacement is missing value then set replacement to ""
+	if sourceText is missing value then return missing value	
+	if sourceText does not contain substring then return sourceText
 	if substring is "
 " then
 		set ugly to ""
