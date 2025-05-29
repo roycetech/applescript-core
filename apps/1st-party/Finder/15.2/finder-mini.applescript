@@ -16,7 +16,9 @@
 use script "core/Text Utilities"
 
 use std : script "core/std"
+
 use loggerFactory : script "core/logger-factory"
+
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 
@@ -119,6 +121,13 @@ on new(pProcessName)
 		on acceptFoundPath()
 			kb's pressKey("return")
 		end acceptFoundPath
+
+
+		on chooseSelection()
+			tell application "System Events" to tell process processName
+				click button "Choose" of window "Open"
+			end tell
+		end chooseSelection
 
 
 		on untilde(tildePath)
