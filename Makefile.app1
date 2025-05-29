@@ -127,6 +127,11 @@ build-system-settings:
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_desktop-and-dock"
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 
+ifeq ($(OS_NAME), sequoia)
+	$(SUDO) ./scripts/build-lib.sh 'apps/1st-party/System Settings/15.0/macOS Sequoia/dec-system-settings-siri'
+	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
+endif
+
 
 build-terminal:
 ifeq ($(OS_NAME), sequoia)

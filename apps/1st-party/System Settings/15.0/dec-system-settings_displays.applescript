@@ -22,14 +22,17 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: Reveal Displays
-		Manual: Switch display resolution
-		Reset: Display resolution
+		Manual: Display resolution - Change
+		Manual: Display resolution - Reset
+		Manual: Set Automatically adjust brightness - ON
+		
+		Manual: Set Automatically adjust brightness - OFF
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -43,6 +46,8 @@ on spotCheck()
 	set sut to sutLib's new()
 	set sut to decorate(sut)
 	
+	logger's infof("Automatically adjust brightness: {}", sut's isAutomaticallyAdjustBrightness())
+	
 	if caseIndex is 1 then
 		
 	else if caseIndex is 2 then
@@ -54,6 +59,11 @@ on spotCheck()
 	else if caseIndex is 4 then
 		sut's resetDisplayResolution()
 		
+	else if caseIndex is 5 then
+		sut's setAutomaticallyAdjustBrightnessOn()
+		
+	else if caseIndex is 6 then
+		sut's setAutomaticallyAdjustBrightnessOff()
 	else
 		
 	end if
@@ -69,6 +79,36 @@ on decorate(mainScript)
 	
 	script SystemSettingsDisplaysDecorator
 		property parent : mainScript
+		
+		on isAutomaticallyAdjustBrightness()
+			if running of application "System Settings" is false then return false
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					return value of checkbox "Automatically adjust brightness" of group 2 of scroll area 2 of group 1 of group 2 of splitter group 1 of group 1 of front window is 1
+				end try
+			end tell
+			false
+		end isAutomaticallyAdjustBrightness
+		
+		on setAutomaticallyAdjustBrightnessOn()
+			if not isAutomaticallyAdjustBrightness() then toggleAutomaticallyAdjustBrightness()
+		end setAutomaticallyAdjustBrightnessOn
+		
+		on setAutomaticallyAdjustBrightnessOff()
+			if isAutomaticallyAdjustBrightness() then toggleAutomaticallyAdjustBrightness()
+		end setAutomaticallyAdjustBrightnessOff
+		
+		on toggleAutomaticallyAdjustBrightness()
+			if running of application "System Settings" is false then return false
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					click checkbox "Automatically adjust brightness" of group 2 of scroll area 2 of group 1 of group 2 of splitter group 1 of group 1 of front window
+				end try
+			end tell
+		end toggleAutomaticallyAdjustBrightness
+		
 		
 		on revealDisplays()
 			if running of application "System Settings" is false then
