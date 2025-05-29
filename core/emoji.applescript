@@ -2,7 +2,7 @@
 	@Project:
 		applescript-hub
 
-	@Build:
+	@Build-manual:
 		make build-lib SOURCE=core/emoji
 
 	@Known Issues:
@@ -42,3 +42,4 @@ property CIRCLE_RED : "🔴"
 property CIRCLE_WHITE : "⚪️"
 property SQUARE_GREEN : "🟩"
 property SQUARE_RED : "🟥"
+property TEST : "🧪"
