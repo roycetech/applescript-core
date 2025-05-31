@@ -107,6 +107,7 @@ end spotCheck
 on decorate(baseScript)
 	script KeyboardDvorakCmdInstance
 		property parent : baseScript
+		property typeTextDelayAfter : 0.01
 
 		on pressKey(keyToPress)
 			if not isDvorak() then
@@ -151,7 +152,7 @@ on decorate(baseScript)
 
 		on typeText(theText)
 			tell application "System Events" to keystroke theText
-			delay 0.01
+			delay my typeTextDelayAfter
 		end typeText
 
 
