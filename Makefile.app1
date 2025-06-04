@@ -141,6 +141,12 @@ ifeq ($(OS_NAME), sequoia)
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-run
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-general
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile-window
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile-keyboard
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal_tab-finder
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal
 
 else ifeq ($(OS_NAME), sonoma)

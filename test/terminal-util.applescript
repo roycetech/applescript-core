@@ -188,7 +188,8 @@ on new()
 			set terminal to terminalLib's new()
 
 			-- log "looking for the test tab..."
-			set terminalTab to terminal's findTabWithNameContaining(my TEST_TAB_NAME)
+			-- set terminalTab to terminal's findTabWithNameContaining(my TEST_TAB_NAME)
+			set terminalTab to terminal's findTabByWindowNameSubstring(my TEST_TAB_NAME)
 			if terminalTab is not missing value then
 				-- log "--> Test tab was found, returning it"
 				set autoDismissDialogue of terminalTab to true

@@ -36,8 +36,6 @@
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal
 
 	@Known Issues:
-
-
 *)
 
 use script "core/Text Utilities"
@@ -85,15 +83,8 @@ on spotCheck()
 
 		Manual: Clear lingering command
 		Wait for Prompt
-		Find Tab - applescript logs
 		Manual: New Window (Not running, no window, has window)
-		Find Tab - BSS Bug
-
-		Find Tab with Title
 		Manual: Set Tab Name
-		Manual: Find First non-ssh tab
-		Manual: Find First ssh tab
-		Manual: Find First Tab by Process
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -158,69 +149,17 @@ on spotCheck()
 	else if caseIndex is 9 then
 		sut's newWindow("echo case 9", "spot")
 		
-	else if caseIndex is 10 then
-		
-	else if caseIndex is 11 then
 		
 	else if caseIndex is 12 then
 		frontTab's _setTabName("Spot Tab " & emoji's TUBE)
 		
-	else if caseIndex is 13 then
-		set firstNonSshTab to sut's findFirstNonSshTab()
-		if firstNonSshTab is missing value then
-			logger's info("Non-ssh tab was not found.")
-		else
-			logger's info("Non-ssh tab was found.")
-			firstNonSshTab's focus()
-		end if
 		
-	else if caseIndex is 14 then
-		set firstSshTab to sut's findFirstSshTab()
-		if firstSshTab is missing value then
-			logger's info("Ssh tab was not found.")
-		else
-			logger's info("Ssh tab was found.")
-			firstSshTab's focus()
-		end if
-		
-	else if caseIndex is 15 then
-		set sutProcessName to "Unicorn"
-		set sutProcessName to "-zsh"
-		logger's infof("sutProcessName: {}", sutProcessName)
-		
-		set firstSshTab to sut's findFirstTabByProcess(sutProcessName)
-		if firstSshTab is missing value then
-			logger's infof("Tab with process {} is not found.", sutProcessName)
-		else
-			logger's infof("Tab with process {} is found.", sutProcessName)
-			firstSshTab's focus()
-		end if
-		
-	else if caseIndex is 15 then
-		log sut's findTabWithName("AppleScript", "applescript logs")
-		log sut's findTabWithName("AppleScript", "AS " & emoji's WORK)
 		
 	else if caseIndex is 16 then
 		set spotTabName to "AS " & emoji's WORK
 		set spotTab to sut's newWindow("ls", "Main")
 		
-	else if caseIndex is 17 then
-		(* Manually open a tab on the user home directory and name it as "spot <construction_sign_emoji>"*)
-		set spotTabName to "spot " & emoji's WORK
-		set foundTab to sut's findTabWithName(std's getUsername(), spotTabName)
-		if foundTab is missing value then
-			logger's info("Tab was not found")
-		else
-			logger's info("Tab was found")
-			foundTab's focus()
-			
-		end if
 		
-	else if caseIndex is 18 then
-		set foundTab to sut's findTabEndingWith("MBSS " & emoji's WORK)
-		if foundTab is not missing value then
-			foundTab's focus()
-		end if
 	end if
 	
 	spot's finish()
@@ -235,58 +174,31 @@ on new()
 	set retry to retryLib's new()
 	set dock to dockLib's new()
 	
+	set decSettings to script "core/dec-terminal-settings"
+	set decSettingsGeneral to script "core/dec-terminal-settings-general"
+	set decSettingsProfile to script "core/dec-terminal-settings-profile"
+	set decSettingsProfileWindow to script "core/dec-terminal-settings-profile-window"
+	set decSettingsProfileKeyboard to script "core/dec-terminal-settings-profile-keyboard"
+	set decTerminalTabFinder to script "core/dec-terminal_tab-finder"
+	
 	script TerminalInstance
-		on findFirstNonSshTab()
-			if running of application "Terminal" is false then return false
+		on getWindowsCount()
+			if running of application "Terminal" is false then return 0
 			
-			tell application "Terminal"
-				repeat with nextWindow in windows
-					set termProcesses to processes of selected tab of nextWindow
-					set hasProcess to (the number of items in termProcesses) is not 0
-					if hasProcess and the last item of termProcesses is not "ssh" then return terminalTabLib's new(id of nextWindow)
-					
-				end repeat
+			tell application "System Events" to tell process "Terminal"
+				count of windows
 			end tell
-			missing value
-		end findFirstNonSshTab
-		
-		
-		on findFirstTabByProcess(processKey)
-			if running of application "Terminal" is false then return false
-			
-			tell application "Terminal"
-				repeat with nextWindow in windows
-					set termProcesses to processes of selected tab of nextWindow
-					set hasProcess to (the number of items in termProcesses) is not 0
-					if hasProcess and the last item of termProcesses is processKey then return terminalTabLib's new(id of nextWindow)
-					
-				end repeat
-			end tell
-			missing value
-		end findFirstTabByProcess
-		
-		
-		on findFirstSshTab()
-			if running of application "Terminal" is false then return false
-			
-			tell application "Terminal"
-				repeat with nextWindow in windows
-					set termProcesses to processes of selected tab of nextWindow
-					set hasProcess to (the number of items in termProcesses) is not 0
-					if hasProcess and the last item of termProcesses is "ssh" then return terminalTabLib's new(id of nextWindow)
-					
-				end repeat
-			end tell
-			missing value
-		end findFirstSshTab
+		end getWindowsCount
 		
 		
 		on getFrontTab()
 			if running of application "Terminal" is false then return missing value
 			
+			tell application "System Events" to tell process "Terminal"
+				if (count of windows) is 0 then return missing value	
+			end tell
+
 			tell application "Terminal"
-				if (count of windows) is 0 then return missing value
-				
 				set frontWinID to id of first window
 			end tell
 			terminalTabLib's new(frontWinID)
@@ -306,159 +218,7 @@ on new()
 		on getFrontMostInstance()
 			getFrontTab()
 		end getFrontMostInstance
-		
-		
-		-- = New naming format = ----------------------------------------------
-		on findTabByTitle(tabTitle)
-			findTabWithTitle(tabTitle)
-		end findTabByTitle
-		
-		on findTabByTitlePrefix(titlePrefix)
-			findTabStartingWith(titlePrefix)
-		end findTabByTitlePrefix
-		
-		on findTabByTitleSuffix(titleSuffix)
-			findTabEndingWith(titleSuffix)
-		end findTabByTitleSuffix
-		
-		on findTabByTitleSubstring(titleSubstring)
-			if winUtil's hasWindow("Terminal") is false then return missing value
-			
-			tell application "Terminal"
-				try
-					set appWindow to first window whose custom title of tab 1 contains titleSubstring
-					return terminalTabLib's new(id of appWindow)
-				end try
-			end tell
-			
-			missing value			
-		end findTabByTitleSubstring
-		
-		on findTabWithTitle(windowTitle)
-			if winUtil's hasWindow("Terminal") is false then return missing value
-			
-			tell application "Terminal"
-				try
-					set appWindow to first window whose custom title of tab 1 is equal to the windowTitle
-					return terminalTabLib's new(id of appWindow)
-				end try
-			end tell
-			
-			missing value
-		end findTabWithTitle
-		
-		
-		(*
-			@Deprecated: Use findTabWithTitle.
-			@return  missing value of tab is not found. TabInstance
-		*)
-		on findTabWithName(folderName, theName)
-			if winUtil's hasWindow("Terminal") is false then return missing value
-			
-			-- logger's debugf("theName: {}", theName)
-			-- logger's debugf("folderName: {}", folderName)
-			-- log textUtil's join({folderName, separator, theName}, "")
-			
-			-- tell application "System Events" to tell process "Terminal" -- Check first if found in the same space.
-			-- 	try
-			-- 		set syseveWindow to first window whose name contains theName or name contains folderName
-			-- 	on error the errorMessage number the errorNumber
-			-- 		return missing value
-			-- 	end try
-			-- end tell
-			
-			set targetName to textUtil's join({folderName, unic's SEPARATOR, theName}, "")
-			-- logger's debugf("targetName: {}", targetName)
-			tell application "Terminal"
-				try
-					set appWindow to first window whose name is equal to targetName
-					return terminalTabLib's new(id of appWindow)
-				end try
-			end tell
-			
-			missing value
-		end findTabWithName
-		
-		
-		(* @return  missing value of tab is not found. TabInstance *)
-		on findTabWithNameContaining(nameKeyword)
-			if winUtil's hasWindow("Terminal") is false then return missing value
-			
-			tell application "Terminal"
-				try
-					set appWindow to first window whose name contains the nameKeyword
-					return terminalTabLib's new(id of appWindow)
-				end try
-			end tell
-			
-			missing value
-		end findTabWithNameContaining
-		
-		
-		(*
-			Useful for finding by tab title.
-			@return  missing value of tab is not found. TabInstance
-
-		*)
-		(* with test/s *)
-		on findTabEndingWith(titleEnding)
-			if winUtil's hasWindow("Terminal") is false then return missing value
-			
-			tell application "Terminal"
-				try
-					set appWindow to first window whose custom title of tab 1 ends with titleEnding
-					return terminalTabLib's new(id of appWindow)
-				end try
-			end tell
-			
-			missing value
-		end findTabEndingWith
-		
-		on findTabStartingWith(titleStart)
-			if winUtil's hasWindow("Terminal") is false then return missing value
-			
-			tell application "Terminal"
-				try
-					set appWindow to first window whose custom title of tab 1 starts with titleStart
-					return terminalTabLib's new(id of appWindow)
-				end try
-			end tell
-			
-			missing value
-		end findTabStartingWith
-		
-		(*
-			This was the original implementation before unit tests was added.
-
-			@return  missing value of tab is not found. TabInstance
-		*)
-		on findTabWithWindowNameEndingWith(titleEnding)
-			if winUtil's hasWindow("Terminal") is false then return missing value
-			
-			tell application "Terminal"
-				try
-					set appWindow to first window whose name ends with titleEnding
-					return terminalTabLib's new(id of appWindow)
-				end try
-			end tell
-			
-			missing value
-		end findTabWithWindowNameEndingWith
-		
-		
-		on findTabByWindowNameSuffix(nameSuffix)
-			if winUtil's hasWindow("Terminal") is false then return missing value
-			
-			tell application "Terminal"
-				try
-					set appWindow to first window whose name ends with nameSuffix
-					return terminalTabLib's new(id of appWindow)
-				end try
-			end tell
-			
-			missing value
-		end findTabByWindowNameSuffix
-		
+				
 		
 		on hasTabBar()
 			if winUtil's hasWindow("Terminal") is false then return false
@@ -595,7 +355,11 @@ on new()
 		end _autoUpdateFrontTab
 	end script
 	
-	set decSettings to script "core/dec-terminal-settings"
-	decSettings's decorate(TerminalInstance)
+	decSettings's decorate(result)
+	decSettingsGeneral's decorate(result)
+	decSettingsProfile's decorate(result)
+	decSettingsProfileWindow's decorate(result)
+	decSettingsProfileKeyboard's decorate(result)
+	decTerminalTabFinder's decorate(result)
 end new
 
