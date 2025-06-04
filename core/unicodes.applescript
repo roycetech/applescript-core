@@ -48,5 +48,6 @@ property ARROW_LEFT : "←"
 property ARROW_RIGHT : "→"
 property MENU_CHECK : "✓"
 property APOSTROPHE : "’"
+property COMMAND : "⌘"
 
 property APP_STORE_SPACE : ASCII character 202
