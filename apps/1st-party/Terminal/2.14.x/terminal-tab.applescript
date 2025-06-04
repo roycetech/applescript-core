@@ -462,12 +462,19 @@ on new(pWindowId)
 		*)
 		(* With test/s *)
 		on getTabTitle()
+			-- tell application "System Events" to tell process "Terminal"
+			-- 	if exists (tab group "tab bar" of my appWindow) then
+			-- 		title of radio button (my tabIndex) of tab group "tab bar" of my appWindow
+			-- 	else
+			-- 		my storedTabTitle
+			-- 	end if
+			-- end tell
+
+			tell application "Terminal"
+				set selectedTab to selected tab of my appWindow
+			end tell
 			tell application "System Events" to tell process "Terminal"
-				if exists (tab group "tab bar" of front window) then
-					title of radio button (my tabIndex) of tab group "tab bar" of front window
-				else
-					my storedTabTitle
-				end if
+				title of selectedTab
 			end tell
 		end getTabTitle
 
