@@ -512,7 +512,7 @@ end ltrim
 (* NOTE: For Review! *)
 on trim(theText)
 	-- do shell script "ruby -e \"p '" & theText & "'.strip\" | sed 's/\"//g'"
-	do shell script "echo '" & theText & "' |  sed 's/ *$//g'  |  sed 's/^[[:space:]]*//g'"
+	do shell script "echo '" & ltrim(theText) & "' |  sed 's/ *$//g'  |  sed 's/^[[:space:]]*//g'"	
 end trim
 
 
