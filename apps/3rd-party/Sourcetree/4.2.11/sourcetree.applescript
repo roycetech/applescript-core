@@ -3,7 +3,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/3rd-party/Sourcetree/4.2.10/sourcetree
+		./scripts/build-lib.sh apps/3rd-party/Sourcetree/4.2.11/sourcetree
 
 	@Created: Monday, November 25, 2024 at 3:32:55 PM
 	@Last Modified: 2025-05-16 06:26:11
@@ -42,6 +42,7 @@ on spotCheck()
 		Manual: Show Whitespace
 
 		Manual: Trigger Second Menu Button
+		Manual: Select File - second
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -285,8 +286,20 @@ on new()
 		end selectFirstUnstagedFile
 		
 		
+		on selectFile(fileIndex)
+			if running of application "Sourcetree" is false then return
+			if fileIndex is less than 1 then return
+			
+			tell application "System Events" to tell process "Sourcetree"
+				try
+					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+				end try
+				
+				set selected of item (fileIndex + 1) of targetRows to true
+			end tell
+		end selectFile
+		
 		(*
-			Does not work.
 		*)
 		on selectFirstFile()
 			if running of application "Sourcetree" is false then return
