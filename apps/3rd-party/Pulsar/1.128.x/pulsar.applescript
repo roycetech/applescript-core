@@ -9,13 +9,14 @@
 		Project Find Results
 		Welcome Guide
 
-	@Last Modified: 2024-08-28 14:10:57
+	@Migrated:
+		Sat, Jun 07, 2025 at 08:20:46 PM
 
 	@Project:
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/3rd-party/Pulsar/1.102.x/pulsar
+		./scripts/build-lib.sh apps/3rd-party/Pulsar/1.128.x/pulsar
 *)
 
 use script "core/Text Utilities"
@@ -143,7 +144,8 @@ on new()
 		(* This is the state when there are no project folder is currently open. *)
 		on isProjectEmpty()
 			tell application "System Events" to tell process "Pulsar"
-				not (exists group 1 of UI element 1 of front window)
+				-- not (exists group 1 of UI element 1 of front window)
+				title of front window does not contain unic's SEPARATOR
 			end tell
 		end isProjectEmpty
 		
@@ -241,8 +243,11 @@ on new()
 			tell application "System Events" to tell process "Pulsar"
 				set filePath to get value of attribute "AXDocument" of front window
 			end tell
+			logger's debugf("filePath: {}", filePath)
+						
 			textUtil's decodeUrl(textUtil's stringAfter(filePath, "file://"))
 		end getCurrentFilePath
+		
 		
 		on closeFrontTab()
 			if running of application "Pulsar" is false then return
