@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh core/runtime
 
 	@Created: Wednesday, June 12, 2024 at 10:51:51 AM
-	@Last Modified: 2024-06-12 11:02:52
+	@Last Modified: 2025-06-09 09:56:01
 *)
 
 use AppleScript version "2.8"
@@ -44,6 +44,8 @@ on new()
 			@returns:
 				Script Menu - osascript
 				Script Editor
+				Script Debugger
+				Keyboard Maestro - osascript
 		*)
 		on getName()
 			processInfo's processName() as string
