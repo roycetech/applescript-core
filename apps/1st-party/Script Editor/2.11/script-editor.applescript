@@ -506,6 +506,7 @@ on new()
 				on getPosixPath()
 					if running of application "Script Editor" is false then return
 					
+					set posixPath to missing value
 					tell application "Script Editor"
 						set posixPath to path of document of appWindow
 					end tell
