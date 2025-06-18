@@ -78,7 +78,7 @@ build-preview:
 
 build-safari: build-dock
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/safari-tab
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari-tab
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-tab-finder2
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
@@ -88,10 +88,14 @@ build-safari: build-dock
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-inspector
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-preferences
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-settings
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-general
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-tabs
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-extensions
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-advanced
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-profile
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-privacy-and-security
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/safari
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari
 
 install-safari: build-safari
 	osascript ./scripts/allow-apple-events-in-safari.applescript
