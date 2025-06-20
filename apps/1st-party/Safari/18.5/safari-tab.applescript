@@ -3,12 +3,13 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Safari/18.3/safari-tab
+		./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari-tab
 
 	@Created: Tue, Feb 18, 2025 at 10:21:55 AM
 	@Last Tue, Feb 18, 2025 at 10:21:58 AM
 
 	@Change Logs:
+		Thu, Jun 19, 2025 at 07:05:08 AM - Added responding to Cancel OK prompt.
 		Wed, Apr 16, 2025 at 01:53:17 PM - Allow dynamic decoration.
 		Tue, Apr 08, 2025 at 11:41:12 AM - Fix #focus to trigger via menu.
 		Fri, Feb 28, 2025 at 09:15:44 AM - Added #isUnableToConnect
@@ -47,6 +48,7 @@ on spotCheck()
 		Manual: Focus
 		Manual: Non Private: Respond Show Details
 		Manual: Cancel OK Prompt - Respond Cancel
+		Manual: Cancel OK Prompt - Respond OK
 	")
 
 	set usrLib to script "core/user"
@@ -140,6 +142,9 @@ on spotCheck()
 
 	else if caseIndex is 9 then
 		sut's respondCancel()
+
+	else if caseIndex is 10 then
+		sut's respondOk()
 
 	end if
 
@@ -343,14 +348,21 @@ on new(windowId, pTabIndex)
 			end tell
 		end hasCancelOkPrompt
 
-
 		on respondCancel()
 			tell application "System Events" to tell process "Safari" to tell my getSysEveWindow()
 				try
-					button "Cancel" of group 1 of tab group 1 of splitter group 1 exists
+					click button "Cancel" of group 1 of tab group 1 of splitter group 1
 				end try
 			end tell
 		end respondCancel
+
+		on respondOk()
+			tell application "System Events" to tell process "Safari" to tell my getSysEveWindow()
+				try
+					click button "OK" of group 1 of tab group 1 of splitter group 1
+				end try
+			end tell
+		end respondOk
 
 
 		on dismissAlert()
