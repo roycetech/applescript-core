@@ -15,11 +15,10 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
+		./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari-javascript
 
 	@Change Logs:
-		December 6, 2023 9:08 PM - In the runScript handler, removed the + '' causing the '.href' to return 0.0 instead of the actual URL.
-		September 6, 2023 9:30 AM - Added submitFirstForm.
+		Thu, Jun 19, 2025 at 12:34:12 PM - Added set selected option by label
  *)
 
 use scripting additions
@@ -184,13 +183,13 @@ on decorate(safariTab)
 		on setSelectedOptionByIdAndLabel(elementId, optionText)
 			set javascriptText to format {"
 				Array.from(
-					document.queryElementById('{}').options)
+					document.getElementById('{}').options)
 					.filter((element) => {
 						if (element.textContent === '{}') element.selected = true;
 					}
 				)", {elementId, optionText}}
-			runScriptPlain(format {"document.getElementsByName('{}')[0].selectedIndex = {};", {elementName, idx}})
-		end setSelectedTextById
+			runScriptPlain(javascriptText)
+		end setSelectedOptionByIdAndLabel
 
 		on setValueById(elementId, theValue)
 			set scriptText to format {"document.getElementById('{}').value = `{}`;", {elementId, theValue}}
