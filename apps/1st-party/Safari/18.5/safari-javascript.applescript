@@ -120,8 +120,23 @@ on decorate(safariTab)
 
 	script SafariJavaScriptDecorator
 		property parent : safariTab
+
 		property findRunMax : 0
 		property findRetrySleep : 0
+
+		(*
+			@triggerEvent - e.g. "change"
+		*)
+		on setValueByIdWithTrigger(elementId, newValue, triggerEvent)
+			set javascriptText to format {"
+				let el = document.getElementById('{}');
+				if (el) {
+					el.value = '{}';
+					el.dispatchEvent(new Event('{}', { bubbles: true }));
+				}
+			", {elementId, newValue, triggerEvent}}
+			runScriptDirect(javascriptText)
+		end setValueByIdWithTrigger
 
 		on getValue(selector)
 			set scriptText to format {"document.querySelector('{}').value", {selector}}
