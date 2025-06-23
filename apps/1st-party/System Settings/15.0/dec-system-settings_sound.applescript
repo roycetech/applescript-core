@@ -30,7 +30,11 @@ on spotCheck()
 		Manual: Reveal Sounds Pane
 		Manual: Toggle Play Feedback when Volume is Changed
 		Manual: Set Play Feedback when Volume is Changed -> On
-		Manual: Set Play Feedback when Volume is Changed -> Off
+		Manual: Set Play Feedback when Volume is Changed -> Off		
+		
+		Manual: Switch Output & Input tab
+		Manual: Switch Microphone by Name
+		Manual: Switch Microphone by Type
 	")
 	
 	set spotClass to spotScript's new()
@@ -47,6 +51,8 @@ on spotCheck()
 	set sut to decorate(sut)
 	
 	logger's infof("isPlayFeedbackWhenSoundIsChanged: {}", sut's isPlayFeedbackWhenSoundIsChanged())
+	logger's infof("Output & Input: {}", sut's getOutputAndInput())
+	
 	if caseIndex is 1 then
 		
 	else if caseIndex is 2 then
@@ -60,6 +66,30 @@ on spotCheck()
 		
 	else if caseIndex is 5 then
 		sut's setPlayFeedbackWhenSoundIsChangedOff()
+		
+	else if caseIndex is 6 then
+		set sutOutputInputTab to "Unicorn"
+		set sutOutputInputTab to "Input"
+		-- set sutOutputInputTab to "Output"
+		logger's debugf("sutOutputInputTab: {}", sutOutputInputTab)
+		
+		sut's switchOutputInputTab(sutOutputInputTab)
+		
+	else if caseIndex is 7 then
+		set sutInputName to "Unicorn"
+		set sutInputName to "WH-1000XM4"
+		set sutInputName to "MacBook Pro Microphone"
+		logger's debugf("sutInputName: {}", sutInputName)
+		
+		sut's switchInputByName(sutInputName)
+		
+	else if caseIndex is 8 then
+		set sutInputType to "Unicorn"
+		set sutInputType to "Built-in"
+		-- set sutInputType to "Bluetooth"
+		logger's debugf("sutInputType: {}", sutInputType)
+		
+		sut's switchInputByType(sutInputType)
 		
 	else
 		
@@ -76,6 +106,45 @@ on decorate(mainScript)
 	
 	script SystemSettingsSoundsDecorator
 		property parent : mainScript
+		
+		(* @returns "Output" or "Input" *)
+		on getOutputAndInput()
+			if running of application "System Settings" is false then return missing value
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					return description of first radio button of tab group 1 of group 2 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of front window whose value is 1
+				end try
+			end tell
+			missing value
+		end getOutputAndInput
+		
+		on switchOutputInputTab(tabDescription)
+			if running of application "System Settings" is false then return
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					click (the first radio button of tab group 1 of group 2 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of front window whose description is tabDescription)
+				end try
+			end tell
+			
+		end switchOutputInputTab
+		
+		on switchInputByName(inputDescription)
+			if running of application "System Settings" is false then return
+			
+			tell application "System Events" to tell process "System Settings"
+				set selected of first row of outline 1 of scroll area 1 of group 2 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of window "Sound" whose value of first static text of group 1 of UI element 1 is inputDescription to true
+			end tell
+		end switchInputByName
+		
+		on switchInputByType(inputType)
+			if running of application "System Settings" is false then return
+			
+			tell application "System Events" to tell process "System Settings"
+				set selected of first row of outline 1 of scroll area 1 of group 2 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of window "Sound" whose value of first static text of group 1 of UI element 2 is inputType to true
+			end tell
+		end switchInputByType
 		
 		on revealSounds()
 			if running of application "System Settings" is false then
