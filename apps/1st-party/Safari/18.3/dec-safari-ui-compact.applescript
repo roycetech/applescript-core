@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-ui-compact
 
 	@Created: Wed, Feb 12, 2025 at 11:23:10 AM
-	@Last Modified: 2025-02-27 13:04:30
+	@Last Modified: 2025-06-26 06:31:38
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -86,12 +86,17 @@ on decorate(mainScript)
 
 			This operation is VERY SLOW. Takes about 8s to complete.
 			Fails when there are too many tabs open
+
+			@Known Issues:
+				Thu, Jun 26, 2025 at 06:30:19 AM - Won't be able to tell if the tool bar is not present.
 		*)
 		on isLoading()
 			if isCompact() is false then return continue isLoading()
 
 			logger's warn("This isLoading() implementation is very slow to be deemed reliable. ")
 			set addressBarGroup to _getAddressBarGroup()
+			if addressBarGroup is missing value then return false
+
 			tell application "System Events" to tell process "Safari"
 				try
 					set targetTabRadio to the first radio button of UI element 1 of addressBarGroup whose value is true
@@ -121,14 +126,26 @@ on decorate(mainScript)
 		end isLoading
 
 
+		(*
+			@Known Issues:
+				Won't be able to tell if tool bar is not present in the window.
+		*)
 		on isPlaying()
 			if running of application "Safari" is false then return false
-			if isCompact() is false then return continue isPlaying()
+			if isCompact() is false then
+				logger's debug("continuing...")
+				return continue isPlaying()
+			end if
+
+
 
 			tell application "System Events" to tell process "Safari"
 				if (count of windows) is 0 then return false
 
-				return exists (first button of (first radio button of UI element 1 of my _getAddressBarGroup() whose value of attribute "AXValue" is true) whose description contains "Mute")
+				set addressBarGroup to my _getAddressBarGroup()
+				if addressBarGroup is missing value then return false
+
+				return exists (first button of (first radio button of UI element 1 of addressBarGroup whose value of attribute "AXValue" is true) whose description contains "Mute")
 			end tell
 		end isPlaying
 
