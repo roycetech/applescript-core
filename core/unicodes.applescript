@@ -49,5 +49,6 @@ property ARROW_RIGHT : "→"
 property MENU_CHECK : "✓"
 property APOSTROPHE : "’"
 property COMMAND : "⌘"
+property BULLET_POINT : "•"
 
 property APP_STORE_SPACE : ASCII character 202

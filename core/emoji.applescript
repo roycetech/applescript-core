@@ -43,3 +43,6 @@ property CIRCLE_WHITE : "⚪️"
 property SQUARE_GREEN : "🟩"
 property SQUARE_RED : "🟥"
 property TEST : "🧪"
+property TARGET : "🎯"
+property CHECK_MARK : "✔️"
+
