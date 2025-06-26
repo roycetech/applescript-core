@@ -9,10 +9,11 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-profile
 
 	@Created: Sunday, October 6, 2024 at 7:27:33 PM
-	@Last Modified: 2025-02-28 09:14:47
+	@Last Modified: 2025-06-26 06:38:20
 	@Change Logs:
 *)
 use textUtil : script "core/string"
+use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -149,9 +150,15 @@ on decorateTab(safariTabScript)
 			if running of application "Safari" is false then return missing value
 
 			tell application "System Events" to tell process "Safari"
-				menu button 1 of group 1 of toolbar 1 of front window
-				textUtil's stringBetween(value of attribute "AXIdentifier" of result, "Profile=", "&")
+				try
+					menu button 1 of group 1 of toolbar 1 of front window
+					return textUtil's stringBetween(value of attribute "AXIdentifier" of result, "Profile=", "&")
+
+				end try -- Fails when toolbar is not present.
+
+				textUtil's stringBefore(title of front window, unic's SEPARATOR)
 			end tell
+
 		end getProfile
 	end script
 end decorateTab
