@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-keychain
 
 	@Created: Sunday, March 31, 2024 at 10:20:13 PM
-	@Last Modified: 2024-12-31 19:30:14
+	@Last Modified: 2025-06-26 07:06:35
 	@Change Logs:
 		Sunday, March 31, 2024 at 10:20:18 PM - Keychain UI layout has changed.
 *)
@@ -30,14 +30,14 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-	
+
 	set cases to listUtil's splitByLine("
-		Manual: Info only
+		INFO
 		Manual: Select Keychain
 		Manual: Show other passwords
 		Manual: Select other password
 	")
-	
+
 	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
@@ -46,29 +46,40 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	activate application "Safari"
+	delay 1
+
 	set sutLib to script "core/safari"
 	set sut to sutLib's new()
 	set sut to decorate(sut)
-	
-	logger's infof("Keychain form visible: {}", sut's isKeychainFormVisible())
+
+	set keyChainVisible to sut's isKeychainFormVisible()
+	logger's infof("Keychain form visible: {}", keyChainVisible)
+
+	if keyChainVisible then
+		logger's infof("Keychain items count: {}", sut's getKeyChainItemsCount())
+		repeat with nextKeyChainItem in sut's getKeyChainItems()
+			logger's infof("Username: {}, Host: {}", {username of nextKeyChainItem, hostname of nextKeyChainItem})
+		end repeat
+	end if
+
 	if caseIndex is 1 then
-		
+
 	else if caseIndex is 2 then
 		logger's infof("Keychain clicked: {}", sut's selectKeychainItem("Unicorn"))
-		
+
 	else if caseIndex is 3 then
 		sut's showOtherPasswords()
-		
+
 	else if caseIndex is 4 then
 		sut's showOtherPasswords()
 		logger's infof("Keychain clicked: {}", sut's selectOtherKeychainItem("ft-admin"))
-		
+
 	else
-		
+
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -79,10 +90,10 @@ on decorate(mainScript)
 	loggerFactory's inject(me)
 	set kb to kbLib's new()
 	set delayAfterKeySeconds of kb to 0.05
-	
+
 	script SafariKeychainDecorator
 		property parent : mainScript
-		
+
 		(*
 			@returns true if keychain appeared on time.
 		*)
@@ -93,14 +104,14 @@ on decorate(mainScript)
 				if isKeychainFormVisible() then return true
 				delay waitTime
 			end repeat
-			
+
 			false
 		end waitForKeychain
-		
-		
+
+
 		on showOtherPasswords()
 			if running of application "Safari" is false then return
-			
+
 			tell application "System Events" to tell process "Safari"
 				set frontmost to true
 				delay 0.1
@@ -112,7 +123,30 @@ on decorate(mainScript)
 				kb's pressKey("enter")
 			end tell
 		end showOtherPasswords
-		
+
+		(*
+			@returns list of {username:text, hostname:text} record.
+		*)
+		on getKeyChainItems()
+			set returnList to {}
+			if not isKeychainFormVisible() then return returnList
+
+			tell application "System Events" to tell process "Safari"
+				set credentialRows to rows of table 1 of scroll area 1
+
+				repeat with nextRow in items 1 thru -3 of credentialRows
+					set end of returnList to {username:value of static text 1 of UI element 1 of nextRow, hostname:value of static text 2 of UI element 1 of nextRow}
+				end repeat
+			end tell
+
+			returnList
+		end getKeyChainItems
+
+
+		on getKeyChainItemsCount()
+			number of items in getKeyChainItems()
+		end getKeyChainItemsCount
+
 		(*
 			NOTE: Native AppleScript click command does not work. Tested on Ventura.
 
@@ -120,7 +154,7 @@ on decorate(mainScript)
 		*)
 		on selectKeychainItem(itemName)
 			if running of application "Safari" is false then return
-			
+
 			tell application "System Events" to tell process "Safari"
 				set frontmost to true
 				try
@@ -133,22 +167,22 @@ on decorate(mainScript)
 							end repeat
 							kb's pressKey("enter")
 							return true
-							
+
 						end if
 					end repeat
 				end try
 			end tell
 			false
 		end selectKeychainItem
-		
-		
+
+
 		(*
 			Copied from selectKeychainItem
 			@returns true if successfully clicked.
 		*)
 		on selectOtherKeychainItem(itemName)
 			if running of application "Safari" is false then return
-			
+
 			set itemIndex to 0
 			tell application "System Events" to tell process "Safari"
 				set frontmost to true
@@ -176,8 +210,8 @@ on decorate(mainScript)
 			end tell
 			false
 		end selectOtherKeychainItem
-		
-		
+
+
 		on isKeychainFormVisible()
 			tell application "System Events" to tell process "Safari"
 				exists (table 1 of scroll area 1)
