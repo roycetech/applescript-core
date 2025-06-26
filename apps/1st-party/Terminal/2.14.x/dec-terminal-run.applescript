@@ -35,14 +35,14 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-	
+
 	set cases to listUtil's splitByLine("
 		Manual: Run Shell
 		Manual: Run Shell Void
 		Manual: Change Directory
 		Manual: Run and Wait
 	")
-	
+
 	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
@@ -51,28 +51,28 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	set terminalLib to script "core/terminal"
 	set terminal to terminalLib's new()
 	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)
-	
+
 	if caseIndex is 1 then
 		log sut's runShell("docker ps -qf 'ancestor=roycetech/minecraft-server'")
-		
+
 		-- logger's infof("Run echo command result: {}", sut's runShell("echo hello"))
-		
+
 	else if caseIndex is 2 then
 		sut's runShellVoid("echo world")
-		
+
 	else if caseIndex is 3 then
 		sut's doCd("~/Desktop")
-		
+
 	else if caseIndex is 4 then
 		sut's runAndWait("sleep 5")
-		
+
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -80,20 +80,21 @@ end spotCheck
 
 on decorate(termTabScript)
 	loggerFactory's inject(me)
-	
+
 	set retry to retryLib's new()
 	set plutil to plutilLib's new()
 	set session to plutil's new("session")
 	set finder to finderLib's new()
-	
+
 	tell application "Finder"
 		set localSessionPlist to text 8 thru -1 of (URL of folder "applescript-core" of finder's getHomeFolder() as text) & "session.plist"
 	end tell
-	
+
 	script TerminalRunDecorator
 		property parent : termTabScript
 		property SESSION_PLIST : localSessionPlist
-		
+		property delayAfterRunShell : 0
+
 		(*
 			Runs a bash command waiting for its result.
 
@@ -109,7 +110,7 @@ on decorate(termTabScript)
 			-- session's removeValue(propertyName)
 			session's deleteKey(propertyName)
 			-- logger's debugf("Running Command: \"{}\"", bashCommand)
-			
+
 			set calcCommmand to format {"plutil -replace {} -string \"`{}`\" {}", {quoted form of propertyName, shellCommand, SESSION_PLIST}}
 			-- logger's debugf("Calculated Command: {}", calcCommmand)
 			set NO_RESULT to "_noresult_"
@@ -130,18 +131,18 @@ on decorate(termTabScript)
 					end if
 				end script
 			end tell
-			
+
 			set waitResult to exec of retry on CommandWaiter for my commandRunMax by my commandRetrySleepSeconds
 			if waitResult is missing value or waitResult is equal to NO_RESULT then
 				logger's warn("Bash Script did not communicate OK via session.plist")
 				session's deleteKey(propertyName)
 				return missing value
 			end if
-			
+
 			session's deleteKey(propertyName)
 			return waitResult
 		end runShell
-		
+
 		(*
 			Runs a shell command without waiting for the result
 
@@ -159,8 +160,10 @@ on decorate(termTabScript)
 				end if
 				do script shellCommand in my appWindow
 			end tell
+
+			delay delayAfterRunShell
 		end runShellVoid
-		
+
 		on runAndWait(shellCommand)
 			runShellVoid(shellCommand)
 			delay 0.2 -- experiment from 0.1, SSH to EC2 stack on new install is crappy.
@@ -168,7 +171,7 @@ on decorate(termTabScript)
 			_refreshTabName()
 			delay 0.2 -- Seems to solve mysterious issues. 0.1 has issues, finding BSS stack reports incorrect result.
 		end runAndWait
-		
+
 		on doCd(thePath)
 			tell application "Terminal" to do script "cd " & thePath in my appWindow
 			waitForPrompt()

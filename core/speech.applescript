@@ -85,11 +85,10 @@ on spotCheck()
 
 	if caseIndex is 1 then
 
-		set sut to new(missing value)
+		set sut to new()
 		set decoratorLib to script "core/decorator"
 		set decorator to decoratorLib's new(sut)
 		decorator's printHierarchy()
-
 
 		sut's speak("2904")
 		sut's speak("hello")
