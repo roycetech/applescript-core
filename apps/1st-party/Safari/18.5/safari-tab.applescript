@@ -521,7 +521,7 @@ on new(windowId, pTabIndex)
 		on isDocumentLoading()
 			tell application "Safari"
 				if my getWindowName() is equal to "Failed to open page" then return false
-				if source of front document is not "" then return true
+				if source of front document is "" then return true
 			end tell
 			false
 		end isDocumentLoading
