@@ -174,6 +174,7 @@ on new(windowId, pTabIndex)
 		property closeOtherTabsOnFocus : false
 		property tabIndex : pTabIndex
 		-- property safari : pSafari
+		property postLoadDelay : 0
 
 		property _tab : missing value
 		property _url : missing value
@@ -515,6 +516,7 @@ on new(windowId, pTabIndex)
 				end tell
 			end script
 			exec of retry on result for maxTryTimes by sleepSec
+			delay postLoadDelay
 		end waitForPageLoad
 
 
