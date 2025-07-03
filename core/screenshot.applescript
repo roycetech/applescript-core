@@ -15,7 +15,7 @@
 		./scripts/build-lib.sh core/screenshot
 
 	@Usage:
-
+		See #spotCheck.
 
 	@Script Menu
 		View Image From Clipboard - to view the clipboard contents during testing.

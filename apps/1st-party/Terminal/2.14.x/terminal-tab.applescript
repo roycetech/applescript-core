@@ -14,7 +14,7 @@
 		WARNING: This script requires re-compilation each time there's a change on this file.
 
 	@Created: Sunday, January 28, 2024 at 2:35:54 PM
-	@Last Modified: 2025-05-17 08:06:32
+	@Last Modified: 2025-06-26 11:37:32
 *)
 use script "core/Text Utilities"
 use scripting additions
@@ -409,15 +409,17 @@ on new(pWindowId)
 			set lingeringCommand to getLingeringCommand()
 			if lingeringCommand is missing value then return
 
-			set commandWords to count of words of lingeringCommand
+			-- set commandWords to count of words of lingeringCommand
 
 			focus()
-			set maxTry to 50 -- 5 / 0.1 = 5 seconds.
-			repeat until getLingeringCommand() is missing value or maxTry is less than 0
-				set maxTry to maxTry - 1
-				kb's pressControlKey("w")
-				delay 0.1
-			end repeat
+			-- set maxTry to 50 -- 5 / 0.1 = 5 seconds.
+
+			-- repeat until getLingeringCommand() is missing value or maxTry is less than 0
+			-- 	set maxTry to maxTry - 1
+			-- 	kb's pressControlKey("w")
+			-- 	delay 0.1
+			-- end repeat
+			kb's pressControlKey("u")
 		end clearLingeringCommand
 
 
