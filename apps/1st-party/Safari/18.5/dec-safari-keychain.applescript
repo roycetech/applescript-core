@@ -10,11 +10,11 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-keychain
 
 	@Created: Sunday, March 31, 2024 at 10:20:13 PM
-	@Last Modified: 2025-06-26 07:06:35
+	@Last Modified: 2025-07-03 07:31:54
 	@Change Logs:
 		Sunday, March 31, 2024 at 10:20:18 PM - Keychain UI layout has changed.
 *)
-use listUtil : script "core/list"
+use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -31,11 +31,13 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		INFO
 		Manual: Select Keychain
 		Manual: Show other passwords
 		Manual: Select other password
+		Manual: Get username index
 	")
 
 	set spotScript to script "core/spot-test"
@@ -56,6 +58,7 @@ on spotCheck()
 
 	set keyChainVisible to sut's isKeychainFormVisible()
 	logger's infof("Keychain form visible: {}", keyChainVisible)
+	logger's infof("Is Mfa Keychain: {}", sut's isMfaKeychain())
 
 	if keyChainVisible then
 		logger's infof("Keychain items count: {}", sut's getKeyChainItemsCount())
@@ -76,6 +79,12 @@ on spotCheck()
 		sut's showOtherPasswords()
 		logger's infof("Keychain clicked: {}", sut's selectOtherKeychainItem("ft-admin"))
 
+	else if caseIndex is 5 then
+		set sutUsername to "unicorn"
+		set sutUsername to "proxmox5"
+		logger's debugf("sutUsername: {}", sutUsername)
+
+		logger's infof("Credential index: {}", sut's getUsernameIndex(sutUsername))
 	else
 
 	end if
@@ -93,6 +102,18 @@ on decorate(mainScript)
 
 	script SafariKeychainDecorator
 		property parent : mainScript
+
+		on getUsernameIndex(username)
+			set keychainItems to getKeyChainItems()
+			set usernameIndex to 0
+			repeat with nextKeychain in keychainItems
+				set usernameIndex to usernameIndex + 1
+				if username of nextKeychain is equal to the username then return usernameIndex
+
+			end repeat
+
+			0
+		end getUsernameIndex
 
 		(*
 			@returns true if keychain appeared on time.
@@ -131,11 +152,18 @@ on decorate(mainScript)
 			set returnList to {}
 			if not isKeychainFormVisible() then return returnList
 
+			set localIsMfa to isMfaKeychain()
 			tell application "System Events" to tell process "Safari"
 				set credentialRows to rows of table 1 of scroll area 1
+				if not localIsMfa then set credentialRows to items 1 thru -3 of credentialRows
 
-				repeat with nextRow in items 1 thru -3 of credentialRows
-					set end of returnList to {username:value of static text 1 of UI element 1 of nextRow, hostname:value of static text 2 of UI element 1 of nextRow}
+				repeat with nextRow in credentialRows
+					if localIsMfa then
+						textUtil's stringAfter(value of static text 1 of UI element 1 of nextRow, "verification code for ")
+						set end of returnList to {username:value of static text 2 of UI element 1 of nextRow, hostname:result}
+					else
+						set end of returnList to {username:value of static text 1 of UI element 1 of nextRow, hostname:value of static text 2 of UI element 1 of nextRow}
+					end if
 				end repeat
 			end tell
 
@@ -217,5 +245,14 @@ on decorate(mainScript)
 				exists (table 1 of scroll area 1)
 			end tell
 		end isKeychainFormVisible
+
+
+		on isMfaKeychain()
+			if not isKeychainFormVisible() then return false
+
+			tell application "System Events" to tell process "Safari"
+				value of static text 1 of UI element 1 of row 1 of table 1 of scroll area 1 starts with "verification code"
+			end tell
+		end isMfaKeychain
 	end script
 end decorate
