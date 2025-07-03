@@ -138,6 +138,26 @@ on decorate(safariTab)
 			runScriptDirect(javascriptText)
 		end setValueByIdWithTrigger
 
+
+		on triggerEventById(elementId, eventName)
+			set javascriptText to format {"
+				let el = document.getElementById('{}');
+				if (el) el.dispatchEvent(new Event('{}', { bubbles: true }));
+			", {elementId, eventName}}
+			runScriptDirect(javascriptText)
+
+		end triggerEventById
+
+
+		on triggerEventByName(elementName, eventName)
+			set javascriptText to format {"
+				let el = document.getElementsByName('{}')[0];
+				if (el) el.dispatchEvent(new Event('{}', { bubbles: true }));
+			", {elementName, eventName}}
+			runScriptDirect(javascriptText)
+		end triggerEventByName
+
+
 		on getValue(selector)
 			set scriptText to format {"document.querySelector('{}').value", {selector}}
 			runScript(scriptText)
@@ -200,11 +220,25 @@ on decorate(safariTab)
 				Array.from(
 					document.getElementById('{}').options)
 					.filter((element) => {
-						if (element.textContent === '{}') element.selected = true;
+						if (element.textContent.trim() === '{}') element.selected = true;
 					}
 				)", {elementId, optionText}}
 			runScriptPlain(javascriptText)
 		end setSelectedOptionByIdAndLabel
+
+		(*
+			NOTE: Matches the first matched element only.
+		*)
+		on setSelectedOptionByNameAndLabel(elementName, optionText)
+			set javascriptText to format {"
+				Array.from(
+					document.getElementsByName('{}')[0].options)
+					.filter((element) => {
+						if (element.textContent.trim() === '{}') element.selected = true;
+					}
+				)", {elementName, optionText}}
+			runScriptPlain(javascriptText)
+		end setSelectedOptionByNameAndLabel
 
 		on setValueById(elementId, theValue)
 			set scriptText to format {"document.getElementById('{}').value = `{}`;", {elementId, theValue}}
@@ -269,13 +303,13 @@ on decorate(safariTab)
 			delay 0.1
 		end clickLinkByText
 
-		(* @idx starts with 0 *)
+		(* @idx starts with 1 *)
 		on clickLinkByTextAndIndex(linkText, idx)
 			set scriptText to format {"Array.prototype.filter.call(
 				document.querySelectorAll('a'),
 				function(element) {
 					return element.textContent.trim() === '{}';
-				})[{}].click()", {linkText, idx}}
+				})[{}].click()", {linkText, idx - 1}}
 			runScriptPlain(scriptText)
 		end clickLinkByTextAndIndex
 
@@ -372,6 +406,14 @@ on decorate(safariTab)
 			set scriptText to format {"document.querySelector('{}').textContent.trim()", selector}
 			runScriptPlain(scriptText)
 		end textContent
+
+		(*
+			@idx - 1-index
+		*)
+		on textContentByIndex(selector, idx)
+			set scriptText to format {"document.querySelectorAll('{}')[{}].textContent.trim()", {selector, idx - 1}}
+			runScriptPlain(scriptText)
+		end textContentByIndex
 
 		on attribute(selector, attributeName)
 			set scriptText to format {"document.querySelector('{}')['{}']", {selector, attributeName}}
