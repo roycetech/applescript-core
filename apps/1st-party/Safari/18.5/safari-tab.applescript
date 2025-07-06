@@ -83,6 +83,7 @@ on spotCheck()
 	if not hasCancelOkPromptResult then
 		logger's infof("Current URL: {}", sut's getURL())
 		logger's infof("Base URL: {}", sut's getBaseURL())
+		logger's infof("Hostname: {}", sut's getHostname())
 		logger's infof("URL Path: {}", sut's getUrlPath())
 	end if
 
@@ -263,6 +264,13 @@ on new(windowId, pTabIndex)
 
 			baseUrl
 		end getBaseURL
+
+
+		on getHostname()
+			if running of application "Safari" is false then return missing value
+
+			textUtil's lastStringAfter(getBaseURL(), "/")
+		end getHostname
 
 
 		on getUrlPath()
