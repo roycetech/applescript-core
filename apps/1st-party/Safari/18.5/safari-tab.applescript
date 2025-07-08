@@ -269,7 +269,14 @@ on new(windowId, pTabIndex)
 		on getHostname()
 			if running of application "Safari" is false then return missing value
 
-			textUtil's lastStringAfter(getBaseURL(), "/")
+			set baseUrl to getBaseURL()
+			if baseUrl is "safari-resource://" then
+				textUtil's stringAfter(getUrl(), "//")
+				return textUtil's stringBefore(result, "/")
+
+			end if
+
+			textUtil's lastStringAfter(baseUrl, "/")
 		end getHostname
 
 
