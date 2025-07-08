@@ -110,6 +110,8 @@ on new()
 				end try
 			end tell
 
+			if the number of items in noticeGroups is 0 then return missing value
+
 			set sortedGroup to _simpleSort(noticeGroups)
 			_getNotificationCenterInstance()'s new(first item of sortedGroup)
 		end firstNotice
