@@ -25,6 +25,7 @@ use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
 use safariJavaScript : script "core/safari-javascript"
+use javascript : script "core/javascript"
 use decoratorLib : script "core/decorator"
 
 property logger : missing value
@@ -271,7 +272,7 @@ on new(windowId, pTabIndex)
 
 			set baseUrl to getBaseURL()
 			if baseUrl is "safari-resource://" then
-				textUtil's stringAfter(getUrl(), "//")
+				textUtil's stringAfter(getURL(), "//")
 				return textUtil's stringBefore(result, "/")
 
 			end if
@@ -641,7 +642,8 @@ on new(windowId, pTabIndex)
 		set _url of SafariTabInstance to URL of document of window id windowId
 		set _tab of SafariTabInstance to item pTabIndex of tabs of appWindow of SafariTabInstance
 	end tell
-	safariJavaScript's decorate(SafariTabInstance)
+	javascript's decorate(SafariTabInstance)
+	safariJavaScript's decorate(result)
 	decSafariProfile's decorateTab(result)
 
 	set decorator to decoratorLib's new(result)
