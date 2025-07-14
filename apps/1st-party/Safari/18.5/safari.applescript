@@ -31,7 +31,7 @@
 		end tell
 
 	@Created: Mon, Feb 10, 2025 at 7:30:44 AM
-	@Last Modified: 2025-06-16 15:03:32
+	@Last Modified: 2025-07-14 09:03:34
 *)
 
 use scripting additions
@@ -295,7 +295,7 @@ on new()
 
 		on visitNonPrivateConnection()
 			_respondToAccessRequest(TopLevel's newPromptPresenceLambda(KEYWORD_FORM_NON_PRIVATE_CONNECTION), TopLevel's newPromptButtonFactory("Visit Website"))
-		end confirmFormSubmitAgain
+		end visitNonPrivateConnection
 
 		(*
 			NOTE: App window must already be at the frontmost. Recommend the
@@ -351,7 +351,12 @@ on new()
 
 			if isCompact() then
 				tell application "System Events" to tell process "Safari"
-					return value of attribute "AXSelectedText" of text field 1 of (first radio button of UI element 1 of last group of toolbar 1 of front window whose value of attribute "AXValue" is true) is not missing value
+					try
+						return value of attribute "AXSelectedText" of text field 1 of (first radio button of UI element 1 of last group of toolbar 1 of front window whose value of attribute "AXValue" is true) is not missing value
+
+					on error the errorMessage number the errorNumber -- When there's a single web page (tab) on a window.
+						return focused of text field 1 of last group of toolbar 1 of front window
+					end try
 				end tell
 			end if
 
