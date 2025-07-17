@@ -1,17 +1,17 @@
 (*
+	@Project:
+		applescript-core
+
 	@Build:
-		make install-dvorak
+		./scripts/build-lib.sh core/decorators/dec-keyboard-dvorak-cmd
 *)
 
 use script "core/Text Utilities"
 use scripting additions
 
 use loggerFactory : script "core/logger-factory"
-use listUtil : script "core/list"
 
 use kbLib : script "core/keyboard"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -26,6 +26,7 @@ on spotCheck()
 	logger's start()
 
 	-- All spot check cases are manual.
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: pressKey (dvorak/us input);
 		Manual: pressControlKey (dvorak/us input);
@@ -34,6 +35,7 @@ on spotCheck()
 		Manual: pressControlShiftKey (dvorak/us input);
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(caseId, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -171,7 +173,7 @@ on decorate(baseScript)
 			if char is "n" then return "l"
 			if char is "o" then return "s"
 			if char is "p" then return "r"
-			if char is "q" then return "'x"
+			if char is "q" then return "x"
 			if char is "r" then return "o"
 			if char is "s" then return ";"
 			if char is "t" then return "k"
