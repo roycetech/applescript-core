@@ -40,6 +40,7 @@ on spotCheck()
 		Manual: Set app availability option
 		Manual: Focus Macro
 		Manual: Focus Action By Index
+		Manual: Focus Search
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -97,6 +98,10 @@ on spotCheck()
 	else if caseIndex is 8 then
 		sut's setSelectedActionByIndex(1)
 		
+	else if caseIndex is 9 then
+		activate application "Keyboard Maestro"
+		sut's focusSearch()
+		
 	else
 		
 	end if
@@ -115,6 +120,13 @@ on decorate(mainScript)
 	script KeyboardMaestroEditorDecorator
 		property parent : mainScript
 		
+		on focusSearch()
+			if running of application "Keyboard Maestro" is false then return missing value
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				set focused of text field 1 of my getEditorWindow() to true
+			end tell
+		end focusSearch
 		
 		(*
 			@Caveat: Returns last selected action index even if no more action is selected after changing the macro selection.
