@@ -7,8 +7,6 @@
 	
 	@NOTE: Cursor position is 0-indexed.
 	
-	
-
 	@Project:
 		applescript-core
 
@@ -21,9 +19,14 @@
 *)
 use scripting additions
 
+use textUtil : script "core/string"
+
 use loggerFactory : script "core/logger-factory"
 
+use kbLib : script "core/keyboard"
+
 property logger : missing value
+property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -36,6 +39,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: Line number at index
+		Manual: Move cursor to the beginning of line (not space)
 	")
 	
 	set spotClass to spotScript's new()
@@ -69,7 +73,7 @@ on spotCheck()
 		logger's infof("Line at line number: [{}]", sut's getContentsAtLineNumber(sutLineNumber))
 		
 	else if caseIndex is 3 then
-		
+		sut's moveCursorLineTextStart()
 	else
 		
 	end if
@@ -82,9 +86,29 @@ end spotCheck
 (*  *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
+	set kb to kbLib's new()
 	
 	script ScriptEditorCursorDecorator
 		property parent : mainScript
+		
+		on moveCursorLineTextStart()
+			set currentLine to getCurrentLineContents()
+			-- logger's debugf("currentLine: [{}]", currentLine)
+			
+			set cleanLine to textUtil's trim(currentLine)
+			-- logger's debugf("cleanLine: [{}]", cleanLine) -- BUGGED
+			-- log "cleanLine: [" & cleanLine & "]"
+			
+			set spaces to textUtil's stringBefore(currentLine, cleanLine)
+			if spaces is missing value then set spaces to ""
+			-- logger's debugf("spaces: [{}]", spaces)
+			-- log the number of characters in spaces			
+			set delayAfterKeySeconds of kb to 0
+			kb's pressCommandKey("left")
+			repeat the number of characters in spaces times
+				kb's pressKey("right")
+			end repeat
+		end moveCursorLineTextStart
 		
 		
 		on getCurrentLineContents()
@@ -114,13 +138,13 @@ on decorate(mainScript)
 			end tell
 		end getCursorStartIndex
 		
-
+		
 		on getCursorEndIndex()
 			tell application "Script Editor"
 				tell document 1
 					set totalLines to count paragraphs of contents
 					character range of selection
-					first item of result
+					last item of result
 				end tell
 			end tell
 		end getCursorEndIndex
