@@ -12,7 +12,7 @@
 		applescript-core
 
 	@Build:
-		make build-lib SOURCE=libs/user/user
+		./scripts/build-lib.sh libs/user/user
 
 	@Change Logs:
 		Sun, Mar 09, 2025 at 09:00:59 AM - Added #getBrowserAppNames
@@ -24,6 +24,8 @@
 *)
 
 use scripting additions
+
+use script "core/Text Utilities"
 
 use std : script "core/std"
 
@@ -78,6 +80,7 @@ on spotCheck()
 	logger's infof("Major OS Version?: {}", sut's getOsMajorVersion())
 	-- 	logger's infof("Integration: Sound output device: {}", sut's getAudioOutputDevice()) -- Decorated from another project, dec-user-sound-device.
 	logger's infof("Deployment Type: {}", sut's getDeploymentType())
+	logger's infof("Using default mic: {}", sut's isUsingDefaultSystemMicrophone())
 
 	set browserAppNames to sut's getBrowserAppNames()
 	repeat with nextBrowserAppName in browserAppNames
@@ -219,6 +222,17 @@ on new()
 			set sysinfo to system info
 			return (do shell script "echo '" & system version of sysinfo & "' | cut -d '.' -f 1") as integer
 		end getOsMajorVersion
+
+		on isUsingDefaultSystemMicrophone()
+			set configLib to script "core/config"
+			set configSystem to configLib's new("system")
+			set yqCli to configSystem's getValue("yq CLI")
+			set shellCommand to format {"
+				system_profiler SPAudioDataType \\
+					| {} -r '.Audio.Devices[\"MacBook Pro Microphone\"][\"Default Input Device\"]'", {yqCli}}
+			do shell script shellCommand
+			"Yes" is equal to result
+		end isUsingDefaultSystemMicrophone
 	end script
 
 	set decorator to decoratorLib's new(result)
