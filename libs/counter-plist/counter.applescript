@@ -3,11 +3,14 @@
 		applescript-core
 
 	@Build:
-		make build-lib SOURCE=libs/counter-plist/counter
+		./scripts/build-lib.sh libs/counter-plist/counter
 
 	@Usage:
 		use counterLib : script "core/counter"
-		set counter to counterLib's new("plist-name")
+		set counter to counterLib's new("plist-name") or set counter to counterLib's newDefault()
+
+	@Change Logs:
+		Thu, Jul 17, 2025 at 08:46:42 AM - Allow double digit padding.
 
 	PList Design:
 
@@ -133,6 +136,7 @@ on new(pPlistName)
 		property countDaily : plutil's new(countDailyName)
 		property countKeys : plutil's new(countKeysName)
 		property countTotal : plutil's new(countTotalName)
+		property useDoubleDigits : false
 
 		on totalToday(theKey)
 			set todayDate to _formatDate(short date string of (current date))
@@ -140,6 +144,7 @@ on new(pPlistName)
 
 			set theCount to countDaily's getInt(keyToday)
 			if theCount is missing value then return 0
+			if useDoubleDigits and theCount is less than 10 then return "0" & theCount
 
 			theCount
 		end totalToday
@@ -167,6 +172,7 @@ on new(pPlistName)
 			-- logger's debugf("theKey: {}", theKey)
 			set theCount to countTotal's getInt(theKey)
 			if theCount is missing value then return 0
+			if useDoubleDigits and theCount is less than 10 then return "0" & theCount
 
 			theCount
 		end totalAll
