@@ -13,7 +13,7 @@
 	@Build:
 		./scripts/build-lib.sh core/string
 
-	@Last Modified: 2025-02-26 07:35:00
+	@Last Modified: 2025-07-18 15:29:05
 *)
 use scripting additions
 
@@ -137,7 +137,7 @@ end shortestStringBetween
 on replaceFirst(sourceText, substring, replacement)
 	if sourceText is missing value then return missing value
 	if sourceText does not contain substring then return sourceText
-	
+
 	set substringOffset to offset of substring in sourceText
 	if substringOffset is 0 then return sourceText
 	if replacement is missing value then set replacement to ""
@@ -410,7 +410,7 @@ end replaceAll
 
 on replace(sourceText, substring, replacement)
 	if replacement is missing value then set replacement to ""
-	if sourceText is missing value then return missing value	
+	if sourceText is missing value then return missing value
 	if sourceText does not contain substring then return sourceText
 	if substring is "
 " then
@@ -512,7 +512,8 @@ end ltrim
 (* NOTE: For Review! *)
 on trim(theText)
 	-- do shell script "ruby -e \"p '" & theText & "'.strip\" | sed 's/\"//g'"
-	do shell script "echo '" & ltrim(theText) & "' |  sed 's/ *$//g'  |  sed 's/^[[:space:]]*//g'"	
+	-- do shell script "echo '" & ltrim(theText) & "' |  sed 's/ *$//g'  |  sed 's/^[[:space:]]*//g'"
+	do shell script "echo " & quoted form of theText & " | sed 's/[[:space:]]*$//' | sed 's/^[[:space:]]*//g'"
 end trim
 
 
