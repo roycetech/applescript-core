@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/ChatGPT/1.2025.168/chat-gpt
 
 	@Created: Tue, Jul 01, 2025 at 07:20:31 AM
-	@Last Modified: 2025-07-01 07:31:56
+	@Last Modified: 2025-07-18 14:53:14
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -60,8 +60,12 @@ on new()
 			end if
 
 			tell application "System Events" to tell process "ChatGPT"
-	click first button of button 2 of toolbar 1 of front window whose help is "New Chat"
-end tell
+				-- click (first button of button 2 of toolbar 1 of front window whose help is "New Chat")
+				set frontmost to true
+				try
+					click menu item "New Chat" of menu 1 of menu bar item "File" of menu bar 1
+				end try
+			end tell
 		end newChat
 	end script
 end new
