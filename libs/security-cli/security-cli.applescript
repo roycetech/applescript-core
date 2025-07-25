@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh libs/security-cli/security-cli
 
 	@Created: Thu, May 15, 2025 at 06:39:33 AM
-	@Last Modified: 2025-05-15 08:57:32
+	@Last Modified: 2025-07-21 09:36:58
 *)
 use scripting additions
 
@@ -47,6 +47,11 @@ on spotCheck()
 	set sutServiceName to "spot-service"
 	set sutUsername to "spot-username"
 	set sutSecret to "spot-secret"
+
+	-- [Start] Create new secret.
+	-- Do not commit anything between the [Start] and [End]
+
+	-- [End] Create new secret
 
 	logger's infof("sutServiceName: {}", sutServiceName)
 	logger's infof("sutUsername: {}", sutUsername)
@@ -108,7 +113,7 @@ on new()
 
 
 		(*
-			@returs true on successful operation.
+			@returns true on successful operation.
 		*)
 		on deleteSecret(serviceName, username)
 			set command to format {"security delete-generic-password \\
