@@ -11,24 +11,25 @@
 		applescript-core
 
 	@Build:
-		make build-lib SOURCE=core/lov
+		./scripts/build-lib.sh core/lov
 
-	@Last Modified: 2024-03-30 11:37:27
+	@Last Modified: 2025-07-25 06:26:13
 *)
 
 use scripting additions
+
 use listUtil : script "core/list"
-
-use loggerLib : script "core/logger"
-use plutilLib : script "core/plutil"
-
-use spotScript : script "core/spot-test"
 
 use loggerFactory : script "core/logger-factory"
 
+use plutilLib : script "core/plutil"
+
 property logger : missing value
+
 property plutil : missing value
 property session : missing value
+
+property SESSION_KEY_SELECTED_SUFFIX : " - LOV Selected"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -42,6 +43,7 @@ on spotCheck()
 		Manual: missing value returns the first item
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -99,12 +101,12 @@ on new(lovName)
 		property _plistName : missing value
 
 		on getSavedValue()
-			session's getValue(_lovName & " - LOV Selected")
+			session's getValue(_lovName & SESSION_KEY_SELECTED_SUFFIX)
 		end getSavedValue
 
 		on setSavedValue(newValue)
-			session's setValue(_lovName & " - LOV Selected", newValue)
-		end getSavedValue
+			session's setValue(_lovName & SESSION_KEY_SELECTED_SUFFIX, newValue)
+		end setSavedValue
 
 		(*
 			@Deprecated: Use #hasElement.
@@ -115,7 +117,7 @@ on new(lovName)
 
 		on hasElement(targetElement)
 			listUtil's listContains(_lov, targetElement)
-		end hasValue
+		end hasElement
 
 
 		on getElements()
