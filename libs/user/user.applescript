@@ -30,6 +30,7 @@ use script "core/Text Utilities"
 use std : script "core/std"
 
 use loggerFactory : script "core/logger-factory"
+
 use ccLib : script "core/control-center"
 use lovLib : script "core/lov"
 use textUtil : script "core/string"
@@ -222,17 +223,6 @@ on new()
 			set sysinfo to system info
 			return (do shell script "echo '" & system version of sysinfo & "' | cut -d '.' -f 1") as integer
 		end getOsMajorVersion
-
-		on isUsingDefaultSystemMicrophone()
-			set configLib to script "core/config"
-			set configSystem to configLib's new("system")
-			set yqCli to configSystem's getValue("yq CLI")
-			set shellCommand to format {"
-				system_profiler SPAudioDataType \\
-					| {} -r '.Audio.Devices[\"MacBook Pro Microphone\"][\"Default Input Device\"]'", {yqCli}}
-			do shell script shellCommand
-			"Yes" is equal to result
-		end isUsingDefaultSystemMicrophone
 	end script
 
 	set decorator to decoratorLib's new(result)
