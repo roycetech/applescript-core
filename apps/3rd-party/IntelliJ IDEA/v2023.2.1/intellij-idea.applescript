@@ -8,7 +8,7 @@
 		applescript-core
 		
 	@Build:
-		make build-intellij
+		./scripts/build-lib.sh 'apps/3rd-party/IntelliJ IDEA/v2023.2.1/intellij-idea'
 		
 	@Created: September 9, 2023 3:06 PM
 	@Last Modified: 
@@ -30,6 +30,7 @@ use decoratorLib : script "core/decorator"
 use retryLib : script "core/retry"
 
 use decIntelliJIdeaFindLib : script "core/dec-intellij-idea-find"
+use decIntelliJIdeaCommandPaletteLib : script "core/dec-intellij-idea-command-palette"
 
 property logger : missing value
 property kb : missing value
@@ -57,6 +58,7 @@ on spotCheck()
 		
 		Manual: Open Class via UI
 		Manual: Open File via UI
+		Manual: Integration: Trigger Search Action
 	")
 	
 	set spotClass to spotScript's new()
@@ -102,6 +104,9 @@ on spotCheck()
 		
 	else if caseIndex is 7 then
 		sut's openFileViaUI("editUser.jsp")
+		
+	else if caseIndex is 8 then
+		sut's triggerSearchAction()
 		
 	end if
 	
@@ -341,6 +346,8 @@ on new()
 	end script
 	
 	decIntelliJIdeaFindLib's decorate(result)
+	decIntelliJIdeaCommandPaletteLib's decorate(result)
+	
 	set decorator to decoratorLib's new(result)
 	decorator's decorateByName("IntelliJIDEAInstance")
 end new
