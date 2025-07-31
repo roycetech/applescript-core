@@ -12,7 +12,7 @@
 		applescript-core
 
 	@Build:
-		make build-lib SOURCE=core/keyboard
+		./scripts/build-lib.sh core/keyboard
 *)
 
 use script "core/Text Utilities"
@@ -54,6 +54,7 @@ on spotCheck()
 		Paste Text with Emoji
 		Manual: Modifier Pressed
 		Manual: Insert Text By Pasting
+		Manual: Type by Keys
 	")
 
 
@@ -123,6 +124,9 @@ on spotCheck()
 
 		else if caseIndex is 4 then
 			insertTextByPasting("Spot Check")
+
+		else if caseIndex is 5 then
+			typeTextByKeys("Hello")
 
 		end if
 
@@ -380,14 +384,29 @@ on new()
 				set nextCharText to nextChar as text
 				if nextCharText is "$" then
 					pressShiftKey(4)
-				else if nextCharText is "%"
+
+				else if nextCharText is "%" then
 					pressShiftKey(5)
+
+				else if nextCharText is ">" then
+					pressShiftKey("e")
+
+				else if nextCharText is "~" then -- Doesn't work.
+					pressShiftKey("~")
+
+				else if nextCharText is "-" then
+					pressKey("\"")
+
+				else if nextCharText is "H" then
+					pressShiftKey("j")
+
 					-- TODO: All shift characters.
 				else
 					pressKey(nextCharText)
 				end if
+				-- delay 0.01
 			end repeat
-		end typeText
+		end typeTextByKeys
 
 		(*
 			Looks to still have failed as of December 3, 2023 10:38 AM. May
@@ -469,6 +488,9 @@ on _charToKeycode(key)
 
 	if key as text is "$" then return 21
 	if key as text is "%" then return 23
+	if key as text is "\"" then return 39
+	if key as text is "'" then return 39
+	if key as text is ";" then return 41
 
 	if key is "=" then return 24
 	if key is "-" then return 27
@@ -479,7 +501,6 @@ on _charToKeycode(key)
 	if key is "," then return 43
 	if key is "/" then return 44
 	if key is "." then return 47
-	if key is space then return 49
 	if key is "`" then return 50
 
 	if key is tab or key is "tab" then return 48
@@ -491,7 +512,7 @@ on _charToKeycode(key)
 	if key is "delete" then return 51
 	if key is "del" then return 51
 	if key is "space" then return 49
-	if key is " " then return 49
+	if key is " " or key is space then return 49
 	if key is "up" then return 126
 	if key is "down" then return 125
 	if key is "left" then return 123
