@@ -12,6 +12,7 @@
 	@Created: Thu, Jul 03, 2025 at 01:40:59 PM
 
 	@Change Logs:
+		Wed, Jul 23, 2025 at 12:15:46 PM - Add #setSelectedOptionByIdAndIndex
 		Thu, Jul 03, 2025 at 01:40:32 PM - Refactored out of safari-javascript
  *)
 
@@ -147,6 +148,15 @@ on decorate(browserTab)
 		end triggerEventById
 
 
+		on triggerEventBySelector(selector, eventName)
+			set javascriptText to format {"
+				let el = document.querySelector('{}');
+				if (el) el.dispatchEvent(new Event('{}', { bubbles: true }));
+			", {selector, eventName}}
+			runScriptDirect(javascriptText)
+		end triggerEventBySelector
+
+
 		on triggerEventByName(elementName, eventName)
 			set javascriptText to format {"
 				let el = document.getElementsByName('{}')[0];
@@ -223,6 +233,13 @@ on decorate(browserTab)
 				)", {elementId, optionText}}
 			runScriptPlain(javascriptText)
 		end setSelectedOptionByIdAndLabel
+
+		(*
+			@optionIndex - 1-indexed.
+		*)
+		on setSelectedOptionByIdAndIndex(elementId, optionIndex)
+			runScriptPlain(format {"document.getElementById('{}').selectedIndex = {};", {elementId, optionIndex - 1}})
+		end setSelectedOptionByIdAndIndex
 
 		(*
 			NOTE: Matches the first matched element only.
