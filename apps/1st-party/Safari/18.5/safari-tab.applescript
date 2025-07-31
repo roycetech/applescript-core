@@ -423,7 +423,12 @@ on new(windowId, pTabIndex)
 		end newTab
 
 
-		(* It checks the starting characters to match because Safari trims it in the menu when then name is more than 30 characters. *)
+		(*
+			It checks the starting characters to match because Safari trims it
+			in the menu when then name is more than 30 characters.
+
+			WARZONE
+		*)
 		on focus()
 			try
 				tell application "Safari" to set current tab of my appWindow to _tab
@@ -431,6 +436,7 @@ on new(windowId, pTabIndex)
 
 
 			set tabTitle to getTitle()
+			-- logger's debugf("#focus(): tabTitle: {}", tabTitle)
 
 			tell application "System Events" to tell process "Safari"
 				try
@@ -441,24 +447,25 @@ on new(windowId, pTabIndex)
 			set menuTitles to reverse of menuTitles
 			set foundMenuTitle to missing value
 
-			set foundWindow to missing value
+			set foundSafariAppWindow to missing value
 			repeat with nextMenuTitle in menuTitles
+				-- logger's debugf("#focus(): nextMenuTitle: {}", nextMenuTitle)
 				if nextMenuTitle as text is "" then exit repeat
-
 				if nextMenuTitle contains unic's ELLIPSIS then
+					-- logger's debug("... found")
 					set {prefix, suffix} to textUtil's split(nextMenuTitle, unic's ELLIPSIS)
-					-- set prefix to textUtil's stringAfter(prefix, unic's SEPARATOR)
-
-					(*
-					log prefix
-					log suffix
-*)
+					set groupName to textUtil's stringBefore(prefix, unic's SEPARATOR)
+					-- logger's debugf("#focus(): groupName: {}", groupName)
+					set prefix to textUtil's stringAfter(prefix, unic's SEPARATOR)
+					-- logger's debugf("#focus(): prefix: {}", prefix)
+					-- logger's debugf("#focus(): suffix: {}", suffix)
 
 					if tabTitle starts with prefix and tabTitle ends with suffix then
 						-- log "FOUND: " & nextMenuTitle
 						set foundMenuTitle to nextMenuTitle
 						tell application "Safari"
-							set foundWindow to (first window whose name starts with prefix and name ends with suffix)
+							-- set foundSafariAppWindow to (first window whose name starts with prefix and name ends with suffix)
+							set foundSafariAppWindow to (first window whose name starts with (groupName & unic's SEPARATOR & prefix) and name ends with suffix)
 						end tell
 						exit repeat
 					else
@@ -466,18 +473,22 @@ on new(windowId, pTabIndex)
 						-- log suffix
 					end if
 				else
-					if nextMenuTitle is equal to tabTitle then
+					-- logger's debugf("#focus(): nextMenuTitle: {} == {}", {nextMenuTitle, tabTitle})
+					-- if nextMenuTitle is equal to tabTitle then
+					if nextMenuTitle ends with tabTitle then
 						set foundMenuTitle to nextMenuTitle
-						set foundWindow to window nextMenuTitle
+						tell application "Safari"
+							set foundSafariAppWindow to window nextMenuTitle
+						end tell
 						exit repeat
 					end if
 				end if
 			end repeat
 
-			logger's debugf("foundMenuTitle: {}", foundMenuTitle)
+			-- logger's debugf("#focus(): foundMenuTitle: {}", foundMenuTitle)
 			if foundMenuTitle is not missing value then
 				tell application "Safari"
-					set index of foundWindow to 1
+					set index of foundSafariAppWindow to 1
 				end tell
 
 				tell application "System Events" to tell process "Safari"
@@ -487,14 +498,13 @@ on new(windowId, pTabIndex)
 				end tell
 			end if
 
-			logger's debugf("tabTitle: {}", tabTitle)
 			tell application "System Events" to tell process "Safari"
 				set safariSystemEventWindow to missing value
 				try
 					set safariSystemEventWindow to first window whose title ends with tabTitle
 				end try
 				if value of attribute "AXMinimized" of safariSystemEventWindow then
-					logger's debug("Unminimizing")
+					-- logger's debug("#focus(): Unminimizing")
 					try
 						set value of attribute "AXMinimized" of safariSystemEventWindow to false
 					end try
@@ -642,8 +652,8 @@ on new(windowId, pTabIndex)
 		set _url of SafariTabInstance to URL of document of window id windowId
 		set _tab of SafariTabInstance to item pTabIndex of tabs of appWindow of SafariTabInstance
 	end tell
-	javascript's decorate(SafariTabInstance)
-	safariJavaScript's decorate(result)
+	safariJavaScript's decorate(SafariTabInstance)
+	javascript's decorate(result)
 	decSafariProfile's decorateTab(result)
 
 	set decorator to decoratorLib's new(result)
