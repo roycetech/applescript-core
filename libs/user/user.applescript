@@ -15,6 +15,7 @@
 		./scripts/build-lib.sh libs/user/user
 
 	@Change Logs:
+		Thu, Jul 31, 2025 at 10:02:18 AM - Added #getSystemName
 		Sun, Mar 09, 2025 at 09:00:59 AM - Added #getBrowserAppNames
 
 	@Troubleshooting:
@@ -75,6 +76,7 @@ on spotCheck()
 	decorator's printHierarchy()
 
 	logger's infof("WiFi SID: {}", sut's getWifiSID())
+	logger's infof("System Name: {}", sut's getSystemName())
 	logger's infof("In Meeting: {}", sut's isInMeeting())
 	logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
 	logger's infof("Is Online?: {}", sut's isOnline())
@@ -223,6 +225,10 @@ on new()
 			set sysinfo to system info
 			return (do shell script "echo '" & system version of sysinfo & "' | cut -d '.' -f 1") as integer
 		end getOsMajorVersion
+
+		on getSystemName()
+			do shell script "system_profiler SPHardwareDataType | awk -F': ' '/Model Name/ {print $2}'"
+		end getSystemName
 	end script
 
 	set decorator to decoratorLib's new(result)
