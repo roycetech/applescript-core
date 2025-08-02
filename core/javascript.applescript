@@ -234,6 +234,18 @@ on decorate(browserTab)
 			runScriptPlain(javascriptText)
 		end setSelectedOptionByIdAndLabel
 
+
+		on setSelectedOptionByIdAndValue(elementId, optionValue)
+			set javascriptText to format {"
+				Array.from(
+					document.getElementById('{}').options)
+					.filter((element) => {
+						if (element.value === '{}') element.selected = true;
+					}
+				)", {elementId, optionValue}}
+			runScriptPlain(javascriptText)
+		end setSelectedOptionByIdAndValue
+
 		(*
 			@optionIndex - 1-indexed.
 		*)
