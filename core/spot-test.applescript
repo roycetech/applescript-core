@@ -12,17 +12,19 @@
 		applescript-core
 
 	@Build:
-		make build-lib SOURCE=core/spot-test
+		./scripts/build-lib.sh core/spot-test
 
-	@Last Modified: 2025-01-21 14:38:45
+	@Last Modified: 2025-07-23 11:53:16
 
 	@Change Logs:
+		Wed, Jul 23, 2025 at 11:40:43 AM - Allow direct run.
 		Mon, Jan 20, 2025 at 7:42:38 AM - Trigger Menu Case app refresh
 
 *)
 
-use script "core/Text Utilities"
 use scripting additions
+
+use script "core/Text Utilities"
 
 use std : script "core/std"
 
@@ -30,6 +32,8 @@ use loggerFactory : script "core/logger-factory"
 
 use plutilLib : script "core/plutil"
 use switchLib : script "core/switch"
+
+property SESSION_KEY_RUN_SPOT_DIRECT : "app-core: Run Spot Direct"
 
 use decoratorLib : script "core/decorator"
 
@@ -121,7 +125,8 @@ on new()
 					set _currentCaseCount to length of caseLabels
 					set caseIdChanged to session's getString(SESS_CASE_ID) is not equal to caseId
 					set caseCountChanged to newCaseCount is not equal to _currentCaseCount
-					set REINITIALIZE to caseIdChanged or caseCountChanged
+					set runDirect to session's getBool(SESSION_KEY_RUN_SPOT_DIRECT)
+					set REINITIALIZE to (caseIdChanged or caseCountChanged) and not runDirect
 					session's setValue(SESS_CASE_LABELS, cases)
 
 					if REINITIALIZE is true then
@@ -176,6 +181,7 @@ on new()
 					end if
 
 					notifyChange({event_type:"spot:event:run-case", case_index:_currentCase as integer})
+					session's deleteKey(SESSION_KEY_RUN_SPOT_DIRECT)
 					{_currentCase as integer, item _currentCase of cases}
 				end start
 
