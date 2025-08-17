@@ -15,6 +15,7 @@
 		./scripts/build-lib.sh libs/user/user
 
 	@Change Logs:
+		Tue, Aug 05, 2025 at 06:28:44 AM - Fixed to work with macOS 15.6.
 		Thu, Jul 31, 2025 at 10:02:18 AM - Added #getSystemName
 		Sun, Mar 09, 2025 at 09:00:59 AM - Added #getBrowserAppNames
 
@@ -76,10 +77,12 @@ on spotCheck()
 	decorator's printHierarchy()
 
 	logger's infof("WiFi SID: {}", sut's getWifiSID())
+	logger's infof("Router IP: {}", sut's getRouterIp())
 	logger's infof("System Name: {}", sut's getSystemName())
 	logger's infof("In Meeting: {}", sut's isInMeeting())
 	logger's infof("Is Screen Sharing: {}", sut's isScreenSharing())
 	logger's infof("Is Online?: {}", sut's isOnline())
+	logger's infof("OS Version: {}", sut's getOsVersion())
 	logger's infof("Major OS Version?: {}", sut's getOsMajorVersion())
 	-- 	logger's infof("Integration: Sound output device: {}", sut's getAudioOutputDevice()) -- Decorated from another project, dec-user-sound-device.
 	logger's infof("Deployment Type: {}", sut's getDeploymentType())
@@ -125,13 +128,23 @@ on new()
 		end getBrowserAppNames
 
 
+		(*
+			No longer available on macOS 15.6 and above.
+		*)
 		on getWifiSID()
+			-- if getOsVersion() is greater than or equal to "15.6" then
+			-- else
+
 			if getOsMajorVersion() is greater than or equal to 15 then
 				do shell script "ipconfig getsummary $(networksetup -listallhardwareports | awk '/Hardware Port: Wi-Fi/{getline; print $2}') | awk -F ' SSID : ' '/ SSID : / {print $2}'"
 			else
 				do shell script "networksetup -getairportnetwork en0 | awk -F\": \" '{ print $2 }'"
 			end if
 		end getWifiSID
+
+		on getRouterIp()
+			do shell script "route get default | grep gateway | awk '{print $2}'"
+		end getRouterIp
 
 		(*
 			@returns "computer" or "user"
@@ -223,8 +236,14 @@ on new()
 
 		on getOsMajorVersion()
 			set sysinfo to system info
-			return (do shell script "echo '" & system version of sysinfo & "' | cut -d '.' -f 1") as integer
+			return (do shell script "echo '" & getOsVersion() & "' | cut -d '.' -f 1") as integer
 		end getOsMajorVersion
+
+
+		on getOsVersion()
+			system version of (system info)
+		end getOsVersion
+
 
 		on getSystemName()
 			do shell script "system_profiler SPHardwareDataType | awk -F': ' '/Model Name/ {print $2}'"
