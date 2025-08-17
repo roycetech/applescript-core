@@ -9,6 +9,7 @@ use scripting additions
 
 use std : script "core/std"
 use textUtil : script "core/string"
+use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -88,10 +89,13 @@ on decorate(termTabScript)
 				set frontTty to tty of thisTab
 			end tell
 
+			(*
 			tell application "Terminal"
 				set my _posixPath to do shell script "lsof -a -p `lsof -a -c zsh -u $USER -d 0 -n | tail -n +2 | awk '{if($NF==\"" & (tty of thisTab) & "\"){print $2}}'` -d cwd -n | tail -n +2 | awk '{$1=$2=$3=$4=$5=$6=$7=$8=\"\"; print $0}' | xargs"
-			end tell
+				end tell
+			*)
 
+			set _posixPath to "" -- Above stopped working Fri, Aug 08, 2025 at 02:51:27 PM
 			if _posixPath is equal to "" then
 				tell application "System Events" to tell process "Terminal"
 					-- logger's debug("Alternative way of fetching the current Terminal tab directory")
@@ -141,6 +145,15 @@ on decorate(termTabScript)
 
 
 		on getDirectoryName()
+			tell application "Terminal"
+				set windowTitle to the name of my appWindow
+			end tell
+			set windowTitleTokens to textUtil's split(windowTitle, unic's SEPARATOR)
+			if the number of items in windowTitleTokens is 3 then -- Let's get from the title because posix path isn't behaving right now.
+				return the first item of windowTitleTokens
+
+			end if
+
 			set tokens to textUtil's split(getPosixPath(), "/")
 			last item of tokens
 		end getDirectoryName
