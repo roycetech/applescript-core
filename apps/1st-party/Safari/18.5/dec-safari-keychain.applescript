@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-keychain
 
 	@Created: Sunday, March 31, 2024 at 10:20:13 PM
-	@Last Modified: 2025-07-24 07:03:29
+	@Last Modified: 2025-08-08 07:47:18
 	@Change Logs:
 		Sunday, March 31, 2024 at 10:20:18 PM - Keychain UI layout has changed.
 *)
@@ -38,6 +38,9 @@ on spotCheck()
 		Manual: Show other passwords
 		Manual: Select other password
 		Manual: Get username index
+
+		Manual: Select Keychain with username and url
+		Manual: Trigger AutoFill
 	")
 
 	set spotScript to script "core/spot-test"
@@ -85,6 +88,21 @@ on spotCheck()
 		logger's debugf("sutUsername: {}", sutUsername)
 
 		logger's infof("Credential index: {}", sut's getUsernameIndex(sutUsername))
+
+	else if caseIndex is 6 then
+		set configLib to script "core/config"
+		set configBusiness to configLib's new("business")
+
+		set sutUsername to configBusiness's getValue("app-hub: Work Username")
+		logger's infof("sutUsername: {}", sutUsername)
+
+		set sutCredentialKey to "Timesheet"
+		logger's infof("sutCredentialKey: {}", sutCredentialKey)
+
+		logger's infof("Keychain clicked: {}", sut's selectKeychainItem({sutUsername, sutCredentialKey}))
+
+	else if caseIndex is 7 then
+
 	else
 
 	end if
@@ -177,11 +195,22 @@ on decorate(mainScript)
 
 		(*
 			NOTE: Native AppleScript click command does not work. Tested on Ventura.
+			@ itemKey - the username or the list containing the username and the credential key (host or title).
 
 			@returns true if successfully clicked.
 		*)
-		on selectKeychainItem(itemName)
+		on selectKeychainItem(itemKey)
 			if running of application "Safari" is false then return
+
+			set targetCredentialTitle to missing value
+			if class of itemKey is text then
+				set targetUsername to itemKey
+				set targetCredentialKey to missing value
+			else
+				set {targetUsername, targetCredentialKey} to itemKey
+			end if
+
+			set isUsernameOnly to the number of items in itemKey is 1
 
 			tell application "System Events" to tell process "Safari"
 				set frontmost to true
@@ -189,7 +218,15 @@ on decorate(mainScript)
 					set itemIndex to 0
 					repeat with nextRow in rows of table 1 of scroll area 1
 						set itemIndex to itemIndex + 1
-						if value of static text 2 of UI element 1 of nextRow is equal to itemName then
+						-- log value of static text 1 of UI element 1 of nextRow as text
+						-- log value of static text 2 of UI element 1 of nextRow as text
+						set credentialUsername to value of static text 1 of UI element 1 of nextRow
+						set credentialTitle to value of static text 2 of UI element 1 of nextRow
+
+						set isMatched to credentialUsername is equal to targetUsername and (isUsernameOnly or credentialTitle contains the targetCredentialKey)
+
+						-- logger's debugf("isMatched: {}", isMatched)
+						if isMatched then
 							repeat itemIndex times
 								kb's pressKey("down")
 							end repeat
@@ -241,10 +278,31 @@ on decorate(mainScript)
 
 
 		on isKeychainFormVisible()
+			if running of app "Safari" is false then return false
+
 			tell application "System Events" to tell process "Safari"
 				exists (table 1 of scroll area 1)
 			end tell
 		end isKeychainFormVisible
+
+
+		(*
+			Invoke this to make the keychain form appear when it is absent.
+		*)
+		on triggerAutoFill()
+			if running of app "Safari" is false then return false
+
+			tell application "System Events" to tell process "Safari"
+				set frontmost to true
+				set autoFillGroup to missing value
+				try
+					set autoFillGroup to the first group of UI element 1 of scroll area 1 of group 1 of group 2 of tab group 1 of splitter group 1 of front window whose description of button 1 of text field 1 is "password AutoFill"
+				end try
+				if autoFillGroup is not missing value then
+					click the button "password AutoFill" of text field 1 of autoFillGroup
+				end if
+			end tell
+		end triggerAutoFill
 
 
 		on isMfaKeychain()
