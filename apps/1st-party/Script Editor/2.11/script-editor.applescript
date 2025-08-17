@@ -228,7 +228,9 @@ on new()
 			@returns script instance TODO
 		*)
 		on openFile(posixFilePath)
-			activate application "Script Editor"
+			if running of application "Script Editor" is false then
+				activate application "Script Editor"
+			end if 
 			
 			tell application "System Events" to tell process "Script Editor"
 				if exists (window "Open") then
