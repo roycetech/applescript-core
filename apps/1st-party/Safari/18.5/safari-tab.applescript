@@ -9,6 +9,7 @@
 	@Last Tue, Feb 18, 2025 at 10:21:58 AM
 
 	@Change Logs:
+		Tue, Aug 12, 2025 at 03:55:54 PM - Fix break when TMS page expires and #focus is called. Login page is detected while the expired page is still displayed
 		Thu, Jun 19, 2025 at 07:05:08 AM - Added responding to Cancel OK prompt.
 		Wed, Apr 16, 2025 at 01:53:17 PM - Allow dynamic decoration.
 		Tue, Apr 08, 2025 at 11:41:12 AM - Fix #focus to trigger via menu.
@@ -500,15 +501,17 @@ on new(windowId, pTabIndex)
 
 			tell application "System Events" to tell process "Safari"
 				set safariSystemEventWindow to missing value
+				-- log tabTitle
 				try
 					set safariSystemEventWindow to first window whose title ends with tabTitle
-				end try
-				if value of attribute "AXMinimized" of safariSystemEventWindow then
-					-- logger's debug("#focus(): Unminimizing")
-					try
+				end try -- Can fail for website where session has expired.
+
+				try
+					if value of attribute "AXMinimized" of safariSystemEventWindow then
+						-- logger's debug("#focus(): Unminimizing")
 						set value of attribute "AXMinimized" of safariSystemEventWindow to false
-					end try
-				end if
+					end if
+				end try
 			end tell
 		end focus
 
