@@ -297,14 +297,18 @@ on decorate(browserTab)
 			runScriptPlain(format {"document.querySelector('{}').click();", selector})
 		end click
 
+		(*
+			@idx - use 1-index for AppleScript.
+		*)
 		on clickByIndex(selector, idx)
-			if idx is less than 0 then -- -1 for the last element.
+			set jsIndex to idx -1
+			if jsIndex is less than 0 then -- -1 for the last element.
 				runScriptPlain(format {"
 					var elements = document.querySelectorAll('{}');
 					var elCount = elements.length;
-					elements[elCount {}].click();", {selector, idx}})
+					elements[elCount {}].click();", {selector, jsIndex}})
 			else
-				runScriptPlain(format {"document.querySelectorAll('{}')[{}].click();", {selector, idx}})
+				runScriptPlain(format {"document.querySelectorAll('{}')[{}].click();", {selector, jsIndex}})
 			end if
 		end clickByIndex
 
