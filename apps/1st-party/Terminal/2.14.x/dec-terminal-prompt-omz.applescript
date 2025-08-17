@@ -92,7 +92,7 @@ on spotCheck()
 	logger's infof("Is zsh: {}", frontTab's isZsh())
 	logger's infof("Is bash: {}", frontTab's isBash())
 
-	-- logger's infof("Git directory?: [{}]", sut's isGitDirectory())
+	logger's infof("Git directory?: [{}]", frontTab's isGitDirectory())
 
 	logger's infof("Lingering Command: [{}]", frontTab's getLingeringCommand())
 	logger's infof("Last Command: [{}]", frontTab's getLastCommand())
@@ -368,7 +368,12 @@ on decorate(termTabScript)
 			end if
 
 			tell application "Terminal"
-				if busy of tab 1 of my appWindow then return false
+				(*
+				if busy of tab 1 of my appWindow then
+					logger's debug("Busy state detected")
+					return false
+				end if
+				*)
 			end tell
 
 			set {history, lastProcess} to _getHistoryAndLastProcess()
@@ -382,8 +387,10 @@ on decorate(termTabScript)
 
 			else if isZsh() then
 				-- logger's debug("zsh...")
+
 				set promptText to getPromptText()
 				-- logger's debugf("promptText: {}", promptText)
+
 				if promptText is missing value then return false
 
 				if promptText is equal to getNonGitPrefix() & "~" then return true
@@ -392,7 +399,11 @@ on decorate(termTabScript)
 				-- logger's debugf("promptGit: {}", promptGit)
 				set promptNonGit to regex's matchesInString(getNonGitPrefix() & "[a-zA-Z0-9-\\s\\.@]+$", promptText)
 				-- logger's debugf("promptNonGit: {}", promptNonGit)
-				return promptGit or promptNonGit and promptText ends with getDirectoryName()
+
+				set directoryName to getDirectoryName()
+				-- logger's debugf("directoryName: {}", directoryName)
+
+				return promptGit or promptNonGit and promptText ends with directoryName
 			end if
 			-- logger's debug("non-zsh...")
 
