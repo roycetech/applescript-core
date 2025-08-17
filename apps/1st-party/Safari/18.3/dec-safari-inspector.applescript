@@ -14,7 +14,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-inspector
 
 	@Created: Thu, Feb 27, 2025 at 11:42:33 AM
-	@Last Modified: 2025-03-10 09:07:47
+	@Last Modified: 2025-08-08 08:12:12
 	@Change Logs:
 
 	@References:
@@ -142,7 +142,8 @@ on decorate(mainScript)
 			end if
 			focusInspectorPrompt()
 
-			kb's typeText(javaScriptCode)
+			-- kb's typeText(javaScriptCode)  -- Couldn't type the ';' with #runJavaScriptViaInspector
+			kb's insertTextByPasting(javaScriptCode)
 			kb's pressKey(return)
 		end runJavaScriptViaInspector
 
