@@ -2,6 +2,8 @@
 	This script will trigger the run button of the front window of Script Editor. 
 	Useful as a follow up process after selecting a new case using Menu Case.app.
 
+	@Application
+	
 	@Installation:
 		Run Create Automator App.app while this script is opened and focused in Script Editor.
 		Grant the resulting app an accessibility access so it can trigger the Script Editor's run button.

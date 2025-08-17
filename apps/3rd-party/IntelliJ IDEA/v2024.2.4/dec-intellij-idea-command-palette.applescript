@@ -55,7 +55,7 @@ on spotCheck()
 		sut's triggerSearchAction()
 		
 	else if caseIndex is 3 then
-		(*
+		(* 
 		sut's triggerSearchAction()
 		kb's typeText("Mute Breakpoints")
 		kb's pressKey(return)
