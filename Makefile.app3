@@ -57,7 +57,7 @@ build-google-chrome:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/131.0/dec-google-chrome-tab-finder
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/129.0/google-chrome-javascript
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/134.0/dec-google-chrome-inspector
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/136.0/google-chrome
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Google Chrome/139.0/google-chrome
 
 
 build-guitar-pro:
