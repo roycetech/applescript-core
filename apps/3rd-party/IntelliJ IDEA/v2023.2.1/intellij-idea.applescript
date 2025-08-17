@@ -338,6 +338,7 @@ on new()
 		on _getProcessName()
 			tell application "System Events"
 				if exists (first process whose name is "IntelliJ IDEA") then return "IntelliJ IDEA"
+				if exists (first process whose name is "idea") then return "idea"
 				if exists (first process whose name is "jetbrains_client") then return "jetbrains_client"
 			end tell
 			
