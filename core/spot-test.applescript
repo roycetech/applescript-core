@@ -14,7 +14,7 @@
 	@Build:
 		./scripts/build-lib.sh core/spot-test
 
-	@Last Modified: 2025-07-23 11:53:16
+	@Last Modified: 2025-08-26 15:46:54
 
 	@Change Logs:
 		Wed, Jul 23, 2025 at 11:40:43 AM - Allow direct run.
@@ -126,7 +126,7 @@ on new()
 					set caseIdChanged to session's getString(SESS_CASE_ID) is not equal to caseId
 					set caseCountChanged to newCaseCount is not equal to _currentCaseCount
 					set runDirect to session's getBool(SESSION_KEY_RUN_SPOT_DIRECT)
-					set REINITIALIZE to (caseIdChanged or caseCountChanged) and not runDirect
+					set REINITIALIZE to (caseIdChanged or caseCountChanged) and not runDirect and newCaseCount is greater than 1
 					session's setValue(SESS_CASE_LABELS, cases)
 
 					if REINITIALIZE is true then
