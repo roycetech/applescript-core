@@ -6,7 +6,7 @@
 		applescript-core
 		
 	@Build:
-		make build-keyboard-maestro
+		./scripts/build-lib.sh 'apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro-group'
 *)
 
 use std : script "core/std"
@@ -100,6 +100,10 @@ on new(pMacroGroupName)
 				enabled of _macro
 			end tell
 		end isEnabled
+		
+		on isDisabled()
+			not isEnabled()
+		end isDisabled
 		
 	end script
 end new
