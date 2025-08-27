@@ -327,7 +327,8 @@ on decorate(termTabScript)
 
 		on waitForPrompt()
 			script PromptWaiter
-				if isShellPrompt() then return true
+				-- if isShellPrompt() then return true
+				if isShellPrompt() and not isSsh() then return true
 			end script
 			tell retry to exec on PromptWaiter for 60 by 1
 		end waitForPrompt
@@ -382,10 +383,11 @@ on decorate(termTabScript)
 			-- 	return regex's matchesInString(redisPromptPattern() & "$", textUtil's rtrim(theText as text))
 			-- end if
 
-			if isSSH() then
-				return true
+			-- if isSSH() then
+			-- 	return true
 
-			else if isZsh() then
+			-- else
+			if isZsh() then
 				-- logger's debug("zsh...")
 
 				set promptText to getPromptText()
