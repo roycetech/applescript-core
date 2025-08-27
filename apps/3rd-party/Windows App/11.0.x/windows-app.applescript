@@ -129,6 +129,8 @@ on new()
 						click UI element "Windows App" of list 1
 					end tell
 				end if
+
+				set frontmost to true
 				
 				set mainWindow to the first window whose description is not "Preferences"
 				set connectionCard to missing value
@@ -149,6 +151,9 @@ on new()
 			if waitResult is missing value then return
 			
 			tell application "System Events" to tell process "Windows App"
+				set samePosition to position of window 2
+				set position of window 1 to {item 1 of samePosition, item 2 of samePosition}
+				delay 1
 				click button "Continue" of group 2 of sheet 1 of front window
 			end tell
 		end connect
