@@ -246,6 +246,17 @@ on decorate(browserTab)
 			runScriptPlain(javascriptText)
 		end setSelectedOptionByIdAndValue
 
+		on setSelectedOptionByIdAndDataAttribute(elementId, optionAttributeName, optionAttributeValue)
+			set javascriptText to format {"
+				Array.from(
+					document.getElementById('{}').options)
+					.filter((element) => {
+						if (element.dataset['{}'] === '{}') element.selected = true;
+					}
+				)", {elementId, optionAttributeName, optionAttributeValue}}
+			runScriptPlain(javascriptText)
+		end setSelectedOptionByIdAndAttribute
+
 		(*
 			@optionIndex - 1-indexed.
 		*)
@@ -301,7 +312,7 @@ on decorate(browserTab)
 			@idx - use 1-index for AppleScript.
 		*)
 		on clickByIndex(selector, idx)
-			set jsIndex to idx -1
+			set jsIndex to idx - 1
 			if jsIndex is less than 0 then -- -1 for the last element.
 				runScriptPlain(format {"
 					var elements = document.querySelectorAll('{}');
