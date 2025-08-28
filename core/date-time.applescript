@@ -5,7 +5,7 @@
 	@Build:
 		./scripts/build-lib.sh core/date-time
 
-	@Last Modified: 2025-06-27 10:11:51
+	@Last Modified: 2025-08-28 13:26:26
 *)
 use framework "Foundation"
 
@@ -206,15 +206,27 @@ on new()
 
 
 		on formatYyyyMmDdHHmi(pDate as date)
+			formatYyyyMmDdHHmiWithSeparator(pDate, "")
+		end formatYyyyMmDdHHmi
+
+
+		on formatYyyyMmDd_HHmi(pDate as date)
+			formatYyyyMmDdHHmiWithSeparator(pDate, "_")
+		end formatYyyyMmDdHHmi
+
+
+		on formatYyyyMmDdHHmiWithSeparator(pDate as date, separator)
+			set calcSeparator to separator
+			if separator is missing value then set calcSeparator to ""
+
 			set currentHours to hours of pDate as integer
 			if currentHours is less than 10 then set currentHours to "0" & currentHours
 
 			set currentMinutes to minutes of pDate as integer
 			if currentMinutes is less than 10 then set currentMinutes to "0" & currentMinutes
 
-			listUtil's join({formatYyyyMmDd(pDate, ""), currentHours, currentMinutes}, "")
+			listUtil's join({formatYyyyMmDd(pDate, "") & calcSeparator, currentHours, currentMinutes}, "")
 		end formatYyyyMmDdHHmi
-
 
 		on formatYyyyDdMm(pDate as date, delimiter)
 			set currentMonth to month of pDate as integer
