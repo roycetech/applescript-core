@@ -217,7 +217,10 @@ on decorate(termTabScript)
 			@Requires focus, make sure to handle refocus on the client code.
 		*)
 		on clear()
-			if isShellPrompt() then return runAndWait("clear && printf '\\e[3J'")
+			if isShellPrompt() then
+				runAndWait("clear && printf '\\e[3J'")
+				return
+			end if
 
 			focus()
 			kb's pressCommandKey("k")

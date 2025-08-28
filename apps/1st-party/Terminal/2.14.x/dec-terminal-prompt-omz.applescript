@@ -327,8 +327,8 @@ on decorate(termTabScript)
 
 		on waitForPrompt()
 			script PromptWaiter
-				-- if isShellPrompt() then return true
-				if isShellPrompt() and not isSsh() then return true
+				if isShellPrompt() then return true
+				-- if isShellPrompt() and not isSsh() then return true
 			end script
 			tell retry to exec on PromptWaiter for 60 by 1
 		end waitForPrompt
