@@ -14,7 +14,7 @@
 	@Build:
 		./scripts/build-lib.sh core/spot-test
 
-	@Last Modified: 2025-08-26 15:46:54
+	@Last Modified: 2025-08-29 07:19:51
 
 	@Change Logs:
 		Wed, Jul 23, 2025 at 11:40:43 AM - Allow direct run.
@@ -174,6 +174,10 @@ on new()
 
 					set autoText to "M"
 					if autoIncrement is true then set autoText to "A"
+
+					set calculatedCaseCount to _currentCaseCount
+					if newCaseCount is 1 then set _currentCaseCount to newCaseCount
+
 					if my logger is missing value then
 						log "Running case: " & _currentCase & "/" & _currentCaseCount & " (" & autoText & "): " & item _currentCase of cases
 					else
