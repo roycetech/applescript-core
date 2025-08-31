@@ -27,6 +27,7 @@ use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
 
+use decWindow : script "core/dec-script-editor-window"
 use decContent : script "core/dec-script-editor-content"
 use decCursor : script "core/dec-script-editor-cursor"
 use decSettings : script "core/dec-script-editor-settings"
@@ -64,6 +65,9 @@ on spotCheck()
 		Manual: Replace and Select
 		Manual: Close Search
 		Manual: Show Settings
+		
+		Manual: Show Logs History
+		Manual: Close Logs History
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -138,6 +142,12 @@ on spotCheck()
 	else if caseIndex is 10 then
 		sut's showSettings()
 		
+	else if caseIndex is 11 then
+		sut's showLogsHistory()
+		
+	else if caseIndex is 12 then
+		sut's closeLogsHistory()
+		
 	end if
 	
 	spot's finish()
@@ -153,9 +163,9 @@ on new()
 	
 	script ScriptEditorInstance
 		on closeSearch()
-			if running of application "Script Editor" is false then return missing value
-			
 			set editorWindow to getEditorWindow()
+			if editorWindow is missing value then return
+			
 			tell application "System Events" to tell process "Script Editor"
 				try
 					click button "Done" of scroll area 1 of splitter group 1 of splitter group 1 of editorWindow
@@ -165,19 +175,6 @@ on new()
 				end try
 			end tell
 		end closeSearch
-		
-		on getEditorWindow()
-			if running of application "Script Editor" is false then return missing value
-			
-			tell application "System Events" to tell process "Script Editor"
-				try
-					return first window whose title contains "."
-				end try
-				
-				missing value
-			end tell
-			
-		end getEditorWindow
 		
 		
 		on showSettings()
@@ -230,7 +227,7 @@ on new()
 		on openFile(posixFilePath)
 			if running of application "Script Editor" is false then
 				activate application "Script Editor"
-			end if 
+			end if
 			
 			tell application "System Events" to tell process "Script Editor"
 				if exists (window "Open") then
@@ -274,9 +271,28 @@ on new()
 			end tell
 		end replaceAndSelect
 		
+		
+		on showLogsHistory()
+			set editorWindow to getEditorWindow()
+			if editorWindow is missing value then return
+			
+			tell application "System Events" to tell process "Script Editor"
+				try
+					click (first button of group 1 of splitter group 1 of splitter group 1 of editorWindow whose help is "Show the Log History")
+				end try
+			end tell
+		end showLogsHistory
+		
+		on closeLogsHistory()
+			tell application "System Events" to tell process "Script Editor"
+				try
+					click of first button of window "Log History" whose description is "close button"
+				end try
+			end tell
+		end closeLogsHistory
 		-- Private Codes below =======================================================
 		on _new(windowId)
-			script ScriptEditorInstance
+			script ScriptEditorTabInstance
 				property appWindow : missing value -- app window, not syseve window.
 				property suffixedName : missing value
 				
@@ -355,6 +371,7 @@ on new()
 						end tell
 					end tell
 				end showLogs
+				
 				
 				(* @returns the code text of the front most editor tab *)
 				on getContents()
@@ -546,12 +563,13 @@ on new()
 				end mergeAllWindows
 			end script
 			
-			tell application "Script Editor" to set appWindow of ScriptEditorInstance to window id windowId
+			tell application "Script Editor" to set appWindow of ScriptEditorTabInstance to window id windowId
 			
-			ScriptEditorInstance
+			ScriptEditorTabInstance
 		end _new
 	end script
 	
+	decWindow's decorate(result)
 	decContent's decorate(result)
 	decCursor's decorate(result)
 	decSettings's decorate(result)
