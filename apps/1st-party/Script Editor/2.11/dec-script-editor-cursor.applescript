@@ -3,7 +3,7 @@
 		To help simplify manipulation of the contents of the script editor.
 	
 	@TODO:
-		Move to tab (document)-level.
+		Move to tab (document-level).
 	
 	@NOTE: Cursor position is 0-indexed.
 	
@@ -40,6 +40,7 @@ on spotCheck()
 		Main
 		Manual: Line number at index
 		Manual: Move cursor to the beginning of line (not space)
+		Manual: Move cursor to the EOF
 	")
 	
 	set spotClass to spotScript's new()
@@ -62,6 +63,7 @@ on spotCheck()
 	logger's infof("Is cursor on final line?: {}", sut's isCursorOnFinalLine())
 	logger's infof("Has selection? {}", sut's hasSelection())
 	logger's infof("Current line contents: [{}]", sut's getCurrentLineContents())
+	logger's infof("Current line above contents: [{}]", sut's getLineAboveContents())
 	
 	if caseIndex is 1 then
 		
@@ -74,6 +76,10 @@ on spotCheck()
 		
 	else if caseIndex is 3 then
 		sut's moveCursorLineTextStart()
+		
+	else if caseIndex is 4 then
+		sut's moveCursorToEndOfFile()
+		
 	else
 		
 	end if
@@ -90,30 +96,85 @@ on decorate(mainScript)
 	
 	script ScriptEditorCursorDecorator
 		property parent : mainScript
+		property rememberedCursorPositionStart : missing value
+		
+		on rememberCursorPosition()
+			set my rememberedCursorPositionStart to getCursorStartIndex()
+		end rememberCursorPosition
+		
+		
+		on restoreCursorPosition()
+			if running of application "Script Editor" is false then return
+			
+			tell application "Script Editor" to tell document 1
+				set selection to insertion point (my rememberedCursorPositionStart)
+			end tell
+		end restoreCursorPosition
+		
+		
+		on moveCursorToEndOfFile()
+			tell application "Script Editor"
+				tell document 1
+					set selection to insertion point -1
+					
+					if contents of selection is "" then
+						set contents of selection to ""
+					end if
+				end tell
+			end tell
+		end moveCursorToEndOfFile
 		
 		on moveCursorLineTextStart()
+			(* Programmatically, newer code than keystrokes. *)
+			tell application "Script Editor"
+				tell document 1
+					character range of selection
+					item 1 of result
+					set cursorStart to result as text
+					set charactersCounter to 0
+					repeat with nextParagraph in paragraphs of contents
+						set nextParagraphLen to the (count of characters in nextParagraph)
+						if charactersCounter + nextParagraphLen is greater than cursorStart then
+							set cleanedParagraph to textUtil's ltrim(nextParagraph as text)
+							set cleanedLength to the number of characters in cleanedParagraph
+							set indentSize to nextParagraphLen - cleanedLength
+							set selection to insertion point (charactersCounter + indentSize + 1)
+							exit repeat
+						end if
+						set charactersCounter to charactersCounter + nextParagraphLen
+					end repeat
+				end tell
+			end tell
+			return
+			
+			
+			(* Using keystrokes. *)
 			set currentLine to getCurrentLineContents()
-			-- logger's debugf("currentLine: [{}]", currentLine)
-			
 			set cleanLine to textUtil's trim(currentLine)
-			-- logger's debugf("cleanLine: [{}]", cleanLine) -- BUGGED
-			-- log "cleanLine: [" & cleanLine & "]"
-			
 			set spaces to textUtil's stringBefore(currentLine, cleanLine)
 			if spaces is missing value then set spaces to ""
-			-- logger's debugf("spaces: [{}]", spaces)
-			-- log the number of characters in spaces			
 			set delayAfterKeySeconds of kb to 0
 			kb's pressCommandKey("left")
 			repeat the number of characters in spaces times
 				kb's pressKey("right")
 			end repeat
+			
+			
+			
 		end moveCursorLineTextStart
 		
 		
 		on getCurrentLineContents()
 			getContentsAtLineNumber(getCursorLineNumber())
 		end getCurrentLineContents
+		
+		on getLineAboveContents()
+			set cursorLine to getCursorLineNumber()
+			set previousLine to cursorLine - 1
+			if previousLine is less than 1 then return missing value
+			
+			getContentsAtLineNumber(previousLine)
+		end getLineAboveContents
 		
 		
 		on getContentsAtLineNumber(lineNumber)
