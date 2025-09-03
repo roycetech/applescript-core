@@ -15,18 +15,14 @@
 use scripting additions
 
 use textUtil : script "core/string"
+
 use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
 
-property CR : ASCII character 13
-
 if name of current application is "Script Editor" then spotCheck()
 
-on spotCheck()
-	loggerFactory's inject(me)
-	logger's start()
-	
+on spotCheck()	
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Main
@@ -123,5 +119,50 @@ on decorate(mainScript)
 				end tell
 			end using terms from
 		end writeDataToTempDocument
+
+		on getCurrentLineContents()
+			getContentsAtLineNumber(getCursorLineNumber())
+		end getCurrentLineContents
+		
+		on getLineContentsAboveCursor()
+			set cursorLine to getCursorLineNumber()
+			set previousLine to cursorLine - 1
+			if previousLine is less than 1 then return missing value
+			
+			getContentsAtLineNumber(previousLine)
+		end getLineContentsAboveCursor
+		
+		
+		on getContentsAtLineNumber(lineNumber)
+			if lineNumber is less than 1 or lineNumber is greater than getTotalLines() then return missing value
+			
+			set cursorStartIndex to getCursorStartIndex()
+			tell application "Script Editor"
+				tell front document
+					set docText to contents -- Get the full document text at once
+					paragraph lineNumber of docText -- Split into lines					
+				end tell
+			end tell
+		end getContentsAtLineNumber
+		
+		on hasSelection()
+			tell application "Script Editor"
+				tell document 1
+					contents of selection is not ""
+				end tell
+			end tell
+		end hasSelection
+		
+		
+		on getTotalLines()
+			tell application "Script Editor"
+				tell document 1
+					set totalLines to count paragraphs of contents
+					if contents ends with (ASCII character 13) then set totalLines to totalLines + 1
+				end tell
+			end tell
+			
+			totalLines
+		end getTotalLines
 	end script
 end decorate

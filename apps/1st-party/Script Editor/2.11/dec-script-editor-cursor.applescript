@@ -26,6 +26,7 @@ use loggerFactory : script "core/logger-factory"
 use kbLib : script "core/keyboard"
 
 property logger : missing value
+
 property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -41,6 +42,11 @@ on spotCheck()
 		Manual: Line number at index
 		Manual: Move cursor to the beginning of line (not space)
 		Manual: Move cursor to the EOF
+		Manual: Move cursor to marker
+
+		Manual: Move cursor lines below
+		Manual: Move cursor lines above
+		Manual: Move cursor to line
 	")
 	
 	set spotClass to spotScript's new()
@@ -63,7 +69,7 @@ on spotCheck()
 	logger's infof("Is cursor on final line?: {}", sut's isCursorOnFinalLine())
 	logger's infof("Has selection? {}", sut's hasSelection())
 	logger's infof("Current line contents: [{}]", sut's getCurrentLineContents())
-	logger's infof("Current line above contents: [{}]", sut's getLineAboveContents())
+	logger's infof("Current line above contents: [{}]", sut's getLineContentsAboveCursor())
 	
 	if caseIndex is 1 then
 		
@@ -79,6 +85,35 @@ on spotCheck()
 		
 	else if caseIndex is 4 then
 		sut's moveCursorToEndOfFile()
+		
+	else if caseIndex is 5 then
+		set sutMarkerText to "use loggerFactory"
+		logger's debugf("sutMarkerText: {}", sutMarkerText)
+		
+		sut's moveCursorToFirstMarker(sutMarkerText)
+		
+	else if caseIndex is 6 then
+		set sutLinesBelowTimes to 2
+		logger's debugf("sutLinesBelowTimes: {}", sutLinesBelowTimes)
+		
+		sut's moveCursorDownwards(sutLinesBelowTimes)
+		-- sut's moveCursorLineTextStart() -- slow
+		
+	else if caseIndex is 7 then
+		set sutLinesAboveTimes to 3
+		logger's debugf("sutLinesAboveTimes: {}", sutLinesAboveTimes)
+		
+		sut's moveCursorUpwards(sutLinesAboveTimes)
+		-- sut's moveCursorLineTextStart() -- slow
+		
+	else if caseIndex is 8 then
+		set sutLine to -1
+		set sutLine to 1
+		set sutLine to 2
+		set sutLine to 10
+		logger's debugf("sutLine: {}", sutLine)
+		
+		sut's moveCursorToLine(sutLine)
 		
 	else
 		
@@ -98,6 +133,98 @@ on decorate(mainScript)
 		property parent : mainScript
 		property rememberedCursorPositionStart : missing value
 		
+		(*
+			Chat GPT.
+		*)
+		on moveCursorToLine(lineNumber)
+			if lineNumber is less than 1 then return
+			
+			tell application "Script Editor" to tell document 1
+				set textLines to paragraphs of contents				
+				if lineNumber is greater than (count of textLines) then return
+				
+				set charCount to 0
+				repeat with i from 1 to (lineNumber - 1)
+					set charCount to charCount + (length of (item i of textLines)) + 1 -- +1 for line break
+				end repeat
+				
+				set selection to insertion point (charCount + 1)
+			end tell
+		end moveCursorToLine
+		
+		
+		on moveCursorToFirstMarker(markerText)
+			if running of application "Script Editor" is false then return
+			
+			tell application "Script Editor" to tell document 1
+				set markerOffset to textUtil's indexOf(contents, markerText)
+				set selection to insertion point markerOffset
+			end tell
+			
+		end moveCursorToFirstMarker
+		
+		
+		on moveCursorDownwards(linesBelow)
+			if running of application "Script Editor" is false then return
+			if linesBelow is less than 1 then return
+			
+			tell application "Script Editor" to tell document 1
+				set editorContents to contents
+			end tell
+			
+			set totalContentsSize to the number of characters in editorContents
+			set cursorIndex to getCursorStartIndex()
+			repeat linesBelow times
+				set cursorIndex to cursorIndex + 1
+				try
+					repeat until character cursorIndex of editorContents is equal to CR
+						set cursorIndex to cursorIndex + 1
+					end repeat
+				end try
+			end repeat
+			tell application "Script Editor" to tell document 1
+				if cursorIndex is greater than or equal to the totalContentsSize then
+					set selection to insertion point (totalContentsSize + 1)
+				else
+					set selection to insertion point (cursorIndex + 1)
+				end if
+			end tell
+		end moveCursorDownwards
+		
+		
+		on moveCursorUpwards(linesAbove)
+			if running of application "Script Editor" is false then return
+			if linesAbove is less than 1 then return
+			
+			tell application "Script Editor" to tell document 1
+				set editorContents to contents
+			end tell
+			
+			set totalContentsSize to the number of characters in editorContents
+			set cursorIndex to getCursorStartIndex()
+			logger's debugf("cursorIndex: {}", cursorIndex)
+			
+			repeat linesAbove times
+				try
+					repeat until (character cursorIndex of editorContents) is equal to return or (character cursorIndex of editorContents) is equal to linefeed or cursorIndex is 0
+						set cursorIndex to cursorIndex - 1
+					end repeat
+				end try
+				if cursorIndex is less than 1 then exit repeat
+				
+				set cursorIndex to cursorIndex - 1
+			end repeat
+			
+			tell application "Script Editor" to tell document 1
+				if cursorIndex is less than 0 then
+					set selection to insertion point 0
+				else
+					set selection to insertion point (cursorIndex + 1)
+				end if
+			end tell
+		end moveCursorUpwards
+		
+		
 		on rememberCursorPosition()
 			set my rememberedCursorPositionStart to getCursorStartIndex()
 		end rememberCursorPosition
@@ -113,37 +240,45 @@ on decorate(mainScript)
 		
 		
 		on moveCursorToEndOfFile()
-			tell application "Script Editor"
-				tell document 1
-					set selection to insertion point -1
-					
-					if contents of selection is "" then
-						set contents of selection to ""
-					end if
-				end tell
+			if running of application "Script Editor" is false then return
+			tell application "Script Editor" to tell document 1
+				set selection to insertion point -1
+				
+				if contents of selection is "" then
+					set contents of selection to ""
+				end if
 			end tell
 		end moveCursorToEndOfFile
 		
+		
 		on moveCursorLineTextStart()
+			if running of application "Script Editor" is false then return
+			
 			(* Programmatically, newer code than keystrokes. *)
-			tell application "Script Editor"
-				tell document 1
-					character range of selection
-					item 1 of result
-					set cursorStart to result as text
-					set charactersCounter to 0
-					repeat with nextParagraph in paragraphs of contents
-						set nextParagraphLen to the (count of characters in nextParagraph)
-						if charactersCounter + nextParagraphLen is greater than cursorStart then
-							set cleanedParagraph to textUtil's ltrim(nextParagraph as text)
-							set cleanedLength to the number of characters in cleanedParagraph
-							set indentSize to nextParagraphLen - cleanedLength
-							set selection to insertion point (charactersCounter + indentSize + 1)
-							exit repeat
-						end if
-						set charactersCounter to charactersCounter + nextParagraphLen
-					end repeat
-				end tell
+			tell application "Script Editor" to tell document 1
+				set editorContents to contents as text
+				character range of selection
+				item 1 of result
+				set cursorStart to result as text
+				set charactersCounter to 0
+				
+				set contentParagraphs to paragraphs of editorContents
+				set idx to 0
+				repeat (number of items in contentParagraphs) times
+					set idx to idx + 1
+					set nextParagraph to item idx of contentParagraphs
+					-- set cachedContents to contents
+					-- repeat with nextParagraph in paragraphs of cachedContents -- breaks.
+					set nextParagraphLen to the (count of characters in nextParagraph)
+					if charactersCounter + nextParagraphLen is greater than cursorStart then
+						set cleanedParagraph to textUtil's ltrim(nextParagraph as text)
+						set cleanedLength to the number of characters in cleanedParagraph
+						set indentSize to nextParagraphLen - cleanedLength
+						set selection to insertion point (charactersCounter + indentSize + 1)
+						exit repeat
+					end if
+					set charactersCounter to charactersCounter + nextParagraphLen
+				end repeat
 			end tell
 			return
 			
@@ -158,36 +293,7 @@ on decorate(mainScript)
 			repeat the number of characters in spaces times
 				kb's pressKey("right")
 			end repeat
-			
-			
-			
 		end moveCursorLineTextStart
-		
-		
-		on getCurrentLineContents()
-			getContentsAtLineNumber(getCursorLineNumber())
-		end getCurrentLineContents
-		
-		on getLineAboveContents()
-			set cursorLine to getCursorLineNumber()
-			set previousLine to cursorLine - 1
-			if previousLine is less than 1 then return missing value
-			
-			getContentsAtLineNumber(previousLine)
-		end getLineAboveContents
-		
-		
-		on getContentsAtLineNumber(lineNumber)
-			if lineNumber is less than 1 or lineNumber is greater than getTotalLines() then return missing value
-			
-			set cursorStartIndex to getCursorStartIndex()
-			tell application "Script Editor"
-				tell front document
-					set docText to contents -- Get the full document text at once
-					paragraph lineNumber of docText -- Split into lines					
-				end tell
-			end tell
-		end getContentsAtLineNumber
 		
 		
 		on getCursorStartIndex()
@@ -209,27 +315,6 @@ on decorate(mainScript)
 				end tell
 			end tell
 		end getCursorEndIndex
-		
-		
-		on hasSelection()
-			tell application "Script Editor"
-				tell document 1
-					contents of selection is not ""
-				end tell
-			end tell
-		end hasSelection
-		
-		
-		on getTotalLines()
-			tell application "Script Editor"
-				tell document 1
-					set totalLines to count paragraphs of contents
-					if contents ends with (ASCII character 13) then set totalLines to totalLines + 1
-				end tell
-			end tell
-			
-			totalLines
-		end getTotalLines
 		
 		
 		on getCursorLineNumber()
