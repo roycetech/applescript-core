@@ -32,19 +32,16 @@ property NSEvent : a reference to current application's NSEvent
 use std : script "core/std"
 
 use loggerFactory : script "core/logger-factory"
+
 use emoji : script "core/emoji"
 use decoratorLib : script "core/decorator"
 
 property logger : missing value
-property LF : ASCII character 10
-property CR : ASCII character 13
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)
-
-	set caseId to "keyboard-spotCheck"
 	logger's start()
 
 	-- All spot check cases are manual.
@@ -60,7 +57,7 @@ on spotCheck()
 
 	set spotScript to script "core/spot-test"
 	set spotLib to spotScript's new()
-	set spot to spotLib's new(caseId, cases)
+	set spot to spotLib's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 
 	set sut to new()
@@ -504,8 +501,8 @@ on _charToKeycode(key)
 	if key is "`" then return 50
 
 	if key is tab or key is "tab" then return 48
-	if (ASCII number key) is 10 or key is "enter" then return 76
-	if (ASCII number key) is 13 or key is "return" then return 36
+	if key is linefeed or key is "enter" then return 76
+	if key is return or key is "return" then return 36
 
 	if key is "esc" then return 53
 	if key is "escape" then return 53

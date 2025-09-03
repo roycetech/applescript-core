@@ -9,6 +9,7 @@
 		./scripts/build-lib.sh core/list
 
 	@Change Logs:
+		Thu, Sep 04, 2025 at 06:31:48 AM - Removed CR and LF properties.
 		Sat, Mar 29, 2025 at 09:01:37 PM - Added #splitByParagraph which uses a natural way to split lines.
 *)
 
@@ -20,9 +21,6 @@ use textUtil : script "core/string"
 use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
-
-property LF : ASCII character 10
-property CR : ASCII character 13
 
 property ERROR_LIST_COUNT_INVALID : 1000
 property ERROR_OUT_OF_BOUNDS : 1001
@@ -79,7 +77,7 @@ on spotCheck()
 		")
 
 	else if caseIndex is 3 then
-		log (count of splitByLine("
+		log "Size: " & (count of splitByLine("
 		1a
 		2x
 
@@ -173,10 +171,10 @@ on splitByLine(theString)
 
 	-- return splitByParagraph(theString)
 
-	if theString contains LF and (theString contains CR) then
-		set theString to textUtil's replace(theString, CR, LF)
+	if theString contains linefeed and (theString contains return) then
+		set theString to textUtil's replace(theString, return, linefeed)
 	end if
-	if theString contains CR then return _split(theString, CR) -- assuming this is shell command result, we have to split by CR.
+	if theString contains return then return _split(theString, return) -- assuming this is shell command result, we have to split by CR.
 
 	-- Only printable ASCII characters below 127 works. tab character don't work.
 	set SEP to "@" -- #%= are probably worth considering.
@@ -405,7 +403,7 @@ end newWithElements
 on split(theString, theDelimiter)
 	_split(theString, theDelimiter)
 
-(*
+	(*
 	if theString contains "$" and theString contains "'" then error "Sorry, but you can't have a dollar sign and a single quote in your string"
 
 	set theQuote to "\""
