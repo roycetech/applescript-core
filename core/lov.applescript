@@ -13,12 +13,12 @@
 	@Build:
 		./scripts/build-lib.sh core/lov
 
-	@Last Modified: 2025-07-25 06:26:13
+	@Last Modified: 2025-09-08 07:30:13
 *)
 
 use scripting additions
 
-use listUtil : script "core/list"
+use listUtil : script "core/list"  -- keep here.
 
 use loggerFactory : script "core/logger-factory"
 
@@ -154,7 +154,6 @@ on new(lovName)
 		on isBinary()
 			(count of my _lov) is 2
 		end isBinary
-
 
 		(* Used by unit test. *)
 		on _setLovPlist(plistName, lovName)

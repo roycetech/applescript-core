@@ -29,10 +29,12 @@ use scripting additions
 use regex : script "core/regex"
 
 use loggerFactory : script "core/logger-factory"
+
 use plutilLib : script "core/plutil"
 use notificationCenterHelperLib : script "core/notification-center-helper"
 
 property logger : missing value
+
 property plutil : missing value
 property notificationCenterHelper : missing value
 
@@ -52,11 +54,12 @@ on spotCheck()
 	logger's start()
 
 	(* TODO: Re-organize spot check cases after case 2. *)
-set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Stacked Notice Details - toString()
 		Manual: Perform Action
+		Manual: Dismiss By Title (Background Items Added)
+		Manual: Dismiss By Title and Body Keyword (Background Items Added)
 
 		Manual: For Each - Notification Helper
 		Manual: Notifications By App (Try diff apps)
@@ -68,6 +71,7 @@ set spotScript to script "core/spot-test"
 		Manual: Expand Notification
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -82,7 +86,13 @@ set spotScript to script "core/spot-test"
 		set hasNotice to exists window "Notification Center"
 
 		-- if hasNotice then set notice to sut's new(group 1 of UI element 1 of scroll area 1 of group 1 of window "Notification Center")  -- Sonoma
-		if hasNotice then set notice to sut's new(group 1 of group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center")
+		if hasNotice then
+			try
+				set notice to sut's new(group 1 of group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center")
+			on error -- Different UI structure when there's only one notification
+				set notice to sut's new(group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center")
+			end try
+		end if
 	end tell
 
 	if hasNotice then
@@ -116,6 +126,22 @@ set spotScript to script "core/spot-test"
 		logger's infof("Perform action result: {}", notice's performAction("See Unicorn"))
 		logger's infof("Perform action result: {}", notice's performAction("Mark as Read")) -- SMS
 
+	else if caseIndex is 3 then
+		set sutTitle to "unicorn"
+		set sutTitle to "Background Items Added"
+		logger's debugf("sutTitle: {}", sutTitle)
+
+		sut's dismissByTitle(missing value, sutTitle)
+
+	else if caseIndex is 4 then
+		set sutTitle to "unicorn"
+		set sutTitle to "Background Items Added"
+		logger's debugf("sutTitle: {}", sutTitle)
+
+		set sutBodyKeyword to "GoogleUpdater.app"
+		logger's debugf("sutBodyKeyword: {}", sutBodyKeyword)
+
+		sut's dismissByTitleAndBodyKeyword(sutTitle, sutBodyKeyword)
 
 	else if caseIndex is 3 then
 		script PrintTitle
@@ -185,6 +211,7 @@ on spotPrintNotices(notices, label)
 	if notices is missing value or the (count of notices) is 0 then
 		logger's infof("There are no notifications for {}", label)
 	else
+		log "else 1"
 		repeat with nextNotice in notices
 			logger's infof("Title: {}", nextNotice's title)
 		end repeat
@@ -255,7 +282,15 @@ on new()
 			tell application "System Events" to tell process "Notification Center"
 				set hasNotice to exists window "Notification Center"
 				-- if hasNotice then return groups of UI element 1 of scroll area 1 of group 1 of window "Notification Center"  -- Sonoma
-				if hasNotice then return groups of group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center"
+				if hasNotice then
+					set notificationsUi to groups of group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center"
+					if the number of items in notificationsUi is not 0 then
+						log 1
+						return notificationsUi
+					end if
+
+					return groups of scroll area 1 of group 1 of group 1 of window "Notification Center"
+				end if
 			end tell
 			{}
 		end getNotificationsUI
@@ -265,9 +300,9 @@ on new()
 		(* *)
 		on dismissPastNotifications(minuteThreshold as integer)
 			script DismissPastScript
-				to next(notice)
+				on next(notice)
 					if notice's olderThanMinutes(minuteThreshold) then
-						logger's debugf("Dismissing: {}", title of notice)
+						-- logger's debugf("Dismissing: {}", title of notice)
 						notice's dismiss()
 					end if
 				end next
@@ -283,10 +318,10 @@ on new()
 			_expandNotifications()
 
 			script DismissBySubTitleScript
-				to next(notice as script)
+				on next(notice as script)
 					if notice's appName is not equal to appName or notice's title is not equal to theTitle and notices's body is not equal to the subtitle then return
 
-					logger's debugf("Dismissed: {} - {}: {}", {appName, theTitle, subtitle})
+					-- logger's debugf("Dismissed: {} - {}: {}", {appName, theTitle, subtitle})
 					notice's dismiss()
 				end next
 			end script
@@ -298,15 +333,34 @@ on new()
 			_expandNotifications()
 
 			script DismissByTitleScript
-				to next(notice as script)
-					if notice's appName is not equal to appName or notice's title is not equal to theTitle then return
+				on next(notice as script)
+					set appNameWanted to appName is not missing value
+					set appNameMatched to appNameWanted and notice's appName is equal to appName
+					if (appNameWanted and not appNameMatched) or notice's title is not equal to theTitle then return
 
-					logger's debugf("Dismissed: {} - {}", {appName, theTitle})
+					-- logger's debugf("Dismissed: {} - {}", {appName, theTitle})
 					notice's dismiss()
+					-- delay 0.2 -- To mitigate fail trying to close 4 notifications.
 				end next
 			end script
 			notificationCenterHelper's _reverseLoop(result)
 		end dismissByTitle
+
+
+		on dismissByTitleAndBodyKeyword(theTitle, bodyKeyword)
+			_expandNotifications()
+
+			script DismissByTitleAndBodyKeywordScript
+				on next(notice as script)
+					if notice's title is not equal to theTitle or notice's body does not contain bodyKeyword then return
+
+					-- logger's debugf("Dismissed: {} - {}", {theTitle, bodyKeyword})
+					notice's dismiss()
+					delay 0.2 -- To mitigate fail trying to close 4 notifications.
+				end next
+			end script
+			notificationCenterHelper's _reverseLoop(result)
+		end dismissByTitleAndBodyKeyword
 
 
 		(* *)
@@ -337,8 +391,9 @@ on new()
 			@returns list of notification records.
 		*)
 		on getNotificationsByAppName(appName)
-			expandNotificationsByAppName(appName)
+			-- logger's debugf("#getNotificationsByAppName({})", appName)
 
+			expandNotificationsByAppName(appName)
 			set appNotifications to {}
 			script AppNotificationsScript
 				on next(notice)
@@ -477,7 +532,12 @@ Is Stacked: {}
 
 			set appNameMap to plutil's new("notification-app-id-name")
 			tell application "System Events" to tell application process "Notification Center"
-				set appId to get value of attribute "AXStackingIdentifier" of theNotification
+				try
+					set appId to get value of attribute "AXStackingIdentifier" of theNotification
+				on error the errorMessage number the errorNumber
+					set appId to errorMessage
+					logger's warn(errorMessage)
+				end try
 			end tell
 
 			-- logger's debugf("appId: {}", appId)

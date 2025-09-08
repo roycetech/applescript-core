@@ -20,12 +20,11 @@
 
 use scripting additions
 
-use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 
-property SCRIPT_NOTIFICATION_CENTER : "core/notification-center"
 property logger : missing value
 
+property SCRIPT_NOTIFICATION_CENTER : "core/notification-center"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -33,12 +32,13 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
-	set spotScript to script "core/spot-test"
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP
 		Notice Meetings
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -149,7 +149,14 @@ on new()
 				try
 					-- set noticeGroups to groups of UI element 1 of scroll area 1 of group 1 of window "Notification Center"  -- Sonoma
 					set noticeGroups to groups of group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center"
+				on error the errorMessage number the errorNumber
+					logger's warn(errorMessage)
+
 				end try
+
+				if the number of items in noticeGroups is 0 then
+					set noticeGroups to {group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center"}
+				end if
 			end tell
 
 			set sortedGroup to _simpleSort(noticeGroups)
@@ -163,17 +170,34 @@ on new()
 			tell application "System Events" to tell process "Notification Center"
 				if not (window "Notification Center" exists) then return
 
-				try
-					-- set noticeGroups to groups of UI element 1 of scroll area 1 of group 1 of window "Notification Center"  -- Sonoma
-					set noticeGroups to groups of group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center"
-				end try
+				-- set noticeGroups to groups of UI element 1 of scroll area 1 of group 1 of window "Notification Center"  -- Sonoma
+				set noticeGroups to groups of group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center"
+
+				if the number of items in noticeGroups is 0 then
+					set noticeGroups to {group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center"}
+				end if
 			end tell
 
 			set sortedGroup to _simpleSort(noticeGroups)
 			repeat with i from (count noticeGroups) to 1 by -1
+				-- log "i: " & i
 				try
-					set nextNoticeGroup to item i of noticeGroups
+					if i is 1 then
+						tell application "System Events" to tell process "Notification Center"
+							set isMultiple to exists (group 1 of group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center")
+							-- logger's debugf("isMultiple: {}", isMultiple)
+
+							if isMultiple then
+								set nextNoticeGroup to item 1 of noticeGroups
+							else
+								set nextNoticeGroup to group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center"
+							end if
+						end tell
+					else
+						set nextNoticeGroup to item i of noticeGroups
+					end if
 				on error the errorMessage number the errorNumber -- Likely when a notification is closed midway.
+					logger's warn(errorMessage)
 					exit repeat
 				end try
 

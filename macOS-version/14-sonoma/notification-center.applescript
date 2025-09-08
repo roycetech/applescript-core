@@ -27,6 +27,7 @@ use scripting additions
 use regex : script "core/regex"
 
 use loggerFactory : script "core/logger-factory"
+
 use plutilLib : script "core/plutil"
 use notificationCenterHelperLib : script "core/notification-center-helper"
 
