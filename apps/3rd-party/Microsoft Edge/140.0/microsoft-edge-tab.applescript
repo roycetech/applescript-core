@@ -5,7 +5,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh 'apps/3rd-party/Microsoft Edge/120.0/microsoft-edge-tab'
+		./scripts/build-lib.sh 'apps/3rd-party/Microsoft Edge/140.0/microsoft-edge-tab'
 
 	@Created: December 31, 2023 4:22 PM
 	@Last Modified: 2023-12-27 10:41:51
@@ -31,10 +31,17 @@ on spotCheck()
 	
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
+		NOOP
 		Manual: Open Google Translate
 		Manual: Closed Tab
 		Manual: Move tab to index
 		Manual: Run a Script
+		
+		Manual: Reload
+		Manual: Goto
+		Dummy
+		Dummy
+		Dummy
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -58,11 +65,13 @@ on spotCheck()
 	logger's infof("Name: {}", sut's getWindowName())
 	logger's infof("Window ID: {}", sut's getWindowID())
 	logger's infof("Has alert: {}", sut's hasAlert())
+	logger's infof("Is loading: {}", sut's isDocumentLoading())
+	log "Source: " & sut's getSource() -- Comment out to reduce clutter.
 	
-	if caseIndex is 1 then
+	if caseIndex is 2 then
 		sut's newTab("https://www.google.com/search?q=translate+german+to+english")
 		
-	else if caseIndex is 2 then
+	else if caseIndex is 3 then
 		(* Prepare a test tab, then close it.*)
 		logger's info("Close the test tab.")
 		delay 8
@@ -72,11 +81,17 @@ on spotCheck()
 		logger's infof("Name: {}", sut's getWindowName())
 		logger's infof("Window ID: {}", sut's getWindowID())
 		
-	else if caseIndex is 3 then
+	else if caseIndex is 4 then
 		sut's moveTabToIndex(5)
 		
-	else if caseIndex is 4 then
+	else if caseIndex is 5 then
 		sut's runScript("alert('Hello')")
+		
+	else if caseIndex is 6 then
+		sut's reload()
+		
+	else if caseIndex is 7 then
+		sut's goto("https://www.apple.com")
 		
 	end if
 	
@@ -202,9 +217,9 @@ on new(windowId, pTabIndex)
 		on reload()
 			focus()
 			tell application "Microsoft Edge"
-				set currentUrl to URL of my getDocument()
-				set URL of my getDocument() to currentUrl
+				reload _tab
 			end tell
+			
 			delay 0.01
 		end reload
 		
@@ -226,9 +241,8 @@ on new(windowId, pTabIndex)
 		on isDocumentLoading()
 			tell application "Microsoft Edge"
 				if my getWindowName() is equal to "Failed to open page" then return false
-				if source of my getDocument() is not "" then return true
+				return loading of active tab of front window
 			end tell
-			false
 		end isDocumentLoading
 		
 		
@@ -239,15 +253,14 @@ on new(windowId, pTabIndex)
 			exec of retry on result for maxTryTimes by sleepSec
 		end waitInSource
 		
+		
 		on getSource()
 			tell application "Microsoft Edge"
-				try
-					return (source of my getDocument()) as text
-				end try
+				set tabObj to my _tab
+				set pageHTML to execute tabObj javascript "document.documentElement.outerHTML"
 			end tell
-			
-			missing value
 		end getSource
+		
 		
 		on getURL()
 			tell application "Microsoft Edge"
@@ -274,9 +287,7 @@ on new(windowId, pTabIndex)
 		
 		on goto(targetUrl)
 			script PageWaiter
-				
-				-- tell application "Microsoft Edge" to set URL of document (name of my appWindow) to targetUrl
-				tell application "Microsoft Edge" to set URL of my getDocument() to targetUrl
+				tell application "Microsoft Edge" to set URL of my _tab to targetUrl
 				true
 			end script
 			exec of retry on result for 2
