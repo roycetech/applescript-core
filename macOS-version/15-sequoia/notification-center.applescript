@@ -225,6 +225,13 @@ on new()
 	set notificationCenterHelper to notificationCenterHelperLib's new()
 
 	script NotificationCenterInstance
+			on hasNotification()
+			tell application "System Events" to tell process "Notification Center"
+				exists window "Notification Center"
+			end tell
+		end hasNotification
+
+
 		on expandNotification()
 			tell application "System Events" to tell process "Notification Center"
 				if (count of windows) is 0 then return
@@ -409,7 +416,7 @@ on new()
 		(* @returns list of app names with active notification windows. *)
 		on getAppNames()
 			set retval to {}
-			activate application "NotificationCenter"
+			-- activate application "NotificationCenter"
 
 			script AppNameScript
 				on next(notice)
@@ -600,7 +607,7 @@ Is Stacked: {}
 				set appName to missing value
 			end try
 
-			activate application "NotificationCenter"
+			-- activate application "NotificationCenter"
 			script ExpandNoticeScript
 				on next(notice)
 					if not notice's isStacked() then return

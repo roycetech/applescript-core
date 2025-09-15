@@ -6,11 +6,6 @@
 		use safariLib : script "core/safari"
 		property safari : safariLib's new()
 
-	@Plists
-		config-system
-			app-core Web Max Retry Count
-			app-core Web Retry Sleep
-
 	@Project:
 		applescript-core
 
@@ -37,7 +32,6 @@ on spotCheck()
 	logger's start()
 
 	(* Tests are based on current apple.com website, very likely to change in the future. *)
-	set safariLib to script "core/safari"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Example.com
@@ -58,6 +52,7 @@ on spotCheck()
 		return
 	end if
 
+	set safariLib to script "core/safari"
 	set safari to safariLib's new()
 	-- set safariTab to safari's newTab("https://www.apple.com")
 	safari's getFrontTab()

@@ -20,16 +20,17 @@
 use scripting additions
 
 use unic : script "core/unicodes"
-use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
 
+use textUtil : script "core/string"
 use retryLib : script "core/retry"
 use safariJavaScript : script "core/safari-javascript"
 use javascript : script "core/javascript"
 use decoratorLib : script "core/decorator"
 
 property logger : missing value
+
 property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -536,7 +537,7 @@ on new(windowId, pTabIndex)
 			waitForPageLoad()
 		end waitForPageToLoad
 
-		on waitForPageLoad()
+		on 	waitForPageLoad()
 			delay 0.5
 			script SourceWaiter
 				tell application "Safari"
