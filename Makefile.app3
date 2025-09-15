@@ -65,10 +65,11 @@ build-guitar-pro:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Guitar Pro/7.6/guitar-pro
 
 
-build-ms-edge:
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge-javascript
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge-tab
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/120.0/microsoft-edge
+build-microsoft-edge:
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/140.0/microsoft-edge-javascript
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/140.0/microsoft-edge-tab
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/140.0/dec-microsoft-edge-tab-finder
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Microsoft Edge/140.0/microsoft-edge
 
 build-opera:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Opera/110.0/dec-opera-tab-finder

@@ -77,6 +77,7 @@ build-preview:
 
 
 build-safari: build-dock
+	$(SUDO) ./scripts/build-lib.sh core/javascript
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari-tab
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder

@@ -26,15 +26,12 @@ use scripting additions
 
 use script "core/Text Utilities"
 use std : script "core/std"
-use listUtil : script "core/list"
 
 use configLib : script "core/config"
 use retryLib : script "core/retry"
-use msedgeLib : script "core/microsoft-edge"
+-- use msedgeLib : script "core/microsoft-edge"
 
 use loggerFactory : script "core/logger-factory"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -49,6 +46,7 @@ on spotCheck()
 	logger's start()
 	
 	(* Tests are based on current apple.com website, very likely to change in the future. *)
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: AWS Login, IAM Radio Option
 		Manual: Link Text Visible
@@ -57,6 +55,7 @@ on spotCheck()
 		Retrieve Value
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -208,7 +207,7 @@ on decorate(msedgeTab)
 			end script
 			exec of retry on result for 3
 		end setCheckedByName
-		
+		 
 		on click(selector)
 			runScriptPlain(format {"document.querySelector('{}').click();", selector})
 		end click
