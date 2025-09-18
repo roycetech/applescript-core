@@ -1,8 +1,6 @@
 (*
 	@Purpose:
 
-	
-
 	@Project:
 		applescript-core
 
@@ -38,10 +36,12 @@ on spotCheck()
 		Manual: New Tab
 		Manual: Open the Developer tools
 		Manual: JavaScript
+		
 		Placeholder - keep chat cases together
-			
 		Activate Chat
 		Deactivate Chat
+		Dummy
+		Dummy
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -63,7 +63,7 @@ on spotCheck()
 		
 	else if caseIndex is 3 then
 		set sutTab to sut's newTab("https://www.example.com")
-		sutTab's waitForPageLoad() -- Integration with microsoft-edge-tab.applescript		
+		-- sutTab's waitForPageLoad() -- Integration with microsoft-edge-tab.applescript		
 		
 	else if caseIndex is 4 then
 		sut's openDeveloperTools()
@@ -117,7 +117,8 @@ on new()
 				tell front window
 					set newTab to make new tab at end of tabs
 					set URL of newTab to targetUrl
-					microsoftEdgeTabLib's new(newTab's id, active tab index)
+					-- return microsoftEdgeTabLib's new(newTab's id, active tab index)
+					return microsoftEdgeTabLib's new(its id, active tab index)
 				end tell
 			end tell
 		end newTab
