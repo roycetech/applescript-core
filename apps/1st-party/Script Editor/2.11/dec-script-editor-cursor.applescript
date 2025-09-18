@@ -67,6 +67,8 @@ on spotCheck()
 	logger's infof("Cursor end index: {}", sut's getCursorEndIndex())
 	logger's infof("Total lines: {}", sut's getTotalLines())
 	logger's infof("Is cursor on final line?: {}", sut's isCursorOnFinalLine())
+	logger's infof("Is cursor at the start of a line: {}", sut's isCursorAtStartOfLine())
+	logger's infof("Is cursor at the end of a line: {}", sut's isCursorAtEndOfLine())
 	logger's infof("Has selection? {}", sut's hasSelection())
 	logger's infof("Current line contents: [{}]", sut's getCurrentLineContents())
 	logger's infof("Current line above contents: [{}]", sut's getLineContentsAboveCursor())
@@ -140,7 +142,7 @@ on decorate(mainScript)
 			if lineNumber is less than 1 then return
 			
 			tell application "Script Editor" to tell document 1
-				set textLines to paragraphs of contents				
+				set textLines to paragraphs of contents
 				if lineNumber is greater than (count of textLines) then return
 				
 				set charCount to 0
@@ -344,6 +346,28 @@ on decorate(mainScript)
 		on isCursorOnFinalLine()
 			getCursorLineNumber() is equal to getTotalLines()
 		end isCursorOnFinalLine
+		
+		
+		on isCursorAtStartOfLine()
+			set cursorStartIndex to getCursorStartIndex()
+			if cursorStartIndex is 0 then return true
+			
+			tell application "Script Editor"
+				set previousCharacter to character cursorStartIndex of contents of front document
+			end tell
+			previousCharacter is linefeed or previousCharacter is return
+		end isCursorAtStartOfLine
+		
+		
+		on isCursorAtEndOfLine()
+			set cursorStartIndex to getCursorStartIndex()
+			tell application "Script Editor" to if cursorStartIndex is equal to the number of characters in contents of front document  then return true
+			
+			tell application "Script Editor"
+				set previousCharacter to character (cursorStartIndex + 1) of contents of front document
+			end tell
+			previousCharacter is linefeed or previousCharacter is return
+		end isCursorAtEndOfLine
 		
 	end script
 end decorate
