@@ -13,11 +13,14 @@
 		applescript-core
 
 	@Build:
-		make build-lib SOURCE=core/process
+		./scripts/build-lib.sh core/process
 
 
 	@Limitations:
 		Doesn't support Electron apps which can be referenced via its bundle identifier com.github.Electron.
+
+	@Change Logs:
+		Sun, Sep 21, 2025, at 10:57:15 AM - Added clickMenuItem
 
 	@Created:
 		< 2024
@@ -221,9 +224,21 @@ on new(pProcessName)
 		property bundleId : localBundleId
 
 
+		on clickMenuItem(menuTitle, menuItemTitle)
+			tell application "System Events" to tell process (my processName)
+				try
+					click menu item menuItemTitle of menu 1 of menu bar item menuTitle of menu bar 1
+					return true
+				end try
+			end tell
+
+			false
+		end clickMenuItem
+
+
 		on getName()
 			processName
-		end getProcessName
+		end getName
 
 
 		on getFrontWindowTitle()
@@ -263,7 +278,7 @@ on new(pProcessName)
 				end tell
 			end script
 			exec of retry on result for 3
-		end focusWindow
+		end focusWindows
 
 
 		(*
