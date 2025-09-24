@@ -8,6 +8,7 @@
 		./scripts/build-lib.sh 'apps/3rd-party/Microsoft Edge/140.0/microsoft-edge'
 		
 	@Change Logs:
+		Fri, Sep 19, 2025, at 07:17:56 AM - Fix newTab when there are no windows.
 		Tue, Sep 09, 2025 at 10:21:03 AM - Updated
 *)
 use scripting additions
@@ -114,6 +115,9 @@ on new()
 		on newTab(targetUrl)
 			tell application "Microsoft Edge"
 				activate
+				
+				if (count of windows) is 0 then					return my newWindow(targetUrl)
+				
 				tell front window
 					set newTab to make new tab at end of tabs
 					set URL of newTab to targetUrl
