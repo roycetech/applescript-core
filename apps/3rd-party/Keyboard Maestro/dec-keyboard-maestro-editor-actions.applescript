@@ -208,7 +208,8 @@ on decorate(mainScript)
 		(*
 			Insert a new action via the menu "Edit".
 		
-			@ middleMenu - missing value defaults to "All Actions" which is slow.
+			@middleMenu - missing value defaults to "All Actions" which is slow.
+			It can be "Favorites" or the other subcategories.
 		*)
 		on insertAction(middleMenu, menuItemKeyword)
 			set actualMiddleMenu to middleMenu
