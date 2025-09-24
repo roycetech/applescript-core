@@ -1,6 +1,8 @@
 (*
 	Purpose:
-		Make it simpler to create a menu using Foundation on the main script.
+		This is used for creating menus for AppleScript apps that stay in the
+		menu bar. It makes simpler to create a menu using Foundation on the main
+		app script.
 
 	@Project:
 		applescript-core
@@ -12,7 +14,7 @@
 		Test with Menu Pinned.  Cannot test the UI functionality because menu apps need to be deployed.
 
 	@Created: Saturday, September 30, 2023 at 5:50:31 PM
-	@Last Modified: 2025-03-09 09:54:45
+	@Last Modified: 2025-09-21 10:53:56
 *)
 use scripting additions
 use framework "Foundation"
