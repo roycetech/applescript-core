@@ -15,6 +15,7 @@
 use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
+
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 
@@ -25,6 +26,7 @@ use decoratorBluetooth : script "core/control-center_bluetooth"
 use decoratorWifi : script "core/control-center_wifi"
 
 property logger : missing value
+
 property kb : missing value
 property retry : missing value
 

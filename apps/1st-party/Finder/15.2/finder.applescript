@@ -11,7 +11,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
 
-	@Last Modified: 2025-05-04 11:26:48
+	@Last Modified: 2025-09-20 08:43:26
 *)
 
 use script "core/Text Utilities"
@@ -32,7 +32,6 @@ use decFinderView : script "core/dec-finder-view"
 use decoratorLib : script "core/decorator"
 
 property logger : missing value
-property finder : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 

@@ -9,10 +9,11 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-view
 
 	@Created: Sun, May 04, 2025 at 10:40:36 AM
-	@Last Modified: 2025-05-04 14:34:13
+	@Last Modified: 2025-09-23 07:01:00
 	@Change Logs:
 *)
 use unic : script "core/unicodes"
+
 use loggerFactory : script "core/logger-factory"
 
 property logger : missing value

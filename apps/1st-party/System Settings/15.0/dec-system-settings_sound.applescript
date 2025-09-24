@@ -1,5 +1,4 @@
 (*
-
 	@Project:
 		applescript-core
 
@@ -11,10 +10,12 @@
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
+
 use retryLib : script "core/retry"
 use processLib : script "core/process"
 
 property logger : missing value
+
 property PANE_ID_SOUND : "com.apple.Sound-Settings.extension"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -113,7 +114,7 @@ on decorate(mainScript)
 			
 			tell application "System Events" to tell process "System Settings"
 				try
-					return description of first radio button of tab group 1 of group 2 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of front window whose value is 1
+					return description of first radio button of tab group 1 of group 2 of scroll area 1 of group 1 of my getRightPaneUI() whose value is 1
 				end try
 			end tell
 			missing value
@@ -124,7 +125,7 @@ on decorate(mainScript)
 			
 			tell application "System Events" to tell process "System Settings"
 				try
-					click (the first radio button of tab group 1 of group 2 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of front window whose description is tabDescription)
+					click (the first radio button of tab group 1 of group 2 of scroll area 1 of group 1 of my getRightPaneUI() whose description is tabDescription)
 				end try
 			end tell
 			
@@ -134,7 +135,7 @@ on decorate(mainScript)
 			if running of application "System Settings" is false then return
 			
 			tell application "System Events" to tell process "System Settings"
-				set selected of first row of outline 1 of scroll area 1 of group 2 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of window "Sound" whose value of first static text of group 1 of UI element 1 is inputDescription to true
+				set selected of first row of outline 1 of scroll area 1 of group 2 of scroll area 1 of group 1 of my getRightPaneUI() whose value of first static text of group 1 of UI element 1 is inputDescription to true
 			end tell
 		end switchInputByName
 		
@@ -142,7 +143,7 @@ on decorate(mainScript)
 			if running of application "System Settings" is false then return
 			
 			tell application "System Events" to tell process "System Settings"
-				set selected of first row of outline 1 of scroll area 1 of group 2 of scroll area 1 of group 1 of group 2 of splitter group 1 of group 1 of window "Sound" whose value of first static text of group 1 of UI element 2 is inputType to true
+				set selected of first row of outline 1 of scroll area 1 of group 2 of scroll area 1 of group 1 of my getRightPaneUI() whose value of first static text of group 1 of UI element 2 is inputType to true
 			end tell
 		end switchInputByType
 		
