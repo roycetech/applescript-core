@@ -15,12 +15,14 @@ use scripting additions
 
 use loggerFactory : script "core/logger-factory"
 
+use processLib : script "core/process"
 use retryLib : script "core/retry"
 use microsoftEdgeJavaScript : script "core/microsoft-edge-javascript"
 use javascript : script "core/javascript"
 use decoratorLib : script "core/decorator"
 
 property logger : missing value
+
 property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -39,7 +41,7 @@ on spotCheck()
 		
 		Manual: Reload
 		Manual: Goto
-		Dummy
+		Manual: Focus Tab By Index
 		Dummy
 		Dummy
 	")
@@ -66,7 +68,7 @@ on spotCheck()
 	logger's infof("Window ID: {}", sut's getWindowID())
 	logger's infof("Has alert: {}", sut's hasAlert())
 	logger's infof("Is loading: {}", sut's isDocumentLoading())
-	log "Source: " & sut's getSource() -- Comment out to reduce clutter.
+	-- log "Source: " & sut's getSource() -- Comment out to reduce clutter.
 	
 	if caseIndex is 2 then
 		sut's newTab("https://www.google.com/search?q=translate+german+to+english")
@@ -82,7 +84,16 @@ on spotCheck()
 		logger's infof("Window ID: {}", sut's getWindowID())
 		
 	else if caseIndex is 4 then
-		sut's moveTabToIndex(5)
+		(*
+			Cases:
+				2 Tabs (example.com, google.com), focus 1, swap.
+				2 Tabs (example.com, google.com), focus 2, swap.
+				
+		*)
+		set sutTabIndex to 1
+		logger's debugf("sutTabIndex: {}", sutTabIndex)
+		
+		sut's moveTabToIndex(sutTabIndex)
 		
 	else if caseIndex is 5 then
 		sut's runScript("alert('Hello')")
@@ -92,6 +103,14 @@ on spotCheck()
 		
 	else if caseIndex is 7 then
 		sut's goto("https://www.apple.com")
+		
+	else if caseIndex is 8 then
+		set sutTabIndex to 1
+		-- set sutTabIndex to 2
+		-- set sutTabIndex to 99
+		logger's debugf("sutTabIndex: {}", sutTabIndex)
+		
+		sut's focusTabByIndex(sutTabIndex)
 		
 	end if
 	
@@ -127,24 +146,73 @@ on new(windowId, pTabIndex)
 		property _url : missing value
 		
 		
+		on focusTabByIndex(tabIndex)
+			if tabIndex is greater than _getTabCount() then return
+			
+			tell application "Microsoft Edge"
+				if tabIndex is equal to active tab index of my appWindow then return
+				
+				set active tab index of my appWindow to tabIndex
+			end tell
+		end focusTabByIndex
+		
+		
+		(* 
+			Warzone: Tab being moved loses its state, let's try to just re-set the intended URL.
+		*)
 		on moveTabToIndex(newIndex)
 			if running of application "Microsoft Edge" is false then return
 			
 			tell application "Microsoft Edge"
 				set tabCount to (count of tabs in front window)
-				set sourceTabIndex to tabIndex -- the index of the tab you want to move
-				set targetTabIndex to newIndex -- the index where you want to move the tab
+			end tell
+			logger's debugf("tabCount: {}", tabCount)
+			
+			if tabCount is 1 then return
+			
+			set sourceTabIndex to my tabIndex -- the index of the tab you want to move
+			set targetTabIndex to newIndex -- the index where you want to move the tab
+			logger's debugf("Source idx: {}, target idx: {}", {sourceTabIndex, targetTabIndex})
+			
+			if (sourceTabIndex > tabCount) or (targetTabIndex > tabCount) then
+				display dialog "Invalid tab index."
 				
-				if (sourceTabIndex > tabCount) or (targetTabIndex > tabCount) then
-					display dialog "Invalid tab index."
-				else if targetTabIndex - sourceTabIndex is 1 then
+			else if my tabIndex is equal to newIndex then
+				logger's debug("Same index")
+				
+			else if targetTabIndex - sourceTabIndex is 1 then
+				logger's debug(1)
+				(*
+				set microsoftEdgeProcess to processLib's new("Microsoft Edge")
+				microsoftEdgeProcess's focusWindows()
+				focusTabByIndex(newIndex)
+				microsoftEdgeProcess's clickMenuItem("Tab", "Duplicate")
+				focusTabByIndex(sourceTabIndex)
+				*)
+				
+				
+				tell application "Microsoft Edge"
+					set targetUrl to URL of tab targetTabIndex of my appWindow
 					move tab targetTabIndex of front window to before tab sourceTabIndex of front window
-				else
+					-- move tab (targetTabIndex + 1) of front window to before tab sourceTabIndex of front window
+					-- move tab sourceTabIndex of front window to after tab targetTabIndex of front window
+					-- close tab sourceTabIndex of front window
+					set URL of tab sourceTabIndex of my appWindow to targetUrl
+				end tell
+				focusTabByIndex(targetTabIndex)
+			else
+				logger's debug(2)
+				tell application "Microsoft Edge"
+					set sourceUrl to URL of tab sourceTabIndex of my appWindow
 					move tab sourceTabIndex of front window to before tab targetTabIndex of front window
-				end if
-				set my tabIndex to newIndex
-				set my _tab to tab newIndex of front window
-				set active tab of front window to my _tab
+					set URL of tab targetTabIndex of my appWindow to sourceUrl
+				end tell
+			end if
+			
+			-- set my tabIndex to newIndex
+			tell application "Microsoft Edge"
+				-- set my _tab to tab newIndex of front window
+				-- set active tab of front window to my _tab
 			end tell
 		end moveTabToIndex
 		
@@ -332,6 +400,17 @@ on new(windowId, pTabIndex)
 			end tell
 			missing value
 		end getSystemEventsWindow
+		
+		
+		on _getTabCount()
+			tell application "Microsoft Edge"
+				try
+					return count of tabs of appWindow
+				end try
+				
+				0
+			end tell
+		end _getTabCount
 	end script
 	
 	tell application "Microsoft Edge"
