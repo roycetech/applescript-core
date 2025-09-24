@@ -12,10 +12,11 @@ build-apps-first-party: \
 	build-automator \
 	build-calendar \
 	build-console \
-	install-control-center \
+	build-control-center \
 	build-dock \
 	build-finder \
 	build-notification-center \
+	build-passwords \
 	build-preview \
 	install-safari \
 	build-system-settings \
@@ -51,6 +52,9 @@ install-calendar: build-calendar
 build-console:
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Console/v1.1/console"
 
+build-control-center:
+	# TODO:
+	$(SUDO) ./scripts/build-lib.sh macOS-version/16-tahoe/control-center_sound
 
 build-finder:
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-mini
@@ -59,7 +63,11 @@ build-finder:
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-folders
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-files
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-paths
+ifeq ($(OS_NAME), tahoe)
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/26.0/dec-finder-view
+else
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-view
+endif
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
 
 
@@ -70,6 +78,8 @@ build-home:
 build-mail:
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Mail/16.0/mail
 
+build-passwords:
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Passwords/2.0/passwords
 
 build-preview:
 	$(SUDO) ./scripts/build-lib.sh core/decorators/dec-preview-markup

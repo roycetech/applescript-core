@@ -1,12 +1,25 @@
 (*
+	@Changes:
+		1.4 -> 2.0
+			splitter group 1 of group 1 -> toolbar 1
+
+	@Usage:
+		activate application "Passwords"
+		passwords's waitUnlock()
+		passwords's search('key')
+		passwords's selectFirstCredential()
+		passwords's getUsername()
+		passwords's getPassword()
+
+
 	@Project:
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Passwords/1.4/passwords
+		./scripts/build-lib.sh apps/1st-party/Passwords/2.0/passwords
 
-	@Created: Tue, Apr 15, 2025 at 02:00:31 PM
-	@Last Modified: 2025-09-24 07:36:00
+	@Created: Wed, Sep 24, 2025, at 07:39:47 AM
+	@Last Modified: 2025-09-25 07:37:24
 *)
 use scripting additions
 
@@ -98,7 +111,8 @@ on new()
 
 			tell application "System Events" to tell process "Passwords"
 				try
-					if value of text field 1 of group 3 of splitter group 1 of group 1 of front window is "" then return false
+					-- if value of text field 1 of group 3 of splitter group 1 of group 1 of front window is "" then return false
+					if value of text field 1 of last group of splitter group 1 of group 1 of front window is "" then return false
 				on error the errorMessage number the errorNumber
 					-- Might have locked midway.
 					return false
@@ -138,11 +152,14 @@ on new()
 			if isLocked() then return
 
 			tell application "System Events" to tell process "Passwords"
-				set searchField to text field 1 of group 3 of splitter group 1 of group 1 of front window
+				-- set searchField to text field 1 of group 3 of splitter group 1 of group 1 of front window
+				-- set searchField to text field 1 of group 3 of toolbar 1 of front window
+				set searchField to text field 1 of last group of toolbar 1 of front window
 				set focused of searchField to true
 				set value of searchField to searchKey
 
 			end tell
+			delay 0.2
 		end search
 
 
@@ -187,7 +204,8 @@ on new()
 			tell application "System Events" to tell process "Passwords"
 				try
 					-- return get value of static text 1 of group 1 of scroll area 1 of group 4 of splitter group 1 of group 1 of front window
-					return get value of static text 4 of group 1 of scroll area 1 of group 4 of splitter group 1 of group 1 of front window
+					-- return get value of static text 4 of group 1 of scroll area 1 of group 4 of splitter group 1 of group 1 of front window
+					return get value of static text 3 of group 1 of scroll area 1 of group 3 of splitter group 1 of group 1 of front window
 				end try
 			end tell
 			missing value
@@ -216,7 +234,11 @@ on new()
 
 			tell application "System Events" to tell process "Passwords"
 				try
-					click (first button of text field 1 of group 3 of splitter group 1 of group 1 of front window whose description is "cancel")
+					-- click (first button of text field 1 of group 3 of splitter group 1 of group 1 of front window whose description is "cancel")
+					-- click (first button of text field 1 of group 3 of toolbar 1 of front window whose description is "cancel")
+					click (first button of text field 1 of last group of toolbar 1 of front window whose description is "cancel")
+				on error the errorMessage number the errorNumber
+					log errorMessage
 				end try
 			end tell
 		end clearSearch
