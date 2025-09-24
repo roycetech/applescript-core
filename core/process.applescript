@@ -34,9 +34,12 @@ use std : script "core/std"
 use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
+use dockLib : script "core/dock"
 
 property logger : missing value
+
 property retry : missing value
+property dock : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -173,7 +176,11 @@ on spotCheck()
 		logger's infof("Frontmost: {}", sut's isFrontMost())
 
 	else if caseIndex is 18 then
-		set sut to new("Sequel Ace")
+		set sutProcessName to "Sequel Ace"
+		set sutProcessName to "Passwords"
+		logger's debugf("sutProcessName: {}", sutProcessName)
+
+		set sut to new(sutProcessName)
 		sut's waitActivate()
 
 	else if caseIndex is 19 then
@@ -201,6 +208,8 @@ end spotCheck
 on new(pProcessName)
 	loggerFactory's injectBasic(me)
 	set retry to retryLib's new()
+	set dock to dockLib's new()
+
 	set localProcessName to missing value
 	set localBundleId to missing value
 
@@ -263,7 +272,10 @@ on new(pProcessName)
 					if exists (window 1) then return true
 				end tell
 			end script
-			exec of retry on result for 6 by 0.5
+			set waitWindowResult to exec of retry on result for 4 by 0.5
+			if waitWindowResult is not missing value then return
+
+			dock's clickApp(processName)
 		end waitActivate
 
 
