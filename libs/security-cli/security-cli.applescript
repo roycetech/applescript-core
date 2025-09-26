@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh libs/security-cli/security-cli
 
 	@Created: Thu, May 15, 2025 at 06:39:33 AM
-	@Last Modified: 2025-07-21 09:36:58
+	@Last Modified: 2025-09-26 11:34:00
 *)
 use scripting additions
 
@@ -30,6 +30,13 @@ on spotCheck()
 		NOOP
 		Manual: Create a secret
 		Manual: Retrieve a secret
+		Manual: First Username
+		Manual: First Secret
+
+		Dummy
+		Dummy
+		Dummy
+		Dummy
 		Manual: Delete a secret
 	")
 
@@ -66,6 +73,12 @@ on spotCheck()
 		logger's infof("Secret exposed: {}", sut's getSecret(sutServiceName, sutUsername))
 
 	else if caseIndex is 4 then
+		logger's infof("First username: {}", sut's getFirstUsername(sutServiceName))
+
+	else if caseIndex is 5 then
+		logger's infof("First secret: {}", sut's getFirstSecret(sutServiceName))
+
+	else if caseIndex is 10 then
 		logger's infof("Handler result: {}", sut's deleteSecret(sutServiceName, sutUsername))
 
 	end if
@@ -97,6 +110,26 @@ on new()
 
 			false
 		end createSecret
+
+
+		on getFirstSecret(serviceName)
+			getSecret(serviceName, getFirstUsername(serviceName))
+		end getFirstSecret
+
+
+		on getFirstUsername(serviceName)
+			set command to format {"security find-generic-password \\
+			-s '{}' \\
+			-g 2>&1 \\
+			| grep 'acct' \\
+			| awk -F= '{ print $2 }' \\
+			| tr -d '\"'", {serviceName}}
+			try
+				return do shell script command
+			end try
+
+			missing value
+		end getFirstUsername
 
 
 		on getSecret(serviceName, username)
