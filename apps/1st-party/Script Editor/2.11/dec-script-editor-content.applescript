@@ -22,7 +22,7 @@ property logger : missing value
 
 if name of current application is "Script Editor" then spotCheck()
 
-on spotCheck()	
+on spotCheck()
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Main
@@ -48,10 +48,14 @@ on spotCheck()
 	set sut to sutLib's new()
 	set sut to decorate(sut)
 	
+	logger's infof("Contents above cursor: [{}]", sut's getLineContentsAboveCursor())
+	logger's infof("Contents at cursor: [{}]", sut's getCurrentLineContents())
+	logger's infof("Contents below cursor: [{}]", sut's getLineContentsBelowCursor())
+	
 	if caseIndex is 1 then
 		
 	else if caseIndex is 2 then
-		sut's createTempDocument("Spot Check")
+		sut's createTempDocument("Spot Check") 
 		
 	else if caseIndex is 3 then
 		set sutDoc to sut's createTempDocument("Spot Check")
@@ -119,7 +123,7 @@ on decorate(mainScript)
 				end tell
 			end using terms from
 		end writeDataToTempDocument
-
+		
 		on getCurrentLineContents()
 			getContentsAtLineNumber(getCursorLineNumber())
 		end getCurrentLineContents
@@ -131,6 +135,15 @@ on decorate(mainScript)
 			
 			getContentsAtLineNumber(previousLine)
 		end getLineContentsAboveCursor
+		
+		
+		on getLineContentsBelowCursor()
+			set cursorLine to getCursorLineNumber()
+			set nextLine to cursorLine + 1
+			if nextLine is greater than getTotalLines() then return missing value
+			
+			getContentsAtLineNumber(nextLine)
+		end getLineContentsBelowCursor
 		
 		
 		on getContentsAtLineNumber(lineNumber)
