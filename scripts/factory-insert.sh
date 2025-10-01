@@ -13,23 +13,25 @@ new_decorator=$2
 
 file_path=~/applescript-core/config-lib-factory.plist
 
-list_present=$(plutil -extract "$list_key" raw $file_path)
-if [[ $list_present != *"error"* ]];
+list_present=$(plutil -extract "$list_key" raw $file_path 2>&1)
+
+if [[ $list_present != *"error"* ]] ;
 then
+	# echo "DEBUG: list_present: $list_present"
 	echo "List [$list_key] found"
 else
 	echo "Creating a new list"
 	plutil -replace  "$list_key" -xml '<array></array>' $file_path
 fi
 
-result=`awk "/>$list_key</,/<\\/array>/" $file_path | tail -n +2 | grep "$new_decorator"`
+result=$(awk "/>$list_key</,/<\\/array>/" $file_path | tail -n +2 | grep "$new_decorator")
 
 if [[ -n "$result" ]]; #
 then
 	echo "Already installed: $new_decorator";
 
 else
-	echo "Appending: $new_decorator for $list_key"
+	echo "Appending: $new_decorator into $list_key"
 	plutil -insert "$list_key" -string "$new_decorator" -append $file_path
 
 fi
