@@ -48,6 +48,13 @@ on spotCheck()
 		Manual: Move cursor lines above
 		Manual: Move cursor to line
 		Manual: Get cursor start of line
+		Manual: Insertion point at first marker
+
+		Manual: Insertion point at line
+		Manual: Line number of marker text
+		Dummy
+		Dummy
+		Dummy
 	")
 	
 	set spotClass to spotScript's new()
@@ -73,6 +80,7 @@ on spotCheck()
 	logger's infof("Has selection? {}", sut's hasSelection())
 	logger's infof("Current line contents: [{}]", sut's getCurrentLineContents())
 	logger's infof("Current line above contents: [{}]", sut's getLineContentsAboveCursor())
+	
 	
 	if caseIndex is 1 then
 		
@@ -128,6 +136,29 @@ on spotCheck()
 		
 		logger's infof("Cursor at line: [{}]", sut's getCursorStartOfLine(sutLineNumber))
 		
+	else if caseIndex is 10 then
+		set sutMarker to "Uni" & "corn"
+		set sutMarker to "(*"
+		logger's debugf("sutMarker: {}", sutMarker)
+		
+		logger's infof("Insertion point at first marker: [{}]", sut's getInsertionPointAtFirstMarker(sutMarker))
+		
+	else if caseIndex is 11 then
+		set sutLineNumber to 0
+		set sutLineNumber to 1
+		-- set sutLineNumber to 2
+		set sutLineNumber to 999
+		logger's debugf("sutLineNumber: {}", sutLineNumber)
+		
+		logger's infof("Insertion point at line {}: {}", {sutLineNumber, sut's getInsertionPointAtLine(sutLineNumber)})
+		
+	else if caseIndex is 12 then
+		set sutMarker to "Uni" & "corn"
+		set sutMarker to "@Build"
+		-- set sutMarker to "@"
+		logger's debugf("sutMarker: {}", sutMarker)
+		
+		logger's infof("Line number of '{}': {}", {sutMarker, sut's getLineNumberOfMarker(sutMarker)})
 	else
 		
 	end if
@@ -152,7 +183,7 @@ on decorate(mainScript)
 			tell application "Script Editor" to tell document 1
 				set textLines to paragraphs of contents
 			end tell
-			logger's debugf("Number of lines: {}", count of textLines)
+			-- logger's debugf("Number of lines: {}", count of textLines)
 			
 			if lineNumber is greater than the number of textLines then return missing value
 			
@@ -197,6 +228,42 @@ on decorate(mainScript)
 			end tell
 			
 		end moveCursorToFirstMarker
+		
+		
+		on getInsertionPointAtFirstMarker(markerText)
+			if running of application "Script Editor" is false then return
+			
+			tell application "Script Editor" to tell document 1
+				textUtil's indexOf(contents, markerText)
+			end tell
+		end getInsertionPointAtFirstMarker
+		
+		
+		on getLineNumberOfMarker(markerText)
+			tell application "Script Editor" to tell document 1
+				set editorContents to contents
+			end tell
+			if editorContents does not contain markerText then return 0
+			
+			set textLines to paragraphs of editorContents
+			set lineCounter to 0
+			
+			repeat with nextLine in textLines
+				set lineCounter to lineCounter + 1
+				if nextLine contains markerText then return lineCounter
+				
+			end repeat
+			
+			0
+		end getLineNumberOfMarker
+		
+		
+		on getInsertionPointAtLine(lineNumber)
+			if lineNumber is less than 1 then return missing value
+			if lineNumber is 1 then return 0
+			
+			getCursorStartOfLine(lineNumber)
+		end getInsertionPointAtLine
 		
 		
 		on moveCursorDownwards(linesBelow)
