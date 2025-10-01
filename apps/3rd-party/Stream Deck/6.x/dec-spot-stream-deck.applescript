@@ -49,7 +49,7 @@ end spotCheck
 on decorate(BaseScript)
 	set km to kmLib's new()
 
-	script SpotTestStreamDeckInstance
+	script SpotStreamDeckDecorator
 		property parent : BaseScript
 		
 		on setSessionCaseId(newCaseId)
