@@ -149,14 +149,16 @@ build-step-two:
 build-stream-deck:
 	# 6.x is the OLDEST version.
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Stream Deck/6.x/dec-spot-stream-deck
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Stream Deck/6.6/stream-deck
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Stream Deck/6.9.1/dec-stream-deck-settings
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Stream Deck/6.9.1/dec-stream-deck-button
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Stream Deck/6.9.1/stream-deck
 
 install-stream-deck: build-stream-deck
-	plutil \
-		-replace 'SpotTestInstance' \
-		-string 'core/dec-spot-stream-deck' \
-		~/applescript-core/config-lib-factory.plist
-
+# 	plutil \
+# 		-replace 'SpotTestInstance' \
+# 		-string 'core/dec-spot-stream-deck' \
+# 		~/applescript-core/config-lib-factory.plist
+	$(SUDO) ./scripts/factory-insert.sh StreamDeckInstance core/dec-spot-stream-deck
 
 install-sublime-text: build-finder
 	osascript ./scripts/setup-sublime-text-cli.applescript
