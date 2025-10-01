@@ -47,6 +47,7 @@ on spotCheck()
 		Manual: Move cursor lines below
 		Manual: Move cursor lines above
 		Manual: Move cursor to line
+		Manual: Get cursor start of line
 	")
 	
 	set spotClass to spotScript's new()
@@ -117,6 +118,16 @@ on spotCheck()
 		
 		sut's moveCursorToLine(sutLine)
 		
+	else if caseIndex is 9 then
+		set sutLineNumber to -1
+		set sutLineNumber to 1
+		-- set sutLineNumber to 999
+		set sutLineNumber to 2
+		set sutLineNumber to 3
+		logger's debugf("sutLineNumber: {}", sutLineNumber)
+		
+		logger's infof("Cursor at line: [{}]", sut's getCursorStartOfLine(sutLineNumber))
+		
 	else
 		
 	end if
@@ -135,8 +146,30 @@ on decorate(mainScript)
 		property parent : mainScript
 		property rememberedCursorPositionStart : missing value
 		
+		on getCursorStartOfLine(lineNumber)
+			if lineNumber is less than 2 then return 0
+			
+			tell application "Script Editor" to tell document 1
+				set textLines to paragraphs of contents
+			end tell
+			logger's debugf("Number of lines: {}", count of textLines)
+			
+			if lineNumber is greater than the number of textLines then return missing value
+			
+			(* Copied from #moveCursorToLine *)
+			set charCount to 0
+			repeat with i from 1 to (lineNumber - 1)
+				set nextLine to item i of textLines
+				-- log nextLine
+				set charCount to charCount + (length of nextLine)
+			end repeat
+			
+			charCount
+		end getCursorStartOfLine
+		
+		
 		(*
-			Chat GPT.
+			ChatGPT.
 		*)
 		on moveCursorToLine(lineNumber)
 			if lineNumber is less than 1 then return
@@ -253,10 +286,33 @@ on decorate(mainScript)
 		end moveCursorToEndOfFile
 		
 		
+		(*
+			Moves the cursor at the start of a text in the current line.
+		*)
 		on moveCursorLineTextStart()
 			if running of application "Script Editor" is false then return
 			
-			(* Programmatically, newer code than keystrokes. *)
+			(* Implementation 3: Programmatically. *)
+			set currentLineContents to getCurrentLineContents()
+			-- log currentLineContents
+			set cursorIndexAtCurrentLine to getCursorStartOfLine(getCursorLineNumber())
+			set cleanedParagraph to textUtil's ltrim(currentLineContents)
+			if cleanedParagraph is "" then
+				tell application "Script Editor" to tell first document
+					set selection to insertion point (cursorIndexAtCurrentLine + 1)
+				end tell
+				return
+			end if
+			
+			set cleanedLength to the number of characters in cleanedParagraph
+			set indentSize to (count of currentLineContents) - cleanedLength
+			tell application "Script Editor" to tell first document
+				set selection to insertion point (cursorIndexAtCurrentLine + indentSize + 1)
+			end tell
+			return
+			
+			
+			(* Implementation 2: Programmatically. Initial replacement to keystrokes. BUGGED. *)
 			tell application "Script Editor" to tell document 1
 				set editorContents to contents as text
 				character range of selection
@@ -269,6 +325,8 @@ on decorate(mainScript)
 				repeat (number of items in contentParagraphs) times
 					set idx to idx + 1
 					set nextParagraph to item idx of contentParagraphs
+					-- log nextParagraph
+					
 					-- set cachedContents to contents
 					-- repeat with nextParagraph in paragraphs of cachedContents -- breaks.
 					set nextParagraphLen to the (count of characters in nextParagraph)
@@ -285,7 +343,7 @@ on decorate(mainScript)
 			return
 			
 			
-			(* Using keystrokes. *)
+			(* Implementation 1: Using keystrokes. *)
 			set currentLine to getCurrentLineContents()
 			set cleanLine to textUtil's trim(currentLine)
 			set spaces to textUtil's stringBefore(currentLine, cleanLine)
@@ -361,7 +419,7 @@ on decorate(mainScript)
 		
 		on isCursorAtEndOfLine()
 			set cursorStartIndex to getCursorStartIndex()
-			tell application "Script Editor" to if cursorStartIndex is equal to the number of characters in contents of front document  then return true
+			tell application "Script Editor" to if cursorStartIndex is equal to the number of characters in contents of front document then return true
 			
 			tell application "Script Editor"
 				set previousCharacter to character (cursorStartIndex + 1) of contents of front document
