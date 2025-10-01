@@ -20,6 +20,9 @@
 	@Build:
 		./scripts/build-lib.sh 'apps/3rd-party/Stream Deck/6.9.1/stream-deck'
 		
+	@Change Logs:
+		Thu, Oct 02, 2025, at 06:55:08 AM - Removed dependency to homebrew.	
+		
 	@Created: Wed, Feb 5, 2025 at 7:19:21 AM
 	@Last Modified: Mon, Feb 3, 2025 at 8:42:56 AM
 *)
@@ -197,7 +200,8 @@ on new()
 		
 		on isUsbConnected()
 			try
-				return (do shell script "/opt/homebrew/bin/lsusb | grep 'Stream Deck'") is not ""
+				-- return (do shell script "/opt/homebrew/bin/lsusb | grep 'Stream Deck'") is not ""
+				return (do shell script "ioreg -p IOUSB -l | grep -i 'Stream Deck'") is not ""
 			end try
 			
 			false
@@ -238,7 +242,7 @@ on new()
 	decStreamDeckSettings's decorate(result)
 	decStreamDeckButton's decorate(result)
 	
-(*
+	(*
 	if not isSpot then
 		set decorator to decoratorLib's new(result)
 		return decorator's decorateByName("StreamDeckInstance")
