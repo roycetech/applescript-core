@@ -52,7 +52,7 @@ on spotCheck()
 
 		Manual: Insertion point at line
 		Manual: Line number of marker text
-		Dummy
+		Manual: Adjust cursor position
 		Dummy
 		Dummy
 	")
@@ -159,6 +159,17 @@ on spotCheck()
 		logger's debugf("sutMarker: {}", sutMarker)
 		
 		logger's infof("Line number of '{}': {}", {sutMarker, sut's getLineNumberOfMarker(sutMarker)})
+		
+	else if caseIndex is 13 then
+		set sutCursorPositionOffset to 0
+		set sutCursorPositionOffset to 1 -- ok
+		-- set sutCursorPositionOffset to 2
+		set sutCursorPositionOffset to -1 -- ok
+		-- set sutCursorPositionOffset to -99999 -- ok
+		-- set sutCursorPositionOffset to 99999  -- ok
+		logger's debugf("sutCursorPositionOffset: {}", sutCursorPositionOffset)
+		
+		sut's adjustCursorPositionByOffset(sutCursorPositionOffset)		
 	else
 		
 	end if
@@ -339,6 +350,49 @@ on decorate(mainScript)
 				set selection to insertion point (my rememberedCursorPositionStart)
 			end tell
 		end restoreCursorPosition
+		
+		
+		(*
+			Cases:
+				1. Less than 0, move to beginning of file
+				2. Greater than or equal to size of script, move to the end of script
+				3. Positive offset
+				4. Negative offset
+		*)
+		on adjustCursorPositionByOffset(cursorPositionOffset)
+			if running of application "Script Editor" is false then return
+			
+			set currentCursorPosition to getCursorStartIndex()
+			set newCursorPosition to currentCursorPosition + cursorPositionOffset + 1
+			logger's debugf("newCursorPosition: {}", newCursorPosition)
+			
+			set case1or2 to false
+			if newCursorPosition is less than 0 then
+				set case1or2 to true
+				logger's debug("Case 1")
+				set newCursorPosition to 0
+			end if
+			
+			tell application "Script Editor" to tell document 1
+				set editorContents to contents
+			end tell
+			if newCursorPosition is greater than the (count of characters in editorContents) then
+				set case1or2 to true
+				logger's debug("Case 2")
+				set newCursorPosition to -1
+			end if
+			if not case1or2 then
+				if cursorPositionOffset is less than 0 then
+					logger's debug("Case 4")
+				else
+					logger's debug("Case 3")
+				end if
+			end if
+			
+			tell application "Script Editor" to tell document 1
+				set selection to insertion point newCursorPosition
+			end tell
+		end adjustCursorPositionByOffset
 		
 		
 		on moveCursorToEndOfFile()
