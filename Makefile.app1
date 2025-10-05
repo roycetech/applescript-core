@@ -123,6 +123,7 @@ install-safari-technology-preview: build-safari-technology-preview
 
 
 build-script-editor:
+	$(SUDO) ./scripts/build-lib.sh 'apps/1st-party/Script Editor/2.11/script-editor-tab'
 	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-window"
 	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-content"
 	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-cursor"
