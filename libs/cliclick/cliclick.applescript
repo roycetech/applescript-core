@@ -19,16 +19,15 @@
 		Clean Shot X
 		Eclipse
 
-	@Change Log:
-		September 20, 2023 11:46 AM - Removed smoothing for movePointer because having it, the pointer doesn't move to the given coordinates.
-		Last tested on macOS Monterey, fixed the movePointer now working.
-
 	@Project:
 		applescript-core
 
 	@Build:
-		make build-cliclick
+		./scripts/build-lib.sh libs/cliclick/cliclick
 
+	@Change Log:
+		September 20, 2023 11:46 AM - Removed smoothing for movePointer because having it, the pointer doesn't move to the given coordinates.
+		Last tested on macOS Monterey, fixed the movePointer now working.
 *)
 
 use script "core/Text Utilities"
@@ -43,6 +42,7 @@ use loggerFactory : script "core/logger-factory"
 use plutilLib : script "core/plutil"
 
 property logger : missing value
+
 property session : missing value
 
 property CLICLICK_CLI : missing value
@@ -178,8 +178,12 @@ on new()
 				end if
 			end if
 
+			if pRight is not missing value then
+				set theX to x + w - pRight
+			end if
+
 			lclickAtXy(theX, theY)
-		end clickRelative
+		end lclickRelative
 
 		(*
 			Usage: drag from {350, -1250} onto {1020, -1355}
