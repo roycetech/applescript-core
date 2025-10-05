@@ -23,6 +23,9 @@ property logger : missing value
 if name of current application is "Script Editor" then spotCheck()
 
 on spotCheck()
+	loggerFactory's inject(me)
+	logger's start()
+	
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Main
@@ -32,6 +35,10 @@ on spotCheck()
 		Manual: Write User Script Code to Temp Document
 
 		Manual: Insert text after last line with text
+		Manual: Delete line
+		Manual: Has annocation
+		Dummy
+		Dummy
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -55,13 +62,13 @@ on spotCheck()
 	if caseIndex is 1 then
 		
 	else if caseIndex is 2 then
-		sut's createTempDocument("Spot Check") 
+		sut's createTempDocument("Spot Check")
 		
 	else if caseIndex is 3 then
 		set sutDoc to sut's createTempDocument("Spot Check")
-		sut's writeDataToTempDocument("(* Test Data *)
-			
+		sut's writeDataToTempDocument("(* Test Data *)			
 property logger : missing value
+
 property session : missing value
 		
 on spotCheck()
@@ -78,9 +85,33 @@ on new()
 	end script
 end new
 		")
-		tell application "Script Editor"
-			tell sutDoc to check syntax
-		end tell
+		tell application "Script Editor" to tell sutDoc to check syntax
+		
+	else if caseIndex is 7 then
+		set sutLineNumber to 0
+		set sutLineNumber to 999
+		set sutLineNumber to 1
+		set sutLineNumber to 2
+		-- set sutLineNumber to 3
+		logger's debugf("sutLineNumber: {}", sutLineNumber)
+		
+		(*
+			Cases:
+				1.  Blank line
+				2.  Non-blank line
+				3.  Whitespace only
+		*)
+		
+		sut's deleteLine(sutLineNumber)
+		
+	else if caseIndex is 8 then
+		set sutAnnotation to "unicorn"
+		set sutAnnotation to "Build"
+		set sutAnnotation to "Project"
+		set sutAnnotation to "Script Menu"
+		logger's debugf("sutAnnotation: {}", sutAnnotation)
+		
+		logger's infof("Has annotation: {}", sut's hasAnnotation(sutAnnotation))
 	end if
 	
 	spot's finish()
@@ -93,9 +124,17 @@ on decorate(mainScript)
 	loggerFactory's inject(me)
 	
 	script ScriptEditorContentDecorator
+		(* Reference to ScriptEditorInstance *)
 		property parent : mainScript
 		property textView : missing value
 		property windowTitle : "Temp Document"
+		
+		on hasAnnotation(annotation)
+			if running of application "Script Editor" is false then return false
+			
+			getFrontContents() contains "@" & annotation
+		end hasAnnotation
+		
 		
 		on createTempDocument(documentName)
 			local loggerPath
@@ -137,6 +176,28 @@ on decorate(mainScript)
 		end getLineContentsAboveCursor
 		
 		
+		on deleteLine(lineNumber)
+			if lineNumber is less than 1 then return
+			if lineNumber is greater than getTotalLines() then return
+			
+			set deleteStart to getInsertionPointAtLine(lineNumber) + 1
+			logger's debugf("deleteStart: {}", deleteStart)
+			
+			set lineContents to getContentsAtLineNumber(lineNumber)
+			logger's debugf("lineContents: '{}'", lineContents)
+			
+			-- set deleteEnd to 1 + the (count of characters in lineContents) -- 1 + to include the newline character
+			set deleteEnd to getInsertionPointAtLine(lineNumber + 1)
+			if deleteEnd is missing value then set deleteEnd to -1
+			logger's debugf("deleteEnd: {}", deleteEnd)
+			
+			tell application "Script Editor" to tell front document
+				set selection to characters deleteStart thru deleteEnd
+				set contents of selection to ""
+			end tell
+		end deleteLine
+		
+		
 		on getLineContentsBelowCursor()
 			set cursorLine to getCursorLineNumber()
 			set nextLine to cursorLine + 1
@@ -171,7 +232,7 @@ on decorate(mainScript)
 			tell application "Script Editor"
 				tell document 1
 					set totalLines to count paragraphs of contents
-					if contents ends with (ASCII character 13) then set totalLines to totalLines + 1
+					if contents ends with return then set totalLines to totalLines + 1
 				end tell
 			end tell
 			

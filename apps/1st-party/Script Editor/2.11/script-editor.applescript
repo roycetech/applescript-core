@@ -89,6 +89,7 @@ on spotCheck()
 	logger's infof("Integration: getScriptName: {}", frontTab's getScriptName())
 	-- logger's infof("(BROKEN, not possible when there's multiple projects) getResourcePath(): {}", frontTab's getResourcePath())
 	-- log frontTab's getContents()
+	log sut's getFrontContents()
 	
 	if caseIndex is 1 then
 		
@@ -155,11 +156,20 @@ end spotCheck
 
 on new()
 	loggerFactory's injectBasic(me)
-	
 	set configSystem to configLib's new("system")
 	set retry to retryLib's new()
 	
 	script ScriptEditorInstance
+		on getFrontContents()
+			set editorWindow to getEditorWindow()
+			if editorWindow is missing value then return missing value
+			
+			tell application "Script Editor" to tell the front document
+				contents
+			end tell
+		end getFrontContents
+		
+		
 		on closeSearch()
 			set editorWindow to getEditorWindow()
 			if editorWindow is missing value then return
