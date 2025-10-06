@@ -12,6 +12,9 @@
 	@Last Modified: Wed, Oct 01, 2025 at 01:25:28 PM
 	@Change Logs:
 *)
+
+use textUtil : script "core/string"
+
 use loggerFactory : script "core/logger-factory"
 
 use cliclickLib : script "core/cliclick"
@@ -36,12 +39,12 @@ on spotCheck()
 		Manual: Resize window for coordinates scripting
 		Manual: Select Button
 		Manual: Trigger Text
-		Manual: Local Integration: Toggle Show Title
+		Manual: Coupled: Toggle Show Title
 
-		Manual: Local Integration: Hide Title
-		Manual: Local Integration: Show Title		
-		Dummy
-		Dummy
+		Manual: Coupled: Hide Title
+		Manual: Coupled: Show Title		
+		Manual: Coupled: Set Title Size
+		Manual: Coupled: Set title vertical alignment
 		Dummy
 	")
 	
@@ -99,8 +102,28 @@ on spotCheck()
 		
 	else if caseIndex is 7 then
 		sut's showTitle()
+		
+	else if caseIndex is 8 then
+		set sutTitleSize to 0
+		set sutTitleSize to 16
+		-- set sutTitleSize to 99
+		logger's debugf("sutTitleSize: {}", sutTitleSize)
+		
+		sut's triggerText()
+		sut's setTitleSize(sutTitleSize)
+		
+	else if caseIndex is 9 then
+		set sutTitleAlignment to "Unicorn"
+		logger's debugf("sutTitleAlignment: {}", sutTitleAlignment)
+		
+		sut's triggerText()
+		sut's setTitleAlignment(sutTitleAlignment)
 	else
 		
+	end if
+	
+	if sut's isTextDialogPresent() then
+		logger's infof("Text size: {}", sut's getTitleSizeText())
 	end if
 	
 	spot's finish()
@@ -118,7 +141,65 @@ on decorate(mainScript)
 		property parent : mainScript
 		
 		property gridColumns : 8
-		property gridRows : 4 
+		property gridRows : 4
+		
+		
+		(*
+			@verticalPosition - 'top', 'center'/'middle', 'bottom'.
+		*)
+		on setTitleAlignment(verticalPosition)
+			"WIP"
+		end setTitleAlignment
+		
+		
+		(*
+			@sizePoints - 6 to 18.
+		*)
+		on setTitleSize(paramSizePoints)
+			if paramSizePoints is missing value then return
+			try
+				set targetSize to paramSizePoints as integer
+			on error the errorMessage number the errorNumber
+				return
+			end try
+			if targetSize is less than 6 then set targetSize to 6
+			if targetSize is greater than 18 then set targetSize to 18
+			set targetSizeText to targetSize & " pt"
+			
+			set currentSize to textUtil's replace(getTitleSizeText(), " pt", "") as integer
+			if currentSize is equal to targetSize then return
+			
+			repeat
+				tell application "System Events" to tell process "Stream Deck"
+					if title of window 1 is not "" then exit repeat
+					
+					if targetSize is greater than currentSize then
+						click button 2 of window "" -- Increment
+					else
+						click button 3 of window "" -- Decrement
+					end if
+					delay 0.1
+					set currentTitleSizeText to my getTitleSizeText()
+					if currentTitleSizeText as text is equal to targetSizeText as text then exit repeat -- Fails without the string coercion.
+				end tell
+			end repeat
+		end setTitleSize
+		
+		
+		(*
+			@returns e.g. '12 pt'
+		*)
+		on getTitleSizeText()
+			if not isTextDialogPresent() then return missing value
+			
+			tell application "System Events" to tell process "Stream Deck"
+				try
+					return value of static text 1 of window 1 as text
+				end try
+			end tell
+			
+			missing value
+		end getTitleSizeText
 		
 		(*
 			WARNING:
