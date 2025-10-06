@@ -45,4 +45,5 @@ property SQUARE_RED : "🟥"
 property TEST : "🧪"
 property TARGET : "🎯"
 property CHECK_MARK : "✔️"
+property PICK_AXE : "⛏️"
 
