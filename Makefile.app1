@@ -12,7 +12,7 @@ build-apps-first-party: \
 	build-automator \
 	build-calendar \
 	build-console \
-	build-control-center \
+# 	build-control-center \  # Moved to core.
 	build-dock \
 	build-finder \
 	build-notification-center \
@@ -52,9 +52,9 @@ install-calendar: build-calendar
 build-console:
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Console/v1.1/console"
 
-build-control-center:
-	# TODO:
-	$(SUDO) ./scripts/build-lib.sh macOS-version/16-tahoe/control-center_sound
+# build-control-center:
+# 	# TODO:
+# 	$(SUDO) ./scripts/build-lib.sh macOS-version/16-tahoe/control-center_sound
 
 build-finder:
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-mini
@@ -124,6 +124,8 @@ install-safari-technology-preview: build-safari-technology-preview
 
 build-script-editor:
 	$(SUDO) ./scripts/build-lib.sh 'apps/1st-party/Script Editor/2.11/script-editor-tab'
+	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-dialog"
+	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-tabs"
 	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-window"
 	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-content"
 	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-cursor"

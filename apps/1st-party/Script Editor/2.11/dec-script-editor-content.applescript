@@ -58,6 +58,7 @@ on spotCheck()
 	logger's infof("Contents above cursor: [{}]", sut's getLineContentsAboveCursor())
 	logger's infof("Contents at cursor: [{}]", sut's getCurrentLineContents())
 	logger's infof("Contents below cursor: [{}]", sut's getLineContentsBelowCursor())
+	logger's infof("Indentation size: [{}]", sut's getCurrentLineIndentationSize())
 	
 	if caseIndex is 1 then
 		
@@ -163,9 +164,18 @@ on decorate(mainScript)
 			end using terms from
 		end writeDataToTempDocument
 		
+		
 		on getCurrentLineContents()
 			getContentsAtLineNumber(getCursorLineNumber())
 		end getCurrentLineContents
+		
+		
+		on getCurrentLineIndentationSize()
+			set lineContents to getCurrentLineContents()
+			set unindentedLine to textUtil's ltrim(lineContents)
+			(the number of characters in lineContents) - (the number of characters in unindentedLine)
+		end getCurrentLineIndentationSize
+		
 		
 		on getLineContentsAboveCursor()
 			set cursorLine to getCursorLineNumber()
@@ -226,6 +236,17 @@ on decorate(mainScript)
 				end tell
 			end tell
 		end hasSelection
+
+
+		on getSelectedText()
+			if not hasSelection() then return missing value
+
+			tell application "Script Editor"
+				tell document 1
+					contents of selection as text
+				end tell
+			end tell			
+		end getSelectedText
 		
 		
 		on getTotalLines()

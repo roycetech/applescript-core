@@ -15,12 +15,16 @@ use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
 
+use retryLib : script "core/retry"
+
 property logger : missing value
+
+property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's inject(me) 
+	loggerFactory's inject(me)
 	logger's start()
 	
 	set listUtil to script "core/list"
@@ -64,14 +68,25 @@ end spotCheck
 (*  *)
 on new(windowId)
 	loggerFactory's inject(me)
+	set retry to retryLib's new()
 	
 	tell application "Script Editor"
 		set localAppWindow to window id windowId
 	end tell
 	
 	script ScriptEditorTabInstance
-		property appWindow : localAppWindow -- app window, not syseve window.
+		property appWindow : localAppWindow -- app window, not syseve window. 
 		property suffixedName : missing value
+		
+		
+		on hasSelection()
+			tell application "Script Editor"
+				tell document 1 of appWindow
+					contents of selection is not ""
+				end tell
+			end tell
+		end hasSelection
+		
 		
 		on getScriptDirectory()
 			textUtil's stringBefore(getPosixPath(), getBaseScriptName())
@@ -329,6 +344,8 @@ on new(windowId)
 			(POSIX file location) as text
 		end getScriptLocation
 		
+		
+		-- TODO: Move to script-editor.applescript
 		on mergeAllWindows()
 			if running of application "Script Editor" is false then return
 			

@@ -1,6 +1,6 @@
 (*
 	@Purpose:
-
+		Provide handlers for the Script Editor editor window.
 
 	@Project:
 		applescript-core
@@ -11,6 +11,7 @@
 	@Created: Fri, Aug 29, 2025 at 07:13:29 AM
 	@Last Modified: Fri, Aug 29, 2025 at 07:13:29 AM
 	@Change Logs:
+		Wed, Oct 08, 2025, at 06:48:27 AM - Added #toggleAccessoryView
 *)
 use loggerFactory : script "core/logger-factory"
 
@@ -33,6 +34,14 @@ on spotCheck()
 		Main
 		Manual: Switch Accessory View > Tab (bottom left buttons)
 		Manual: Switch Accessory View > Log > Tab
+		Manual: Toggle Accessory View
+		Manual: Show Accessory View		
+
+		Manual: Hide Accessory View		
+		Manual: Show Log History
+		Manual: Hide Log History
+		Dummy
+		Dummy
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -70,6 +79,23 @@ on spotCheck()
 		logger's debugf("sutLogTab: {}", sutLogTab)
 		
 		sut's switchLogTab(sutLogTab)
+		
+	else if caseIndex is 4 then
+		sut's toggleAccessoryView()
+		
+	else if caseIndex is 5 then
+		sut's showAccessoryView()
+		
+		
+	else if caseIndex is 6 then
+		sut's hideAccessoryView()
+		
+	else if caseIndex is 7 then
+		sut's showLogHistory()
+		
+	else if caseIndex is 8 then
+		sut's closeLogHistory()
+		
 	else
 		
 	end if
@@ -86,6 +112,45 @@ on decorate(mainScript)
 	script ScriptEditorWindowDecorator
 		property parent : mainScript
 		
+		on closeLogHistory()
+			tell application "System Events" to tell process "Script Editor"
+				try
+					click (first button of window "Log History" whose description is "close button")
+				end try
+			end tell
+		end closeLogHistory
+		
+		
+		on showLogHistory()
+			tell application "System Events" to tell process "Script Editor"
+				try
+					click menu item "Log History" of menu 1 of menu bar item "Window" of menu bar 1
+				end try
+			end tell
+		end showLogHistory
+		
+		
+		on hideAccessoryView()
+			if not isAccessoryViewVisible() then return
+			
+			toggleAccessoryView()
+		end hideAccessoryView
+		
+		
+		on showAccessoryView()
+			if isAccessoryViewVisible() then return
+			
+			toggleAccessoryView()
+		end showAccessoryView
+		
+		on toggleAccessoryView()
+			set editorWindow to getEditorWindow()
+			if editorWindow is missing value then return
+			
+			tell application "System Events" to tell process "Script Editor"
+				click checkbox 1 of group 1 of group 1 of toolbar 1 of front window
+			end tell
+		end toggleAccessoryView
 		
 		(*
 			NOTE: The contents does not appear when the log accessory view isn't already active.
@@ -155,8 +220,8 @@ on decorate(mainScript)
 			
 			missing value
 		end getAccessoryViewTypeName
-
-
+		
+		
 		on getEditorWindow()
 			if running of application "Script Editor" is false then return missing value
 			

@@ -53,7 +53,7 @@ on spotCheck()
 		Manual: Insertion point at line
 		Manual: Line number of marker text
 		Manual: Adjust cursor position
-		Dummy
+		Manual: Get cursor line text start
 		Dummy
 	")
 	
@@ -80,6 +80,7 @@ on spotCheck()
 	logger's infof("Has selection? {}", sut's hasSelection())
 	logger's infof("Current line contents: [{}]", sut's getCurrentLineContents())
 	logger's infof("Current line above contents: [{}]", sut's getLineContentsAboveCursor())
+	logger's infof("Cursor line text start: {}", sut's getCursorLineTextStart())
 	
 	
 	if caseIndex is 1 then
@@ -169,7 +170,7 @@ on spotCheck()
 		-- set sutCursorPositionOffset to 99999  -- ok
 		logger's debugf("sutCursorPositionOffset: {}", sutCursorPositionOffset)
 		
-		sut's adjustCursorPositionByOffset(sutCursorPositionOffset)		
+		sut's adjustCursorPositionByOffset(sutCursorPositionOffset)
 	else
 		
 	end if
@@ -413,6 +414,14 @@ on decorate(mainScript)
 		on moveCursorLineTextStart()
 			if running of application "Script Editor" is false then return
 			
+			(* Implementation 4: Refactored out to getCursorLineTextStart() *)
+			set lineTextStartIndex to getCursorLineTextStart()
+			tell application "Script Editor" to tell first document
+				set selection to insertion point lineTextStartIndex
+			end tell
+			return
+			
+			
 			(* Implementation 3: Programmatically. *)
 			set currentLineContents to getCurrentLineContents()
 			-- log currentLineContents
@@ -475,6 +484,30 @@ on decorate(mainScript)
 				kb's pressKey("right")
 			end repeat
 		end moveCursorLineTextStart
+		
+		
+		(*
+			Retrieve the cursor start at the start of a text in the current line.
+		*)
+		on getCursorLineTextStart()
+			if running of application "Script Editor" is false then return -1
+			
+			set currentLineContents to getCurrentLineContents()
+			-- log currentLineContents
+			set cursorIndexAtCurrentLine to getCursorStartOfLine(getCursorLineNumber())
+			set cleanedParagraph to textUtil's ltrim(currentLineContents)
+			if cleanedParagraph is "" then
+				tell application "Script Editor" to tell first document
+					set selection to insertion point cursorIndexAtCurrentLine
+				end tell
+				return
+			end if
+			
+			set cleanedLength to the number of characters in cleanedParagraph
+			set indentSize to (count of currentLineContents) - cleanedLength
+			cursorIndexAtCurrentLine + indentSize + 1
+			-- cursorIndexAtCurrentLine + indentSize
+		end getCursorLineTextStart
 		
 		
 		on getCursorStartIndex()

@@ -34,6 +34,8 @@ use decCursor : script "core/dec-script-editor-cursor"
 use decSettings : script "core/dec-script-editor-settings"
 use decSettingsGeneral : script "core/dec-script-editor-settings-general"
 use decSettingsEditing : script "core/dec-script-editor-settings-editing"
+use decTabs : script "core/dec-script-editor-tabs"
+use decDialog : script "core/dec-script-editor-dialog"
 
 use configLib : script "core/config"
 use retryLib : script "core/retry"
@@ -207,6 +209,22 @@ on new()
 				return scriptEditorTabLib's new(id of appWindow)
 			end tell
 		end findTabWithName
+
+
+		(* 
+			@tabTitle - the filename of the script.
+			@return  missing value of tab is not found. ScriptEditorInstance 
+		*)
+		on findTabByTitle(tabTitle)
+			if running of application "Script Editor" is false then return missing value
+			
+			tell application "Script Editor"
+				if not (window tabTitle exists) then return missing value
+				
+				set appWindow to window tabTitle
+				return scriptEditorTabLib's new(id of appWindow)
+			end tell
+		end findTabWithName
 		
 		
 		on getFrontTab()
@@ -306,6 +324,8 @@ on new()
 	decSettings's decorate(result)
 	decSettingsGeneral's decorate(result)
 	decSettingsEditing's decorate(result)
+	decTabs's decorate(result)
+	decDialog's decorate(result)
 	
 	set decorator to decoratorLib's new(result)
 	decorator's decorateByName("ScriptEditorInstance")
