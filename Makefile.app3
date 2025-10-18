@@ -106,11 +106,14 @@ install-last-pass:
 
 
 build-marked:
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/marked-tab
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/dec-marked-scrolling
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/dec-marked-settings
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/dec-marked-settings-general
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/dec-marked-settings-preview
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/dec-marked-settings-apps
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/dec-marked-settings-advanced
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/dec-marked-menu
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/marked
 
 install-marked: build-marked
@@ -166,6 +169,7 @@ install-sublime-text: build-finder
 		-replace 'SystemEventsInstance' \
 		-string 'core/dec-system-events-with-sublime-text' \
 		~/applescript-core/config-lib-factory.plist
+	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Sublime Text/4.x/dec-sublime-text-tabs
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Sublime Text/4.x/sublime-text
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Sublime Text/4.x/dec-system-events-with-sublime-text
 
