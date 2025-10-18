@@ -7,7 +7,10 @@
 
 	@Usage:
 		use counterLib : script "core/counter"
-		set counter to counterLib's new("plist-name") or set counter to counterLib's newDefault()
+		set counter to counterLib's newWithPlist("plist-name") or set counter to counterLib's new()
+
+	TODO:
+		Extract daily counter.
 
 	@Change Logs:
 		Thu, Jul 17, 2025 at 08:46:42 AM - Allow double digit padding.
@@ -25,23 +28,21 @@
 	UPDATE:
 		Removed logging to countDailyList because plutil is crashing due to the data size.
 *)
-
-use script "core/Text Utilities"
 use scripting additions
+use script "core/Text Utilities"
 
 use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 
-use loggerLib : script "core/logger"
 use plutilLib : script "core/plutil"
-
-use spotScript : script "core/spot-test"
+use decoratorCounterDaily : script "core/dec-counter-daily"
+use decoratorCounterHourly : script "core/dec-counter-hourly"
 
 property logger : missing value
+
 property plutil : missing value
 
-property countDailySuffix : "-daily"
 property countKeysSuffix : "-all-keys"
 property countTotalSuffix : "-total"
 property DEFAULT_PLIST : "counter-default"
@@ -61,6 +62,7 @@ on spotCheck()
 		Clear
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -75,11 +77,11 @@ on spotCheck()
 	set sut to new(sutPlist)
 
 	logger's debugf("Test Key: {}", sutKey)
+
 	logger's info("Before run -------------------------------")
 	logger's infof("totalAll: {}", sut's totalAll(sutKey))
-	logger's infof("totalToday: {}", sut's totalToday(sutKey))
-	logger's infof("hasRunToday: {}", sut's hasRunToday(sutKey))
-	logger's infof("hasNotRunToday: {}", sut's hasNotRunToday(sutKey))
+	logger's infof("Integration: totalToday: {}", sut's totalToday(sutKey))
+	logger's infof("Integration: totalThisHour: {}", sut's totalToday(sutKey))
 
 	if caseIndex is 1 then
 
@@ -93,9 +95,9 @@ on spotCheck()
 
 	logger's info("After run -------------------------------")
 	logger's infof("totalAll: {}", sut's totalAll(sutKey))
-	logger's infof("totalToday: {}", sut's totalToday(sutKey))
-	logger's infof("hasRunToday: {}", sut's hasRunToday(sutKey))
-	logger's infof("hasNotRunToday: {}", sut's hasNotRunToday(sutKey))
+	logger's infof("hasRun: {}", sut's hasRun(sutKey))
+	logger's infof("Integration: totalToday: {}", sut's totalToday(sutKey))
+	logger's infof("Integration: totalThisHour: {}", sut's totalThisHour(sutKey))
 
 	spot's finish()
 	logger's finish()
@@ -116,54 +118,46 @@ on spotCheck()
 end spotCheck
 
 
-on newDefault()
-	new(DEFAULT_PLIST)
+on new()
+	newWithPlist(DEFAULT_PLIST)
 end newDefault
 
 
-on new(pPlistName)
+on newWithPlist(pPlistName)
 	loggerFactory's inject(me)
-
 	set plutil to plutilLib's new()
+
 	if pPlistName is missing value then set pPlistName to DEFAULT_PLIST
 
-	set countDailyName to _createPlistIfMissing(pPlistName & countDailySuffix)
+	-- set countDailyName to _createPlistIfMissing(pPlistName & countDailySuffix)
 	set countKeysName to _createPlistIfMissing(pPlistName & countKeysSuffix)
 	set countTotalName to _createPlistIfMissing(pPlistName & countTotalSuffix)
 
 	script CounterInstance
 		property plistName : pPlistName
-		property countDaily : plutil's new(countDailyName)
+		-- property countDaily : plutil's new(countDailyName)
 		property countKeys : plutil's new(countKeysName)
 		property countTotal : plutil's new(countTotalName)
 		property useDoubleDigits : false
 
-		on totalToday(theKey)
-			set todayDate to _formatDate(short date string of (current date))
-			set keyToday to format {"{}-{}", {theKey, todayDate}}
-
-			set theCount to countDaily's getInt(keyToday)
-			if theCount is missing value then return 0
-			if useDoubleDigits and theCount is less than 10 then return "0" & theCount
-
-			theCount
-		end totalToday
-
-		(* @returns the incremented value. *)
+		(* @returns the incremented value for the current day. *)
 		on increment(theKey)
-			set todayDate to _formatDate(short date string of (current date))
+			-- set todayDate to _formatDate(short date string of (current date))
 
 			set keyCount to countTotal's getInt(theKey)
 			if keyCount is missing value then set keyCount to 0
 			set keyCount to keyCount + 1
 			countTotal's setValue(theKey, keyCount)
+			keyCount
 
+			(*
 			set keyToday to format {"{}-{}", {theKey, todayDate}}
 			set keyTodayCount to countDaily's getInt(keyToday)
 			if keyTodayCount is missing value then set keyTodayCount to 0
 			set keyTodayCount to keyTodayCount + 1
 			countDaily's setValue(keyToday, keyTodayCount)
 			keyTodayCount
+			*)
 		end increment
 
 
@@ -198,7 +192,7 @@ on new(pPlistName)
 			set todayDate to _formatDate(short date string of (current date))
 			set keyToday to format {"{}-{}", {theKey, todayDate}}
 			countTotal's setValue(theKey, 0)
-			countDaily's setValue(keyToday, 0)
+			-- countDaily's setValue(keyToday, 0)
 		end clear
 
 
@@ -210,46 +204,15 @@ on new(pPlistName)
 		on hasRun(theKey)
 			totalAll(theKey) is greater than 0
 		end hasRun
-
-		on hasRunToday(theKey as text)
-			totalToday(theKey) is greater than 0
-		end hasRunToday
-
-		on hasNotRunToday(theKey as text)
-			hasRunToday(theKey) is false
-		end hasNotRunToday
-
-		(* @scriptName - e.g. "Arrange Windows" *)
-		on hasScriptRunToday(scriptName as text)
-			set keyToday to format {"Running: [{}.applescript]", my _stripExtension(scriptName)}
-
-			totalToday(keyToday) is greater than 0
-		end hasScriptRunToday
-
-		(* @scriptName - e.g. "Arrange Windows" *)
-		on totalScriptRunToday(scriptName as text)
-			set keyToday to format {"Running: [{}.applescript]", my _stripExtension(scriptName)}
-
-			totalToday(keyToday)
-		end totalScriptRunToday
-
-
-		-- Private Codes below ======================================================
-		(* Default format date to yyyyMMdd. Will break by year 3000, i'll be long dead by then and this script buried in archive or deleted. *)
-		on _formatDate(dateString)
-			"20" & last word of dateString & "/" & first word of dateString & "/" & second word of dateString
-		end _formatDate
-
-
-		on _stripExtension(scriptName)
-			if scriptName ends with ".applescript" then set scriptName to text 1 thru ((length of scriptName) - (length of ".applescript")) of scriptName
-			scriptName
-		end _stripExtension
 	end script
+
+	decoratorCounterDaily's decorate(result)
+	decoratorCounterHourly's decorate(result)
 end new
 
 
 (*
+	WET 1/3: dec-counter-dailly.applescript, dec-counter-hourly.applescript
 	@returns the plistName, for convenience.
 *)
 on _createPlistIfMissing(plistName)

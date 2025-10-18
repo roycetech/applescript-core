@@ -9,6 +9,8 @@ build-extra: build-counter install-timed-cache
 
 
 build-counter:
+	$(SUDO) ./scripts/build-lib.sh libs/counter-plist/dec-counter-hourly
+	$(SUDO) ./scripts/build-lib.sh libs/counter-plist/dec-counter-daily
 	$(SUDO) ./scripts/build-lib.sh libs/counter-plist/counter
 
 install-counter: build-counter
