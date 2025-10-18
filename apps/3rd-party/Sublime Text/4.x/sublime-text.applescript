@@ -41,15 +41,14 @@ use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 
-use loggerLib : script "core/logger"
-use finderLib : script "core/finder"
 use configLib : script "core/config"
 use kbLib : script "core/keyboard"
 
 use decoratorLib : script "core/decorator"
+use decTabs : script "core/dec-sublime-text-tabs"
 
 property logger : missing value
-property finder : missing value
+
 property kb : missing value
 property configSystem : missing value
 
@@ -81,6 +80,7 @@ on spotCheck()
 	set sut to new()
 	
 	-- Manual: Current File details (No file, Find Result, Ordinary File)
+	logger's infof("Integration: Tabs: Tab Count: {}", sut's getTabCount())
 	set currentProjectName to sut's getCurrentProjectName()
 	logger's infof("Current Project Name: {}", currentProjectName)
 	logger's infof("Window title: {}", sut's getWindowTitle())
@@ -143,7 +143,6 @@ end spotCheck
 
 on new()
 	loggerFactory's inject(me)
-	set finder to finderLib's new()
 	set kb to kbLib's new()
 	set configSystem to configLib's new("system")
 	
@@ -568,6 +567,8 @@ on new()
 			tell me to error "I can't find your project folder from: " & projectNameRaw
 		end _findProjectFolder
 	end script
+	
+	decTabs's decorate(result)
 	
 	set decorator to decoratorLib's new(result)
 	decorator's decorate()

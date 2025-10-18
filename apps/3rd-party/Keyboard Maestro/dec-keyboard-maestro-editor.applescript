@@ -219,6 +219,7 @@ on decorate(mainScript)
 		
 		on selectMacroGroup(groupName)
 			if running of application "Keyboard Maestro Engine" is false then return
+			
 			activate application "Keyboard Maestro" -- Make the editor window active			
 			
 			tell application "System Events" to tell process "Keyboard Maestro"
