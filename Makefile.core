@@ -179,7 +179,15 @@ build-apps: \
 
 
 build-control-center:
-ifeq ($(OS_NAME), sequoia)
+ifeq ($(OS_NAME), tahoe)
+	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_network"
+	$(SUDO) ./scripts/build-lib.sh macOS-version/16-tahoe/control-center_sound
+	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_focus"
+	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_bluetooth"
+	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_wifi"
+	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center"
+
+else ifeq ($(OS_NAME), sequoia)
 	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_network"
 	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sequoia/control-center_sound"
 	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_focus"
