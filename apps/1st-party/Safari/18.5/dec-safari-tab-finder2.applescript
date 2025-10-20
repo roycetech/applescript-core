@@ -20,7 +20,7 @@
 		and the only why I found to do this is via manual iteration. - TODO: Verify if this is the same case with Safari.
 
 	@Created: Thu, Feb 20, 2025 at 07:12:25 AM
-	@Last Modified: 2025-07-15 10:34:11
+	@Last Modified: 2025-10-20 06:50:14
 	@Change Logs:
 
 *)
@@ -358,6 +358,8 @@ on newTabByTitleFinder(tabTitle)
 	script TabByTitleFinder
 		(* @safariTab - reference the the application "Safari" current tab, not the applescript-core's safari-tab instance. *)
 		on accept(safariTab)
+			if safariTab is missing value then return false
+
 			tell application "Safari"
 				name of safariTab is tabTitle
 			end tell
@@ -368,6 +370,8 @@ end newTabByTitleFinder
 on newTabByTitlePrefixFinder(titlePrefix)
 	script TabByTitlePrefixFinder
 		on accept(safariTab)
+			if safariTab is missing value then return false
+
 			tell application "Safari"
 				name of safariTab starts with titlePrefix
 			end tell
@@ -378,6 +382,8 @@ end newTabByTitlePrefixFinder
 on newTabByTitleSuffixFinder(titleSuffix)
 	script TabByTitleSuffixFinder
 		on accept(safariTab)
+			if safariTab is missing value then return false
+
 			tell application "Safari"
 				name of safariTab ends with titleSuffix
 			end tell
@@ -388,6 +394,8 @@ end newTabByTitleSuffixFinder
 on newTabByTitleSubstringFinder(titleSubstring)
 	script TabByTitleSubstringFinder
 		on accept(safariTab)
+			if safariTab is missing value then return false
+
 			tell application "Safari"
 				name of safariTab contains titleSubstring
 			end tell
@@ -399,6 +407,8 @@ end newTabByTitleSubstringFinder
 on newTabByUrlFinder(tabUrl)
 	script TabByUrlFinder
 		on accept(safariTab)
+			if safariTab is missing value then return false
+
 			tell application "Safari"
 				URL of safariTab is tabUrl
 			end tell
@@ -409,6 +419,8 @@ end newTabByUrlFinder
 on newTabByUrlPrefixFinder(UrlPrefix)
 	script TabByUrlPrefixFinder
 		on accept(safariTab)
+			if safariTab is missing value then return false
+
 			tell application "Safari"
 				URL of safariTab starts with UrlPrefix
 			end tell
@@ -419,6 +431,8 @@ end newTabByUrlPrefixFinder
 on newTabByUrlSuffixFinder(UrlSuffix)
 	script TabByUrlSuffixFinder
 		on accept(safariTab)
+			if safariTab is missing value then return false
+
 			tell application "Safari"
 				URL of safariTab ends with UrlSuffix
 			end tell
@@ -429,6 +443,8 @@ end newTabByUrlSuffixFinder
 on newTabByUrlSubstringFinder(UrlSubstring)
 	script TabByUrlSubstringFinder
 		on accept(safariTab)
+			if safariTab is missing value then return false
+
 			tell application "Safari"
 				URL of safariTab contains UrlSubstring
 			end tell
@@ -439,6 +455,8 @@ end newTabByUrlSubstringFinder
 on newTabByProfileFinder(profileName)
 	script TabByProfileFinder
 		on accept(safariTab)
+			if safariTab is missing value then return false
+
 			set systemEventWindowName to missing value
 			tell application "System Events" to tell process "Safari"
 				try
