@@ -26,6 +26,7 @@
 		./scripts/build-lib.sh libs/cliclick/cliclick
 
 	@Change Log:
+		Thu, Oct 23, 2025, at 11:57:33 AM - Added #rightClick()
 		September 20, 2023 11:46 AM - Removed smoothing for movePointer because having it, the pointer doesn't move to the given coordinates.
 		Last tested on macOS Monterey, fixed the movePointer now working.
 *)
@@ -65,6 +66,7 @@ on spotCheck()
 		Manual: DoubleClick Relative
 
 		Manual: Double Click
+		Manual: Right Click (at current pointer)
 	")
 
 	set spotClass to spotScript's new()
@@ -109,6 +111,10 @@ on spotCheck()
 			end tell
 
 			doubleLeftClick of sut at result
+
+		else if caseIndex is 7 then
+			sut's rightClick()
+
 		end if
 	end if
 
@@ -129,6 +135,12 @@ on new()
 
 	script CliClickInstance
 		property smoothingSeconds : 1
+
+
+		on rightClick()
+			do shell script CLICLICK_CLI & " kd:ctrl c:. ku:ctrl"
+		end rightClick
+
 
 		on doubleClickRelative at theWindow given fromLeft:pLeft : missing value, fromBottom:pBottom : missing value, fromTop:pTop : missing value, fromRight:pRight : missing value
 			tell application "System Events"
