@@ -291,7 +291,7 @@ on decorate(mainScript)
 			repeat linesBelow times
 				set cursorIndex to cursorIndex + 1
 				try
-					repeat until character cursorIndex of editorContents is equal to CR
+					repeat until character cursorIndex of editorContents is equal to return
 						set cursorIndex to cursorIndex + 1
 					end repeat
 				end try
@@ -398,12 +398,22 @@ on decorate(mainScript)
 		
 		on moveCursorToEndOfFile()
 			if running of application "Script Editor" is false then return
+
 			tell application "Script Editor" to tell document 1
 				set selection to insertion point -1
 				
 				if contents of selection is "" then
 					set contents of selection to ""
 				end if
+			end tell
+		end moveCursorToEndOfFile
+
+
+		on moveCursorToIndex(newCursorPosition)
+			if running of application "Script Editor" is false then return
+			
+			tell application "Script Editor" to tell document 1
+				set selection to insertion point newCursorPosition				
 			end tell
 		end moveCursorToEndOfFile
 		

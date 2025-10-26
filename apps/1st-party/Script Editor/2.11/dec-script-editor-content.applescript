@@ -37,7 +37,7 @@ on spotCheck()
 		Manual: Insert text after last line with text
 		Manual: Delete line
 		Manual: Has annocation
-		Dummy
+		Manual: Insert text at cursor
 		Dummy
 	")
 	
@@ -113,6 +113,10 @@ end new
 		logger's debugf("sutAnnotation: {}", sutAnnotation)
 		
 		logger's infof("Has annotation: {}", sut's hasAnnotation(sutAnnotation))
+		
+	else if caseIndex is 9 then
+		sut's insertTextAtCursor("spot text")
+		
 	end if
 	
 	spot's finish()
@@ -129,6 +133,15 @@ on decorate(mainScript)
 		property parent : mainScript
 		property textView : missing value
 		property windowTitle : "Temp Document"
+		
+		on insertTextAtCursor(textToInsert)
+			if textToInsert is missing value then return
+			
+			tell application "Script Editor" to tell document 1
+				set contents of selection to textToInsert
+			end tell
+		end insertTextAtCursor
+		
 		
 		on hasAnnotation(annotation)
 			if running of application "Script Editor" is false then return false
@@ -236,16 +249,16 @@ on decorate(mainScript)
 				end tell
 			end tell
 		end hasSelection
-
-
+		
+		
 		on getSelectedText()
 			if not hasSelection() then return missing value
-
+			
 			tell application "Script Editor"
 				tell document 1
 					contents of selection as text
 				end tell
-			end tell			
+			end tell
 		end getSelectedText
 		
 		
