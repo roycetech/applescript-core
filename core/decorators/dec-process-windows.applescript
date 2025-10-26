@@ -9,8 +9,10 @@
 		./scripts/build-lib.sh core/decorators/dec-process-windows
 
 	@Created: Friday, September 13, 2024 at 2:05:42 PM
-	@Last Modified: 2025-03-13 08:29:02
+	@Last Modified: 2025-10-25 13:57:43
+
 	@Change Logs:
+		Sat, Oct 25, 2025, at 01:57:32 PM - #closeWindow() handler
 *)
 use loggerFactory : script "core/logger-factory"
 
@@ -27,6 +29,14 @@ on spotCheck()
 		Main
 		Manual: Move Window with Title Containing
 		Manual: Move Window with Title Not Containing
+		Manual: Close Window
+		Dummy
+
+		Dummy
+		Dummy
+		Dummy
+		Dummy
+		Dummy
 	")
 
 	set spotScript to script "core/spot-test"
@@ -40,8 +50,12 @@ on spotCheck()
 
 	-- activate application ""
 	set sutLib to script "core/process"
-	-- 	set sut to sutLib's new("Safari")
-	set sut to sutLib's new("Script Editor")
+	set sutAppName to "Safari"
+	set sutAppName to "Script Editor"
+	set sutAppName to "Docker Desktop"
+	logger's debugf("sutAppName: {}", sutAppName)
+
+	set sut to sutLib's new(sutAppName)
 	set sut to decorate(sut)
 
 	logger's infof("First window height: {}", sut's getFirstSystemEventsWindowHeight())
@@ -57,6 +71,8 @@ on spotCheck()
 	else if caseIndex is 3 then
 		sut's moveWindowsWithTitleNotContaining("Document", 0, 0)
 
+	else if caseIndex is 4 then
+		sut's closeWindow()
 	else
 
 	end if
@@ -72,6 +88,17 @@ on decorate(mainScript)
 
 	script ProcessDecorator
 		property parent : mainScript
+
+		on closeWindow()
+			if running of application (my processName) is false then return
+
+			tell application "System Events" to tell process (my processName)
+				try
+					click (first button of window 1 whose description is "close button")
+				end try
+			end tell
+		end closeWindow
+
 
 		(* @windowName is case-insensitive. *)
 		on getWindowsMatchingName(windowName)
