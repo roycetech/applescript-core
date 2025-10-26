@@ -70,6 +70,8 @@ on spotCheck()
 		Manual: Switch to Group 2
 		Run Remote File - e2e
 		Manual: Run Command Palette
+		Manual: Close Project
+		Dummy
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -120,6 +122,9 @@ on spotCheck()
 			set frontmost to true
 		end tell
 		sut's runCommandPalette("Terminus: Tab")
+		
+	else if caseIndex is 9 then
+		sut's closeProject()
 		
 	else if caseIndex is 11 then
 		
@@ -493,12 +498,20 @@ on new()
 		on closeProject()
 			if not _isAppWindowAvailable() then return
 			
-			activate application "Sublime Text"
-			tell application "System Events" to tell process "Sublime Text"
-				try
-					click menu item "Close Project" of menu 1 of menu bar item "Project" of menu bar 1
-				end try
-			end tell
+tell application "System Events" to tell process "Sublime Text"
+	set frontmost to true
+	set titleToClose to the title of front window
+	repeat 5 times
+		set frontmost to true
+		try
+			click menu item "Close Project" of menu 1 of menu bar item "Project" of menu bar 1
+			delay 0.1
+			set currentTitle to the title of front window
+			if titleToClose is not equal to currentTitle then exit repeat
+		end try
+		delay 0.5
+	end repeat
+end tell
 		end closeProject
 		
 		
