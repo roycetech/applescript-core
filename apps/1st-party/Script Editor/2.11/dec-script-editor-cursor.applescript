@@ -36,7 +36,6 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: Line number at index
@@ -57,6 +56,7 @@ on spotCheck()
 		Dummy
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -82,7 +82,6 @@ on spotCheck()
 	logger's infof("Current line above contents: [{}]", sut's getLineContentsAboveCursor())
 	logger's infof("Cursor line text start: {}", sut's getCursorLineTextStart())
 	
-	
 	if caseIndex is 1 then
 		
 	else if caseIndex is 2 then
@@ -105,7 +104,8 @@ on spotCheck()
 		sut's moveCursorToFirstMarker(sutMarkerText)
 		
 	else if caseIndex is 6 then
-		set sutLinesBelowTimes to 2
+		set sutLinesBelowTimes to 1
+		-- set sutLinesBelowTimes to 2
 		logger's debugf("sutLinesBelowTimes: {}", sutLinesBelowTimes)
 		
 		sut's moveCursorDownwards(sutLinesBelowTimes)
@@ -129,10 +129,11 @@ on spotCheck()
 		
 	else if caseIndex is 9 then
 		set sutLineNumber to -1
-		set sutLineNumber to 1
+		-- set sutLineNumber to 1
 		-- set sutLineNumber to 999
-		set sutLineNumber to 2
+		-- set sutLineNumber to 2
 		set sutLineNumber to 3
+		set sutLineNumber to 623 -- Last line
 		logger's debugf("sutLineNumber: {}", sutLineNumber)
 		
 		logger's infof("Cursor at line: [{}]", sut's getCursorStartOfLine(sutLineNumber))
@@ -189,11 +190,17 @@ on decorate(mainScript)
 		property parent : mainScript
 		property rememberedCursorPositionStart : missing value
 		
+		(*
+			Test Cases:
+				1. EOF with ending new line
+				2. EOF without ending new line
+		*)
 		on getCursorStartOfLine(lineNumber)
 			if lineNumber is less than 2 then return 0
 			
 			tell application "Script Editor" to tell document 1
 				set textLines to paragraphs of contents
+				if {linefeed, return} contains the last character of contents then set end of textLines to ""
 			end tell
 			-- logger's debugf("Number of lines: {}", count of textLines)
 			
@@ -278,6 +285,15 @@ on decorate(mainScript)
 		end getInsertionPointAtLine
 		
 		
+		(*
+			Test Cases:
+				Inside a multi line string - ok
+				Inside a block comment - ok
+				Regular code - ok
+				Empty line - ok
+				End of file - ok
+				Start of file - ok
+		*)
 		on moveCursorDownwards(linesBelow)
 			if running of application "Script Editor" is false then return
 			if linesBelow is less than 1 then return
@@ -291,7 +307,7 @@ on decorate(mainScript)
 			repeat linesBelow times
 				set cursorIndex to cursorIndex + 1
 				try
-					repeat until character cursorIndex of editorContents is equal to return
+					repeat until {return, linefeed} contains the character cursorIndex of editorContents
 						set cursorIndex to cursorIndex + 1
 					end repeat
 				end try
@@ -316,7 +332,7 @@ on decorate(mainScript)
 			
 			set totalContentsSize to the number of characters in editorContents
 			set cursorIndex to getCursorStartIndex()
-			logger's debugf("cursorIndex: {}", cursorIndex)
+			-- logger's debugf("cursorIndex: {}", cursorIndex)
 			
 			repeat linesAbove times
 				try
@@ -365,7 +381,7 @@ on decorate(mainScript)
 			
 			set currentCursorPosition to getCursorStartIndex()
 			set newCursorPosition to currentCursorPosition + cursorPositionOffset + 1
-			logger's debugf("newCursorPosition: {}", newCursorPosition)
+			-- logger's debugf("newCursorPosition: {}", newCursorPosition)
 			
 			set case1or2 to false
 			if newCursorPosition is less than 0 then
@@ -398,7 +414,7 @@ on decorate(mainScript)
 		
 		on moveCursorToEndOfFile()
 			if running of application "Script Editor" is false then return
-
+			
 			tell application "Script Editor" to tell document 1
 				set selection to insertion point -1
 				
@@ -407,15 +423,15 @@ on decorate(mainScript)
 				end if
 			end tell
 		end moveCursorToEndOfFile
-
-
+		
+		
 		on moveCursorToIndex(newCursorPosition)
 			if running of application "Script Editor" is false then return
 			
 			tell application "Script Editor" to tell document 1
-				set selection to insertion point newCursorPosition				
+				set selection to insertion point newCursorPosition
 			end tell
-		end moveCursorToEndOfFile
+		end moveCursorToIndex
 		
 		
 		(*
@@ -498,19 +514,30 @@ on decorate(mainScript)
 		
 		(*
 			Retrieve the cursor start at the start of a text in the current line.
+			
+			Test cases:
+				EOF
+				
 		*)
 		on getCursorLineTextStart()
 			if running of application "Script Editor" is false then return -1
 			
 			set currentLineContents to getCurrentLineContents()
 			-- log currentLineContents
-			set cursorIndexAtCurrentLine to getCursorStartOfLine(getCursorLineNumber())
+			set cursorLineNumber to getCursorLineNumber()
+			-- logger's debugf("cursorLineNumber: {}", cursorLineNumber)
+			
+			set cursorIndexAtCurrentLine to getCursorStartOfLine(cursorLineNumber)
+			-- logger's debugf("cursorIndexAtCurrentLine: {}", cursorIndexAtCurrentLine)
+			
 			set cleanedParagraph to textUtil's ltrim(currentLineContents)
 			if cleanedParagraph is "" then
 				tell application "Script Editor" to tell first document
-					set selection to insertion point cursorIndexAtCurrentLine
+					try
+						-- set selection to insertion point cursorIndexAtCurrentLine
+					end try
 				end tell
-				return
+				return cursorIndexAtCurrentLine + 1
 			end if
 			
 			set cleanedLength to the number of characters in cleanedParagraph
