@@ -13,14 +13,14 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-tab-finder2
+		./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-tab-finder2
 
 	NOTES:
 		Could not use the shortcut "find tab whose property" because we need to get the index
 		and the only why I found to do this is via manual iteration. - TODO: Verify if this is the same case with Safari.
 
 	@Created: Thu, Feb 20, 2025 at 07:12:25 AM
-	@Last Modified: 2025-10-20 06:50:14
+	@Last Modified: 2025-10-28 06:39:25
 	@Change Logs:
 
 *)

@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/decorators/dec-system-settings-cliclick
 
 	@Created: Saturday, September 21, 2024 at 10:36:44 AM
-	@Last Modified: 2024-12-31 19:34:06
+	@Last Modified: 2025-10-26 12:58:26
 	@Change Logs:
 *)
 use script "core/Text Utilities"
@@ -19,6 +19,7 @@ use clipLib : script "core/clipboard"
 use cliclickLib : script "core/cliclick"
 
 property logger : missing value
+
 property clip : missing value
 property cliclick : missing value
 
@@ -29,11 +30,11 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Main
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -67,7 +68,6 @@ end spotCheck
 (*  *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
-
 	set clip to clipLib's new()
 	set cliclick to cliclickLib's new()
 
