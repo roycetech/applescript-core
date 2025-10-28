@@ -316,6 +316,15 @@ on new()
 				end try
 			end tell
 		end closeLogsHistory
+
+
+		on closeLibrary()
+			tell application "System Events" to tell process "Script Editor"
+				try
+					click of first button of window "Library" whose description is "close button"
+				end try
+			end tell
+		end closeLibrary
 	end script
 	
 	decWindow's decorate(result)
