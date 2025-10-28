@@ -53,8 +53,8 @@ on spotCheck()
 		Nonexistent App
 		Manual: Terminate (Launch Automator). (Running/Not Running)
 		Manual: Is Front Most (Running,Not Running)
-		Manual: Move Window
-		Manual: Resize Window
+		Manual: Quit App
+		Dummy
 
 		Manual: First App Window(Running, Not Running, No Windows, With Window)
 		Manual: App Windows(Running, Not Running, No Windows, With Window)
@@ -98,20 +98,22 @@ on spotCheck()
 			logger's info("Passed.")
 		end try
 
-	else if caseIndex is 2 then
-		set sut to new("Automator")
-		sut's terminate()
-
 	else if caseIndex is 3 then
 		logger's infof("isFrontMost-Script Editor: {}", scriptEditorApp's isFrontMost())
 		logger's infof("isFrontMost-Terminal: {}", new("Terminal")'s isFrontMost())
 		logger's infof("isFrontMost (Not Running): {}", notRunning's isFrontMost())
 
+
 	else if caseIndex is 4 then
-		scriptEditorApp's moveWindow(100, 100)
+		set sutAppName to "Talon"
+		logger's debugf("sutAppName: {}", sutAppName)
+
+		set sut to new(sutAppName)
+		-- sut's terminate()
+		sut's quitApp()
+		activate app sutAppName
 
 	else if caseIndex is 5 then
-		scriptEditorApp's setFirstWindowDimension(500, 500)
 
 	else if caseIndex is 6 then
 		logger's logObj("First App Window", scriptEditorApp's getFirstWindow())
@@ -231,6 +233,22 @@ on new(pProcessName)
 	script ProcessInstance
 		property processName : localProcessName
 		property bundleId : localBundleId
+
+
+		(*
+			@returns true if app has been verified not running.
+		*)
+		on quitApp()
+			if running of application processName is false then return true
+
+			tell application processName to quit
+			repeat 10 times
+				if running of application processName is false then return true
+				delay 0.5
+			end repeat
+
+			false
+		end quitApp
 
 
 		on clickMenuItem(menuTitle, menuItemTitle)
@@ -506,8 +524,12 @@ on new(pProcessName)
 	end script
 
 	set decoratorWindow to script "core/dec-process-windows"
+	set decoratorWindowResizer to script "core/dec-process-window-resizer"
+	set decoratorWindowMover to script "core/dec-process-window-mover"
 	set decoratorDockAware to script "core/dec-process-dock-aware"
 	decoratorWindow's decorate(ProcessInstance)
+	decoratorWindowResizer's decorate(result)
+	decoratorWindowMover's decorate(result)
 	decoratorDockAware's decorate(result)
 	set nonBundleInstance to result
 
