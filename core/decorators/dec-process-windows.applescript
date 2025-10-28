@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/decorators/dec-process-windows
 
 	@Created: Friday, September 13, 2024 at 2:05:42 PM
-	@Last Modified: 2025-10-25 13:57:43
+	@Last Modified: 2025-10-26 13:20:42
 
 	@Change Logs:
 		Sat, Oct 25, 2025, at 01:57:32 PM - #closeWindow() handler
@@ -171,50 +171,6 @@ on decorate(mainScript)
 		end getFirstSystemEventsWindow
 
 
-		on getFirstSystemEventsWindowHeight()
-			set firstWindow to getFirstSystemEventsWindow()
-			if firstWindow is missing value then return 0
-
-			tell application "System Events"
-				size of firstWindow
-				last item of result
-			end tell
-		end getFirstSystemEventsWindowHeight
-
-
-		on getFirstSystemEventsVerticalWindowPosition()
-			set firstWindow to getFirstSystemEventsWindow()
-			if firstWindow is missing value then return 0
-
-			tell application "System Events"
-				position of firstWindow
-				last item of result
-			end tell
-		end getFirstSystemEventsVerticalWindowPosition
-
-
-		on getFirstSystemEventsHorizontalWindowPosition()
-			set firstWindow to getFirstSystemEventsWindow()
-			if firstWindow is missing value then return 0
-
-			tell application "System Events"
-				position of firstWindow
-				first item of result
-			end tell
-		end getFirstSystemEventsHorizontalWindowPosition
-
-
-		on getFirstSystemEventsWindowWidth()
-			set firstWindow to getFirstSystemEventsWindow()
-			if firstWindow is missing value then return 0
-
-			tell application "System Events"
-				size of firstWindow
-				first item of result
-			end tell
-		end getFirstSystemEventsWindowWidth
-
-
 		on getWindows()
 			if running of application (my processName) is false then return missing value
 
@@ -222,6 +178,7 @@ on decorate(mainScript)
 				windows
 			end tell
 		end getWindows
+
 
 		on getNonMinimizedWindows()
 			if running of application (my processName) is false then return missing value
@@ -234,6 +191,7 @@ on decorate(mainScript)
 				end try
 			end tell
 		end getNonMinimizedWindows
+
 
 		on hasWindows()
 			if running of application (my processName) is false then return false
@@ -249,102 +207,5 @@ on decorate(mainScript)
 		end hasWindowsWithTitle
 
 
-		on setFirstWindowDimension(w, h)
-			if running of application (my processName) is false then return
-
-			tell application "System Events" to tell process (my processName)
-				try
-					set size of first window to {w, h}
-				end try
-			end tell
-		end setFirstWindowDimension
-
-
-		on moveFirstWindow(x, y)
-			if my processName is not "java" and running of application (my processName) is false then return
-
-			tell application "System Events" to tell process (my processName)
-				try
-					set position of first window to {x, y}
-				end try
-			end tell
-		end moveFirstWindow
-
-
-		on moveWindows(x, y)
-			if my processName is not "java" and running of application (my processName) is false then return
-
-			tell application "System Events" to tell process (my processName)
-				try
-					set position of windows to {x, y}
-				end try
-			end tell
-		end moveWindows
-
-
-		on moveWindowsWithTitleContaining(titleKey, x, y)
-			if my processName is not "java" and running of application (my processName) is false then return
-
-			tell application "System Events" to tell process (my processName)
-				try
-					set position of windows whose title contains titleKey to {x, y}
-				end try
-			end tell
-		end moveWindowsWithTitleContaining
-
-
-		on moveWindowsWithTitleNotContaining(titleKey, x, y)
-			if my processName is not "java" and running of application (my processName) is false then return
-
-			tell application "System Events" to tell process (my processName)
-				try
-					set position of windows whose title does not contain titleKey to {x, y}
-				end try
-			end tell
-		end moveWindowsWithTitleNotContaining
-
-
-		on resizeWindowsWithTitleContaining(titleKey, w, h)
-			if my processName is not "java" and running of application (my processName) is false then return
-
-			tell application "System Events" to tell process (my processName)
-				try
-					set size of windows whose title contains titleKey to {w, h}
-				end try
-			end tell
-		end resizeWindowsWithTitleContaining
-
-
-		on resizeWindowsWithTitleNotContaining(titleKey, w, h)
-			if my processName is not "java" and running of application (my processName) is false then return
-
-			tell application "System Events" to tell process (my processName)
-				try
-					set size of windows whose title does not contain titleKey to {w, h}
-				end try
-			end tell
-		end resizeWindowsWithTitleNotContaining
-
-
-		on resizeFirstWindow(w, h)
-			if my processName is not "java" and running of application (my processName) is false then return
-
-			tell application "System Events" to tell process (my processName)
-				try
-					set size of first window to {w, h}
-				end try
-			end tell
-		end resizeFirstWindow
-
-
-		on resizeWindows(w, h)
-			if my processName is not "java" and running of application (my processName) is false then return
-
-			tell application "System Events" to tell process (my processName)
-				try
-					set size of windows to {w, h}
-				end try
-			end tell
-		end resizeWindows
 	end script
 end decorate
