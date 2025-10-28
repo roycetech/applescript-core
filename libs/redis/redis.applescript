@@ -33,7 +33,7 @@
 	@Known Issues:
 		September 2, 2023 9:53 AM - Records are not currently supported.
 
-	@Last Modified: 2025-09-03 09:06:22
+	@Last Modified: 2025-10-27 11:55:26
  *)
 
 use scripting additions
@@ -124,6 +124,7 @@ on new(pTimeoutSeconds)
 		(* TODO: Unit Test rpush, lrange, lpop. *)
 		on rpush(listKey, newValue)
 			if listKey is missing value then return
+
 			set quotedListKey to quoted form of listKey
 			set quotedValue to quoted form of newValue
 
@@ -138,6 +139,7 @@ on new(pTimeoutSeconds)
 
 		on lrange(listKey, startIndex, endIndex)
 			if listKey is missing value then return
+
 			set quotedListKey to quoted form of listKey
 
 			set lrangeShellCommand to format {"{} LRANGE {} {} {}", {REDIS_CLI, quotedListKey, startIndex, endIndex}}
@@ -151,6 +153,7 @@ on new(pTimeoutSeconds)
 
 		on lpop(listKey)
 			if listKey is missing value then return
+
 			set quotedListKey to quoted form of listKey
 
 			set popValueShellCommand to format {"{} LPOP {}", {REDIS_CLI, quotedListKey}}
@@ -160,6 +163,19 @@ on new(pTimeoutSeconds)
 				logger's warn(errorMessage)
 			end try
 		end lpop
+
+
+		on lindex(listKey, redisIndex)
+			if listKey is missing value then return
+
+			set quotedListKey to quoted form of listKey
+			set popValueShellCommand to format {"{} LINDEX {} {}", {REDIS_CLI, quotedListKey, redisIndex}}
+			try
+				do shell script popValueShellCommand
+			on error the errorMessage number the errorNumber
+				logger's warn(errorMessage)
+			end try
+		end lindex
 
 
 		on setValue(plistKey, newValue)
