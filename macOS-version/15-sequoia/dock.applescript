@@ -12,6 +12,7 @@
 		Fri, Feb 21, 2025 at 06:41:06 AM
 
 	@Change Logs:
+		Thu, Nov 13, 2025, at 08:23:33 AM - #clickApp to prefer the right-most app.
 		Thu, Dec 12, 2024 at 8:39:52 AM - Handler to check if app menu item exists.
 		Wednesday, May 8, 2024 at 12:45:19 PM - Allow trigger of a single nest menu.
 
@@ -35,15 +36,20 @@ on spotCheck()
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP:
+		Manual: Click App
+		Manual: Click First App
 		Manual: App Menu Exists
+
+
 		Assign to Desktop 1
 		Assign to Desktop 2
 		Assign to All
-		Assign to None
 
+		Assign to None
 		Manual: Trigger Menu: (Basic, Nested)
 		Manual: Click App
 		Manual: Trigger Menu By Prefix
+		Dummy
 	")
 
 	set spotScript to script "core/spot-test"
@@ -77,6 +83,19 @@ on spotCheck()
 	if caseIndex is 1 then
 
 	else if caseIndex is 2 then
+		set sutApp to "IntelliJ IDEA"
+		logger's debugf("sutApp: {}", sutApp)
+
+		sut's clickApp(sutApp)
+
+	else if caseIndex is 3 then
+		set sutApp to "IntelliJ IDEA"
+		logger's debugf("sutApp: {}", sutApp)
+
+		sut's clickFirstApp(sutApp)
+
+	else if caseIndex is 4 then
+
 		set sutApp to "Windows App"
 		set sutMenuTitle to "Main"
 		logger's infof("sutApp: {}", sutApp)
@@ -159,6 +178,18 @@ on new()
 
 		(* Will not work if the app doesn't even appear in the dock. *)
 		on clickApp(appName)
+			tell application "System Events" to tell process "Dock"
+				try
+					repeat 2 times -- does not work if clicked for one time only.
+						-- click UI element appName of list 1
+						click (last UI element of list 1 whose title is appName)
+					end repeat
+				end try
+			end tell
+		end clickApp
+
+
+		on clickFirstApp(appName)
 			tell application "System Events" to tell process "Dock"
 				try
 					repeat 2 times -- does not work if clicked for one time only.
