@@ -22,15 +22,22 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP
 		Manual: Filter Menu Case
 		Manual: Quit Process
 		Manual: Force Quit Process
+		Manual: Switch Tab
+		
+		Dummy
+		Dummy
+		Dummy
+		Dummy
+		Dummy
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -40,6 +47,8 @@ on spotCheck()
 	end if
 	
 	set sut to new()
+	logger's infof("Selected tab: {}", sut's getSelectedTab())
+	
 	if caseIndex is 1 then
 		
 	else if caseIndex is 2 then
@@ -55,6 +64,12 @@ on spotCheck()
 	else if caseIndex is 4 then
 		logger's infof("Handler result: {}", sut's forceQuitFirstProcess())
 		
+	else if caseIndex is 5 then
+		set sutTabName to "unicorn"
+		set sutTabName to "CPU"
+		logger's debugf("sutTabName: {}", sutTabName)
+		
+		sut's switchTab(sutTabName)
 	end if
 	
 	spot's finish()
@@ -67,6 +82,45 @@ on new()
 	loggerFactory's inject(me)
 	
 	script ActivityMonitorInstance
+		
+		on switchTab(tabName)
+			set mainWindow to getMainWindow()
+			if mainWindow is missing value then return missing value
+			
+			tell application "System Events" to tell process "Activity Monitor"
+				try
+					click (first radio button of radio group 1 of group 1 of toolbar 1 of front window whose description is equal to the tabName)				
+									end try
+			end tell
+		end switchTab
+		
+		
+		on getSelectedTab()
+			set mainWindow to getMainWindow()
+			if mainWindow is missing value then return missing value
+			
+			tell application "System Events" to tell process "Activity Monitor"
+				first radio button of radio group 1 of group 1 of toolbar 1 of front window whose value is 1
+				
+				-- click radio button "CPU" of radio group 1 of group 1 of toolbar 1 of front window
+				
+				description of result
+			end tell
+		end getSelectedTab
+		
+		
+		on getMainWindow()
+			if running of application "Activity Monitor" is false then return missing value
+			
+			tell application "System Events" to tell process "Activity Monitor"
+				try
+					return first window whose description is "standard window"
+				end try
+			end tell
+			
+			missing value
+		end getMainWindow
+		
 		on filterApp(appKeyword)
 			if running of application "Activity Monitor" is false then return
 			
