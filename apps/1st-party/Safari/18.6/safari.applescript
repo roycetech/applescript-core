@@ -31,7 +31,7 @@
 		end tell
 
 	@Created: Mon, Feb 10, 2025 at 7:30:44 AM
-	@Last Modified: 2025-09-05 06:33:41
+	@Last Modified: 2025-10-27 07:37:28
 *)
 
 use scripting additions
@@ -425,7 +425,8 @@ on new()
 
 		(*
 			TODO: Test for when Safari is not running.
-			This is dependent on the user setting for new window/tabs, currently it is tested against when new window is on a "Start Page"
+			This is dependent on the user setting for new window/tabs, currently
+			it is tested against when new window is on a "Start Page"
 		*)
 		on newWindow(targetUrl)
 			newWindowWithProfile(targetUrl, missing value)
@@ -433,8 +434,8 @@ on new()
 
 
 		(*
-			TODO: Test for when Safari is not running.
-			This is dependent on the user setting for new window/tabs, currently it is tested against when new window is on a "Start Page"
+			This is dependent on the user setting for new window/tabs, currently
+			it is tested against when new window is on a "Start Page"
 		*)
 		on newWindowWithProfile(targetUrl, profileName)
 			set normalProfileName to normalizeProfileName(profileName)

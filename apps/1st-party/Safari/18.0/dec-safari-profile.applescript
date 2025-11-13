@@ -1,4 +1,6 @@
 (*
+	@Purpose:
+
 
 	@Project:
 		applescript-core
@@ -7,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.0/dec-safari-profile
 
 	@Created: Sunday, October 6, 2024 at 7:27:33 PM
-	@Last Modified: 2025-02-20 06:42:51
+	@Last Modified: 2025-10-27 07:20:31
 	@Change Logs:
 *)
 use textUtil : script "core/string"
@@ -58,6 +60,7 @@ on spotCheck()
 
 	else if caseIndex is 2 then
 		sut's newTabOnProfile("Business", "https://www.example.com")
+
 	else if caseIndex is 3 then
 
 	else
