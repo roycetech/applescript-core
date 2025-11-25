@@ -58,7 +58,9 @@ on spotCheck()
 end spotCheck
 
 
-(*  *)
+(*  
+	@mainScript ScriptEditorInstance
+*)
 on decorate(mainScript)
 	loggerFactory's inject(me)
 	
