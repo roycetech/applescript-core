@@ -18,4 +18,4 @@ else
 fi
 
 cd "$REPO_DIR"
-make install
+make set-user-deploy-type install
