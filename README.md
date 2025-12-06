@@ -14,10 +14,9 @@ For the more comprehensive documentation, see [README-Full.md](./README-Full.md)
 
 ## Installation
 
-1.  Checkout this project: `git clone https://github.com/roycetech/applescript-core`
-2.  Install into the user's Script Libraries: `make install`
-
-Run `curl -fsSL https://github.com/roycetech/applescript-core/blob/main/scripts/install.sh | bash`
+```sh
+curl -fsSL https://raw.githubusercontent.com/roycetech/applescript-core/refs/heads/main/scripts/install.sh | bash
+```
 
 Optionally install individual wrappers as needed. (e.g. `make install-safari`)
 
@@ -25,7 +24,7 @@ Optionally install individual wrappers as needed. (e.g. `make install-safari`)
 
 This framework is typically installed under the users scope but may also be installed on the computer scope so that multiple users of the same mac can use the libraries.
 
-To install on the computer scope run: `$ make set-computer-deploy-type`.
+To install on the computer scope, re-install with: `$ make uninstall set-computer-deploy-type install`.
 
 
 ## Uninstall
