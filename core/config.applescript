@@ -1,15 +1,18 @@
 (*
-@Usage:
-    use configLib :  script "core/config"
+	@Usage:
+    		use configLib :  script "core/config"
 
-property configUser : configLib's new("user")
+		property configUser : configLib's new("user")
 
-set DEPLOY_DIR to configUser's getValue("User Key")
+		set DEPLOY_DIR to configUser's getValue("User Key")
 
-TODO: Optimize by creating new handlers with type like getValueString.
+		TODO: Optimize by creating new handlers with type like getValueString.
+
+	@Project:
+		applescript-core
 
 	@Build:
-		make build-lib SOURCE=core/config
+		./scripts/build-lib.sh core/config
 *)
 
 use plutilLib : script "core/plutil"
@@ -106,7 +109,6 @@ on new(pConfigName)
 
 			categoryPlist's getValue(configKey)
 		end getCategoryValue
-
 
 		on getValue(configKey)
 			getCategoryValue(my configName, configKey)
