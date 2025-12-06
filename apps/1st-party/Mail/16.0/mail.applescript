@@ -28,7 +28,6 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 
 	set cases to listUtil's splitByLine("
@@ -43,6 +42,7 @@ on spotCheck()
 		Manual: Multi: Settings: General: Pick New Message Notifications
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotLib to spotScript's new()
 	set spot to spotLib's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

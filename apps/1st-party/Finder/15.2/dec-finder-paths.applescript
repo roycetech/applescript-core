@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-paths
 
 	@Created: Tuesday, December 31, 2024 at 6:17:40 PM
-	@Last Modified: 2025-01-03 07:52:32
+	@Last Modified: 2025-12-02 09:24:24
 	@Change Logs:
 *)
 use scripting additions
@@ -102,7 +102,7 @@ on decorate(mainScript)
 			tell application "Finder"
 				activate -- No need to wait, it will work just fine.
 				set finderWindow to make new Finder window
-				set target of finderWindow to POSIX file (my _untilde(posixPath))
+				set target of finderWindow to POSIX file (my untilde(posixPath))
 			end tell
 		end openPosixPath
 

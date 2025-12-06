@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-mini
 
 	@Created: Monday, December 30, 2024 at 11:56:11 AM
-	@Last Modified: 2025-01-09 15:22:29
+	@Last Modified: 2025-12-02 09:20:02
 *)
 use script "core/Text Utilities"
 
@@ -32,7 +32,6 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP
@@ -41,6 +40,7 @@ on spotCheck()
 		Manual: Accept found path
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -107,7 +107,7 @@ on new(pProcessName)
 
 		on enterPath(newPath)
 			set calcPath to untilde(newPath)
-			kb's insertTextByPasting(newPath)
+			kb's insertTextByPasting(newPath & "/")
 
 			script WaitFoundPath
 				tell application "System Events" to tell process processName
@@ -133,7 +133,7 @@ on new(pProcessName)
 		on untilde(tildePath)
 			set posixPath to tildePath
 			if tildePath is "~" then
-				set posixPath to format {"/Users/{}/", std's getUsername()}
+				set posixPath to format {"/Users/{}", std's getUsername()}
 			else if tildePath starts with "~" then
 				set posixPath to format {"/Users/{}/{}", {std's getUsername(), text 3 thru -1 of posixPath}}
 			end if
