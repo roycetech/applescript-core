@@ -15,6 +15,7 @@ endif
 # Transitive scripts need to be compiled first before it can be referenced by
 # another library.
 CORE_LIBS :=  \
+	logger \
 	logger-factory \
 	decorator \
 	simple-test \
@@ -45,7 +46,6 @@ CORE_LIBS :=  \
 	ui-util \
 	unicodes \
 	window \
-	logger \
 	property-list \
 	spot-test \
 	menu \

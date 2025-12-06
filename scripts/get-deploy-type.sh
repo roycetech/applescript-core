@@ -9,7 +9,7 @@
 
 DEPLOY_TYPE_KEY="[app-core] Deployment Type - LOV Selected"
 PLIST_PATH="$HOME/applescript-core/session.plist"
-DEPLOY_TYPE=$(plutil -extract "$DEPLOY_TYPE_KEY" raw $PLIST_PATH)
+DEPLOY_TYPE=$(plutil -extract "$DEPLOY_TYPE_KEY" raw "$PLIST_PATH")
 
 if [[ $DEPLOY_TYPE != *"error"* ]]; then
     if [[ $DEPLOY_TYPE == "computer" ]]; then
