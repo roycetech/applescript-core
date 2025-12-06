@@ -83,7 +83,7 @@ endif
 clean:
 	find . -name '*.scpt' ! -name "main.scpt" -delete
 
-install: _init build
+install: _init build-standard build
 ifeq ($(DEPLOY_TYPE), user)
 	mkdir -p ~/Library/'Script Libraries'/core/test
 	mkdir -p ~/Library/'Script Libraries'/core/app
