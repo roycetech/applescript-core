@@ -17,6 +17,8 @@ For the more comprehensive documentation, see [README-Full.md](./README-Full.md)
 1.  Checkout this project: `git clone https://github.com/roycetech/applescript-core`
 2.  Install into the user's Script Libraries: `make install`
 
+Run `curl -fsSL https://github.com/roycetech/applescript-core/blob/main/scripts/install.sh | bash`
+
 Optionally install individual wrappers as needed. (e.g. `make install-safari`)
 
 ### Installation Scope
