@@ -27,6 +27,10 @@ property parent : script "com.lifepillar/ASUnit"
 ---------------------------------------------------------------------------------------
 property suitename : "The test suite description goes here"
 property scriptName : "file" -- The name of the script to be tested
+
+(*
+	NOTE: Created, updated and deleted on the fly.
+*)
 property testFile : "~/applescript-core/file-test.txt"
 global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
@@ -219,6 +223,17 @@ Yes
 		assertEqual(textUtil's multiline("Hello
 **&replacement**
 "), TopLevel's __readTestFile())
+
+	end script
+
+	script |Substring escapable characters|
+		property parent : unitTest(me)
+		TopLevel's __writeTextFile("### Related Notes
+*   [idea-Plugin.md](note://Apps/idea/idea-Plugins.md)")
+		sutScript's replaceText(testFile, "*   [idea-Plugin.md](note://Apps/idea/idea-Plugins.md)", "*   [IntelliJ IDEA-Plugins.md](note://Apps/IntelliJ+IDEA/IntelliJ+IDEA-Plugins.md)")
+		assertEqual(textUtil's multiline("### Related Notes
+*   [IntelliJ IDEA-Plugins.md](note://Apps/IntelliJ+IDEA/IntelliJ+IDEA-Plugins.md)"), TopLevel's __readTestFile())
+
 	end script
 end script
  
