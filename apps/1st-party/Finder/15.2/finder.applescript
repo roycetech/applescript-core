@@ -11,7 +11,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
 
-	@Last Modified: 2025-09-20 08:43:26
+	@Last Modified: 2025-12-02 09:23:08
 *)
 
 use script "core/Text Utilities"
@@ -40,7 +40,6 @@ on spotCheck()
 	logger's start()
 
 	(* Have a Finder window open and manually verify result. *)
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		INFO:
@@ -62,6 +61,7 @@ on spotCheck()
 		Manual: Add to Sidebar
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -172,7 +172,7 @@ on new()
 
 
 		on putInTrash(posixPath)
-			set computedPosixPath to _untilde(posixPath)
+			set computedPosixPath to untilde(posixPath)
 			-- logger's debugf("computedPosixPath: {}", computedPosixPath)
 			-- tell application "Finder" to delete POSIX file computedPosixPath
 			(*
@@ -204,7 +204,7 @@ on new()
 				end tell
 			end if
 
-			set computedPosixPath to _untilde(posixPath)
+			set computedPosixPath to untilde(posixPath)
 			set posixFileTarget to POSIX file computedPosixPath
 
 			tell application "Finder"
@@ -241,16 +241,16 @@ on new()
 		end getFileList
 
 
-		on _untilde(tildePath)
+		on untilde(tildePath)
 			set posixPath to tildePath
 			if tildePath is "~" then
-				set posixPath to format {"/Users/{}/", std's getUsername()}
+				set posixPath to format {"/Users/{}", std's getUsername()}
 			else if tildePath starts with "~" then
 				set posixPath to format {"/Users/{}/{}", {std's getUsername(), text 3 thru -1 of posixPath}}
 			end if
 			-- logger's debugf("posixPath: {}", posixPath)
 			posixPath
-		end _untilde
+		end untilde
 	end script
 
 	decFinderFolders's decorate(result)
