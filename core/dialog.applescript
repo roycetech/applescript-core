@@ -1,11 +1,14 @@
 (*
-	@Last Modified: 2025-03-16 09:43:24
-
 	@Project:
 		applescript-core
 
 	@Build:
-		make build-lib SOURCE=core/dialog
+		./scripts/build-lib.sh core/dialog
+
+	@Change Logs:
+		Thu, Nov 20, 2025, at 12:41:55 PM - Added #promptForInputWithDefault
+
+	@Last Modified: 2025-11-20 12:42:36
 *)
 use scripting additions
 
@@ -39,6 +42,12 @@ on spotCheck()
 		Manual: Show choices from a list (Options: missing value, empty, happy, mismatch-default)
 		Manual: List with default selections
 		Manual: Prompt Input
+
+		Manual: Prompt Input with default value
+		Dummy
+		Dummy
+		Dummy
+		Dummy
 	")
 
 	set spotScript to script "core/spot-test"
@@ -100,6 +109,10 @@ on spotCheck()
 		set userInput to sut's promptForInput("Input title", "Input description")
 		logger's infof("userInput: {}", userInput)
 
+	else if caseIndex is 11 then
+		set userInput to sut's promptForInputWithDefault("Input title", "default answer")
+		logger's infof("userInput: {}", userInput)
+
 	end if
 
 	spot's finish()
@@ -116,13 +129,18 @@ on new()
 
 
 		on promptForInput(title)
+			promptForInputWithDefault(title, "")
+		end promptForInput
+
+
+		on promptForInputWithDefault(title, defaultValue)
 			try
-				set inputDialog to display dialog title default answer ""
+				set inputDialog to display dialog title default answer defaultValue
 				return text returned of inputDialog
 			end try
 
 			missing value -- When canceled.
-		end promptForInput
+		end promptForInputWithDefault
 
 
 		on showChoicesFromList(title, message, optionsList, defaultChoice)

@@ -198,7 +198,6 @@ on spotCheck()
 
 	end if
 
-
 	spot's finish()
 	logger's finish()
 end spotCheck
