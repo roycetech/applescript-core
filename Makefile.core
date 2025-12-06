@@ -94,7 +94,7 @@ endif
 	touch ~/applescript-core/logs/applescript-core.log
 #	osascript scripts/setup-applescript-core-project-path.applescript
 	./scripts/setup-switches.sh
-	@echo "Installation done"
+	@echo "applescript-core installation completed"
 
 $(CORE_LIBS): Makefile
 	$(SUDO) ./scripts/build-lib.sh core/$@
