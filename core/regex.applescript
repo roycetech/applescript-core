@@ -9,12 +9,12 @@
 		applescript-core
 
 	@Build:
-		make build-lib SOURCE=core/regex
+		./scripts/build-lib.sh core/regex
 
 	@Known Issues:
 		July 29, 2023 9:37 PM - Removed in plutil validation because it fails intermittently on the "matches" handler.
 
-	@Last Modified: 2023-10-19 15:06:23
+	@Last Modified: 2025-12-06 15:22:41
 *)
 
 use framework "Foundation"
@@ -24,8 +24,6 @@ use textUtil : script "core/string"
 use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property ERROR_INVALID_PATTERN : 1000
@@ -40,7 +38,7 @@ end numberOfMatchesInString
 
 
 on matchesInString(pattern, searchString)
-	if pattern is missing value  or searchString is missing value then return false
+	if pattern is missing value or searchString is missing value then return false
 
 	set anNSString to current application's NSString's stringWithString:searchString
 	set stringLength to anNSString's |length|()
@@ -48,7 +46,7 @@ on matchesInString(pattern, searchString)
 
 	-- Check if there was an error
 	if nsregex is missing value then
-	    error "Error: Unable to create NSRegularExpression /'" & pattern & "/" number ERROR_INVALID_PATTERN
+		error "Error: Unable to create NSRegularExpression /'" & pattern & "/" number ERROR_INVALID_PATTERN
 	end if
 
 	set match to nsregex's firstMatchInString:anNSString options:0 range:{0, stringLength}
