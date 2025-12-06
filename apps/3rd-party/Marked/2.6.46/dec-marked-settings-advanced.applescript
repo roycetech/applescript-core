@@ -14,7 +14,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/dec-marked-settings-advanced
 
 	@Created: Mon, May 26, 2025 at 10:56:22 AM
-	@Last Modified: 2025-10-11 09:03:04
+	@Last Modified: 2025-12-05 09:54:33
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -214,7 +214,7 @@ on decorate(mainScript)
 		end setPreprocessorPath
 
 
-		on setPreprocessorArgs(newPath)
+		on setPreprocessorArgs(newArgument)
 			set settingsWindow to getSettingsWindow()
 			if settingsWindow is missing value then return missing value
 
@@ -226,10 +226,10 @@ on decorate(mainScript)
 			end if
 
 			tell application "System Events" to tell process "Marked 2"
-				set pathTextField to the first text field of tab group 1 of window "Advanced" whose help contains "Additional arguments"
+				set argumentField to the first text field of tab group 1 of window "Advanced" whose help contains "Additional arguments"
 				try
-					set focused of pathTextField to true
-					set value of pathTextField to newPath
+					set focused of argumentField to true
+					set value of argumentField to newArgument
 				end try
 			end tell
 
