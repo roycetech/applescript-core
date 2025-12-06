@@ -4,8 +4,9 @@
 
 
 build-test:
-	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/test/terminal-util.scpt" test/terminal-util.applescript
-	$(SUDO) osacompile -o "$(SCRIPT_LIBRARY_PATH)/core/test/xml-util.scpt" test/xml-util.applescript
+	$(SUDO) mkdir -p $(SCRIPT_LIBRARY_PATH)/core/test
+	$(SUDO) ./scripts/build-lib.sh  test/terminal-util
+	$(SUDO) ./scripts/build-lib.sh  test/xml-util
 .PHONY: build-test
 
 
@@ -60,8 +61,9 @@ watch-unit: test-unit
 watch-integration: test-integration
 	scripts/run-integration-tests_on-change.sh  # This runs test-unit target on change.
 
-spot:
-	osascript 'apps/3rd-party/Google Chrome/131.0/dec-google-chrome-tab-finder.applescript'
+spot:  # Test single script here.
+# 	osascript 'apps/3rd-party/Google Chrome/131.0/dec-google-chrome-tab-finder.applescript'
+	osascript "test/core/Test file.applescript"
 
 spot-watch: spot
 	scripts/run-spot_on-change.sh
