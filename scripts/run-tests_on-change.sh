@@ -1,3 +1,5 @@
-# -n 1 - is the number of parameters passed.
+#!/bin/bash
+
+# NOTE: -n 1 - is the number of parameters passed.
 fswatch -o -e ".*" -i "Test .*\\.applescript$" -i "Makefile" . | xargs -n1 -I{} make test-unit
 # fswatch -o -e ".*" -i "Test .*\\.applescript$" . | xargs -n 1 make test-all
