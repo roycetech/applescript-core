@@ -2,7 +2,7 @@
 	Library wrapper for Preview app.
 
 		@Created: July 14, 2023 6:57 PM
-		@Last Modified: 2024-12-04 09:39:31
+		@Last Modified: 2025-12-06 14:12:41
 
 	@Project:
 		applescript-core
@@ -23,6 +23,7 @@ use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 
 property logger : missing value
+
 property kb : missing value
 property retry : missing value
 property windowUtil : missing value
@@ -34,7 +35,6 @@ on spotCheck()
 	logger's start()
 
 	(* These test cases are run in order. *)
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP:
@@ -50,6 +50,7 @@ on spotCheck()
 		Manual: Reveal in Finder
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

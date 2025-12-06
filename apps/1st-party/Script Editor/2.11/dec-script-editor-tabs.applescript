@@ -98,15 +98,19 @@ on decorate(mainScript)
 		
 		
 		on getTabCount()
-			if running of application "Script Editor" is false then return 0
+			set editorWindow to getEditorWindow()
+			if editorWindow is missing value then return 0
 			
 			tell application "System Events" to tell process "Script Editor"
-				count the radio buttons of tab group "tab bar" of front window
+				count the radio buttons of tab group "tab bar" of editorWindow
 			end tell
 		end getTabCount
 		
 		
 		on switchTabByIndex(tabIndex)
+			set editorWindow to getEditorWindow()
+			if editorWindow is missing value then return
+
 			set currentTabCount to getTabCount()
 			-- logger's debugf("currentTabCount: {}", currentTabCount)
 			
@@ -115,7 +119,7 @@ on decorate(mainScript)
 			
 			tell application "System Events" to tell process "Script Editor"
 				try
-					click radio button tabIndex of tab group "tab bar" of front window
+					click radio button tabIndex of tab group "tab bar" of editorWindow
 				end try
 			end tell
 		end switchTabByIndex
