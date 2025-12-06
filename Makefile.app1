@@ -88,7 +88,12 @@ build-passwords:
 
 build-preview:
 	$(SUDO) ./scripts/build-lib.sh core/decorators/dec-preview-markup
+ifeq ($(OS_NAME), tahoe)
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Preview/v11-Tahoe/preview
+else
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Preview/v11/preview
+endif
+
 
 
 build-safari: build-dock
