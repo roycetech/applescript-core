@@ -15,7 +15,6 @@
 
 use scripting additions
 
-use std : script "core/std"
 use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
