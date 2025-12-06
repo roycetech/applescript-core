@@ -15,13 +15,13 @@ endif
 # Transitive scripts need to be compiled first before it can be referenced by
 # another library.
 CORE_LIBS :=  \
+	decorator \
+	string \
 	logger \
 	logger-factory \
-	decorator \
 	simple-test \
 	unit-test \
 	list \
-	string \
 	regex \
 	regex-pattern \
 	map \

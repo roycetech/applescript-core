@@ -13,11 +13,9 @@
 	@Build:
 		./scripts/build-lib.sh core/string
 
-	@Last Modified: 2025-07-18 15:29:05
+	@Last Modified: 2025-12-06 15:08:23
 *)
 use scripting additions
-
-use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
 
@@ -25,6 +23,7 @@ if {"Script Debugger", "Script Editor"} contains the name of current application
 
 
 on spotCheck()
+	set loggerFactory to script "core/logger-factory"
 	loggerFactory's injectBasic(me)
 	logger's start()
 
