@@ -13,6 +13,7 @@
 		./scripts/build-lib.sh 'apps/3rd-party/Sublime Text/4.x/sublime-text'
 
 	@Known Issues:
+		Thu, Nov 20, 2025, at 10:47:57 AM - Context menu UI hierarchy isn't accessible for scripting.
 		The handler isCurrentFileNewUnsaved is broken when the front window does 
 		not have a saved project.
 
