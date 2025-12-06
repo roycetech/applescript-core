@@ -26,8 +26,13 @@ build-apps-first-party: \
 # 1st Party Apps Library
 
 build-automator:
+ifeq ($(OS_NAME), tahoe)
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Automator/2.10-Tahoe/automator
+else
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Automator/2.10/automator
+endif
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Automator/2.10/dec-automator-applescript
+
 
 install-automator: build-automator
 	mkdir -p /Applications/AppleScript
@@ -91,7 +96,7 @@ build-safari: build-dock
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari-tab
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-tab-finder2
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/26.0/dec-safari-tab-finder2
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-ui-compact
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
