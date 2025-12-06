@@ -33,7 +33,6 @@ else
 endif
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Automator/2.10/dec-automator-applescript
 
-
 install-automator: build-automator
 	mkdir -p /Applications/AppleScript
 	# cp -n plist.template ~/applescript-core/config-system.plist || true
