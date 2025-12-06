@@ -53,6 +53,12 @@ on spotCheck()
 		Manual: Line number of marker text
 		Manual: Adjust cursor position
 		Manual: Get cursor line text start
+		Manual: Move Cursor to line before text
+
+		Dummy
+		Dummy
+		Dummy
+		Dummy
 		Dummy
 	")
 	
@@ -172,6 +178,19 @@ on spotCheck()
 		logger's debugf("sutCursorPositionOffset: {}", sutCursorPositionOffset)
 		
 		sut's adjustCursorPositionByOffset(sutCursorPositionOffset)
+		
+	else if caseIndex is 15 then
+		set sutMarker to "Uni" & "corn"
+		set sutMarker to "el" & "se"
+		set sutMarker to {"el" & "se", "end " & "if"}
+		logger's debugf("sutMarker: {}", sutMarker)
+		
+		sut's moveCursorToLineBeforeText(sutMarker)
+		
+		log "else if caseIndex is 99 then"
+		
+		(* else if caseIndex is 99 then *)
+		
 	else
 		
 	end if
@@ -189,6 +208,103 @@ on decorate(mainScript)
 	script ScriptEditorCursorDecorator
 		property parent : mainScript
 		property rememberedCursorPositionStart : missing value
+		
+		(*
+			Test Cases:
+				1. Marker text not found - ok
+				2. Found text parameter before cursor only - ok
+				3. Found text parameter after cursor - 
+				4. Found in list parameter after cursor - 
+		*)
+		on moveCursorToLineBeforeText(textOrList)
+			if textOrList is missing value then return
+			
+			set listParameter to textOrList
+			if class of textOrList is text then set listParameter to {textOrList}
+			
+			set scriptContents to getFrontContents()
+			set scriptSize to the length of scriptContents
+			set cursorPosition to getCursorStartIndex()
+			logger's debugf("cursorPosition: {}", cursorPosition)
+			
+			set existingKeywords to {}
+			repeat with nextKeyword in listParameter
+				if scriptContents contains nextKeyword then set end of existingKeywords to nextKeyword
+			end repeat
+			-- logger's debugf("nextKeyword: {}", nextKeyword)
+			
+			-- if scriptContents contains nextKeyword then
+			if (count of existingKeywords) is not 0 then
+				-- log "Keyword found in script"
+				(* Move the cursor and exit. *)
+				-- set keywordLength to the length of the nextKeyword
+				set cursorPointer to cursorPosition
+				set breakCounter to 500
+				set previousCharacterAtPointer to missing value
+				set isInLineComment to false
+				set isInBlockComment to false
+				set isInsideDoubleQuotes to false
+				
+				repeat
+					if breakCounter is less than 1 then
+						log "DEBUG: Break counter exhausted"
+						return
+					end if
+					
+					set cursorPointer to cursorPointer + 1
+					if cursorPointer is greater than the scriptSize then
+						-- log "Keyword was not found after the cursor"
+						return
+					end if
+					
+					set characterAtPointer to character cursorPointer of scriptContents
+					if isInLineComment and {return, linefeed} contains characterAtPointer then
+						set isInLineComment to false
+						
+					else if previousCharacterAtPointer is "-" and characterAtPointer is "-" then
+						set isInLineComment to true
+						
+					else if isInBlockComment and previousCharacterAtPointer is "*" and characterAtPointer is ")" then
+						set isInBlockComment to false
+						
+					else if previousCharacterAtPointer is "(" and characterAtPointer is "*" then
+						set isInBlockComment to true
+						
+					else if isInsideDoubleQuotes and characterAtPointer is "\"" then
+						set isInsideDoubleQuotes to false
+						
+					else if characterAtPointer is "\"" then
+						set isInsideDoubleQuotes to true
+						
+					end if
+					
+					
+					set temporarilyIgnoreKeywords to isInLineComment or isInBlockComment or isInsideDoubleQuotes
+					
+					if not temporarilyIgnoreKeywords then
+						repeat with nextExistingKeyword in existingKeywords
+							set keywordLength to the length of the nextExistingKeyword
+							
+							set stringAtOffset to text cursorPointer thru (cursorPointer + keywordLength - 1) of scriptContents
+							-- logger's debugf("stringAtOffset: {}", stringAtOffset)
+							
+							if stringAtOffset as text is equal to the nextExistingKeyword as text then
+								-- log "found, moving cursor..."
+								moveCursorToIndex(cursorPointer) -- Adjust for the newline before
+								moveCursorUpwards(1)
+								return true
+							end if
+						end repeat
+					end if
+					set breakCounter to breakCounter - 1
+					set previousCharacterAtPointer to characterAtPointer
+				end repeat
+				
+				exit repeat
+			else
+				-- log "Not found for " & nextKeyword
+			end if
+		end moveCursorToLineBeforeText
 		
 		(*
 			Test Cases:
@@ -371,10 +487,10 @@ on decorate(mainScript)
 		
 		(*
 			Cases:
-				1. Less than 0, move to beginning of file
-				2. Greater than or equal to size of script, move to the end of script
-				3. Positive offset
-				4. Negative offset
+				1. Less than 0, move to beginning of file - 
+				2. Greater than or equal to size of script, move to the end of script - 
+				3. Positive offset - 
+				4. Negative offset - 
 		*)
 		on adjustCursorPositionByOffset(cursorPositionOffset)
 			if running of application "Script Editor" is false then return
