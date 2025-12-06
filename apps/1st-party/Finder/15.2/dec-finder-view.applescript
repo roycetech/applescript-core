@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-view
 
 	@Created: Sun, May 04, 2025 at 10:40:36 AM
-	@Last Modified: 2025-09-23 07:01:00
+	@Last Modified: 2025-11-01 13:43:47
 	@Change Logs:
 *)
 use unic : script "core/unicodes"
@@ -31,6 +31,12 @@ on spotCheck()
 		Manual: Sort By Name
 		Manual: Sort By Date
 		Manual: Sort By Kind
+
+		Manual: Show Prewiew
+		Manual: Hide Prewiew
+		Dummy
+		Dummy
+		Dummy
 	")
 
 	set spotScript to script "core/spot-test"
@@ -50,6 +56,7 @@ on spotCheck()
 	activate application "Finder"
 	logger's infof("View type: {}", sut's getFileObjectViewType())
 	logger's infof("Sorting by: {}", sut's getSortBy())
+	logger's infof("Preview visible: {}", sut's isPreviewVisible())
 
 	if caseIndex is 1 then
 
@@ -73,6 +80,11 @@ on spotCheck()
 	else if caseIndex is 5 then
 		sut's sortByKind()
 
+	else if caseIndex is 6 then
+		sut's showPreview()
+
+	else if caseIndex is 7 then
+		sut's hidePreview()
 	else
 
 	end if
@@ -88,6 +100,38 @@ on decorate(mainScript)
 
 	script FinderViewDecorator
 		property parent : mainScript
+
+
+		on isPreviewVisible()
+			tell application "System Events" to tell process "Finder"
+				try
+					exists menu item "Hide Preview" of menu 1 of menu bar item "View" of menu bar 1
+				end try
+			end tell
+		end isPreviewVisible
+
+
+		on showPreview()
+			if isPreviewVisible() then return
+
+			tell application "System Events" to tell process "Finder"
+				try
+					click menu item "Show Preview" of menu 1 of menu bar item "View" of menu bar 1
+				end try
+			end tell
+		end showPreview
+
+
+		on hidePreview()
+			if isPreviewVisible() then return
+
+			tell application "System Events" to tell process "Finder"
+				try
+					click menu item "Hide Preview" of menu 1 of menu bar item "View" of menu bar 1
+				end try
+			end tell
+		end hidePreview
+
 
 		on getSortBy()
 			tell application "System Events" to tell process "Finder"
@@ -121,7 +165,7 @@ on decorate(mainScript)
 					click (menu item "Kind" of menu 1 of menu item "Sort By" of menu 1 of menu bar item "View" of menu bar 1)
 				end try
 			end tell
-		end sortByDate
+		end sortByKind
 
 		(*
 			@ viewType - List, Icons, Gallery, Columns
