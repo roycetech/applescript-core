@@ -4,7 +4,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh 'apps/1st-party/System Settings/15.0/dec-system-settings_sound'
+		./scripts/build-lib.sh 'apps/1st-party/System Settings/15.0/dec-system-settings_internet-accounts'
 		
 	NOT WORKING. Can reveal pane but can't access the different accounts via Scripting.
 
