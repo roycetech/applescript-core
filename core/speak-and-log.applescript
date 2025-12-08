@@ -6,12 +6,11 @@
 		./scripts/build-lib.sh core/speak-and-log
 
 	@Created: Tuesday, December 19, 2023 at 3:35:33 PM
-	@Last Modified: 2024-08-14 10:59:14
+	@Last Modified: 2025-12-07 14:28:03
 *)
 
 use scripting additions
 
-use listUtil : script "core/list"
 use emoji : script "core/emoji"
 
 use loggerFactory : script "core/logger-factory"
@@ -19,9 +18,8 @@ use loggerFactory : script "core/logger-factory"
 use speechLib : script "core/speech"
 
 property logger : missing value
-property speech : missing value
 
-use spotScript : script "core/spot-test"
+property speech : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -29,10 +27,12 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Synchronous
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

@@ -33,7 +33,7 @@
 	@Known Issues:
 		September 2, 2023 9:53 AM - Records are not currently supported.
 
-	@Last Modified: 2025-10-27 11:55:26
+	@Last Modified: 2025-12-07 11:24:39
  *)
 
 use scripting additions
@@ -50,7 +50,6 @@ property logger : missing value
 property dateTime : missing value
 
 property REDIS_CLI : missing value
-property useBasicLogging : false
 property isSpot : false
 
 property ERROR_UNSUPPORTED_TYPE : 1000
@@ -65,8 +64,6 @@ end if
 
 on spotCheck()
 	set isSpot to true
-	set useBasicLogging to true
-
 	loggerFactory's inject(me)
 	logger's start()
 

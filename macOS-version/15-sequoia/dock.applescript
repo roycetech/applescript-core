@@ -20,10 +20,12 @@
 *)
 
 use loggerFactory : script "core/logger-factory"
+
 use retryLib : script "core/retry"
 use kbLib : script "core/keyboard"
 
 property logger : missing value
+
 property retry : missing value
 property kb : missing value
 
@@ -168,7 +170,6 @@ end spotCheck
 (*  *)
 on new()
 	loggerFactory's inject(me)
-
 	set retry to retryLib's new()
 	set kb to kbLib's new()
 

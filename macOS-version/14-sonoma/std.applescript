@@ -15,6 +15,7 @@ use scripting additions
 use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
+
 property username : missing value
 
 (* Cache the system info *)

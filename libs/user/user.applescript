@@ -26,7 +26,6 @@
 *)
 
 use scripting additions
-
 use script "core/Text Utilities"
 
 use std : script "core/std"
@@ -40,6 +39,7 @@ use textUtil : script "core/string"
 use decoratorLib : script "core/decorator"
 
 property logger : missing value
+
 property cc : missing value
 property lov : missing value
 
@@ -54,7 +54,6 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set spotScript to script "core/spot-test"
 	set cases to listUtil's splitByLine("
 		Manual: Get Meeting window
 		Manual: Cue for Touch ID
@@ -62,6 +61,7 @@ on spotCheck()
 		Manual: Sound: Funk - Successful build
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -69,7 +69,6 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-
 
 	set sut to new()
 	set decoratorLib to script "core/decorator"

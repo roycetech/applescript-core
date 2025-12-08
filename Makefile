@@ -5,6 +5,9 @@ OS_NAME := $(shell osascript -e "system version of (system info)" \
 | cut -d '.' -f 1 \
 | awk '{if ($$1 ~ /^26/) print "tahoe"; else if ($$1 ~ /^15/) print "sequoia"; else if ($$1 ~ /^14/) print "sonoma"; else if ($$1 ~ /^13/) print "ventura"; else if ($$1 ~ /^12/) print "monterey"; else print "unknown"}')
 
+OS_VERSION_MAJOR := $(shell osascript -e "system version of (system info)" \
+| cut -d '.' -f 1)
+
 GET_DEPLOY_SCRIPT := ./scripts/get-deploy-type.sh
 DEPLOY_TYPE := $(shell $(GET_DEPLOY_SCRIPT))
 
@@ -18,27 +21,20 @@ help:
 
 $(info     AppleScript Core Build Script)
 $(info     OS_NAME: $(OS_NAME))
+$(info     OS Major Version: $(OS_VERSION_MAJOR))
 $(info     DEPLOY_TYPE: $(DEPLOY_TYPE))
 
 ifeq ($(DEPLOY_TYPE),computer)
 	# Commands to execute if VARIABLE is equal to "value"
 # $(info     computer)
-	include Makefile.global
+	include Makefile.global.mk
 
 else
 # $(info     user)
- 	include Makefile.user
+ 	include Makefile.user.mk
 
 endif
 
-
-# deploy-type:  # Detects configured deployment type
-# 	@deploy_type=$$(plutil -extract "[app-core] Deployment Type - LOV Selected" raw ~/applescript-core/session.plist); \
-# 	if [ "$$deploy_type" = "computer" ]; then \
-# 		echo "computer"; \
-# 	else \
-# 		echo "user"; \
-# 	fi
 
 set-user-deploy-type:
 	mkdir ~/applescript-core || true

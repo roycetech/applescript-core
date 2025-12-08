@@ -1,0 +1,70 @@
+# Makefile.test.mk
+# Created: Tue, Jul 16, 2024 at 10:27:13 AM
+# NOTE: Make sure files for testing are already built.
+
+
+build-test:
+	$(SUDO) mkdir -p $(SCRIPT_LIBRARY_PATH)/core/test
+	$(SUDO) ./scripts/build-lib.sh  test/terminal-util
+	$(SUDO) ./scripts/build-lib.sh  test/xml-util
+.PHONY: build-test
+
+
+test-all:
+	osascript "test/Test Loader.applescript"
+
+
+test-integration:
+# 	osascript "test/core/Test dec-terminal-path.applescript"
+ifneq ($(OMZ_EXISTS),)
+	osascript "test/core/Test dec-terminal-prompt-omz.applescript"
+else
+	osascript "test/core/Test dec-terminal-prompt.applescript"
+endif
+	osascript "test/apps/1st-party/script-editorTest.applescript"
+	osascript "test/apps/1st-party/dec-script-editor-contentTest.applescript"
+
+
+test: test-all
+.PHONY: test
+
+test-unit:
+	osascript "test/libs/Test cliclick.applescript"
+	osascript "test/libs/Test log4as.applescript"
+	osascript "test/libs/Test redis.applescript"
+	osascript "test/core/Test date-time.applescript"
+	osascript "test/core/Test decorator.applescript"
+	osascript "test/core/Test file.applescript"
+	osascript "test/core/Test list.applescript"
+	osascript "test/core/Test lov.applescript"
+	osascript "test/core/Test map.applescript"
+	osascript "test/core/Test plist-buddy.applescript"
+	osascript "test/core/Test plutil.applescript"
+	osascript "test/core/Test property-list.applescript"
+	osascript "test/core/Test regex.applescript"
+	osascript "test/core/Test regex-pattern.applescript"
+	osascript "test/core/Test safari-javascript.applescript"
+	osascript "test/core/Test speech.applescript"
+	osascript "test/core/Test stack.applescript"
+	osascript "test/core/Test string.applescript"
+	osascript "test/core/Test switch.applescript"
+	osascript "test/core/Test string.applescript"
+	osascript "test/apps/3rd-party/Test keyboard-maestro.applescript"
+	osascript "test/core/Test timed-cache-plist.applescript"
+#	osascript "test/libs/Test jira.applescript"
+
+watch: watch-unit
+
+watch-unit: test-unit
+	scripts/run-tests_on-change.sh  # This runs test-unit target on change.
+
+watch-integration: test-integration
+	scripts/run-integration-tests_on-change.sh  # This runs test-unit target on change.
+
+spot:  # Test single script here.
+# 	osascript 'apps/3rd-party/Google Chrome/131.0/dec-google-chrome-tab-finder.applescript'
+	osascript "test/core/Test file.applescript"
+
+spot-watch: spot
+	scripts/run-spot_on-change.sh
+
