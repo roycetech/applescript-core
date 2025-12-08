@@ -13,6 +13,7 @@
 	@Last Modified: July 26, 2023 9:49 PM
 *)
 use scripting additions
+use script "core/Text Utilities"
 
 use textUtil : script "core/string"
 
@@ -36,8 +37,12 @@ on spotCheck()
 
 		Manual: Insert text after last line with text
 		Manual: Delete line
-		Manual: Has annocation
+		Manual: Has annotation
 		Manual: Insert text at cursor
+		Manual: Get Annotation
+		
+		Manual: Select substring
+		Manual: Set selected text to a new value
 		Dummy
 	")
 	
@@ -110,12 +115,32 @@ end new
 		set sutAnnotation to "Build"
 		set sutAnnotation to "Project"
 		set sutAnnotation to "Script Menu"
-		logger's debugf("sutAnnotation: {}", sutAnnotation)
+		logger's infof("sutAnnotation: {}", sutAnnotation)
 		
 		logger's infof("Has annotation: {}", sut's hasAnnotation(sutAnnotation))
 		
 	else if caseIndex is 9 then
 		sut's insertTextAtCursor("spot text")
+		
+	else if caseIndex is 10 then
+		set sutAnnotation to "Unicorn"
+		set sutAnnotation to "Build"
+		-- set sutAnnotation to "Created"
+		logger's debugf("sutAnnotation: {}", sutAnnotation)
+		
+		logger's infof("Get annotation: '{}'", sut's getAnnotation(sutAnnotation))
+		
+	else if caseIndex is 11 then
+		set sutSubstring to "Unicorn"
+		logger's debugf("sutSubstring: {}", sutSubstring)
+		
+		sut's selectFirstText(sutSubstring)
+		
+	else if caseIndex is 12 then
+		set sutNewText to "Rainbow"
+		logger's debugf("sutNewText: {}", sutNewText)
+		-- select-me
+		sut's setSelectedText(sutNewText)
 		
 	end if
 	
@@ -134,6 +159,33 @@ on decorate(mainScript)
 		property textView : missing value
 		property windowTitle : "Temp Document"
 		
+		
+		on setSelectedText(newText)
+			insertTextAtCursor(newText)
+		end setSelectedText
+		
+		
+		(*
+			NOTE: Case insensitive.
+		*)
+		on selectFirstText(textToSelect)
+			if textToSelect is missing value then return
+			if textToSelect is "" then return
+			
+			set substringIndex to textUtil's indexOf(getFrontContents(), textToSelect)
+			logger's debugf("substringIndex: {}", substringIndex)
+			
+			if substringIndex is 0 then return
+			
+			set endIndex to substringIndex + the (number of characters in textToSelect) - 1
+			tell application "Script Editor" to tell front document
+				set selection to characters substringIndex thru endIndex
+			end tell
+		end selectFirstText
+		
+		(*
+			TODO: What if there's a selection?
+		*)
 		on insertTextAtCursor(textToInsert)
 			if textToInsert is missing value then return
 			
@@ -148,6 +200,25 @@ on decorate(mainScript)
 			
 			getFrontContents() contains "@" & annotation
 		end hasAnnotation
+		
+		
+		on getAnnotation(annotation)
+			if not hasAnnotation(annotation) then return missing value
+			
+			set annotationLabel to format {"@{}:", annotation}
+			set annotationLineNumber to getLineNumberOfMarker(annotationLabel)
+			-- logger's debugf("getLineNumberOfMarker: {}", annotationLineNumber)
+			
+			set annotationLineContent to getContentsAtLineNumber(annotationLineNumber)
+			-- logger's debugf("annotationLineContent: {}", annotationLineContent)
+			
+			set annotationValue to textUtil's stringAfter(annotationLineContent, annotationLabel) -- Value on the same line as the annotation
+			if annotationValue is missing value then -- Try next line if not on the same line.
+				set annotationValue to getContentsAtLineNumber(annotationLineNumber + 1)
+				-- logger's debugf("annotationValue: {}", annotationValue)
+			end if
+			textUtil's trim(annotationValue)
+		end getAnnotation
 		
 		
 		on createTempDocument(documentName)

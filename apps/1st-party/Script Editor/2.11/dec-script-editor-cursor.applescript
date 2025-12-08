@@ -85,7 +85,7 @@ on spotCheck()
 	logger's infof("Is cursor at the end of a line: {}", sut's isCursorAtEndOfLine())
 	logger's infof("Has selection? {}", sut's hasSelection())
 	logger's infof("Current line contents: [{}]", sut's getCurrentLineContents())
-	logger's infof("Current line above contents: [{}]", sut's getLineContentsAboveCursor())
+	logger's infof("Integration: Contents above the cursor: [{}]", sut's getLineContentsAboveCursor())
 	logger's infof("Cursor line text start: {}", sut's getCursorLineTextStart())
 	
 	if caseIndex is 1 then
