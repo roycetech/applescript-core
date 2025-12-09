@@ -14,12 +14,13 @@
 
 	TODO: Re-code the spot check to have idempotent info only as the first case.
 *)
-
 use loggerFactory : script "core/logger-factory"
+
 use retryLib : script "core/retry"
 use kbLib : script "core/keyboard"
 
 property logger : missing value
+
 property retry : missing value
 property kb : missing value
 

@@ -15,22 +15,17 @@
 	@Created:
 		Tuesday, May 21, 2024 at 10:04:55 PM
 *)
-
-
 use listUtil : script "core/list"
 use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
 
-use loggerLib : script "core/logger"
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 use uiutilLib : script "core/ui-util"
-use ccLib : script "core/control-center"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
+
 property kb : missing value
 property retry : missing value
 property uiUtil : missing value
@@ -51,6 +46,7 @@ on spotCheck()
 		Turn On
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -60,6 +56,7 @@ on spotCheck()
 	end if
 
 	-- activate application ""
+	set ccLib to script "core/control-center"
 	set cc to ccLib's new()
 	set sut to decorate(cc)
 

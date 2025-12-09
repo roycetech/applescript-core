@@ -13,16 +13,14 @@
 *)
 
 use loggerFactory : script "core/logger-factory"
+
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
-use ccLib : script "core/control-center"
-
-
 
 property logger : missing value
+
 property kb : missing value
 property retry : missing value
-property cc : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -48,6 +46,7 @@ on spotCheck()
 	end if
 
 	-- activate application ""
+	set ccLib to script "core/control-center"
 	set cc to ccLib's new()
 	set sut to decorate(cc)
 

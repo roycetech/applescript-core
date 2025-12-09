@@ -34,9 +34,6 @@ use loggerLib : script "core/logger"
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 use uiutilLib : script "core/ui-util"
-use ccLib : script "core/control-center"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
@@ -61,6 +58,7 @@ on spotCheck()
 		Manual: Activate Focus Pane (Mic on/off)
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -70,6 +68,7 @@ on spotCheck()
 	end if
 
 	-- activate application ""
+	set ccLib to script "core/control-center"
 	set cc to ccLib's new()
 	set sut to decorate(cc)
 
