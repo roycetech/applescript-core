@@ -115,6 +115,7 @@ build-safari: build-dock build-process
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-profile
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-privacy-and-security
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari
+	@echo "Build Safari completed"
 
 install-safari: build-safari
 	osascript ./scripts/allow-apple-events-in-safari.applescript

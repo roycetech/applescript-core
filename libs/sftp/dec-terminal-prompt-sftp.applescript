@@ -1,11 +1,9 @@
 (*
-	@Plists:
-		config-user.plist
-			Terminal Tab Decorators - This decorator must be appended to this
-				array to be active.
+	@Project:
+		applescript-core
 
 	@Build:
-		make build-lib SOURCE=libs/sftp/dec-terminal-prompt-sftp
+		./scripts/build-lib.sh libs/sftp/dec-terminal-prompt-sftp
 *)
 
 use textUtil : script "core/string"
@@ -14,13 +12,7 @@ use regex : script "core/regex"
 
 use loggerFactory : script "core/logger-factory"
 
-use loggerLib : script "core/logger"
-use terminalLib : script "core/terminal"
-
-use spotScript : script "core/spot-test"
-
 property logger : missing value
-property terminal : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -42,6 +34,7 @@ on spotCheck()
 		Manual: Prompt Text - SFTP
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -51,6 +44,7 @@ on spotCheck()
 	end if
 
 	-- activate application ""
+	set terminalLib to script "core/terminal"
 	set frontTab to terminal's getFrontTab()
 	set frontTab to decorate(frontTab)
 
