@@ -73,6 +73,7 @@ else
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-view
 endif
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
+	@echo "Build Finder completed"
 
 
 build-home:
@@ -133,15 +134,16 @@ install-safari-technology-preview: build-safari-technology-preview
 
 build-script-editor:
 	$(SUDO) ./scripts/build-lib.sh 'apps/1st-party/Script Editor/2.11/script-editor-tab'
-	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-dialog"
-	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-tabs"
-	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-window"
-	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-content"
-	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-cursor"
-	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-settings"
-	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-settings-general"
-	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/dec-script-editor-settings-editing"
-	make build-lib SOURCE="apps/1st-party/Script Editor/2.11/script-editor"
+	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-dialog"
+	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-tabs"
+	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-window"
+	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-content"
+	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-cursor"
+	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-settings"
+	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-settings-general"
+	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-settings-editing"
+	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/script-editor"
+	@echo "Build Script Editor completed"
 
 
 build-system-settings:
@@ -154,11 +156,12 @@ build-system-settings:
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_sound"
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_desktop-and-dock"
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
-
-ifeq ($(OS_NAME), sequoia)
+# ifeq ($(OS_NAME), sequoia)
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt 15 ] && echo yes),yes)
 	$(SUDO) ./scripts/build-lib.sh 'apps/1st-party/System Settings/15.0/macOS Sequoia/dec-system-settings-siri'
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 endif
+	@echo "Build System Settings completed"
 
 
 build-terminal:
@@ -202,7 +205,7 @@ else  # Sequoia or higher
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal
 endif
 	$(SUDO) ./scripts/build-lib.sh libs/sftp/dec-terminal-prompt-sftp
-
+	@echo "Build Terminal completed"
 
 build-xcode:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Xcode/15.4/xcode
