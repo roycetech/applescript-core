@@ -12,8 +12,8 @@
 		Sunday, January 28, 2024 at 2:45:58 PM
 *)
 
-use script "core/Text Utilities"
 use scripting additions
+use script "core/Text Utilities"
 
 use listUtil : script "core/list"
 use textUtil : script "core/string"
@@ -22,13 +22,12 @@ use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
 use plutilLib : script "core/plutil"
-use finderLib : script "core/finder"
 
 property logger : missing value
+
 property retry : missing value
 property plutil : missing value
 property terminal : missing value
-property finder : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -80,14 +79,12 @@ end spotCheck
 
 on decorate(termTabScript)
 	loggerFactory's inject(me)
-
 	set retry to retryLib's new()
 	set plutil to plutilLib's new()
 	set session to plutil's new("session")
-	set finder to finderLib's new()
 
 	tell application "Finder"
-		set localSessionPlist to text 8 thru -1 of (URL of folder "applescript-core" of finder's getHomeFolder() as text) & "session.plist"
+		set localSessionPlist to text 8 thru -1 of (URL of folder "applescript-core" of (path to home folder) as text) & "session.plist"
 	end tell
 
 	script TerminalRunDecorator
