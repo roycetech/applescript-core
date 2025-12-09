@@ -162,21 +162,8 @@ endif
 
 
 build-terminal:
-ifeq ($(OS_NAME), sequoia)
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-output
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-path
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-run
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-general
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile-window
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile-keyboard
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal_tab-finder
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal
-
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt 12 ] && echo yes),yes)
+$(error macOS version too old! Requires at least macOS Monterey (v12).)
 else ifeq ($(OS_NAME), sonoma)
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-output
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-path
@@ -198,6 +185,21 @@ else ifeq ($(OS_NAME), monterey)
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-run
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/terminal
+# ifeq ($(OS_NAME), sequoia)
+else  # Sequoia or higher
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-output
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-path
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-run
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-general
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile-window
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile-keyboard
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal_tab-finder
+	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal
 endif
 	$(SUDO) ./scripts/build-lib.sh libs/sftp/dec-terminal-prompt-sftp
 
