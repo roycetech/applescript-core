@@ -94,7 +94,7 @@ else
 endif
 
 
-build-safari: build-dock
+build-safari: build-dock build-process
 	yes y | ./scripts/build-lib.sh core/Level_5/javascript
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari-tab
