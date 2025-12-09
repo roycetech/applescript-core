@@ -57,7 +57,7 @@ else
 endif
 	touch ~/applescript-core/logs/applescript-core.log
 #	osascript scripts/setup-applescript-core-project-path.applescript
-	./scripts/setup-switches.sh
+# 	./scripts/setup-switches.sh
 	@echo "applescript-core installation completed"
 
 $(LEVEL1_LIBS): Makefile
