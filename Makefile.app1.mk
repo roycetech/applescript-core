@@ -94,28 +94,27 @@ else
 endif
 
 
-
 build-safari: build-dock
-	$(SUDO) ./scripts/build-lib.sh core/javascript
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari-tab
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/26.0/dec-safari-tab-finder2
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-ui-compact
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.6/dec-safari-tab-group
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-inspector
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-preferences
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-general
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-tabs
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-extensions
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-advanced
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-profile
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-privacy-and-security
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari
+	yes y | ./scripts/build-lib.sh core/Level_5/javascript
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari-tab
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.0/dec-safari-tab-finder2
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-ui-compact
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.6/dec-safari-tab-group
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-inspector
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-preferences
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-general
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-tabs
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-extensions
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-advanced
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-profile
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-privacy-and-security
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari
 
 install-safari: build-safari
 	osascript ./scripts/allow-apple-events-in-safari.applescript
