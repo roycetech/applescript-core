@@ -117,8 +117,10 @@ build-core: \
 	build-level1 \
 	build-standard \
 	build-level2 \
+	build-control-center \
 	build-level3 \
 	build-level4 \
+	build-user \
 	build-level5
 	@echo "Core libraries compiled."
 
