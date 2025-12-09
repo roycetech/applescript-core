@@ -16,13 +16,11 @@ use loggerFactory : script "core/logger-factory"
 
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
-use ccLib : script "core/control-center"
 
 property logger : missing value
 
 property kb : missing value
 property retry : missing value
-property cc : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -30,7 +28,6 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Is Mic In Use (Off, Mic only, Mic and Camera)
@@ -39,6 +36,7 @@ on spotCheck()
 		Manual: WIP: Activate AirPods Noise Cancellation
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -48,6 +46,7 @@ on spotCheck()
 	end if
 
 	-- activate application ""
+	set ccLib to script "core/control-center"
 	set cc to ccLib's new()
 	set sut to decorate(cc)
 
