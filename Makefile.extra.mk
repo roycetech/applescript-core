@@ -17,13 +17,13 @@ install-counter: build-counter
 
 
 build-cliclick:
-ifeq (, $(shell which cliclick 2>/dev/null))
-$(error "cliclick is not installed")
-else
-	osascript libs/cliclick/setup-cliclick-cli.applescript
-	yes -y | ./scripts/build-lib.sh libs/cliclick/cliclick
-endif
-
+	@if command -v cliclick >/dev/null 2>&1; then \
+		echo "cliclick is installed"; \
+		./scripts/build-lib.sh libs/cliclick/cliclick; \
+	else \
+		echo "Error: cliclick is not installed" >&2; \
+		exit 1; \
+	fi
 
 install-cliclick-decorators:
 	$(SUDO) ./scripts/plist-insert.sh ~/applescript-core/config-lib-factory.plist "SystemSettingsInstance" "core/dec-system-settings-cliclick"

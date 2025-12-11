@@ -6,7 +6,7 @@
 
 set -e
 
-REPO_DIR="$HOME/Projects/@roycetech/applescript-core-test"
+REPO_DIR="$HOME/Projects/@roycetech/applescript-core"
 REPO_URL="https://github.com/roycetech/applescript-core"
 
 if [ ! -d "$REPO_DIR" ]; then
