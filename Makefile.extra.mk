@@ -18,10 +18,11 @@ install-counter: build-counter
 
 build-cliclick:
 	@if command -v cliclick >/dev/null 2>&1; then \
-		echo "cliclick is installed"; \
+		osascript libs/cliclick/setup-cliclick-cli.applescript; \
 		./scripts/build-lib.sh libs/cliclick/cliclick; \
+		echo "Done installing cliclick"; \
 	else \
-		echo "Error: cliclick is not installed" >&2; \
+		echo "Error: cliclick is not installed. Please check https://github.com/BlueM/cliclick" >&2; \
 		exit 1; \
 	fi
 
