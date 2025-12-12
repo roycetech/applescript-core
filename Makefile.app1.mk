@@ -158,7 +158,7 @@ build-system-settings:
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 # ifeq ($(OS_NAME), sequoia)
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt 15 ] && echo yes),yes)
-	$(SUDO) ./scripts/build-lib.sh 'apps/1st-party/System Settings/15.0/macOS Sequoia/dec-system-settings-siri'
+	$(SUDO) ./scripts/build-lib.sh 'apps/1st-party/System Settings/15.0/macOS Sequoia/dec-system-settings_apple-intelligence-and-siri'
 	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 endif
 	@echo "Build System Settings completed"
