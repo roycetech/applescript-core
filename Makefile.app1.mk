@@ -60,19 +60,54 @@ build-console:
 # 	# TODO:
 # 	$(SUDO) ./scripts/build-lib.sh macOS-version/16-tahoe/control-center_sound
 
+
+define build_finder
+	yes y | ./scripts/build-lib.sh $(1)
+endef
+
 build-finder:
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-mini
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-selection
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-tab
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-folders
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-files
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-paths
-ifeq ($(OS_NAME), tahoe)
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/26.0/dec-finder-view
-else
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-view
+# ifeq ($(shell [ $(OS_VERSION_MAJOR) -eq 12 ] && echo yes),yes)
+# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
+
+# else ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt 12 ] && echo yes),yes)
+# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-mini
+# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-selection
+# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-tab
+# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-folders
+# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-files
+# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-paths
+# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-view
+# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
+# endif
+
+# ifeq ($(shell [ $(OS_VERSION_MAJOR) -ge 26 ] && echo yes),yes)
+# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/26.0/dec-finder-view
+# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/26.1/dec-finder-dialog
+# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/26.1/finder
+# endif
+# 	@echo "Build Finder completed"
+
+# Overwrites older version if a newer version is present.
+ifeq ($(IS_12),1)
+	$(call build_finder,apps/1st-party/Finder/12.5/finder)
 endif
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
+
+ifeq ($(GT_12),1)
+	$(call build_finder,apps/1st-party/Finder/15.2/finder-mini)
+	$(call build_finder,apps/1st-party/Finder/15.2/dec-finder-selection)
+	$(call build_finder,apps/1st-party/Finder/15.2/finder-tab)
+	$(call build_finder,apps/1st-party/Finder/15.2/dec-finder-folders)
+	$(call build_finder,apps/1st-party/Finder/15.2/dec-finder-files)
+	$(call build_finder,apps/1st-party/Finder/15.2/dec-finder-paths)
+	$(call build_finder,apps/1st-party/Finder/15.2/dec-finder-view)
+	$(call build_finder,apps/1st-party/Finder/15.2/finder)
+endif
+
+ifeq ($(GE_26),1)
+	$(call build_finder,apps/1st-party/Finder/26.0/dec-finder-view)
+	$(call build_finder,apps/1st-party/Finder/26.1/dec-finder-dialog)
+	$(call build_finder,apps/1st-party/Finder/26.1/finder)
+endif
 	@echo "Build Finder completed"
 
 
@@ -95,6 +130,7 @@ else
 endif
 
 
+SAFARI_LATEST_VERSION := 26.1
 build-safari: build-dock build-process
 	yes y | ./scripts/build-lib.sh core/Level_5/javascript
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
@@ -115,7 +151,8 @@ build-safari: build-dock build-process
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-advanced
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-profile
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-privacy-and-security
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.1/safari
+	osascript apps/1st-party/Safari/$(SAFARI_LATEST_VERSION)/allow-javascript-from-apple-events.applescript
 	@echo "Build Safari completed"
 
 install-safari: build-safari
