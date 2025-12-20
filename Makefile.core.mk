@@ -238,10 +238,12 @@ install-control-center: build-control-center
 
 build-dock:
 ifeq ($(OS_NAME), sonoma)
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/dock"
+# 	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/dock"
+	yes y | ./scripts/build-lib.sh "macOS-version/14-sonoma/dock"
 # else ifeq ($(OS_NAME), sequoia)  # Works for Tahoe as well.
 else
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/15-sequoia/dock"
+# 	$(SUDO) ./scripts/build-lib.sh "macOS-version/15-sequoia/dock"
+	yes y | ./scripts/build-lib.sh "macOS-version/15-sequoia/dock"
 endif
 	@echo "Build dock completed"
 
