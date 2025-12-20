@@ -225,7 +225,7 @@ on decorate(mainScript)
 			set scriptContents to getFrontContents()
 			set scriptSize to the length of scriptContents
 			set cursorPosition to getCursorStartIndex()
-			logger's debugf("cursorPosition: {}", cursorPosition)
+			-- logger's debugf("cursorPosition: {}", cursorPosition)
 			
 			set existingKeywords to {}
 			repeat with nextKeyword in listParameter

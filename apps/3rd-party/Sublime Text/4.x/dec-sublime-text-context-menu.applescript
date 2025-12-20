@@ -1,7 +1,7 @@
 (*
 	@Purpose:
 		Wanted to programmatically trigger some context menu item but the 
-		context menu cannot be referenced in AppleScript as of Thu, Nov 20, 2025, at 10:51:22 AM.
+		context menu CANNOT be referenced in AppleScript as of Thu, Nov 20, 2025, at 10:51:22 AM.
 
 	@Project:
 		applescript-core
@@ -71,7 +71,8 @@ on decorate(mainScript)
 		on isContextMenuPresent()
 			if running of application "Sublime Text" is false then return false
 			
-			tell application "System Events" to tell application process "Sublime Text"
+			-- tell application "System Events" to tell application process "Sublime Text"
+			tell application "System Events" to tell application process "sublime_text"
 				try
 					return exists (menu 1 of window 1)
 				end try

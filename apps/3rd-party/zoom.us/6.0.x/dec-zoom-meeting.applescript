@@ -9,8 +9,9 @@
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting
 
 	@Created: Monday, August 12, 2024 at 4:29:20 PM
-	@Last Modified: 2024-12-31 19:33:40
+	@Last Modified: 2025-12-17 15:42:18
 	@Change Logs:
+		Mon, Dec 15, 2025, at 11:41:11 AM - Add closer of auto updater.
 *)
 use listUtil : script "core/list"
 
@@ -33,6 +34,8 @@ on spotCheck()
 		Manual: End Meeting
 		Manual: Leave Meeting
 		Manual: End Meeting for All
+
+		Manual: Close auto updater
 	")
 
 	set spotClass to spotScript's new()
@@ -62,6 +65,9 @@ on spotCheck()
 
 	else if caseIndex is 5 then
 		sut's endMeetingForAll()
+
+	else if caseIndex is 6 then
+		sut's waitInstallUpdates()
 
 	else
 
@@ -101,12 +107,15 @@ on decorate(mainScript)
 				end if
 			end if
 
+			waitInstallUpdates()
+
 			if getTabName() is not "Home" then
 				switchTab("Home")
 			end if
 
 			tell application "System Events" to tell process "zoom.us"
-				click (first button of splitter group 1 of window "Zoom Workplace" whose description starts with "Start a new meeting")
+				-- click (first button of splitter group 1 of window "Zoom Workplace" whose description starts with "Start a new meeting")
+				click (first button of group 1 of splitter group 1 of window "Zoom Workplace" whose description starts with "Start a new meeting")  -- 6.5.9
 			end tell
 
 			return
@@ -119,6 +128,27 @@ on decorate(mainScript)
 				end tell
 			end if
 		end newMeeting
+
+
+		on waitInstallUpdates()
+			if running of application "zoom.us" is false then return
+
+			set retry to retryLib's new()
+			script WaitInstall
+				if running of application "ZoomAutoUpdater" is false then return false
+
+				tell application "System Events" to tell process "ZoomAutoUpdater"
+					click button "Close" of window 1
+					return true
+				end tell
+			end script
+			set waitResult to exec of retry on result for 5 by 1
+			if waitResult is true then
+				activate application "zoom.us"
+				delay 1
+				waitMainWindowReady()
+			end if
+		end waitInstallUpdates
 
 
 		(*
