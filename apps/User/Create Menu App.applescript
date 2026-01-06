@@ -10,6 +10,11 @@
 
 	@Prerequisites:
 		make install-script-editor
+		
+	@Application
+	
+	@Build:
+		./scripts/build-lib.sh 'apps/User/Create Menu App'
 
 	@Installation Instruction:
 		echo 'Run "Create Automator App" while this script is loaded in Script Editor.'
@@ -19,8 +24,8 @@
 		Open the Menu Case.applescript and that will be used to test this script.
 *)
 
-use script "core/Text Utilities"
 use scripting additions
+use script "core/Text Utilities"
 
 use std : script "core/std"
 
@@ -39,6 +44,7 @@ use usrLib : script "core/user"
 use diaLib : script "core/dialog"
 
 property logger : missing value
+
 property usr : missing value
 property dia : missing value
 
@@ -150,7 +156,8 @@ on main()
 	updateAppToDockless(appFilename, targetFolder)
 	
 	tell speech to speakSynchronously("Menu app deployed") -- causing problems.
-	activate application baseScriptName
+	set computedAppName to std's findApp(baseScriptName)
+	if computedAppName is not missing value then activate application computedAppName
 	scriptEditorTab's closeTab()
 end main
 
