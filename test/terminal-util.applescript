@@ -2,7 +2,7 @@
 	Utility for testing Terminal app scripts.
 
 	@Created: Friday, May 17, 2024 at 9:50:26 AM
-	@Last Modified: 2024-09-03 10:44:44
+	@Last Modified: 2026-01-05 10:38:28
 
 	@Plists:
 		config-user:
@@ -12,7 +12,10 @@
 		applescript-core
 
 	@Build:
-		make build-test
+		./scripts/build-lib.sh test/terminal-util
+
+	@Change Logs:
+		Tue, Dec 30, 2025, at 09:16:54 PM - Added set focus attribute to allow autofocus on window as needed
 *)
 use scripting additions
 
@@ -23,18 +26,20 @@ use textUtil : script "core/string"
 	when debugging during tests.
 *)
 use loggerFactory : script "core/logger-factory"
+
 use kbLib : script "core/keyboard"
 use configLib : script "core/config"
 use systemEventLib : script "core/system-events"
 use dockLib : script "core/dock"
-
-use spotScript : script "core/spot-test"
+use terminalLib : script "core/terminal"
 
 property logger : missing value
+
 property kb : missing value
 property configUser : missing value
 property systemEvent : missing value
 property dock : missing value
+property terminal : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -49,6 +54,7 @@ on spotCheck()
 		Manual: Launch Test Window
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -83,6 +89,7 @@ on new()
 	set configUser to configLib's new("user")
 	set systemEvent to systemEventLib's new()
 	set dock to dockLib's new()
+	set terminal to terminalLib's new()
 
 	script TerminalUtilInstance
 		property TEST_TAB_NAME : "unit-test-starter"
@@ -94,9 +101,33 @@ on new()
 			Set to true if using OMZ
 		*)
 		property useCommandPasting : false
+		property autoFocusWindow : false
+
+		(*
+			Types a dummy command "linger" without actually running it.
+		*)
+		on taintPrompt()
+			typeCommand("linger")
+		end dirtyPrompt
+
+		on _focusAsConfigured()
+			if autoFocusWindow is true then
+				tell application "System Events" to tell process "Terminal"
+					set frontmost to true
+				end tell
+			else if systemEvent's getFrontAppName() is not "Terminal" then
+				return
+			end if
+		end _focusAsConfigured
 
 		on clearScreenAndCommands()
-			if systemEvent's getFrontAppName() is not "Terminal" then return
+			if running of application "Terminal" is false then return
+
+			tell application "System Events" to tell process "Terminal"
+				if count of windows is  0 then return
+
+			end tell
+			_focusAsConfigured()
 
 			kb's pressControlKey("c")
 			kb's pressCommandKey("k")
@@ -107,35 +138,36 @@ on new()
 		end clearScreenAndCommands
 
 		on clearScreen()
-			if systemEvent's getFrontAppName() is not "Terminal" then return
+			_focusAsConfigured()
 
 			kb's pressCommandKey("k")
-			delay 1
-		end clearScreenAndCommands
+			delay 1.5
+		end clearScreen
 
 		on cdHome()
-			if systemEvent's getFrontAppName() is not "Terminal" then return
+			_focusAsConfigured()
 
 			kb's typeText("cd" & return)
-			delay 1
+			-- delay 1
+			delay 1.5
 		end cdHome
 
 		on cdScriptLibrary()
-			if systemEvent's getFrontAppName() is not "Terminal" then return
+			_focusAsConfigured()
 
 			kb's typeText("cd ~/Library/Script\\ Libraries" & return)
 			delay 1
 		end cdScriptLibrary
 
 		on cdNonUser()
-			if systemEvent's getFrontAppName() is not "Terminal" then return
+			_focusAsConfigured()
 
 			kb's typeText("cd /usr/lib" & return)
 			delay 1
 		end cdNonUser
 
 		on cdAppleScriptProject()
-			if systemEvent's getFrontAppName() is not "Terminal" then return
+			_focusAsConfigured()
 
 			set projectPath to configUser's getValue("Project applescript-core")
 			if useCommandPasting then
@@ -144,23 +176,41 @@ on new()
 			else
 				kb's typeText("cd " & projectPath & return)
 			end if
-			delay 1
+			delay 1.5
 		end cdAppleScriptProject
 
 		on typeCommand(command)
-			if systemEvent's getFrontAppName() is not "Terminal" then return
+			_focusAsConfigured()
 
-			set delayAfterTypingSeconds of kb to 0.15  -- Fix error typing the tail -f command.
+			set delayAfterTypingSeconds of kb to 0.15 -- Fix error typing the tail -f command.
 			kb's typeText(command)
 			delay 1 -- 0.1 seems not enough.  This additional delay allows terminal to register the command in its contents property.
 		end typeCommand
 
 		on pasteCommand(command)
-			if systemEvent's getFrontAppName() is not "Terminal" then return
+			_focusAsConfigured()
 
 			kb's insertTextByPasting(command)
 			delay 0.1 -- This additional delay allows terminal to register the command in its contents property.
-		end typeCommand
+		end pasteCommand
+
+		on controlC()
+			_focusAsConfigured()
+			kb's pressControlKey("c")
+		end controlC
+
+		on runCommand(command)
+			_focusAsConfigured()
+
+			if useCommandPasting then
+				kb's insertTextByPasting(command)
+				kb's typeText(return)
+			else
+				kb's typeText(command & return)
+			end if
+
+			delay 1
+		end pasteCommand
 
 		on quitTerminal()
 			-- Using dock is a safe way to quit the Terminal app.
@@ -184,8 +234,8 @@ on new()
 		end quitTerminal
 
 		on getTestingTab()
-			set terminalLib to script "core/terminal"
-			set terminal to terminalLib's new()
+			-- set terminalLib to script "core/terminal"
+			-- set terminal to terminalLib's new()
 
 			-- log "looking for the test tab..."
 			-- set terminalTab to terminal's findTabWithNameContaining(my TEST_TAB_NAME)
@@ -225,6 +275,13 @@ on new()
 
 			terminalTab
 		end getTestingTab
+
+		on closeTestingTab()
+			set terminalTab to terminal's findTabByWindowNameSubstring(my TEST_TAB_NAME)
+			if terminalTab is missing value then return
+
+			terminalTab's closeTab()
+		end closeTestingTab
 
 		on getFrontAppName()
 			tell application "System Events"
@@ -283,6 +340,6 @@ on new()
 					textUtil's stringAfter(title of menu item 1 of menu 1 of menu item 1 of menu 1 of menu bar item "Shell" of menu bar 1, "New Window with Profile - ")
 				end try
 			end tell
-		end getDefaultTerminalProfile
+		end getDefaultProfile
 	end script
 end new
