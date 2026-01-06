@@ -66,6 +66,7 @@ on spotCheck()
 	set sut to new()
 	
 	sut's printPaneIds()
+	logger's infof("Current panel title: {}", sut's getCurrentPanelTitle())
 	logger's infof("Left pane UI detected? {}", sut's getLeftPaneUI() is not missing value)
 	logger's infof("Right pane UI detected? {}", sut's getRightPaneUI() is not missing value)
 	
@@ -133,6 +134,17 @@ on new()
 	set usr to usrLib's new()
 	
 	script SystemSettingsInstance
+		on getCurrentPanelTitle()
+			if running of application "System Settings" is false then return missing value
+			
+			tell application "System Events" to tell process "System Settings"
+				try
+					return value of static text 1 of front window
+				end try
+			end tell
+			missing value
+		end getCurrentPanelTitle
+		
 		(* Strangely, sometimes it only prints the pane of the General pane. *)
 		on printPaneIds()
 			tell application "System Settings"
