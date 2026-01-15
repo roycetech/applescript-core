@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2025-12-02 09:26:34
+	@Last Modified: 2026-01-15 09:27:27
 *)
 
 use scripting additions
@@ -175,7 +175,8 @@ end readFile
 
 
 on posixFilePathExists(posixFilePath)
-	set shellCommand to format {"test -f {} && echo 'true'", quoted form of posixFilePath}
+	set nonTildeFilePath to untilde(posixFilePath)
+	set shellCommand to format {"test -f {} && echo 'true'", quoted form of nonTildeFilePath}
 	try
 		return (do shell script shellCommand) is equal to "true"
 	end try
@@ -183,8 +184,9 @@ on posixFilePathExists(posixFilePath)
 end posixFilePathExists
 
 
-on posixFolderPathExists(posixFilePath)
-	set shellCommand to format {"test -d {} && echo 'true'", quoted form of posixFilePath}
+on posixFolderPathExists(posixFolderPath)
+	set nonTildeFolderPath to untilde(posixFolderPath)
+	set shellCommand to format {"test -d {} && echo 'true'", quoted form of nonTildeFolderPath}
 	try
 		return (do shell script shellCommand) is equal to "true"
 	end try

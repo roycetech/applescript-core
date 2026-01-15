@@ -75,6 +75,28 @@ script |Load script|
 end script
 
 
+script |posixFolderPathExists tests| 
+	property parent : TestSet(me)
+	property sut : missing value 
+
+	script |Path with tilde|
+		property parent : unitTest(me)
+		ok(sutScript's posixFolderPathExists("~/Documents"))
+	end script
+
+	script |Existing folder|
+		property parent : unitTest(me)
+		ok(sutScript's posixFolderPathExists("/Applications"))
+	end script
+
+	script |Non-existing folder|
+		property parent : unitTest(me)
+		notOk(sutScript's posixFolderPathExists("/Unicorn")) 
+	end script
+end script 
+
+
+
 script |getBaseFilename tests| 
 	property parent : TestSet(me)
 	property sut : missing value 
