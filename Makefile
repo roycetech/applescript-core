@@ -5,6 +5,8 @@ OS_NAME := $(shell osascript -e "system version of (system info)" \
 | cut -d '.' -f 1 \
 | awk '{if ($$1 ~ /^26/) print "tahoe"; else if ($$1 ~ /^15/) print "sequoia"; else if ($$1 ~ /^14/) print "sonoma"; else if ($$1 ~ /^13/) print "ventura"; else if ($$1 ~ /^12/) print "monterey"; else print "unknown"}')
 
+OS_VERSION := $(shell osascript -e "system version of (system info)")
+
 OS_VERSION_MAJOR := $(shell osascript -e "system version of (system info)" \
 | cut -d '.' -f 1)
 
@@ -25,7 +27,8 @@ help:
 
 $(info     AppleScript Core Build Script)
 $(info     OS_NAME: $(OS_NAME))
-$(info     OS Major Version: $(OS_VERSION_MAJOR))
+$(info     OS Version: $(OS_VERSION))
+# $(info     OS Major Version: $(OS_VERSION_MAJOR))
 $(info     DEPLOY_TYPE: $(DEPLOY_TYPE))
 
 ifeq ($(DEPLOY_TYPE),computer)
