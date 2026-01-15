@@ -20,17 +20,23 @@ property parent : script "com.lifepillar/ASUnit"
 property suitename : "The test suite description goes here"
 property scriptName : "dec-script-editor-content" -- The name of the script to be tested
 property tempFile : missing value -- The name of the temp file to open the Script Editor app with.
-global sutBaseScript -- The variable holding the base script to be wrapped
 global sutScript -- The variable holding the decorator script to be tested
 ---------------------------------------------------------------------------------------
 
 use loggerFactory : script "core/logger-factory"
+
+use usrLib : script "core/user"
+use scriptEditorUtilLib : script "core/test/script-editor-util"
+
 property logger : missing value
 
 property TopLevel : me
 property suite : makeTestSuite(suitename)
 
+property TEST_DOCUMENT_TITLE : "unit-temp"
+
 loggerFactory's inject(me)
+set scriptEditorUtil to scriptEditorUtilLib's new()
 autorun(suite)
 
 ---------------------------------------------------------------------------------------
@@ -46,50 +52,77 @@ script |Load script|
 	property parent : TestSet(me)
 	script |Loading the script|
 		property parent : UnitTest(me)
+
+
+		-- try
+		-- 	tell application "Finder"
+		-- 		set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:core:"
+		-- 	end tell
+		-- 	set sutBaseScript to load script (deploymentPath & "script-editor.scpt") as alias
+		-- 	set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
+		-- 	set tempFile to POSIX path of (path to temporary items from user domain) & "/Test.applescript"
+		-- end try
+
+		set usr to usrLib's new()
+		if usr's getDeploymentType() is "computer" then
+			set objectDomain to local domain
+		else
+			set objectDomain to user domain
+		end if
 		try
 			tell application "Finder"
-				set deploymentPath to ((path to library folder from user domain) as text) & "Script Libraries:core:"
+				set deploymentPath to ((path to library folder from objectDomain) as text) & "Script Libraries:core:"
 			end tell
-			set sutBaseScript to load script (deploymentPath & "script-editor.scpt") as alias
+
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
-			set tempFile to POSIX path of (path to temporary items from user domain) & "/Test.applescript"
 		end try
 		assertInstanceOf(script, sutScript)
 	end script
-end script
+end script 
 
 
 script |createTempDocument and writeDataToTempDocument Set|
 	property parent : TestSet(me)
-	on setUp()
-		TopLevel's __launchApp()
-	end setUp
-	on tearDown()
-		TopLevel's __terminateApp()
-	end tearDown
+	property sut : missing value
+
+	property TEST_DOCUMENT_CONTENT : "Test Code"
+
+	-- on setUp()
+	-- 	TopLevel's __launchApp()
+	-- end setUp
+	-- on tearDown()
+	-- 	TopLevel's __terminateApp()
+	-- end tearDown 
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
+		TopLevel's scriptEditorUtil's getTestingTab()
+		set my sut to sutScript's decorate(result)
+		TopLevel's scriptEditorUtil's killApp() 
+		TopLevel's scriptEditorUtil's launchAppViaDock()
+	end script	
 
 	script |Window is created|
 		property parent : UnitTest(me)
-		set base to sutBaseScript's new()
-		set sut to sutScript's decorate(base)
-		sut's createTempDocument("unit")
+		sut's createTempDocument(TopLevel's TEST_DOCUMENT_TITLE) 
+
 		tell application "Script Editor"
-			set windowNames to name of windows -- Log History is implicitly created.
+			set windowNames to name of windows
 		end tell
-		assertEqual(3, count of windowNames)
-		ok(windowNames contains "Test.applescript")
-		ok(windowNames contains "Log History")
-		ok(windowNames contains "unit")
+		ok(windowNames contains TopLevel's TEST_DOCUMENT_TITLE) 
 	end script
 
 	script |Window is created + Text Written to the Document|
 		property parent : UnitTest(me)
-		set base to sutBaseScript's new()
-		set sut to sutScript's decorate(base)
-		sut's createTempDocument("unit")
-		sut's writeDataToTempDocument("Test Code")
-		assertEqual("Test Code", TopLevel's __getTempDocumentContent())
+		sut's createTempDocument(TopLevel's TEST_DOCUMENT_TITLE)
+		sut's writeDataToTempDocument(TEST_DOCUMENT_CONTENT)
+		assertEqual(TEST_DOCUMENT_CONTENT, TopLevel's __getTempDocumentContent())
 	end script
+
+	script |#afterSuite| 
+		property parent : UnitTest(me)
+		TopLevel's scriptEditorUtil's killApp()
+	end script		
 end script
 
 
@@ -108,7 +141,7 @@ end __terminateApp
 
 on __getTempDocumentContent()
 	tell application "Script Editor"
-		contents of selection of document "unit"
+		contents of selection of document TEST_DOCUMENT_TITLE
 	end tell
 end __getTempDocumentContent
 

@@ -222,17 +222,19 @@ on decorate(mainScript)
 		end getAccessoryViewTypeName
 		
 		
+		(*
+			TODO: Fix test condition unreliable in some instance for dynamically created documents that doesn't contain a file extension (missing dot).
+		*)
 		on getEditorWindow()
 			if running of application "Script Editor" is false then return missing value
 			
 			tell application "System Events" to tell process "Script Editor"
 				try
 					return first window whose title contains "."
-				end try
-				
-				missing value
+				end try				
 			end tell
 			
+			missing value
 		end getEditorWindow
 	end script
 end decorate
