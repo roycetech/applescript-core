@@ -82,11 +82,11 @@ spot:  # Test single script here.
 # 	osascript "test/libs/Test redis.applescript"
 # 	osascript "test/core/Test date-time.applescript"
 # 	osascript "test/core/Test dec-terminal-path.applescript"
-ifneq ($(OMZ_EXISTS),)
-	osascript "test/core/Test dec-terminal-prompt-omz.applescript"
-else
-	osascript "test/core/Test dec-terminal-prompt.applescript"
-endif
+# ifneq ($(OMZ_EXISTS),)
+# 	osascript "test/core/Test dec-terminal-prompt-omz.applescript"
+# else
+# 	osascript "test/core/Test dec-terminal-prompt.applescript"
+# endif
 # 	osascript "test/core/Test string.applescript"
 # 	osascript "test/apps/1st-party/Test script-editor.applescript"
 # 	osascript "test/apps/1st-party/Test dec-script-editor-content.applescript"
@@ -97,6 +97,8 @@ endif
 # 	osascript "test/core/Test timed-cache-plist.applescript"
 # 	osascript "test/apps/1st-party/Test finder.applescript"
 # 	osascript "test/core/Test file.applescript"
+# 	osascript "test/core/Test decorator.applescript"
+	osascript "test/core/Test dec-terminal-path.applescript"
 
 spot-watch: spot
 # 	scripts/run-spot_on-change.sh

@@ -14,7 +14,6 @@ use unic : script "core/unicodes"
 use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
-property terminal : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -40,6 +39,14 @@ on spotCheck()
 	set terminal to terminalLib's new()
 	set sut to terminal's getFrontTab()
 	set sut to decorate(sut)
+
+	(*
+	set terminalUtilLib to script "core/test/terminal-util"
+	set terminalUtil to terminalUtilLib's new()
+	activate application "Terminal"
+	terminalUtil's cdScriptLibrary()
+	log 1
+	*)
 
 	-- Scenarios: Home, User subdir, Non-user
 	logger's infof("Posix Path: {}", sut's getPosixPath())
@@ -75,7 +82,6 @@ on decorate(termTabScript)
 		property _posixPath : missing value
 
 		on getPosixPath()
-
 			tell application "Terminal"
 				set thisTab to tab 1 of my appWindow
 				set termProcesses to processes of thisTab
@@ -99,7 +105,8 @@ on decorate(termTabScript)
 			if _posixPath is equal to "" then
 				tell application "System Events" to tell process "Terminal"
 					-- logger's debug("Alternative way of fetching the current Terminal tab directory")
-					set _posixPath to textUtil's stringAfter(value of attribute "AXDocument" of front window, "file://")
+					textUtil's stringAfter(value of attribute "AXDocument" of front window, "file://")
+					set _posixPath to textUtil's replace(result, "%20", " ")
 					if _posixPath ends with "/" then set _posixPath to text 1 thru -2 of _posixPath
 				end tell
 			end if
@@ -125,9 +132,9 @@ on decorate(termTabScript)
 
 		(*
 			@returns:
-				- missing value when not under user directory.
-				- empty string if on home directory
-				- subpath relative to the user home directory.
+				- missing value when not under user directory -
+				- empty string if on home directory -
+				- subpath relative to the user home directory -
 		*)
 		on getHomeRelativePath()
 			if not isUserPath() then return missing value
@@ -145,6 +152,9 @@ on decorate(termTabScript)
 
 
 		on getDirectoryName()
+			-- logger's debug(1234)
+			-- logger's debug("DEBUG: " & ( parent's appWindow is missing value))
+
 			tell application "Terminal"
 				set windowTitle to the name of my appWindow
 			end tell
