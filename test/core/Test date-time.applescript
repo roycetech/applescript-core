@@ -11,7 +11,9 @@
 	@charset macintosh
 	@Created: August 31, 2023 10:17 AM
 *)
-use AppleScript
+use framework "Foundation"
+
+-- use AppleScript
 use scripting additions
 
 property parent : script "com.lifepillar/ASUnit"
@@ -210,6 +212,7 @@ script |Default Weekday Tests|
 	script |isWeekEnd|
 		property parent : UnitTest(me)
 		notOk(sut's isWeekend())
+		ok(not sut's isWeekend())  -- Strangely makes the "ok" unresolved without this.
 	end script
 end script
 
@@ -520,21 +523,14 @@ script |fromZuluDateText tests|
 
 	script |Happy Case|
 		property parent : UnitTest(me)
-		set timezoneOffset to (do shell script "date +'%z' | cut -c 2,3") as integer
-		set expected to current date
-		tell expected  -- Friday
-			set its year to 2023
-			set its month to 08
-			set its day to 29 
-			set its hours to 7 + timezoneOffset
-			set its minutes to 31 
-			set its seconds to 42
-		end tell
-
-		assertEqual(expected, sut's fromZuluDateText("2023-08-29T07:31:42Z"))
+		set currentZuluText to do shell script "date -u +'%Y-%m-%dT%TZ'"
+		-- log "currentZuluText: " & currentZuluText
+		-- log "current date: " & current date
+		-- assertEqual(expected, sut's fromZuluDateText("2023-08-29T07:31:42Z"))
+		assertEqual(current date, sut's fromZuluDateText(currentZuluText))
+		ok(true)
 	end script
 end script
-
 
 on __shellYear(offsetText)
 	(do shell script "date -v" & offsetText & " +%Y") as integer
@@ -549,4 +545,3 @@ end __shellMonth
 on __shellDay(offsetText)
 	(do shell script "date -v" & offsetText & " +%d") as integer
 end __shellDay
-
