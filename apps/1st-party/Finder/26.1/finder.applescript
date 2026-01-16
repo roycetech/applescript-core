@@ -11,13 +11,14 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/26.1/finder
 
-	@Last Modified: 2025-12-18 16:40:02
+	@Last Modified: 2026-01-15 14:02:13
 *)
 
 use script "core/Text Utilities"
 use scripting additions
 
 use std : script "core/std"
+use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -244,12 +245,15 @@ on new()
 
 		on untilde(tildePath)
 			set posixPath to tildePath
+			POSIX path of (path to home folder as text)
+			set posixHomePath to text 1 thru -2 of result
 			if tildePath is "~" then
-				set posixPath to format {"/Users/{}", std's getUsername()}
+				set posixPath to posixHomePath
 			else if tildePath starts with "~" then
-				set posixPath to format {"/Users/{}/{}", {std's getUsername(), text 3 thru -1 of posixPath}}
+				set posixPath to textUtil's join({posixHomePath, text 3 thru -1 of posixPath}, "/")
+			else
+				set posixPath to tildePath
 			end if
-			-- logger's debugf("posixPath: {}", posixPath)
 			posixPath
 		end untilde
 	end script

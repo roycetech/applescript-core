@@ -3,7 +3,7 @@
 	@abstract
 		Template test loader.
 	@charset macintosh
-	@CReated 
+	@Created:
 *)
 property parent : script "com.lifepillar/ASUnit"
 
