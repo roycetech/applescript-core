@@ -5,13 +5,13 @@
 	for example.
 
 	@Created: July 22, 2023 10:58 PM
-	@Last Modified: 2024-07-23 16:06:59
+	@Last Modified: 2026-01-10 17:04:02
 
 	@Project:
 		applescript-core
 
 	@Build:
-		make build-test
+		./scripts/build-lib.sh test/xml-util
 *)
 use scripting additions
 
