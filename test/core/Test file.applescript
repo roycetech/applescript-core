@@ -8,7 +8,6 @@
 		1) Provide a description for this test suite and the name of the script to be tested.
 		2) Write tests :)
 
-	@charset macintosh
 	@Created:
 
 	@Known Issues:
@@ -92,6 +91,27 @@ script |posixFolderPathExists tests|
 	script |Non-existing folder|
 		property parent : unitTest(me)
 		notOk(sutScript's posixFolderPathExists("/Unicorn")) 
+	end script
+end script 
+
+
+script |posixFilePathExists tests| 
+	property parent : TestSet(me)
+	property sut : missing value 
+
+	script |Path with tilde|
+		property parent : unitTest(me)
+		ok(sutScript's posixFilePathExists("~/Library/Contacts/accounts.accountdb"))
+	end script
+
+	script |Existing file|
+		property parent : unitTest(me)
+		ok(sutScript's posixFilePathExists("/etc/hosts"))
+	end script
+
+	script |Non-existing file|
+		property parent : unitTest(me)
+		notOk(sutScript's posixFilePathExists("/Unicorn.txt")) 
 	end script
 end script 
 
