@@ -88,6 +88,8 @@ on spotCheck()
 	logger's infof("Current Project Name: {}", currentProjectName)
 	logger's infof("Window title: {}", sut's getWindowTitle())
 	
+	-- logger's debugf("Current windows count: {}", sut's getWindowsCount())
+	
 	if currentProjectName is not missing value then
 		logger's infof("Current File Path: {}", sut's getCurrentFilePath())
 		logger's infof("Current Filename: {}", sut's getCurrentFilename())
@@ -268,10 +270,16 @@ on new()
 				File is loaded
 		*)
 		on getCurrentFilePath()
+			-- logger's debug("#getCurrentFilePath()")			
 			if not _isAppWindowAvailable() then return missing value
 			
 			set docName to getCurrentDocumentName()
-			if docName is "Find Results" or docName is missing value or isCurrentFileNewUnsaved() then return missing value
+			-- logger's debugf("docName: {}", docName)
+			
+			-- if docName is "Find Results" or docName is missing value or isCurrentFileNewUnsaved() then
+			if docName is "Find Results" or docName is missing value then  -- because isCurrentFileNewUnsaved is broken ATM.
+				return missing value
+			end if
 			
 			set filename to missing value
 			tell application "System Events" to tell process "Sublime Text"
@@ -286,6 +294,8 @@ on new()
 			end if
 			
 			set filename to textUtil's stringAfter(filename, "file://")
+			-- logger's debugf("filename: {}", filename)
+			
 			if filename is missing value then return missing value
 			
 			textUtil's replace(filename, "%20", " ")
@@ -499,20 +509,20 @@ on new()
 		on closeProject()
 			if not _isAppWindowAvailable() then return
 			
-tell application "System Events" to tell process "Sublime Text"
-	set frontmost to true
-	set titleToClose to the title of front window
-	repeat 5 times
-		set frontmost to true
-		try
-			click menu item "Close Project" of menu 1 of menu bar item "Project" of menu bar 1
-			delay 0.1
-			set currentTitle to the title of front window
-			if titleToClose is not equal to currentTitle then exit repeat
-		end try
-		delay 0.5
-	end repeat
-end tell
+			tell application "System Events" to tell process "Sublime Text"
+				set frontmost to true
+				set titleToClose to the title of front window
+				repeat 5 times
+					set frontmost to true
+					try
+						click menu item "Close Project" of menu 1 of menu bar item "Project" of menu bar 1
+						delay 0.1
+						set currentTitle to the title of front window
+						if titleToClose is not equal to currentTitle then exit repeat
+					end try
+					delay 0.5
+				end repeat
+			end tell
 		end closeProject
 		
 		
