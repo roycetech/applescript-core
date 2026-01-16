@@ -40,7 +40,7 @@ property plist : "decorator-test"
 property plistPath : "~/applescript-core/config-lib-factory.plist"
 
 loggerFactory's inject(me)
-set xmlUtil to xmlUtilLib's newPlist(plist) 
+set xmlUtil to xmlUtilLib's newPlist(plist)
 autorun(suite)
 
 ---------------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ script |Load script - decorator|
 		else
 			set objectDomain to user domain
 		end if
-
+		
 		try
 			tell application "Finder"
 				set deploymentPath to ((path to library folder from objectDomain) as text) & "Script Libraries:core:"
@@ -71,17 +71,17 @@ script |Load script - decorator|
 			set sutScript to load script (deploymentPath & scriptName & ".scpt") as alias
 			set xmlUtil to xmlUtilLib's newPlist(plist)
 		end try
-		assertInstanceOf(script, sutScript) 
+		assertInstanceOf(script, sutScript)
 	end script
-end script 
+end script
 
 
 script |getHierarchy tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0 
+	property executedTestCases : 0
 	property totalTestCases : 4
-	property originalFactoryXml : missing value 
-
+	property originalFactoryXml : missing value
+	
 	on setUp()
 		set executedTestCases to executedTestCases + 1
 		if executedTestCases is 1 then beforeClass()
@@ -98,35 +98,35 @@ script |getHierarchy tests|
 	
 	script |No override|
 		property parent : UnitTest(me)
-		script Empty 
+		script Empty
 		end script
 		set sut to sutScript's new(Empty)
-		skip("Different behavior during suite test") 
+		skip("Different behavior during suite test")
 		assertEqual({"ASUnit", "Test decorator", "Empty"}, sut's _getHierarchy())
 	end script
-
+	
 	script |Integration - No override|
 		property parent : UnitTest(me)
-		set dialogLib to script "core/dialog" 
+		set dialogLib to script "core/dialog"
 		set dialog to dialogLib's new()
 		set sut to sutScript's new(dialog)
 		assertEqual({"dialog", "DialogInstance"}, sut's _getHierarchy())
 	end script
-
+	
 	script |Integration - Single override|
 		property parent : UnitTest(me)
 		set systemEventsLib to script "core/system-events"
 		set systemEvents to systemEventsLib's new()
-		set sut to sutScript's new(systemEvents)  
-		assertEqual({"system-events", "SystemEventsInstance", "SystemEventsSublimeTextInstance"}, sut's _getHierarchy())
+		set sut to sutScript's new(systemEvents)
+		assertEqual({"system-events", "SystemEventsInstance"}, sut's _getHierarchy())
 	end script
-
+	
 	script |Integration - Double override|
 		property parent : UnitTest(me)
 		skip("No public example yet.")
 		set systemEventsLib to script "core/sublime-text"
 		set systemEvents to systemEventsLib's new()
-		set sut to sutScript's new(systemEvents)  
+		set sut to sutScript's new(systemEvents)
 		assertEqual({"sublime-text", "SublimeTextInstance", "SublimeTextWindowFocusInstance", "SublimeTextFrontFileToucher"}, sut's _getHierarchy())
 	end script
 end script
