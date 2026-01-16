@@ -88,6 +88,8 @@ on spotCheck()
 	frontTab's focus()
 	
 	set projectPath to configSystem's getValue(CONFIG_KEY_AS_PROJECT_CORE_PATH)
+	
+	logger's infof("Is new document window present?: {}", sut's isNewDocumentWindowPresent)
 	logger's infof("Integration: getScriptName: {}", frontTab's getScriptName())
 	-- logger's infof("(BROKEN, not possible when there's multiple projects) getResourcePath(): {}", frontTab's getResourcePath())
 	-- log frontTab's getContents()
@@ -162,9 +164,21 @@ on new()
 	set retry to retryLib's new()
 	
 	script ScriptEditorInstance
+		-- on isAtNewDocumentWindow
+		on isNewDocumentWindowPresent()
+			if running of application "Script Editor" is false then return false
+
+			tell application "System Events" to tell process "Script Editor"
+				exists (window "Open")
+			end tell
+		end isNewDocumentWindowPresent
+
 		on getFrontContents()
 			set editorWindow to getEditorWindow()
-			if editorWindow is missing value then return missing value
+			if editorWindow is missing value then 
+				-- logger's debug("editorWindow is missing")
+				return missing value
+			end if
 			
 			tell application "Script Editor" to tell the front document
 				contents
