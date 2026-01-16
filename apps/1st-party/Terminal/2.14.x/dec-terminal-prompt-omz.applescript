@@ -8,12 +8,19 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt-omz
 
+	NOTES:
+		Handler hierarchy.
+			#getDirectory()
+			#getPromptText()
+			#isShellPrompt()
+			#getPrompt()
+
+
 	@Refactored Out:
 		Wednesday, May 15, 2024 at 10:53:05 PM
 *)
-
-use script "core/Text Utilities"
 use scripting additions
+use script "core/Text Utilities"
 
 use std : script "core/std"
 use textUtil : script "core/string"
@@ -213,7 +220,7 @@ on decorate(termTabScript)
 
 			if isGit then
 				-- log "Case 6: Non-Shell, Git"
-				set previousLines to textUtil's split(previousLine, ASCII character 10)
+				set previousLines to textUtil's split(previousLine, linefeed)
 				return textUtil's stringAfter(item 1 of previousLines, omz's GIT_X & " ")
 			else
 				-- log "Case 5: Non-Shell, Non-Git"
@@ -228,7 +235,7 @@ on decorate(termTabScript)
 				set markerLessPrompt to textUtil's stringAfter(prompt, promptMarker)
 				-- logger's debugf("markerLessPrompt: {}", markerLessPrompt) --
 
-				set previousLines to textUtil's split(previousLine, ASCII character 10)
+				set previousLines to textUtil's split(previousLine, linefeed)
 				return textUtil's stringAfter(item 1 of previousLines, markerLessPrompt & " ")
 			end if
 		end getLastCommand
@@ -346,13 +353,20 @@ on decorate(termTabScript)
 
 			@Test Cases:
 				Zsh
-				Bash
-				With Lingering Command
-				Without Lingering Command
-				Non-Shell Prompt
-				Non Git
-				Git
-				Zsh on Home Path ~
+					Non Git
+						Clean - true
+						With Lingering Command - false
+						Non-Shell Prompt - false
+					Git -
+						Clean - true
+						With Lingering Command - false
+						Non-Shell Prompt - false
+					Home Path ~
+						Clean - true
+						With Lingering Command - false
+						Non-Shell Prompt - false
+
+				Bash - Not Implemented
 		*)
 		on isShellPrompt()
 			if not hasProcess() then return false
@@ -431,9 +445,13 @@ on decorate(termTabScript)
 
 
 		(*
-			@returns the prompt text along with any of the lingering commands typed that hasn't executed.
+			@returns the prompt text along with any of the lingering commands
+			typed that hasn't executed by getting the text .
 		*)
 		on getPromptText()
+			set hasProcessResult to hasProcess()
+			-- logger's debugf("getPromptText hasProcessResult: {}", hasProcessResult)
+
 			if not hasProcess() then return missing value
 
 			-- logger's debug("getPromptText...")
@@ -443,13 +461,24 @@ on decorate(termTabScript)
 			end if
 
 			set recentBuffer to getRecentOutput()
+			-- logger's debugf("recentBuffer: {}", recentBuffer)
 
 			set position to textUtil's lastIndexOf(recentBuffer, omz's OMZ_ARROW) -- TODO: Move out.
 			-- logger's debugf("position: {}", position)
-			if position is not 0 then
-				set promptText to text position thru -1 of recentBuffer
-				if promptText is equal to getNonGitPrefix() & getDirectoryName() then return promptText
-				return promptText
+
+			set omzArrowPresent to position is not 0
+			if omzArrowPresent then
+				set stringAfterOmzArrow to text position thru -1 of recentBuffer
+				-- logger's debugf("stringAfterOmzArrow: {}", stringAfterOmzArrow)
+
+				set directoryName to getDirectoryName()
+				-- logger's debugf("directoryName: {}", directoryName)
+
+				if stringAfterOmzArrow is equal to getNonGitPrefix() & getDirectoryName() then return stringAfterOmzArrow
+
+				-- logger's debug(stringAfterOmzArrow contains linefeed)
+
+				return first paragraph of stringAfterOmzArrow
 			end if
 
 			missing value
@@ -492,17 +521,24 @@ on decorate(termTabScript)
 		end _removeDirectoryAndGit
 
 		(*
-			@returns the prompt without the lingering command text.
-			Trailing space is included when present.
+			Trailing space is included if present.
+
+			@returns the prompt without the lingering command text.  missing value if non-shell detected.
 		*)
 		on getPrompt()
+			set hasProcessResult to hasProcess()
+			-- logger's debugf("#getPrompt hasProcessResult: {}", hasProcessResult)
+
 			if not hasProcess() then return missing value
+			-- if not isShellPrompt() then return missing value
 
 			-- logger's debug("getPrompt...")
 			if isGitDirectory() then
-				-- logger's debug("Git Directory...")
+				-- logger's debug("#getPrompt: Git Directory...")
+
 				set promptText to getPromptText()
-				-- logger's debugf("promptText: {}", promptText)
+				-- logger's debugf("#getPrompt: promptText: {}", promptText)
+
 				if promptText is missing value then return missing value -- Can't retrieve if current output is too big.
 
 				set lastCommand to regex's stringByReplacingMatchesInString(gitPromptPattern(), promptText, "")
@@ -513,14 +549,30 @@ on decorate(termTabScript)
 			end if
 
 			if isShellPrompt() is false then
-				-- logger's debug("Non-shell")
-				set firstLine to first item of textUtil's split(my getPromptText(), ASCII character 10)
-				set directoryName to getDirectoryName()
+				-- logger's debug("#getPrompt() Non-shell")
+				set firstLine to first item of textUtil's split(my getPromptText(), linefeed)
 				-- logger's debugf("firstLine: {}", firstLine)
-				set directoryNameLength to the length of directoryName
-				set directoryNameOffset to offset of directoryName in firstLine
-				return text 1 thru (directoryNameLength + directoryNameOffset + 1) of firstLine
+
+				set directoryName to getDirectoryName()
+				-- logger's debugf("directoryName: {}", directoryName)
+
+				if directoryName is equal to std's getUsername() then
+					set directoryText to "~"
+				else
+					set directoryText to directoryName
+				end if
+				-- logger's debugf("directoryText: {}", directoryText)
+
+				set directoryTextLength to the length of directoryText
+				-- logger's debugf("directoryTextLength: {}", directoryTextLength)
+
+				set directoryTextOffset to offset of directoryText in firstLine
+				-- logger's debugf("directoryTextOffset: {}", directoryTextOffset)
+
+				-- return text 1 thru (directoryTextLength + directoryTextOffset + 1) of firstLine
+				return text 1 thru (directoryTextLength + directoryTextOffset - 1) of firstLine
 			end if
+			-- return missing value
 
 			set lingeringText to getLingeringCommand()
 			-- logger's debugf("lingeringText: {}", lingeringText)

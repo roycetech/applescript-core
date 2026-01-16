@@ -2,7 +2,7 @@
 	Utility for testing Terminal app scripts.
 
 	@Created: Friday, May 17, 2024 at 9:50:26 AM
-	@Last Modified: 2026-01-06 13:39:20
+	@Last Modified: 2026-01-15 20:33:22
 
 	@Plists:
 		config-user:
@@ -129,19 +129,25 @@ on new()
 				if count of windows is  0 then return
 
 			end tell
-			_focusAsConfigured()
 
-			kb's pressControlKey("c")
-			kb's pressCommandKey("k")
-			repeat 2 times
-				kb's pressControlKey("w")
-			end repeat
-			delay 1
+			controlC()
+			clearScreen()
+			clearCommands()
 		end clearScreenAndCommands
+
+		on controlC()
+			_focusAsConfigured()
+			kb's pressControlKey("c")
+		end controlC
+
+		on clearCommands()
+			_focusAsConfigured()
+			kb's pressControlKey("u")
+		end clearCommands
+
 
 		on clearScreen()
 			_focusAsConfigured()
-
 			kb's pressCommandKey("k")
 			delay 1.5
 		end clearScreen
@@ -195,11 +201,6 @@ on new()
 			kb's insertTextByPasting(command)
 			delay 0.1 -- This additional delay allows terminal to register the command in its contents property.
 		end pasteCommand
-
-		on controlC()
-			_focusAsConfigured()
-			kb's pressControlKey("c")
-		end controlC
 
 		on runCommand(command)
 			_focusAsConfigured()
