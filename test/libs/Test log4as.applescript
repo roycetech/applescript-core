@@ -8,7 +8,6 @@
 		1) Provide a description for this test suite and the name of the script to be tested.
 		2) Write tests :)
 
-	@charset macintosh
 	@Created:
 *)
 use AppleScript
@@ -72,27 +71,37 @@ end script
 
 script |log4as.isPrintable tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 32
+	-- property executedTestCases : 0
+	-- property totalTestCases : 32
 	property originalPlistName : missing value
 	
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-	end setUp
-	on tearDown()
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+	-- -- on setUp()
+	-- -- 	set executedTestCases to executedTestCases + 1
+	-- -- 	if executedTestCases is 1 then beforeClass()
+	-- -- end setUp
+	-- on tearDown()
+	-- 	if executedTestCases is equal to the totalTestCases then afterClass()
+	-- end tearDown
+	-- on beforeClass()
+	-- 	xmlUtil's __createTestPlist()
+	-- 	xmlUtil's __insertXml("categories", "<dict/>")
+	-- 	set originalPlistName to plistName of sutScript
+	-- 	set plistName of sutScript to TopLevel's plist
+	-- end beforeClass
+	
+	-- on afterClass()
+	-- 	xmlUtil's __deleteTestPlist()
+	-- 	set plistName of sutScript to originalPlistName
+	-- end afterClass 
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
 		xmlUtil's __insertXml("categories", "<dict/>")
 		set originalPlistName to plistName of sutScript
 		set plistName of sutScript to TopLevel's plist
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-		set plistName of sutScript to originalPlistName
-	end afterClass 
+	end script	
+
 	
 	script |registered - on DEBUG doing debug()|
 		property parent : UnitTest(me)
@@ -222,7 +231,6 @@ script |log4as.isPrintable tests|
 		xmlUtil's __deleteValue("categories.core-test-error")
 	end script	
 
-
 	script |unregistered - on DEBUG doing debug()|
 		property parent : UnitTest(me)
 		set sut to sutScript's new()
@@ -309,7 +317,6 @@ script |log4as.isPrintable tests|
 		ok(sut's isPrintable("unicorn", ERR of sutScript's level))
 	end script
 
-
 	script |unregistered - on ERROR, doing debug()|
 		property parent : UnitTest(me)
 		set sut to sutScript's new()
@@ -338,7 +345,6 @@ script |log4as.isPrintable tests|
 		ok(sut's isPrintable("unicorn", ERR of sutScript's level))
 	end script
 
-
 	script |unregistered - on OFF, doing debug()|
 		property parent : UnitTest(me)
 		set sut to sutScript's new()
@@ -366,5 +372,10 @@ script |log4as.isPrintable tests|
 		set defaultLevel of sut to OFF of sutScript's level
 		notOk(sut's isPrintable("unicorn", ERR of sutScript's level))
 	end script
-end script
 
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+		set plistName of sutScript to originalPlistName
+	end script	
+end script
