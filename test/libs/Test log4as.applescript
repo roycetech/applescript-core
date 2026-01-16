@@ -71,29 +71,8 @@ end script
 
 script |log4as.isPrintable tests|
 	property parent : TestSet(me)
-	-- property executedTestCases : 0
-	-- property totalTestCases : 32
 	property originalPlistName : missing value
 	
-	-- -- on setUp()
-	-- -- 	set executedTestCases to executedTestCases + 1
-	-- -- 	if executedTestCases is 1 then beforeClass()
-	-- -- end setUp
-	-- on tearDown()
-	-- 	if executedTestCases is equal to the totalTestCases then afterClass()
-	-- end tearDown
-	-- on beforeClass()
-	-- 	xmlUtil's __createTestPlist()
-	-- 	xmlUtil's __insertXml("categories", "<dict/>")
-	-- 	set originalPlistName to plistName of sutScript
-	-- 	set plistName of sutScript to TopLevel's plist
-	-- end beforeClass
-	
-	-- on afterClass()
-	-- 	xmlUtil's __deleteTestPlist()
-	-- 	set plistName of sutScript to originalPlistName
-	-- end afterClass 
-
 	script |#beforeClass|
 		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
