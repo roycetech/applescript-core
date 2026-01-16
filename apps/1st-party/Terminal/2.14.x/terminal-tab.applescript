@@ -14,7 +14,7 @@
 		WARNING: This script requires re-compilation each time there's a change on this file.
 
 	@Created: Sunday, January 28, 2024 at 2:35:54 PM
-	@Last Modified: 2025-06-26 11:37:32
+	@Last Modified: 2025-12-29 06:39:04
 *)
 use script "core/Text Utilities"
 use scripting additions
@@ -540,6 +540,7 @@ on new(pWindowId)
 	extRun's decorate(result)
 	extPath's decorate(result)
 	extPrompt's decorate(result)
+
 	decoratorLib's new(result)
 	result's decorateByName("TerminalTabInstance")
 end new

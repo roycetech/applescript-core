@@ -60,7 +60,11 @@ on spotCheck()
 	if caseIndex is 1 and not isMessageWindow then
 
 	else if caseIndex is 2 then
-		sut's gotoFolder("04 Updates")
+		set sutFolderName to "04 Updates"
+		set sutFolderName to "Inbox"
+		logger's debugf("sutFolderName: {}", sutFolderName)
+
+		sut's gotoFolder(sutFolderName)
 
 	else if caseIndex is 3 then
 		sut's showSettingsWindow()
@@ -271,20 +275,37 @@ on new()
 
 
 		(*  *)
-		on gotoFolder(folderName)
+		on gotoFolder(folderNameKeyword)
 			set mainMailWindow to getMainWindow()
 			if mainMailWindow is missing value then return
 
 			tell application "System Events" to tell process "Mail"
-				if title of mainMailWindow starts with folderName then return
+				if title of mainMailWindow starts with folderNameKeyword then return
 
-				set mailFolderRows to rows of outline 1 of scroll area 1 of splitter group 1 of mainMailWindow
-				repeat with nextRow in mailFolderRows
-					if get description of UI element 1 of nextRow contains folderName then
-						set selected of nextRow to true
-						exit repeat
-					end if
-				end repeat
+				-- set mailFolderRows to rows of outline 1 of scroll area 1 of splitter group 1 of mainMailWindow
+				-- repeat with nextRow in mailFolderRows
+				-- 	if get description of UI element 1 of nextRow contains folderName then
+				-- 		set selected of nextRow to true
+				-- 		exit repeat
+				-- 	end if
+				-- end repeat
+
+				set frontmost to true
+				if folderNameKeyword is "Inbox" then
+					try
+						set selected of (2nd row of outline 1 of scroll area 1 of splitter group 1 of front window whose value of UI element 1 of UI element 1 contains folderNameKeyword) to true
+					end try
+					return
+				end if
+
+				try
+					set selected of (first row of outline 1 of scroll area 1 of splitter group 1 of front window whose value of UI element 1 of UI element 1 contains folderNameKeyword) to true
+					(*
+					on error the errorMessage number the errorNumber
+					row 12 of outline 1 of scroll area 1 of splitter group 1 of front window
+					*)
+
+				end try
 			end tell
 		end gotoFolder
 
