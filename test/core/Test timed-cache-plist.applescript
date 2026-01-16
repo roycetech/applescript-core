@@ -75,7 +75,6 @@ end script
 
 script |_timestampKey tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
 
 	script |Basic case|
 		property parent : UnitTest(me)
@@ -99,23 +98,12 @@ end script
 
 script |_getRegisteredSeconds tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 3
 
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-	end setUp
-	on tearDown()
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()  
 		set cacheName of sutScript to TopLevel's plist
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass 
+	end script	
 
 	script |Missing Value key|
 		property parent : UnitTest(me)
@@ -139,28 +127,22 @@ script |_getRegisteredSeconds tests|
 		TopLevel's xmlUtil's __deleteValue("string") 
 		TopLevel's xmlUtil's __deleteValue("string-ets") 
 	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script	
 end script
 
 
 script |getValue tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 3
 
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-	end setUp
-	on tearDown()
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()  
 		set cacheName of sutScript to TopLevel's plist
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass 
+	end script	
 	 
 	script |Retrieve non-existent| 
 		property parent : UnitTest(me)
@@ -191,61 +173,50 @@ script |getValue tests|
 		TopLevel's xmlUtil's __deleteValue("string") 
 		TopLevel's xmlUtil's __deleteValue("string-ets") 
 	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script	
 end script
 
 
 script |setValue tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 1
 
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-	end setUp
-	on tearDown()
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()  
 		set cacheName of sutScript to TopLevel's plist
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass 
+	end script	
 	 
 	script |Basic| 
 		property parent : UnitTest(me)
-		set sut to sutScript's new(0)
+		set sut to sutScript's new(0)		
+		sut's setValue("string", "string-value")
+
 		set currentShellIsoDate to do shell script "date -u +'%Y-%m-%dT%H:%M:%SZ'"
 		set currentShellSeconds to do shell script "date +%s"
-		sut's setValue("string", "string-value")
 		assertEqual("<string>string-value</string>" , TopLevel's xmlUtil's __grepValueXml("string"))
 		assertEqual("<date>" & currentShellIsoDate & "</date>" , TopLevel's xmlUtil's __grepValueXml("string-ts"))
 		assertEqual("<real>" & currentShellSeconds & "</real>" , TopLevel's xmlUtil's __grepValueXml("string-ets"))
 	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script	
 end script
 
 
 script |deleteKey tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 2
 
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-	end setUp
-	on tearDown()
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()  
 		set cacheName of sutScript to TopLevel's plist
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass 
+	end script
 
 	script |Missing Value does nothing| 
 		property parent : UnitTest(me)
@@ -270,4 +241,9 @@ string-ts"), TopLevel's xmlUtil's __readAllKeys())
 		sut's deleteKey("string")
 		assertEqual("", TopLevel's xmlUtil's __readAllKeys())
 	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script	
 end script

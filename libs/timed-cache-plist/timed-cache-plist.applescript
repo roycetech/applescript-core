@@ -1,8 +1,11 @@
 (*
 	use tcache : script "core/timed-cache-plist"
 
+	@Project:
+		applescript-core
+
 	@Build:
-		make install-timed-cache
+		./scripts/build-lib.sh libs/timed-cache-plist/timed-cache-plist
 
 	@Plists:
 		config.plist
@@ -11,21 +14,22 @@
 
 	@Unit Test
 		Test timed-cache-plist
+
+	@Change Logs:
+		Sun, Jan 11, 2026, at 03:36:29 PM - Switched to using shell script because setValue of plutil is storing the local time instead of UTC.
 *)
 
 use scripting additions
 
-use listUtil : script "core/list"
+
 use loggerFactory : script "core/logger-factory"
 
 use plutilLib : script "core/plutil"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
+
 (* Set a default cache name. *)
 property cacheName : "timed-cache"
--- property cache : missing value
 
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -34,10 +38,13 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		First
+		Manual: Set Value
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -53,6 +60,7 @@ on spotCheck()
 		sut's setValue("Present", true)
 
 	else if caseIndex is 2 then
+		sut's setValue("spot-key", "spot-value")
 
 	end if
 
@@ -92,7 +100,9 @@ on new(pExpirySeconds)
 			cache's setValue(mapKey, newValue)
 			set currentSeconds to (do shell script "date +%s") as real
 			cache's setValue(_epochTimestampKey(mapKey), currentSeconds)
-			cache's setValue(_timestampKey(mapKey), current date)
+			-- cache's setValue(_timestampKey(mapKey), current date)  -- TO FIX, it is not being stored as UTC date.
+			set shellCommand to "plutil -replace " & _timestampKey(mapKey) & " -date \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\" ~/applescript-core/" & cacheName & ".plist"
+			do shell script shellCommand
 		end setValue
 
 
