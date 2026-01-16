@@ -13,8 +13,8 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_1/string
 
-	@Last Modified: 2025-12-06 15:08:23
-	
+	@Last Modified: 2025-12-29 06:44:10
+
 	@Change Logs:
 		Mon, Dec 08, 2025, at 03:14:06 PM
 *)
@@ -29,7 +29,7 @@ on spotCheck()
 	set loggerFactory to script "core/logger-factory"
 	loggerFactory's injectBasic(me)
 	logger's start()
-	
+
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
@@ -37,7 +37,7 @@ on spotCheck()
 		Encode Multi Line Command
 		Manual: Improve format to be allow more tokens than placeholders
 	")
-	
+
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -45,7 +45,7 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	if caseIndex is 1 then
 		set sut to "1
 		2"
@@ -53,7 +53,7 @@ on spotCheck()
 		-- log format("What's missing? {}", missing value)
 		log format("Body: {}", "She said: \"hello?\"")
 		log format("Body: \"{}\"", "She")
-		
+
 	else if caseIndex is 2 then
 		log encodeUrl("
 			docker container run \\
@@ -66,15 +66,15 @@ on spotCheck()
 			-p 4306:3306 \\
 			mysql:5
 		")
-		
+
 	else if caseIndex is 3 then
 		log format("Body: {}, {}", 1)
-		
+
 	else
 		-- log encodeUrl("hello kansas")
-		
+
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -82,7 +82,7 @@ end spotCheck
 
 on splitAndTrimParagraphs(theText)
 	if theText is missing value then return {}
-	
+
 	set listResult to {}
 	set textLines to paragraphs of theText
 	repeat with nextLine in textLines
@@ -113,7 +113,7 @@ end substringAfter
 on stringAfter(sourceText, substring)
 	if sourceText does not contain substring then return missing value
 	if sourceText ends with substring then return missing value
-	
+
 	text ((offset of substring in sourceText) + (count of substring)) thru -1 of sourceText
 end stringAfter
 
@@ -121,7 +121,7 @@ end stringAfter
 on lastStringAfter(sourceText, substring)
 	if sourceText does not contain substring then return missing value
 	if sourceText ends with substring then return missing value
-	
+
 	last item of split(sourceText, substring)
 end lastStringAfter
 
@@ -129,7 +129,7 @@ end lastStringAfter
 on stringBefore(sourceText, substring)
 	if sourceText does not contain substring then return missing value
 	if sourceText starts with substring then return missing value
-	
+
 	text 1 thru ((offset of substring in sourceText) - 1) of sourceText
 end stringBefore
 
@@ -137,7 +137,7 @@ end stringBefore
 on stringBetween(sourceText, substringStart, substringEnd)
 	if sourceText does not contain substringStart then return missing value
 	if sourceText does not contain substringEnd then return missing value
-	
+
 	text ((offset of substringStart in sourceText) + (count of substringStart)) thru ((offset of substringEnd in sourceText) - 1) of sourceText
 end stringBetween
 
@@ -145,7 +145,7 @@ end stringBetween
 on shortestStringBetween(sourceText, substringStart, substringEnd)
 	if sourceText does not contain substringStart then return missing value
 	if sourceText does not contain substringEnd then return missing value
-	
+
 	text (lastIndexOf(sourceText, substringStart) + (count of substringStart)) thru ((offset of substringEnd in sourceText) - 1) of sourceText
 end shortestStringBetween
 
@@ -153,28 +153,28 @@ end shortestStringBetween
 on replaceFirst(sourceText, substring, replacement)
 	if sourceText is missing value then return missing value
 	if sourceText does not contain substring then return sourceText
-	
+
 	set substringOffset to offset of substring in sourceText
 	if substringOffset is 0 then return sourceText
 	if replacement is missing value then set replacement to ""
-	
+
 	if sourceText starts with substring then return replacement & text ((length of substring) + 1) thru (length of sourceText) of sourceText
-	
+
 	-- ends with match.
 	if substringOffset + (length of (substring)) is equal to the (length of sourceText) + 1 then
 		set endIdx to (offset of substring in sourceText) - 1 + (length of substring)
 		return (text 1 thru (substringOffset - 1) of sourceText) & replacement
 	end if
-	
+
 	if length of substring is greater than length of sourceText then return sourceText
-	
+
 	if substringOffset is greater than 1 then
 		set startText to text 1 thru (substringOffset - 1) of sourceText
 		set replaceEndOffset to length of sourceText
-		
+
 		if length of sourceText is greater than substringOffset + (length of substring) - 1 then set replaceEndOffset to substringOffset + (length of substring)
 		set endText to text replaceEndOffset thru (length of sourceText) of sourceText
-		
+
 		return startText & replacement & endText
 	end if
 end replaceFirst
@@ -183,24 +183,24 @@ on replaceLast(sourceText, substring, replacement)
 	set substringOffset to lastIndexOf(sourceText, substring)
 	if substringOffset is 0 then return sourceText
 	if replacement is missing value then set replacement to ""
-	
+
 	if sourceText starts with substring then return replacement & text ((length of substring) + 1) thru (length of sourceText) of sourceText
-	
-	
+
+
 	if substringOffset + (length of (substring)) is equal to the (length of sourceText) + 1 then
 		set endIdx to (offset of substring in sourceText) - 1 + (length of substring)
 		return (text 1 thru (substringOffset - 1) of sourceText) & replacement
 	end if
-	
+
 	if length of substring is greater than length of sourceText then return sourceText
-	
+
 	if substringOffset is greater than 1 then
 		set startText to text 1 thru (substringOffset - 1) of sourceText
 		set replaceEndOffset to length of sourceText
-		
+
 		if length of sourceText is greater than substringOffset + (length of substring) - 1 then set replaceEndOffset to substringOffset + (length of substring)
 		set endText to text replaceEndOffset thru (length of sourceText) of sourceText
-		
+
 		return startText & replacement & endText
 	end if
 end replaceLast
@@ -217,7 +217,7 @@ end removeUnicode
 *)
 on encodeUrl(theString as text)
 	-- printAsciiNumber(theString)
-	
+
 	-- do shell script "urlencode_grouped_case \"" & theString & "\""
 	set replacedText to replace(theString, ASCII character 10, "%0A")
 	set replacedText to replace(replacedText, " ", "%20")
@@ -245,7 +245,7 @@ end encodeUrl
 on decodeUrl(theString as text)
 	-- does not work with %7c
 	-- return do shell script "echo '" & theString & "' | printf \"%b\\n\" \"$(sed 's/+/ /g; s/%\\([0-9a-f][0-9a-f]\\)/\\\\x\\1/g;')\";"
-	
+
 	set newString to replace(theString, "%0A", "
 ")
 	set newString to replace(theString, "%20", " ")
@@ -295,16 +295,16 @@ end formatClassic
 *)
 on format(sourceText, theTokens)
 	if sourceText is missing value then return missing value
-	
+
 	if class of theTokens is not list then set theTokens to {theTokens}
 	if theTokens is {} then set theTokens to {{}}
-	
+
 	set oldDelimiters to AppleScript's text item delimiters
 	set AppleScript's text item delimiters to "{}"
 	set theArray to every text item of sourceText
 	set AppleScript's text item delimiters to theTokens
 	set theListAsText to first item of theArray
-	
+
 	repeat with i from 2 to number of items in theArray
 		set placeholderIndex to i - 1
 		set isNoMoreToken to placeholderIndex is greater than the number of items in theTokens
@@ -315,7 +315,7 @@ on format(sourceText, theTokens)
 		end if
 		set theListAsText to theListAsText & nextToken & item i of theArray
 	end repeat
-	
+
 	set AppleScript's text item delimiters to oldDelimiters
 	return theListAsText
 end format
@@ -323,7 +323,7 @@ end format
 
 on title(theWord)
 	if theWord is missing value then return missing value
-	
+
 	set AppleScript's text item delimiters to ""
 	ucase(first character of theWord) & rest of characters of theWord
 end title
@@ -351,7 +351,7 @@ end lcase
 
 on repeatText(theText, ntimes)
 	if ntimes is less than or equal to 0 then return missing value
-	
+
 	set theResult to ""
 	repeat ntimes times
 		set theResult to theResult & theText
@@ -389,7 +389,7 @@ on join(aList, delimiter)
 	if aList is missing value then return missing value
 	set calcDelimiter to delimiter
 	if delimiter is missing value then set calcDelimiter to ""
-	
+
 	set retval to ""
 	repeat with i from 1 to (count of aList)
 		set retval to retval & item i of aList
@@ -403,7 +403,7 @@ on indexOf(sourceText, substring)
 	if substring is missing value then return 0
 	if sourceText is missing value then return 0
 	if (offset of substring in sourceText) is 0 then return 0
-	
+
 	offset of substring in sourceText
 end indexOf
 
@@ -413,7 +413,7 @@ on lastIndexOf(sourceText, substring)
 	if sourceText is missing value then return 0
 	-- if (offset of substring in sourceText) is 0 then return 0
 	if sourceText does not contain substring then return 0
-	
+
 	set theList to split(sourceText, substring)
 	return (length of sourceText) - (length of last item of theList) - (length of substring) + 1
 end lastIndexOf
@@ -425,6 +425,8 @@ end replaceAll
 
 
 on replace(sourceText, substring, replacement)
+	if sourceText is missing value and substring is missing value then return replacement
+
 	if replacement is missing value then set replacement to ""
 	if sourceText is missing value then return missing value
 	if sourceText does not contain substring then return sourceText
@@ -440,23 +442,23 @@ on replace(sourceText, substring, replacement)
 		end repeat
 		return ugly
 	end if
-	
+
 	if sourceText is equal to substring then return replacement as text
-	
+
 	if sourceText starts with substring then
 		set startIdx to the (length of substring) + 1
 		return replacement & replace(text startIdx thru length of sourceText, substring, replacement)
 	end if
-	
+
 	if sourceText is missing value then return sourceText
 	if (offset of substring in sourceText) is equal to 0 then return sourceText
-	
+
 	set retval to text 1 thru ((offset of substring in sourceText) - 1) of sourceText
 	set nextIdx to offset of substring in sourceText
-	
+
 	repeat
 		if nextIdx - 1 is greater than ((length of sourceText) - (length of substring)) then exit repeat
-		
+
 		if text nextIdx thru (nextIdx + (length of substring) - 1) of sourceText is equal to substring then
 			if length of replacement is greater than 0 then
 				set retval to retval & replacement
@@ -470,23 +472,23 @@ on replace(sourceText, substring, replacement)
 			set nextIdx to nextIdx + 1
 		end if
 	end repeat
-	
+
 	if nextIdx is less than or equal to length of sourceText then set retval to retval & text nextIdx thru -1 of sourceText
-	
+
 	retval
 end replace
 
 
 on substring(thisText, startIdx, endIdx)
 	if endIdx is less than the startIdx then return missing value
-	
+
 	text startIdx thru endIdx of thisText
 end substring
 
 
 on substringFrom(thisText, startIdx)
 	if startIdx is greater than the (count of thisText) then return thisText
-	
+
 	text startIdx thru -1 of thisText
 end substringFrom
 
@@ -494,16 +496,16 @@ end substringFrom
 on rtrim(theText)
 	if theText is missing value then return missing value
 	if theText is "" then return theText
-	
+
 	set counter to 0
 	repeat with nextCharacter in reverse of characters of theText
 		if {tab, "
 ", " "} does not contain the nextCharacter then exit repeat
 		set counter to counter + 1
 	end repeat
-	
+
 	if counter is equal to the length of theText then return ""
-	
+
 	text 1 thru ((the length of theText) - counter) of theText
 end rtrim
 
@@ -511,7 +513,7 @@ end rtrim
 on ltrim(theText)
 	if theText is missing value then return missing value
 	if theText is "" then return ""
-	
+
 	set trimOffset to 1
 	repeat until (character trimOffset of theText) is not in {" ", "
 ", tab}
@@ -520,7 +522,7 @@ on ltrim(theText)
 			return ""
 		end if
 	end repeat
-	
+
 	text trimOffset thru (count of theText) of theText
 end ltrim
 
@@ -558,9 +560,10 @@ end hasUnicode
 (* @Deprecated.  Use #replaceLast. *)
 on removeEnding(sourceText, ending)
 	-- return replaceLast(sourceText, ending, "")
-	
+
 	if sourceText is missing value then return missing value
-	
+	if sourceText does not contain ending then return sourceText
+
 	try
 		text 1 thru -((length of ending) + 1) of sourceText
 	on error
@@ -576,7 +579,7 @@ on unitTest()
 		newMethod("removeEnding")
 		assertEqual("Hell", my removeEnding("Hello", "o"), "Basic")
 		assertEqual("Hello", my removeEnding("Hello", "not found"), "Not found")
-		
+
 		done()
 	end tell
 end unitTest

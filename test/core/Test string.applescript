@@ -417,7 +417,7 @@ script |replace|
 		
 	script |Missing source text|
 		property parent : UnitTest(me)
-		assertEqual("1", sutScript's replace(missing value, missing value, 1))
+		assertEqual(1, sutScript's replace(missing value, missing value, 1))
 	end script
 
 	script |Missing substring|
