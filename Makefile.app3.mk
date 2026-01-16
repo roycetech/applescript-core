@@ -3,6 +3,7 @@
 # Contains target for 3rd party apps and libraries.
 
 OMZ_EXISTS := $(wildcard ~/.oh-my-zsh/plugins)
+$(info     OMZ_EXISTS: $(OMZ_EXISTS))
 
 build-omz:
 	$(SUDO) ./scripts/build-lib.sh libs/zsh/oh-my-zsh

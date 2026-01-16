@@ -19,6 +19,7 @@ use kbLib : script "core/keyboard" -- The keyboard settings doesn't respond to p
 use Math : script "core/math"
 
 property logger : missing value
+
 property kb : missing value
 property retry : missing value
 
@@ -327,7 +328,7 @@ on decorate(mainScript)
 					if exists sheet 1 of window 1 then return true
 				end tell
 			end script
-			retry's exec on result for 3
+			exec of retry on result for 3
 		end triggerTextInputEdit
 		
 		
