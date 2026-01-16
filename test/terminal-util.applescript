@@ -2,7 +2,7 @@
 	Utility for testing Terminal app scripts.
 
 	@Created: Friday, May 17, 2024 at 9:50:26 AM
-	@Last Modified: 2026-01-05 10:38:28
+	@Last Modified: 2026-01-06 13:39:20
 
 	@Plists:
 		config-user:
@@ -93,7 +93,9 @@ on new()
 
 	script TerminalUtilInstance
 		property TEST_TAB_NAME : "unit-test-starter"
+		(* Used when testing findTabEndingWith *)
 		property TEST_TAB_ENDING_WORD : "-starter"
+		(* Used when testing findTabContaining *)
 		property TEST_TAB_MID_WORD : "-test-"
 
 		(*
