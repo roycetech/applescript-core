@@ -12,7 +12,6 @@ build-apps-first-party: \
 	build-automator \
 	build-calendar \
 	build-console \
-# 	build-control-center \  # Moved to core.
 	build-dock \
 	build-finder \
 	build-notification-center \
@@ -130,7 +129,6 @@ else
 endif
 
 
-SAFARI_LATEST_VERSION := 26.1
 build-safari: build-dock build-process
 	yes y | ./scripts/build-lib.sh core/Level_5/javascript
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
@@ -152,7 +150,11 @@ build-safari: build-dock build-process
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-profile
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-privacy-and-security
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.1/safari
-	osascript apps/1st-party/Safari/$(SAFARI_LATEST_VERSION)/allow-javascript-from-apple-events.applescript
+# ifeq ($(shell [ $(OS_VERSION) -eq 26.2 ] && echo yes),yes)
+ifeq ($(OS_VERSION),26.2)
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-tab-group
+endif
+	osascript apps/1st-party/Safari/26.1/allow-javascript-from-apple-events.applescript
 	@echo "Build Safari completed"
 
 install-safari: build-safari
@@ -185,19 +187,24 @@ build-script-editor:
 
 build-system-settings:
 	./scripts/factory-insert.sh SystemSettingsInstance core/dec-system-settings-sonoma
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/macOS Sonoma/dec-system-settings-sonoma"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control_voice-commands"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_passwords"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_displays"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_sound"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_desktop-and-dock"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
+	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/macOS Sonoma/dec-system-settings-sonoma"
+	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control"
+	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control_voice-commands"
+	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_passwords"
+	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_displays"
+	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_sound"
+	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_desktop-and-dock"
+	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 # ifeq ($(OS_NAME), sequoia)
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt 15 ] && echo yes),yes)
-	$(SUDO) ./scripts/build-lib.sh 'apps/1st-party/System Settings/15.0/macOS Sequoia/dec-system-settings_apple-intelligence-and-siri'
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
+	yes y | ./scripts/build-lib.sh 'apps/1st-party/System Settings/15.0/macOS Sequoia/dec-system-settings_apple-intelligence-and-siri'
+	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 endif
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -ge 26 ] && echo yes),yes)
+	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/macOS Tahoe/system-settings"
+endif
+
 	@echo "Build System Settings completed"
 
 
