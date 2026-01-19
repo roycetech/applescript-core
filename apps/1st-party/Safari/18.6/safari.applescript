@@ -31,7 +31,7 @@
 		end tell
 
 	@Created: Mon, Feb 10, 2025 at 7:30:44 AM
-	@Last Modified: 2025-10-27 07:37:28
+	@Last Modified: 2026-01-18 11:54:32
 *)
 
 use scripting additions
@@ -138,7 +138,7 @@ on spotCheck()
 			logger's infof("Title: {}", frontTab's getTitle())
 			logger's infof("Window Name: {}", frontTab's getWindowName())
 			logger's infof("Window ID: {}", frontTab's getWindowID())
-			logger's infof("Sidebar Visible: {}", sut's isSideBarVisible())
+			logger's infof("Sidebar Visible: {}", sut's isSidebarVisible())
 			logger's infof("Is Loading: {}", sut's isLoading())
 			logger's infof("Is Playing: {}", sut's isPlaying())
 			logger's infof("Is Default Group: {}", sut's isDefaultGroup())
@@ -159,13 +159,13 @@ on spotCheck()
 
 	else if caseIndex is 3 then
 
-		sut's showSideBar()
-		assertThat of std given condition:sut's isSideBarVisible(), messageOnFail:"Failed spot check"
+		sut's showSidebar()
+		assertThat of std given condition:sut's isSidebarVisible(), messageOnFail:"Failed spot check"
 		logger's info("Sidebar detected.")
 
 	else if caseIndex is 4 then
-		sut's closeSideBar()
-		assertThat of std given condition:sut's isSideBarVisible() is false, messageOnFail:"Failed spot check"
+		sut's closeSidebar()
+		assertThat of std given condition:sut's isSidebarVisible() is false, messageOnFail:"Failed spot check"
 		logger's info("Sidebar not detected.")
 
 	else if caseIndex is 5 then
@@ -576,7 +576,7 @@ on new()
 	set decSafariTabFinder2 to script "core/dec-safari-tab-finder2"
 	set decSafariUiNoncompact to script "core/dec-safari-ui-noncompact"
 	set decSafariUiCompact to script "core/dec-safari-ui-compact"
-	set decSafariSideBar to script "core/dec-safari-side-bar"
+	set decSafariSidebar to script "core/dec-safari-sidebar"
 	set decSafariKeychain to script "core/dec-safari-keychain"
 	set decSafariInspector to script "core/dec-safari-inspector"
 	set decSafariPreferences to script "core/dec-safari-preferences"
@@ -598,7 +598,7 @@ on new()
 	decSafariTabFinder2's decorate(result)
 	decSafariUiNoncompact's decorate(result)
 	decSafariUiCompact's decorate(result)
-	decSafariSideBar's decorate(result)
+	decSafariSidebar's decorate(result)
 	decSafariKeychain's decorate(result)
 	decSafariPreferences's decorate(result)
 	decSafariProfile's decorate(result)

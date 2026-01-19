@@ -137,7 +137,7 @@ build-safari: build-dock build-process
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.0/dec-safari-tab-finder2
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-ui-compact
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-side-bar
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-sidebar
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.6/dec-safari-tab-group
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-inspector
@@ -153,6 +153,7 @@ build-safari: build-dock build-process
 # ifeq ($(shell [ $(OS_VERSION) -eq 26.2 ] && echo yes),yes)
 ifeq ($(OS_VERSION),26.2)
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-tab-group
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-sidebar
 endif
 	osascript apps/1st-party/Safari/26.1/allow-javascript-from-apple-events.applescript
 	@echo "Build Safari completed"

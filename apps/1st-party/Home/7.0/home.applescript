@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Home/7.0/home
 
 	@Created: December 8, 2023 9:40 PM
-	@Last Modified: 2024-02-29 12:16:59
+	@Last Modified: 2026-01-18 11:50:37
 *)
 use scripting additions
 
@@ -56,7 +56,7 @@ on spotCheck()
 		-- sut's printUIElements(front window, "")
 	end tell
 
-	set sideBarVisible to sut's hasSideBar()
+	set sideBarVisible to sut's hasSidebar()
 	logger's infof("Has Sidebar: {}", sideBarVisible)
 	if sideBarVisible then
 		logger's infof("Selected Sidebar Item: {}", sut's getSelectedSidebarItem())
@@ -125,9 +125,9 @@ on new()
 		end switchSidebarItem
 
 
-		on hasSideBar()
+		on hasSidebar()
 			findUiElementWithDescription(missing value, "Sidebar") is not missing value
-		end hasSideBar
+		end hasSidebar
 
 
 		on hideSidebar()

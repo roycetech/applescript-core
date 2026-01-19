@@ -16,7 +16,7 @@
 		Assumes automator is not used or opened for purposes other than the exclusive use of this script.
 		Wipes out clipboard contents.
 
-	@Last Modified: 2024-09-28 11:05:17
+	@Last Modified: 2026-01-18 11:49:14
 
 	@Change Logs:
 		Fri, Jul 19, 2024 at 2:40:35 PM - Refactored to use simpler script wrapped in an app.
@@ -147,7 +147,7 @@ on spotCheck()
 		end tell
 
 	else if caseIndex is 3 then
-		tell sut to showSideBar()
+		tell sut to showSidebar()
 
 	end if
 
@@ -226,7 +226,7 @@ on new()
 		on addAppleScriptAction()
 			if running of application "Automator" is false then return
 
-			showSideBar()
+			showSidebar()
 			activate application "Automator"
 			tell application "System Events" to tell process "Automator" to keystroke "Run AppleScript"
 			delay 1 -- convert to wait.
@@ -237,7 +237,7 @@ on new()
 		end addAppleScriptAction
 
 
-		on showSideBar()
+		on showSidebar()
 			if running of application "Automator" is false then return
 
 			script ErrorAvoider
@@ -249,7 +249,7 @@ on new()
 				end tell
 			end script
 			exec of retry on result for 10 by 0.1 -- Because it fails to get the window immediately after the doc type selection without the retry.
-		end showSideBar
+		end showSidebar
 
 
 		on setCommandPhrase(commandPhrase)

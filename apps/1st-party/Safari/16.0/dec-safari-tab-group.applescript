@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-group
 
 	@Created: Sunday, March 17, 2024 at 8:23:05 PM
-	@Last Modified: 2024-12-31 19:29:45
+	@Last Modified: 2026-01-18 11:50:56
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -89,7 +89,7 @@ on decorate(mainScript)
 			end tell
 
 
-			set sideBarWasVisible to isSideBarVisible()
+			set sideBarWasVisible to isSidebarVisible()
 			-- logger's debugf("sideBarWasVisible: {}", sideBarWasVisible)
 
 			if sideBarWasVisible is false then -- let's try to simplify by getting the name from the window name
@@ -100,12 +100,12 @@ on decorate(mainScript)
 				end if
 			end if
 
-			showSideBar()
+			showSidebar()
 
 
 			-- UI detects side bar is still hidden, so we wait, to make close work reliably.
 			script SidebarWaiter
-				if isSideBarVisible() is true then return true
+				if isSidebarVisible() is true then return true
 			end script
 			exec of retry on SidebarWaiter for 5
 
@@ -114,7 +114,7 @@ on decorate(mainScript)
 					if selected of nextRow is true then
 						if not sideBarWasVisible then
 							-- logger's debug("Closing Sidebar...")
-							my closeSideBar()
+							my closeSidebar()
 						end if
 
 						set groupDesc to description of UI element 1 of UI element 1 of nextRow
@@ -125,7 +125,7 @@ on decorate(mainScript)
 			end tell
 
 			if not sideBarWasVisible then
-				closeSideBar()
+				closeSidebar()
 			end if
 			missing value
 		end getGroupName
@@ -133,10 +133,10 @@ on decorate(mainScript)
 
 		(*
 			Will switch group by:
-				1.  Closing the SideBar
+				1.  Closing the Sidebar
 				2.  Triggering the group switcher menu UI
 				3.  Clicking the first (missing value) or the matching menu item.
-				4.  Restore if SideBar wasn't initially closed.
+				4.  Restore if Sidebar wasn't initially closed.
 
 			@requires app focus.
 			@groupName - The group name to switch to. Missing value for default.
@@ -154,8 +154,8 @@ on decorate(mainScript)
 				end if
 			end tell
 
-			set sideBarWasVisible to isSideBarVisible()
-			closeSideBar()
+			set sideBarWasVisible to isSidebarVisible()
+			closeSidebar()
 
 			activate application "Safari"
 			script ToolBarWaiter
@@ -180,7 +180,7 @@ on decorate(mainScript)
 				end if
 			end tell
 
-			if sideBarWasVisible then showSideBar()
+			if sideBarWasVisible then showSidebar()
 		end switchGroup
 	end script
 end decorate

@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.3.1/dec-safari-tab-group
 
 	@Created: Sunday, March 17, 2024 at 8:23:55 PM
-	@Last Modified: 2024-12-31 19:30:04
+	@Last Modified: 2026-01-18 11:51:46
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -91,10 +91,10 @@ on decorate(mainScript)
 			end tell
 
 
-			set sideBarWasVisible to isSideBarVisible()
-			-- logger's debugf("sideBarWasVisible: {}", sideBarWasVisible)
+			set sidebarWasVisible to isSidebarVisible()
+			-- logger's debugf("sidebarWasVisible: {}", sidebarWasVisible)
 
-			if sideBarWasVisible is false then -- let's try to simplify by getting the name from the window name
+			if sidebarWasVisible is false then -- let's try to simplify by getting the name from the window name
 				set nameTokens to textUtil's split(windowTitle, unic's SEPARATOR)
 				if number of items in nameTokens is 2 then -- There's a small risk that a current website has the same separator characters in its title and thus result in the wrong group name.
 					logger's info("Returning group name from window title")
@@ -102,21 +102,21 @@ on decorate(mainScript)
 				end if
 			end if
 
-			showSideBar()
+			showSidebar()
 
 
 			-- UI detects side bar is still hidden, so we wait, to make close work reliably.
 			script SidebarWaiter
-				if isSideBarVisible() is true then return true
+				if isSidebarVisible() is true then return true
 			end script
 			exec of retry on SidebarWaiter for 5
 
 			tell application "System Events" to tell process "Safari"
 				repeat with nextRow in rows of outline 1 of scroll area 1 of group 1 of splitter group 1 of front window
 					if selected of nextRow is true then
-						if not sideBarWasVisible then
+						if not sidebarWasVisible then
 							-- logger's debug("Closing Sidebar...")
-							my closeSideBar()
+							my closeSidebar()
 						end if
 
 						set groupDesc to description of UI element 1 of UI element 1 of nextRow
@@ -126,8 +126,8 @@ on decorate(mainScript)
 				end repeat
 			end tell
 
-			if not sideBarWasVisible then
-				closeSideBar()
+			if not sidebarWasVisible then
+				closeSidebar()
 			end if
 			missing value
 		end getGroupName
@@ -135,10 +135,10 @@ on decorate(mainScript)
 
 		(*
 			Will switch group by:
-				1.  Closing the SideBar
+				1.  Closing the Sidebar
 				2.  Triggering the group switcher menu UI
 				3.  Clicking the first (missing value) or the matching menu item.
-				4.  Restore if SideBar wasn't initially closed.
+				4.  Restore if Sidebar wasn't initially closed.
 
 			@requires app focus.
 			@groupName - The group name to switch to. Missing value for default.
@@ -156,8 +156,8 @@ on decorate(mainScript)
 				end if
 			end tell
 
-			set sideBarWasVisible to isSideBarVisible()
-			closeSideBar()
+			set sidebarWasVisible to isSidebarVisible()
+			closeSidebar()
 
 			activate application "Safari"
 			script ToolBarWaiter
@@ -182,7 +182,7 @@ on decorate(mainScript)
 				end if
 			end tell
 
-			if sideBarWasVisible then showSideBar()
+			if sidebarWasVisible then showSidebar()
 		end switchGroup
 	end script
 end decorate

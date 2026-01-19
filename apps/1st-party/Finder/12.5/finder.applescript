@@ -16,7 +16,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
 
-	@Last Modified: 2024-12-31 15:56:28
+	@Last Modified: 2026-01-18 11:49:38
 *)
 
 use script "core/Text Utilities"
@@ -53,7 +53,7 @@ on spotCheck()
 		Move File - (Manually Revert)
 		New Tab for Path
 		Find Tab: Projects
-		Manual: Add to SideBar (Manual: Needs/Does not need adding)
+		Manual: Add to Sidebar (Manual: Needs/Does not need adding)
 
 		Manual: Posix to Folder (View in Replies: User Path, Non-User Path, Applications)
 		Manual: Copy File
@@ -142,7 +142,7 @@ on spotCheck()
 
 	else if caseIndex is 9 then
 		set foundTab to findTab("Projects")
-		set addResult to foundTab's addToSideBar()
+		set addResult to foundTab's addToSidebar()
 		logger's debugf("addResult: {}", addResult)
 
 	else if caseIndex is 11 then
@@ -392,19 +392,19 @@ on new()
 				property appWindow : missing value -- not syseve window.
 
 				(* @returns true if successful in adding. *)
-				on addToSideBar()
-						set inSideBar to false
+				on addToSidebar()
+						set inSidebar to false
 					tell application "System Events" to tell process "Finder"
 						repeat with nextRow in rows of outline 1 of scroll area 1 of splitter group 1 of window (name of appWindow)
 							if value of static text 1 of UI element 1 of nextRow is equal to the name of appWindow then
-								set inSideBar to true
+								set inSidebar to true
 								exit repeat
 							end if
 						end repeat
 					end tell
-					-- logger's debugf("inSideBar: {}", inSideBar)
+					-- logger's debugf("inSidebar: {}", inSidebar)
 
-					if not inSideBar then
+					if not inSidebar then
 						activate application "Finder"
 						delay 0.1
 
@@ -413,7 +413,7 @@ on new()
 					end if
 
 					false
-				end addToSideBar
+				end addToSidebar
 
 
 				on getURL()

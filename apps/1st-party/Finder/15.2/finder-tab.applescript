@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-tab
 
 	@Created: Tuesday, December 31, 2024 at 6:01:47 PM
-	@Last Modified: 2025-05-04 10:36:21
+	@Last Modified: 2026-01-18 11:49:49
 *)
 use scripting additions
 
@@ -71,22 +71,22 @@ on new(windowId)
 		property appWindow : missing value -- not syseve window.
 
 		(*
-			@Deprecated. Use the finder.applescript#meneAddToSideBar instead.
+			@Deprecated. Use the finder.applescript#meneAddToSidebar instead.
 			@returns true if successful in adding.
 		*)
-		on addToSideBar()
+		on addToSidebar()
 			tell application "System Events" to tell process "Finder"
-				set inSideBar to false
+				set inSidebar to false
 				repeat with nextRow in rows of outline 1 of scroll area 1 of splitter group 1 of window (name of appWindow)
 					if value of static text 1 of UI element 1 of nextRow is equal to the name of appWindow then
-						set inSideBar to true
+						set inSidebar to true
 						exit repeat
 					end if
 				end repeat
 			end tell
-			-- logger's debugf("inSideBar: {}", inSideBar)
+			-- logger's debugf("inSidebar: {}", inSidebar)
 
-			if not inSideBar then
+			if not inSidebar then
 				activate application "Finder"
 				delay 0.1
 
@@ -95,7 +95,7 @@ on new(windowId)
 			end if
 
 			false
-		end addToSideBar
+		end addToSidebar
 
 
 		on getURL()

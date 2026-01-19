@@ -126,7 +126,7 @@ on spotCheck()
 			logger's infof("Title: {}", frontTab's getTitle())
 			logger's infof("Window Name: {}", frontTab's getWindowName())
 			logger's infof("Window ID: {}", frontTab's getWindowId())
-			logger's infof("Sidebar Visible: {}", sut's isSideBarVisible())
+			logger's infof("Sidebar Visible: {}", sut's isSidebarVisible())
 			logger's infof("Is Loading: {}", sut's isLoading())
 			
 			delay 3 -- Manually check below when in/visible.
@@ -145,13 +145,13 @@ on spotCheck()
 		
 	else if caseIndex is 3 then
 		
-		sut's showSideBar()
-		assertThat of std given condition:sut's isSideBarVisible(), messageOnFail:"Failed spot check"
+		sut's showSidebar()
+		assertThat of std given condition:sut's isSidebarVisible(), messageOnFail:"Failed spot check"
 		logger's info("Passed.")
 		
 	else if caseIndex is 4 then
-		sut's closeSideBar()
-		assertThat of std given condition:sut's isSideBarVisible() is false, messageOnFail:"Failed spot check"
+		sut's closeSidebar()
+		assertThat of std given condition:sut's isSidebarVisible() is false, messageOnFail:"Failed spot check"
 		logger's info("Passed.")
 		
 	else if caseIndex is 5 then
@@ -304,7 +304,7 @@ on new()
 			end tell
 			
 			
-			set sideBarWasVisible to isSideBarVisible()
+			set sideBarWasVisible to isSidebarVisible()
 			-- logger's debugf("sideBarWasVisible: {}", sideBarWasVisible)
 			
 			if sideBarWasVisible is false then -- let's try to simplify by getting the name from the window name
@@ -315,12 +315,12 @@ on new()
 				end if
 			end if
 			
-			showSideBar()
+			showSidebar()
 			
 			
 			-- UI detects side bar is still hidden, so we wait, to make close work reliably.
 			script SidebarWaiter
-				if isSideBarVisible() is true then return true
+				if isSidebarVisible() is true then return true
 			end script
 			exec of retry on SidebarWaiter for 5
 			
@@ -329,7 +329,7 @@ on new()
 					if selected of nextRow is true then
 						if not sideBarWasVisible then
 							-- logger's debug("Closing Sidebar...")
-							my closeSideBar()
+							my closeSidebar()
 						end if
 						
 						set groupDesc to description of UI element 1 of UI element 1 of nextRow
@@ -340,18 +340,18 @@ on new()
 			end tell
 			
 			if not sideBarWasVisible then
-				closeSideBar()
+				closeSidebar()
 			end if
 			missing value
 		end getGroupName
 		
 		
-		on showSideBar()
+		on showSidebar()
 			if running of application "Safari Technology Preview" is false then return
 			tell application "System Events" to tell process "Safari Technology Preview"
 				if (count of windows) is 0 then return
 			end tell
-			if isSideBarVisible() then return
+			if isSidebarVisible() then return
 			
 			tell application "System Events" to tell application process "Safari Technology Preview"
 				set groupOneButtons to buttons of group 1 of toolbar 1 of front window
@@ -359,11 +359,11 @@ on new()
 			
 			set sideBarButton to uiutil's new(groupOneButtons)'s findById("SidebarButton")
 			tell application "System Events" to click sideBarButton
-		end showSideBar
+		end showSidebar
 		
 		
-		on closeSideBar()
-			if not isSideBarVisible() then return return
+		on closeSidebar()
+			if not isSidebarVisible() then return return
 			
 			if running of application "Safari Technology Preview" is false then return
 			
@@ -378,13 +378,13 @@ on new()
 			set sideBarButton to uiutil's new(groupOneButtons)'s findById("SidebarButton")
 			script CloseWaiter
 				tell application "System Events" to click sideBarButton
-				if isSideBarVisible() is false then return true
+				if isSidebarVisible() is false then return true
 			end script
 			exec of retry on result for 3
-		end closeSideBar
+		end closeSidebar
 		
 		
-		on isSideBarVisible()
+		on isSidebarVisible()
 			if running of application "Safari Technology Preview" is false then return false
 			
 			tell application "System Events" to tell process "Safari Technology Preview"
@@ -393,7 +393,7 @@ on new()
 				end try
 			end tell
 			false
-		end isSideBarVisible
+		end isSidebarVisible
 		
 		
 		(*
@@ -404,8 +404,8 @@ on new()
 				activate application "Safari Technology Preview"
 			end if
 			
-			set sideBarWasVisible to isSideBarVisible()
-			closeSideBar()
+			set sideBarWasVisible to isSidebarVisible()
+			closeSidebar()
 			
 			script ToolBarWaiter
 				tell application "System Events" to tell process "Safari Technology Preview"
@@ -425,7 +425,7 @@ on new()
 				end try
 			end tell
 			
-			if sideBarWasVisible then showSideBar()
+			if sideBarWasVisible then showSidebar()
 		end switchGroup
 		
 		

@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-noncompact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2024-12-31 19:30:00
+	@Last Modified: 2026-01-18 11:51:08
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -99,18 +99,18 @@ on decorate(mainScript)
 
 		(*
 			Determine if on default group when:
-				SideBar Visible: first row is selected.
-				SideBar Hidden: the tab picker is small, without any labels
+				Sidebar Visible: first row is selected.
+				Sidebar Hidden: the tab picker is small, without any labels
 
 		*)
 		on isDefaultGroup()
-			if isSideBarVisible() then
+			if isSidebarVisible() then
 				tell application "System Events" to tell process "Safari"
 					return value of attribute "AXSelected" of row 1 of outline 1 of scroll area 1 of group 1 of splitter group 1 of front window
 				end tell
 			end if
 
-			-- else: SideBar not visible.
+			-- else: Sidebar not visible.
 			set groupPicker to missing value
 			tell application "System Events" to tell process "Safari"
 				try

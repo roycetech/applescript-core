@@ -32,7 +32,7 @@
 		end tell
 
 	@Created: Wednesday, April 24, 2024 at 1:03:10 PM
-	@Last Modified: 2024-06-20 12:55:47
+	@Last Modified: 2026-01-18 11:52:32
 *)
 
 use script "core/Text Utilities"
@@ -49,7 +49,7 @@ use safariTabLib : script "core/safari-tab"
 use decSafariTabFinder : script "core/dec-safari-tab-finder"
 use decSafariUiNoncompact : script "core/dec-safari-ui-noncompact"
 use decSafariUiCompact : script "core/dec-safari-ui-compact"
-use decSafariSideBar : script "core/dec-safari-side-bar"
+use decSafariSidebar : script "core/dec-safari-sidebar"
 use decSafariKeychain : script "core/dec-safari-keychain"
 use decSafariInspector : script "core/dec-safari-inspector"
 
@@ -132,7 +132,7 @@ on spotCheck()
 			logger's infof("Title: {}", frontTab's getTitle())
 			logger's infof("Window Name: {}", frontTab's getWindowName())
 			logger's infof("Window ID: {}", frontTab's getWindowID())
-			logger's infof("Sidebar Visible: {}", sut's isSideBarVisible())
+			logger's infof("Sidebar Visible: {}", sut's isSidebarVisible())
 			logger's infof("Is Loading: {}", sut's isLoading())
 			logger's infof("Is Playing: {}", sut's isPlaying())
 			logger's infof("Is Default Group: {}", sut's isDefaultGroup())
@@ -152,13 +152,13 @@ on spotCheck()
 
 	else if caseIndex is 3 then
 
-		sut's showSideBar()
-		assertThat of std given condition:sut's isSideBarVisible(), messageOnFail:"Failed spot check"
+		sut's showSidebar()
+		assertThat of std given condition:sut's isSidebarVisible(), messageOnFail:"Failed spot check"
 		logger's info("Passed.")
 
 	else if caseIndex is 4 then
-		sut's closeSideBar()
-		assertThat of std given condition:sut's isSideBarVisible() is false, messageOnFail:"Failed spot check"
+		sut's closeSidebar()
+		assertThat of std given condition:sut's isSidebarVisible() is false, messageOnFail:"Failed spot check"
 		logger's info("Passed.")
 
 	else if caseIndex is 5 then
@@ -474,7 +474,7 @@ on new()
 	decSafariTabFinder's decorate(result)
 	decSafariUiNoncompact's decorate(result)
 	decSafariUiCompact's decorate(result)
-	decSafariSideBar's decorate(result)
+	decSafariSidebar's decorate(result)
 	decSafariKeychain's decorate(result)
 	set baseInstance to decSafariInspector's decorate(result)
 

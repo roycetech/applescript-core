@@ -11,7 +11,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
 
-	@Last Modified: 2026-01-15 16:01:40
+	@Last Modified: 2026-01-18 11:50:01
 *)
 use scripting additions
 use script "core/Text Utilities"
@@ -53,7 +53,7 @@ on spotCheck()
 
 		Get File List
 		Find Tab: Projects
-		Manual: Add to SideBar (Manual: Needs/Does not need adding)
+		Manual: Add to Sidebar (Manual: Needs/Does not need adding)
 
 		Manual: Posix to Folder (View in Replies: User Path, Non-User Path, Applications)
 		Manual: Create Folder as Needed
@@ -117,7 +117,7 @@ on spotCheck()
 
 	else if caseIndex is 9 then
 		set foundTab to findTab("Projects")
-		set addResult to foundTab's addToSideBar()
+		set addResult to foundTab's addToSidebar()
 		logger's debugf("addResult: {}", addResult)
 
 	else if caseIndex is 11 then

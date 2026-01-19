@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2024-12-31 19:30:29
+	@Last Modified: 2026-01-18 11:52:20
 	@Change Logs:
 		Sat, Jun 29, 2024 at 10:59:40 AM - Added isMuted() and implemented isPlaying()
 *)
@@ -111,8 +111,8 @@ on decorate(mainScript)
 
 		(*
 			Determine if on default group when:
-				SideBar Visible: first row is selected.
-				SideBar Hidden: the tab picker is small, without any labels
+				Sidebar Visible: first row is selected.
+				Sidebar Hidden: the tab picker is small, without any labels
 
 		*)
 		on isDefaultGroup()
@@ -121,13 +121,13 @@ on decorate(mainScript)
 					if (count of windows) is 0 then return false
 					end tell
 
-			if isSideBarVisible() then
+			if isSidebarVisible() then
 				tell application "System Events" to tell process "Safari"
 					return value of attribute "AXSelected" of row 1 of outline 1 of scroll area 1 of group 1 of splitter group 1 of front window
 				end tell
 			end if
 
-			-- else: SideBar not visible.
+			-- else: Sidebar not visible.
 			script GroupPickerWaiter
 				tell application "System Events" to tell process "Safari"
 					first menu button of group 1 of toolbar 1 of front window whose help is "Tab Group Picker"
