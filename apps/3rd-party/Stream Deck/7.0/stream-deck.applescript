@@ -109,7 +109,8 @@ on spotCheck()
 	else if caseIndex is 3 then
 		set sutProfileTitle to "Unicorn"
 		set sutProfileTitle to "Work - Default"
-		set sutProfileTitle to "Safari"
+		set sutProfileTitle to "Web: uDemy"
+		-- set sutProfileTitle to "Safari"
 		-- set sutProfileTitle to "Percipio"
 		logger's debugf("sutProfileTitle: {}", sutProfileTitle)
 		
@@ -153,6 +154,9 @@ on new()
 			@returns 1..n or "pinned"
 		*)
 		on getCurrentPage()
+			if running of application "Elgato Stream Deck" is false then return missing value
+			if not isEditorWindowPresent() then return missing value
+			
 			tell application "System Events" to tell process "Stream Deck"
 				first checkbox of group 1 of splitter group 1 of group 1 of window "Stream Deck" whose value is 1
 				set pageDescription to the description of result
@@ -169,7 +173,7 @@ on new()
 					set frontmost to true
 					-- click (first checkbox of group 1 of splitter group 1 of group 1 of window "Stream Deck" whose description is "Pinned actions")					
 					first checkbox of group 1 of splitter group 1 of group 1 of window "Stream Deck" whose description is "Pinned actions"
-				lclick of cliclick at result
+					lclick of cliclick at result
 				end tell
 				return
 				
