@@ -6,11 +6,12 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-tab-group
+		./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-tabs
 
 	@Created: Friday, April 26, 2024 at 11:52:07 AM
-	@Last Modified: 2026-01-20 18:37:53
+	@Last Modified: 2026-01-21 07:47:08
 	@Change Logs:
+		Tue, Jan 20, 2026, at 06:52:30 PM - Added #switchTabToIndex.
 *)
 use scripting additions
 use script "core/Text Utilities"
@@ -31,8 +32,10 @@ on spotCheck()
 	logger's start()
 
 	set cases to listUtil's splitByLine("
+		NOOP
 		Manual: Get Tabs
 		Manual: Sort
+		Manual: Switch Tab
 	")
 
 	set spotScript to script "core/spot-test"
@@ -45,14 +48,17 @@ on spotCheck()
 	end if
 
 	-- activate application ""
+	set spotScript to script "core/spot-test"
 	set sutLib to script "core/safari"
 	set sut to sutLib's new()
 	set sut to decorate(sut)
 
 	if caseIndex is 1 then
-		set tabs to sut's getTabs()
 
 	else if caseIndex is 2 then
+		set tabs to sut's getTabs()
+
+	else if caseIndex is 3 then
 		set testUrls to listUtil's splitByLine("
 			https://go.dev/doc/
 			https://www.udemy.com/join/login-popup/?next=/course/typescript-the-complete-developers-guide/learn/lecture/15066520#overview
@@ -66,7 +72,7 @@ on spotCheck()
 		set safariTab to sut's newWindow(item 1 of testUrls)
 		repeat with nextUrl in rest of testUrls
 			safariTab's newTab(nextUrl)
-		end
+		end repeat
 
 		(*
 		repeat with nextURL in sut's sortByURL()
@@ -74,8 +80,12 @@ on spotCheck()
 		end repeat
 		*)
 
-	else if caseIndex is 3 then
+	else if caseIndex is 4 then
+		set sutTabIndex to 1
+		set sutTabIndex to -1
+		logger's debugf("sutTabIndex: {}", sutTabIndex)
 
+		sut's switchTabToIndex(sutTabIndex)
 	else
 
 	end if
@@ -85,13 +95,37 @@ on spotCheck()
 end spotCheck
 
 
-(*  *)
+(*
+	@mainScript - SafariInstance
+ *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
 
 	script SafariTabsDecorator
 		property parent : mainScript
 		property sortingTabs : missing value
+
+		on switchTabToIndex(tabIndex)
+			set mainWindow to getFirstZoomableWindow()
+			if mainWindow is missing value then return
+
+			(*
+			tell application "System Events" to tell process "Safari"
+				set frontmost to true
+				try
+					set tabGroupUI to first UI element of mainWindow whose role description is "tab group"
+					-- perform action "AXPress" of radio button tabIndex of tabGroupUI
+					set value of radio button tabIndex of tabGroupUI to true
+					click radio button tabIndex of tabGroupUI
+				end try
+			end tell
+			*)
+
+			tell application "Safari" to tell front window
+				set current tab to tab tabIndex
+			end tell
+		end switchTabToIndex
+
 
 		on getTabs()
 			set safariTabs to {}
@@ -100,9 +134,6 @@ on decorate(mainScript)
 					safariTabLib's new(id of front window, index of nextTab)
 					set end of safariTabs to result
 				end repeat
-
-
-
 			end tell
 			safariTabs
 		end getTabs

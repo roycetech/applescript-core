@@ -154,6 +154,8 @@ build-safari: build-dock build-process
 ifeq ($(OS_VERSION),26.2)
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-tab-group
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-sidebar
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-tabs
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/safari
 endif
 	osascript apps/1st-party/Safari/26.1/allow-javascript-from-apple-events.applescript
 	@echo "Build Safari completed"
