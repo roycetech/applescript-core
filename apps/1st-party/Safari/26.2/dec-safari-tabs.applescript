@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-tabs
 
 	@Created: Friday, April 26, 2024 at 11:52:07 AM
-	@Last Modified: 2026-01-21 07:47:08
+	@Last Modified: 2026-01-22 12:31:39
 	@Change Logs:
 		Tue, Jan 20, 2026, at 06:52:30 PM - Added #switchTabToIndex.
 *)
@@ -122,7 +122,7 @@ on decorate(mainScript)
 			*)
 
 			tell application "Safari" to tell front window
-				set current tab to tab tabIndex
+				set current tab to tab (tabIndex as integer)
 			end tell
 		end switchTabToIndex
 
