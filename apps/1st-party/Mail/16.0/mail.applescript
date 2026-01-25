@@ -10,6 +10,7 @@
 	@Created: Pre-2023
 
 	@Change Logs:
+		Fri, Jan 23, 2026, at 11:16:56 AM - Added #clearSearch handler.
 		Wed, Jul 17, 2024 at 10:33:53 AM - Removed dependency with cliclick.
 *)
 
@@ -117,6 +118,16 @@ on new()
 	")
 
 	script MailInstance
+
+		on clearSearch()
+			set mainWindow to getMainWindow()
+			if mainWindow is missing value then return
+
+			tell application "System Events" to tell process "Mail"
+				click (first button of text field 1 of last group of toolbar 1 of front window whose description is "cancel")
+			end tell
+		end clearSearch
+
 
 		on isSettingsWindowPresent()
 			if running of application "Mail" is false then return false
@@ -318,7 +329,7 @@ on new()
 
 			tell application "System Events" to tell process "Mail"
 				try
-					return first window whose title contains "messages" or title contains "drafts"
+					return first window whose title contains "messages" or title contains "drafts" or title contains "Searching"
 				end try
 			end tell
 			missing value
