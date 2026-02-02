@@ -15,7 +15,7 @@
 *)
 
 use unic : script "core/unicodes"
-use listUtil : script "core/list"
+use listUtil : script "core/list"  -- reviewed.
 
 use loggerFactory : script "core/logger-factory"
 
@@ -28,8 +28,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-
-	set listUtil to script "core/list"
 
 	set cases to listUtil's splitByLine("
 		NOOP

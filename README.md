@@ -12,6 +12,10 @@ AppleScript Core is a collection of wrapper AppleScripts that allows you to writ
 For the more comprehensive documentation, see [README-Full.md](./README-Full.md)
 
 
+## News
+*   Wed, Jan 28, 2026 - Planning to move the first party wrapper scripts into its own project open source project.  Will move the 3rd party apps into a private project for my personal use.
+
+
 ## Installation
 
 ```sh
@@ -39,8 +43,6 @@ trigger UI controls .
 ### Recommended AppleScript applications
 *   [Create Automator App](apps/User/Create%20Automator%20App.applescript) - For easily creating AppleScript app wrapped by Automator that can be invoked via Spotlight.
 *   [Create Menu App](apps/User/Create%20Menu%20App.applescript) - For easily creating stay-open app that can sit in the menu bar.
-
-### Individual Libraries may be installed as needed
 
 ## License
 
