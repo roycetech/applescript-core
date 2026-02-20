@@ -5,9 +5,9 @@
 	@Build:
 		./scripts/build-lib.sh core/decorators/dec-keyboard-dvorak-cmd
 *)
+use scripting additions
 
 use script "core/Text Utilities"
-use scripting additions
 
 use loggerFactory : script "core/logger-factory"
 
