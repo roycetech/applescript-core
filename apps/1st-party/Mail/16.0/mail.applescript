@@ -15,13 +15,14 @@
 *)
 
 use unic : script "core/unicodes"
-use listUtil : script "core/list"  -- reviewed.
 
 use loggerFactory : script "core/logger-factory"
 
+use decMailSettings : script "core/dec-mail-settings"
+use decMailSelection : script "core/dec-mail-selection"
+
 property logger : missing value
 
-property SETTINGS_TITLES : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -29,16 +30,11 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP
 		Manual: Goto Favorite Folder
-		Manual: Show Settings Window
-		Manual: Close Settings Window
-		Manual: Focus Settings Window
-
-		Manual: Switch Settings Tab
-		Manual: Settings: General: Trigger New Message Notifications
-		Manual: Multi: Settings: General: Pick New Message Notifications
+		Manual: Focus message
 	")
 
 	set spotScript to script "core/spot-test"
@@ -53,8 +49,8 @@ on spotCheck()
 	set sut to new()
 	set isMessageWindow to sut's isMessageWindowActive()
 	logger's infof("Message window at front?: {}", isMessageWindow)
-	logger's infof("Settings window present?: {}", sut's isSettingsWindowPresent())
 	logger's infof("Sender: {}", sut's getMessageSender())
+	logger's infof("Integration: Settings window present?: {}", sut's isSettingsWindowPresent())
 
 	if caseIndex is 1 and not isMessageWindow then
 
@@ -66,31 +62,19 @@ on spotCheck()
 		sut's gotoFolder(sutFolderName)
 
 	else if caseIndex is 3 then
-		sut's showSettingsWindow()
+		set sutMessageId to -1
+		set sutMessageId to 42794
+		set sutMessageId to 41705
+		logger's debugf("sutMessageId: {}", sutMessageId)
 
-	else if caseIndex is 4 then
-		sut's closeSettingsWindow()
+		set sutMailboxName to "04 Updates"
+		set sutMailboxName to "2026 Apartment"
+		logger's debugf("sutMailboxName: {}", sutMailboxName)
 
-	else if caseIndex is 5 then
-		sut's focusSettingsWindow()
+		set sutAccountName to "Exchange"
+		logger's debugf("sutAccountName: {}", sutAccountName)
 
-	else if caseIndex is 6 then
-		set sutTabName to "unicorn"
-		set sutTabName to "General"
-		logger's debugf("sutTabName: {}", sutTabName)
-
-		sut's switchSettingsTab(sutTabName)
-
-	else if caseIndex is 7 then
-		sut's triggerNewMessageNotificationsPopup()
-
-	else if caseIndex is 8 then
-		set sutOption to "unicorn"
-		set sutOption to "Notifications"
-		logger's debugf("sutOption: {}", sutOption)
-
-		sut's triggerNewMessageNotificationsPopup()
-		sut's pickNewMessageNotificationPopupOption(sutOption)
+		sut's focusMessage(sutAccountName, sutMailboxName, sutMessageId)
 	end if
 
 	spot's finish()
@@ -101,21 +85,25 @@ end spotCheck
 on new()
 	loggerFactory's inject(me)
 
-	set SETTINGS_TITLES to listUtil's splitByLine("
-		General
-		Accounts
-		Junk Mail
-		Fonts & Colors
-		Viewing
-
-		Composing
-		Signatures
-		Rules
-		Extensions
-		Privacy
-	")
-
 	script MailInstance
+		on focusMessage(accountName, mailboxName, messageId)
+			if running of application "Mail" is false then
+				activate application "Mail"
+			end if
+
+			gotoFolder(mailboxName)
+			selectMessage(accountName, mailboxName, messageId)
+
+			tell application "Mail"
+				try
+					first mailbox of account accountName whose name contains mailboxName
+					open (the first message of result whose id is messageId as integer)
+				on error the errorMessage number the errorNumber
+					log errorMessage
+				end try
+			end tell
+		end focusMessage
+
 
 		on clearSearch()
 			set mainWindow to getMainWindow()
@@ -125,122 +113,6 @@ on new()
 				click (first button of text field 1 of last group of toolbar 1 of front window whose description is "cancel")
 			end tell
 		end clearSearch
-
-
-		on isSettingsWindowPresent()
-			if running of application "Mail" is false then return false
-
-			getSettingsWindow() is not missing value
-		end isSettingsWindowPresent
-
-
-		(* @returns System Event window *)
-		on getSettingsWindow()
-			if running of application "Mail" is false then return missing value
-
-			tell application "System Events" to tell process "Mail"
-				set standardWindows to windows whose role is not "Dialog"
-				if (count of standardWindows) is 0 then return missing value
-
-				repeat with nextWindow in standardWindows
-					if SETTINGS_TITLES contains the title of the nextWindow then return nextWindow
-				end repeat
-
-			end tell
-
-			missing value
-		end getSettingsWindow
-
-
-		on showSettingsWindow()
-			if running of application "Mail" is false then return
-			if isSettingsWindowPresent() then return
-
-			tell application "System Events" to tell process "Mail"
-
-				try
-					click (first menu item of menu 1 of menu bar item "Mail" of menu bar 1 whose title starts with "Settings")
-					delay 0.1
-				end try
-			end tell
-		end showSettingsWindow
-
-
-		on closeSettingsWindow()
-			if not isSettingsWindowPresent() then return
-
-			tell application "System Events" to tell process "Mail"
-				click (first button of my getSettingsWindow() whose description is "close button")
-			end tell
-		end closeSettingsWindow
-
-
-		on focusSettingsWindow()
-			if not isSettingsWindowPresent() then return
-			set settingsWindow to getSettingsWindow()
-
-			tell application "System Events" to tell process "Mail"
-				set frontmost to true
-				set currentSettingsWindowTitle to the title of settingsWindow
-				logger's debugf("currentSettingsWindowTitle: {}", currentSettingsWindowTitle)
-
-				try
-					click (first menu item of menu 1 of menu bar item "Window" of menu bar 1 whose title is currentSettingsWindowTitle)
-				on error the errorMessage number the errorNumber
-					log errorMessage
-
-				end try
-			end tell
-
-		end focusSettingsWindow
-
-
-		on switchSettingsTab(tabTitle)
-			if not isSettingsWindowPresent() then return
-			tell application "System Events" to tell process "Mail"
-				if the tabTitle is not in SETTINGS_TITLES then return
-
-				try
-					click button tabTitle of toolbar 1 of my getSettingsWindow()
-				end try
-			end tell
-		end switchSettingsTab
-
-
-		(*
-			General Settings
-		*)
-		on triggerNewMessageNotificationsPopup()
-			set settingsWindow to getSettingsWindow()
-			if settingsWindow is missing value then return
-
-			tell application "System Events" to tell process "Mail"
-				try
-					-- click pop up button "New message notifications:" of group 1 of settingsWindow
-					click pop up button 5 of group 1 of settingsWindow
-					delay 0.1
-				end try
-			end tell
-		end triggerNewMessageNotificationsPopup
-
-
-		(* This handler must be invoked right after invoking the #triggerNewMessageNotificationsPopup in the right conditions (Settings window present, correct settings tab). *)
-		on pickNewMessageNotificationPopupOption(optionTitle)
-			set settingsWindow to getSettingsWindow()
-			if settingsWindow is missing value then return
-
-			tell application "System Events" to tell process "Mail"
-				-- set newMassegNotificationPopup to pop up button "New message notifications:" of group 1 of settingsWindow
-				set newMassegNotificationPopup to pop up button 5 of group 1 of settingsWindow
-				try
-					click (last menu item of menu 1 of newMassegNotificationPopup whose title is optionTitle)
-					delay 0.1
-				on error the errorMessage number the errorNumber
-					logger's warn(errorMessage)
-
-				end try -- When the passed optionTitle doesn't exist.
-			end tell
-		end pickNewMessageNotificationPopupOption
 
 
 		(*
@@ -333,4 +205,7 @@ on new()
 			missing value
 		end getMainWindow
 	end script
+
+	decMailSettings's decorate(result)
+	decMailSelection's decorate(result)
 end new

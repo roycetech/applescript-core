@@ -12,9 +12,7 @@ build-apps-first-party: \
 	build-automator \
 	build-calendar \
 	build-console \
-	build-dock \
 	build-finder \
-	build-notification-center \
 	build-passwords \
 	build-preview \
 	install-safari \
@@ -115,7 +113,11 @@ build-home:
 
 
 build-mail:
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Mail/16.0/mail
+	$(call _build-script,apps/1st-party/Mail/16.0/dec-mail-settings)
+	$(call _build-script,apps/1st-party/Mail/16.0/dec-mail-selection)
+	$(call _build-script,apps/1st-party/Mail/16.0/mail)
+	@echo "Build mail scripts completed"
+
 
 build-passwords:
 	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Passwords/2.0/passwords
@@ -152,6 +154,7 @@ build-safari: build-dock build-process
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.1/safari
 # ifeq ($(shell [ $(OS_VERSION) -eq 26.2 ] && echo yes),yes)
 ifeq ($(OS_VERSION),26.2)
+	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-ui-noncompact
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-tab-group
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-sidebar
 	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-tabs
