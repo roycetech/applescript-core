@@ -11,15 +11,19 @@
 	@Created: Wednesday, August 14, 2024 at 5:53:03 PM
 	@Last Modified: Wednesday, August 14, 2024 at 5:53:03 PM
 	@Change Logs:
+		Sun, Jan 25, 2026, at 02:22:50 PM - Added #triggerRun handler.
 		Tue, Apr 29, 2025 at 12:53:30 PM - Added focusSelectedMacro handler
 		Wed, Feb 19, 2025 at 01:34:30 PM - Added Delete/Add Macro Group app.
 		Wed, Jan 8, 2025 at 8:33:24 AM - Added #getSelectedMacroName
 *)
 use retryLib : script "core/retry"
+
 use loggerFactory : script "core/logger-factory"
+
 use kbLib : script "core/keyboard" -- Used to dismiss popup on error
 
 property logger : missing value
+
 property retry : missing value
 property kb : missing value
 
@@ -41,6 +45,7 @@ on spotCheck()
 		Manual: Focus Macro
 		Manual: Focus Action By Index
 		Manual: Focus Search
+		Manual: Trigger Run
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -102,6 +107,9 @@ on spotCheck()
 		activate application "Keyboard Maestro"
 		sut's focusSearch()
 		
+	else if caseIndex is 10 then
+		sut's triggerRun()
+		
 	else
 		
 	end if
@@ -119,6 +127,16 @@ on decorate(mainScript)
 	
 	script KeyboardMaestroEditorDecorator
 		property parent : mainScript
+		
+		on triggerRun()
+			set editorWindow to getEditorWindow()
+			if editorWindow is missing value then return
+			
+			tell application "System Events" to tell process "Keyboard Maestro"
+				click (first button of group 5 of editorWindow whose description is "Run Selected Macro")
+			end tell
+		end triggerRun
+		
 		
 		on focusSearch()
 			if running of application "Keyboard Maestro" is false then return missing value
