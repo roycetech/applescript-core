@@ -6,7 +6,10 @@
 		./scripts/build-lib.sh apps/3rd-party/ChatGPT/1.2025.168/chat-gpt
 
 	@Created: Tue, Jul 01, 2025 at 07:20:31 AM
-	@Last Modified: 2025-07-18 14:53:14
+	@Last Modified: 2026-02-10 08:07:28
+
+	@Change Logs:
+		Tue, Feb 10, 2026, at 08:07:18 AM - Added handler #closeRightSideBar
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -23,6 +26,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		NOOP
 		Manual: New Chat
+		Manual: Close right side bar
 	")
 
 	set spotScript to script "core/spot-test"
@@ -39,6 +43,9 @@ on spotCheck()
 
 	else if caseIndex is 2 then
 		sut's newChat()
+
+	else if caseIndex is 3 then
+		sut's closeRightSideBar()
 
 	else
 
@@ -67,5 +74,14 @@ on new()
 				end try
 			end tell
 		end newChat
+
+		on closeRightSideBar()
+			tell application "System Events" to tell process "ChatGPT"
+				set frontmost to true
+				try
+					click button 2 of last group of splitter group 1 of group 1 of front window
+				end try
+			end tell
+		end closeRightSideBar
 	end script
 end new
