@@ -223,10 +223,10 @@ on decorate(mainScript)
 			end if
 			
 			set computedFromLeft to 40 + columnMultiplier * column
-			logger's debugf("computedFromLeft: {}", computedFromLeft)
+			-- logger's debugf("computedFromLeft: {}", computedFromLeft)
 			
 			set computedFromTop to 130 + rowMultiplier * row
-			logger's debugf("computedFromTop: {}", computedFromTop)
+			-- logger's debugf("computedFromTop: {}", computedFromTop)
 			
 			tell application "System Events" to tell process "Stream Deck"
 				set frontmost to true
