@@ -14,6 +14,12 @@ IS_12  := $(shell [ $(OS_VERSION_MAJOR) -eq 12 ] && echo 1)
 GT_12  := $(shell [ $(OS_VERSION_MAJOR) -gt 12 ] && echo 1)
 GE_26  := $(shell [ $(OS_VERSION_MAJOR) -ge 26 ] && echo 1)
 
+OS_MONTEREY := 12
+OS_VENTURA := 13
+OS_SONOMA := 14
+OS_SEQUOIA := 15
+OS_TAHOE := 26
+
 GET_DEPLOY_SCRIPT := ./scripts/get-deploy-type.sh
 DEPLOY_TYPE := $(shell $(GET_DEPLOY_SCRIPT))
 
@@ -30,6 +36,7 @@ $(info     OS_NAME: $(OS_NAME))
 $(info     OS Version: $(OS_VERSION))
 # $(info     OS Major Version: $(OS_VERSION_MAJOR))
 $(info     DEPLOY_TYPE: $(DEPLOY_TYPE))
+$(info )
 
 ifeq ($(DEPLOY_TYPE),computer)
 	# Commands to execute if VARIABLE is equal to "value"

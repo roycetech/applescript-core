@@ -30,6 +30,11 @@ This framework is typically installed under the users scope but may also be inst
 
 To install on the computer scope, re-install with: `$ make uninstall set-computer-deploy-type install`.
 
+### Limitations
+
+*   English-language only macOS.
+*   Initially conceived as a side project, the primary objective was to achieve a functional solution promptly.
+This approach expedited the development of automation scripts that met the immediate requirements, but it also led to the accumulation of technical debt and implementation gaps.
 
 ## Uninstall
 
@@ -48,7 +53,7 @@ trigger UI controls .
 
 MIT License
 
-Copyright (c) [2024] [Royce Remulla]
+Copyright (c) [2026] [Royce Remulla]
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal

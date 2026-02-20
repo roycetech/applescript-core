@@ -8,16 +8,13 @@
 	@Build:
 		./scripts/build-lib.sh macOS-version/12-monterey/dock
 *)
-
-use listUtil : script "core/list"
-
 use loggerFactory : script "core/logger-factory"
+
 use retryLib : script "core/retry"
 use kbLib : script "core/keyboard"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
+
 property retry : missing value
 property kb : missing value
 
@@ -27,6 +24,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Assign to Desktop 1
 		Assign to Desktop 2
@@ -45,6 +43,7 @@ on spotCheck()
 		Manual: Click App
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

@@ -1,6 +1,6 @@
 # Makefile.core.mk
-# Created: Tue, Jul 16, 2024 at 11:43:13 AM
-# Purpose:
+# @Created: Tue, Jul 16, 2024 at 11:43:13 AM
+# @Purpose:
 # 	Contains the core libraries.
 
 ifeq ($(USE_SUDO),true)
@@ -63,25 +63,25 @@ endif
 $(LEVEL1_LIBS): Makefile
 	yes y | ./scripts/build-lib.sh "core/Level_1/$@"
 
-$(CORE_LIBS): Makefile
-	$(SUDO) ./scripts/build-lib.sh core/$@
-
 
 build-standard:
-ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt 12 ] && echo yes),yes)
-$(error macOS version too old! Requires at least macOS Monterey (v12).)
-
-else ifeq ($(shell [ $(OS_VERSION_MAJOR) -eq 12 ] && echo yes),yes)
-	$(SUDO) ./scripts/build-lib.sh macOS-version/12-monterey/std
-
-else ifeq ($(shell [ $(OS_VERSION_MAJOR) -eq 13 ] && echo yes),yes)
-	$(SUDO) ./scripts/build-lib.sh macOS-version/12-monterey/std
-
-else ifeq ($(shell [ $(OS_VERSION_MAJOR) -eq 13 ] && echo yes),yes)
-	$(SUDO) ./scripts/build-lib.sh macOS-version/13-ventura/std
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
+	@echo "Unsupported macOS version for standard script"
 else
-	$(SUDO) ./scripts/build-lib.sh macOS-version/14-sonoma/std
+	$(call _build-script,macOS-version/12-monterey/control-center)
+
+# [Begin] nested standard sub level 1
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_MONTEREY) ] && echo yes),yes)
+	$(call _build-script,macOS-version/13-ventura/std)
 endif
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_VENTURA) ] && echo yes),yes)
+	$(call _build-script,macOS-version/14-sonoma/std)
+endif
+
+# [End] nested standard sub level 1
+endif
+	@echo "Build standard completed"
 
 
 build-core-bundle:
@@ -89,15 +89,13 @@ build-core-bundle:
 	@echo "Core bundle built."
 
 
-# There are circular dependency issue that needs to be considered. You may need
-# to re-order the build of the script depending on which script is needed first.
-
 build: \
 	build-core-bundle \
 	build-core \
 	build-control-center \
 	build-dock \
 	build-user
+
 
 build-extras: \
 	build-counter \
@@ -112,7 +110,6 @@ build-all: \
 
 install-all: build-all
 
-# build-core: $(CORE_LIBS)
 build-core: \
 	build-level1 \
 	build-standard \
@@ -165,71 +162,52 @@ build-level5:
 	@echo "Done building level 5 scripts"
 
 
-build-lib:
-	$(SUDO) ./scripts/build-lib.sh $(SOURCE)
-
-build-bundle:
-	$(SUDO) ./scripts/build-bundle.sh $(SOURCE)
-
-
 reveal-scripts:  # Reveal the deployed scripts.
 	open ~/Library/Script\ Libraries
 
 
-build-apps: \
-	build-automator \
-	build-calendar \
-	build-console \
-	install-control-center \
-	build-dock \
-	build-finder \
-	build-notification-center \
-	build-preview \
-	install-safari \
-	build-system-settings \
-	build-terminal
-
+# Helper function to build and confirm with yes to the prompt.
+_build-script = \
+	@echo "Building $(1)..."; \
+	yes y | ./scripts/build-lib.sh $(1)
 
 # macOS Version-Specific Apps -------------------------------------------------
 
 
 build-control-center:
-ifeq ($(OS_NAME), tahoe)
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_network"
-	$(SUDO) ./scripts/build-lib.sh macOS-version/16-tahoe/control-center_sound
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_focus"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_bluetooth"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_wifi"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center"
-
-else ifeq ($(OS_NAME), sequoia)
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_network"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sequoia/control-center_sound"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_focus"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_bluetooth"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_wifi"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center"
-
-else ifeq ($(OS_NAME), sonoma)
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_network"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_sound"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_focus"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_bluetooth"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center_wifi"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/control-center"
-
-else ifeq ($(OS_NAME), ventura)
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/13-ventura/control-center_network"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/13-ventura/control-center_sound"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/13-ventura/control-center_focus"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/13-ventura/control-center"
-
-else ifeq ($(OS_NAME), monterey)
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/12-monterey/control-center"
-
-else
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/12-monterey/control-center"
+	# Supports macOS Monterey and later.
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
 	@echo "Unsupported macOS version for control-center"
+else
+	$(call _build-script,macOS-version/12-monterey/control-center)
+
+# [Begin] nested control-center sub level 1
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_MONTEREY) ] && echo yes),yes)
+	$(call _build-script,macOS-version/13-ventura/control-center_network)
+	$(call _build-script,macOS-version/13-ventura/control-center_sound)
+	$(call _build-script,macOS-version/13-ventura/control-center_focus)
+	$(call _build-script,macOS-version/13-ventura/control-center)
+endif
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_VENTURA) ] && echo yes),yes)
+	$(call _build-script,macOS-version/14-sonoma/control-center_network)
+	$(call _build-script,macOS-version/14-sonoma/control-center_sound)
+	$(call _build-script,macOS-version/14-sonoma/control-center_focus)
+	$(call _build-script,macOS-version/14-sonoma/control-center_bluetooth)
+	$(call _build-script,macOS-version/14-sonoma/control-center_wifi)
+	$(call _build-script,macOS-version/14-sonoma/control-center)
+endif
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SONOMA) ] && echo yes),yes)
+	# Sonoma scripts are compatible with Sequoia
+endif
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SEQUOIA) ] && echo yes),yes)
+	$(call _build-script,macOS-version/26-tahoe/control-center_sound)
+	$(call _build-script,macOS-version/26-tahoe/control-center)
+endif
+# [End] nested control-center sub level 1
+
 endif
 	@echo "Build control-center completed"
 
@@ -237,63 +215,83 @@ install-control-center: build-control-center
 
 
 build-dock:
-ifeq ($(OS_NAME), sonoma)
-# 	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/dock"
-	yes y | ./scripts/build-lib.sh "macOS-version/14-sonoma/dock"
-# else ifeq ($(OS_NAME), sequoia)  # Works for Tahoe as well.
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
+	@echo "Unsupported macOS version for dock"
+
 else
-# 	$(SUDO) ./scripts/build-lib.sh "macOS-version/15-sequoia/dock"
-	yes y | ./scripts/build-lib.sh "macOS-version/15-sequoia/dock"
+# [Begin] nested dock sub level 1
+	$(call _build-script,macOS-version/12-monterey/dock)
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_VENTURA) ] && echo yes),yes)
+	$(call _build-script,macOS-version/14-sonoma/dock)
+endif
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SONOMA) ] && echo yes),yes)
+	$(call _build-script,macOS-version/15-sequoia/dock)
+endif
+
+# [End] nested dock sub level 1
 endif
 	@echo "Build dock completed"
 
 
 build-notification-center:
-ifeq ($(OS_NAME), sequoia)
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/15-sequoia/notification-center-helper"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/15-sequoia/notification-center"
-
-else ifeq ($(OS_NAME), sonoma)
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/notification-center-helper"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/14-sonoma/notification-center"
-
-else ifeq ($(OS_NAME), ventura)
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/13-ventura/notification-center-helper"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/13-ventura/notification-center"
-
-else ifeq ($(OS_NAME), monterey)
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/12-monterey/notification-center-helper"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/12-monterey/notification-center"
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
+	@echo "Unsupported macOS version for notification-center"
 
 else
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/12-monterey/notification-center-helper"
-	$(SUDO) ./scripts/build-lib.sh "macOS-version/12-monterey/notification-center"
-	@echo "Unsupported macOS version for notification-center"
+# [Begin] nested notification-center sub level 1
+	$(call _build-script,macOS-version/12-monterey/notification-center-helper)
+	$(call _build-script,macOS-version/12-monterey/notification-center)
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_MONTEREY) ] && echo yes),yes)
+	$(call _build-script,macOS-version/13-ventura/notification-center-helper)
+	$(call _build-script,macOS-version/13-ventura/notification-center)
+endif
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_VENTURA) ] && echo yes),yes)
+	$(call _build-script,macOS-version/14-sonoma/notification-center-helper)
+	$(call _build-script,macOS-version/14-sonoma/notification-center)
+endif
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SONOMA) ] && echo yes),yes)
+	$(call _build-script,macOS-version/15-sequoia/notification-center-helper)
+	$(call _build-script,macOS-version/15-sequoia/notification-center)
+endif
+# [End] nested notification-center sub level 1
 endif
 
 
 build-user:
-	@yes y | ./scripts/build-lib.sh libs/user/user
+	$(call _build-script,libs/user/user)
 	@echo "Build user completed"
 
 
-# Directory containing the files
+# Directory containing the decorator scripts
 DECORATORS_PATH = ./core/decorators
-
-# Get all the .txt files in the directory
 DECORATORS = $(wildcard $(DECORATORS_PATH)/dec-*.applescript)
 
 build-decorators:
 	@for file in $(DECORATORS); do \
 		no_ext=$${file%.applescript}; \
 		echo "Building $$file"; \
-		$(SUDO) ./scripts/build-lib.sh "$$no_ext"; \
+		yes y | ./scripts/build-lib.sh "$$no_ext"; \
 	done
 	@echo "Done building core decorators"
 
 
 # Library Decorators
 install-dvorak:
-	$(SUDO) ./scripts/build-lib.sh core/decorators/dec-keyboard-dvorak-cmd
-	$(SUDO) ./scripts/build-lib.sh core/keyboard
-	$(SUDO) ./scripts/factory-insert.sh KeyboardInstance core/dec-keyboard-dvorak-cmd
+	$(call _build-script,core/Level_2/keyboard)
+	$(call _build-script,core/decorators/dec-keyboard-dvorak-cmd)
+	yes y | ./scripts/factory-insert.sh KeyboardInstance core/dec-keyboard-dvorak-cmd
+	@echo "Done building Dvorak scripts"
+
+
+# Deprecated targets ----------------------------------------------------------
+
+build-lib:  # Deprecated on 20260219. Use the ./scripts/build-lib.sh directly.
+	$(SUDO) ./scripts/build-lib.sh $(SOURCE)
+
+build-bundle:  # Deprecated on 20260219. Use the ./scripts/build-bundle.sh directly.
+	$(SUDO) ./scripts/build-bundle.sh $(SOURCE)
