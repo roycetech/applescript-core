@@ -31,10 +31,11 @@
 		end tell
 
 	@Change Logs:
+		Sun, Jan 25, 2026, at 01:09:55 PM - Re-implement #isPlaying
 		Wed, Jan 21, 2026, at 07:48:08 AM - Added dec-safari-tabs decorator.
 
 	@Created: Mon, Feb 10, 2025 at 7:30:44 AM
-	@Last Modified: 2026-01-21 07:49:07
+	@Last Modified: 2026-02-09 10:48:41
 *)
 
 use scripting additions
@@ -89,6 +90,7 @@ on spotCheck()
 		Manual: Cancel Form Submit Again
 
 		Manual: Send Form Submit Again
+		Manual: Integration: Reveal latest downloaded file
 	")
 
 	set spotScript to script "core/spot-test"
@@ -106,6 +108,7 @@ on spotCheck()
 	logger's infof("Integration: Is Location Prompt Present: {}", sut's isLocationPromptPresent())
 	logger's infof("Integration: Current Group Name: {}", sut's getGroupName())
 	logger's infof("Is form submit again prompt present: {}", sut's isFormSubmitAgainPresent())
+	logger's infof("Is downloads popup present: {}", sut's isDownloadsPopupPresent())
 
 	if caseIndex is 2 then
 		(*
@@ -132,7 +135,7 @@ on spotCheck()
 			logger's infof("Keychain Form Visible: {}", sut's isKeychainFormVisible())
 			logger's infof("Is Compact: {}", sut's isCompact())
 			logger's infof("URL: {}", frontTab's getURL())
-			logger's infof("URL Class: {}", class of frontTab's getURL())
+			logger's debugf("URL Class: {}", class of frontTab's getURL())
 			logger's infof("Has Toolbar: {}", frontTab's hasToolBar())
 			logger's infof("Address Bar Value: {}", frontTab's getAddressBarValue())
 			logger's infof("Title: {}", frontTab's getTitle())
@@ -241,6 +244,7 @@ on spotCheck()
 
 	else if caseIndex is 16 then
 		sut's confirmFormSubmitAgain()
+
 	end if
 
 	spot's finish()
@@ -265,6 +269,7 @@ on new()
 	set decSafariProfile to script "core/dec-safari-profile"
 	set decSafariPrivaceAndSecurity to script "core/dec-safari-privacy-and-security"
 	set decSafariTabs to script "core/dec-safari-tabs"
+	set decSafariDownloads to script "core/dec-safari-downloads"
 
 	try
 		set decSafariTabGroup to script "core/dec-safari-tab-group"
@@ -273,6 +278,14 @@ on new()
 	end try
 
 	script SafariInstance
+		on isPlaying()
+			set mainWindow to getFirstZoomableWindow()
+			if mainWindow is missing value then return false
+
+			"WIP"
+		end isPlaying
+
+
 		on getFirstZoomableWindow()
 			if running of application "Safari" is false then return missing value
 
@@ -345,13 +358,17 @@ on new()
 			end tell
 		end isFullscreen
 
-		(* Slow operation, 3s. *)
+		(* WARNING: Slow operation, 3s. *)
 		on isAddressBarFocused()
-			if running of application "Safari" is false then return missing value
+			set mainWindow to getFirstZoomableWindow()
+			if mainWindow is missing value then return false
 
-			if isCompact() then
+			if isCompact() then -- Compact is no longer available on 26.2 must've been removed earlier.
 				tell application "System Events" to tell process "Safari"
-					return value of attribute "AXSelectedText" of text field 1 of (first radio button of UI element 1 of last group of toolbar 1 of front window whose value of attribute "AXValue" is true) is not missing value
+					-- return value of attribute "AXSelectedText" of text field 1 of (first radio button of UI element 1 of last group of toolbar 1 of front window whose value of attribute "AXValue" is true) is not missing value
+
+					-- Removed reference to the selected tab (radio button)
+					return value of attribute "AXSelectedText" of text field 1 of (last group of toolbar 1 of mainWindow) is not missing value
 				end tell
 			end if
 
@@ -403,9 +420,12 @@ on new()
 
 
 		on isCompact()
+			(*
 			tell application "System Events" to tell process "Safari"
 				not (exists group 1 of front window)
 			end tell
+			*)
+			false
 		end isCompact
 
 		(*
@@ -566,6 +586,7 @@ on new()
 	decSafariProfile's decorate(result)
 	decSafariPrivaceAndSecurity's decorate(result)
 	decSafariTabs's decorate(result)
+	decSafariDownloads's decorate(result)
 	set baseInstance to decSafariInspector's decorate(result)
 
 	(* Optionally add tab group handlers if the decorator is available. *)

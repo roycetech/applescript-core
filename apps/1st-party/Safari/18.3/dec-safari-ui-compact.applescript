@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-ui-compact
 
 	@Created: Wed, Feb 12, 2025 at 11:23:10 AM
-	@Last Modified: 2025-06-26 06:31:38
+	@Last Modified: 2026-01-25 13:35:47
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -73,7 +73,6 @@ end spotCheck
 (*  *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
-
 	set kb to kbLib's new()
 
 	script SafariUICompactDecorator

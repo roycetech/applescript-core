@@ -168,7 +168,7 @@ reveal-scripts:  # Reveal the deployed scripts.
 
 # Helper function to build and confirm with yes to the prompt.
 _build-script = \
-	@echo "Building $(1)..."; \
+	@echo "Building $(1)"; \
 	yes y | ./scripts/build-lib.sh $(1)
 
 # macOS Version-Specific Apps -------------------------------------------------
