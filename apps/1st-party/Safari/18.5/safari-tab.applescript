@@ -9,6 +9,7 @@
 	@Last Tue, Feb 18, 2025 at 10:21:58 AM
 
 	@Change Logs:
+		Thu, Feb 12, 2026, at 06:49:46 AM - Fix hanging on location.origin.
 		Tue, Aug 12, 2025 at 03:55:54 PM - Fix break when TMS page expires and #focus is called. Login page is detected while the expired page is still displayed
 		Thu, Jun 19, 2025 at 07:05:08 AM - Added responding to Cancel OK prompt.
 		Wed, Apr 16, 2025 at 01:53:17 PM - Allow dynamic decoration.
@@ -256,9 +257,22 @@ on new(windowId, pTabIndex)
 		on getBaseURL()
 			if running of application "Safari" is false then return
 
+			(*
 			tell application "Safari"
 				set baseUrl to do JavaScript "location.origin" in front document
 			end tell
+			*)
+
+			try
+				with timeout of 0.5 seconds
+					tell application "Safari"
+						set baseUrl to (do JavaScript "location.origin" in document 1)
+					end tell
+				end timeout
+			on error the errorMessage number the errorNumber
+				return missing value
+			end try
+
 			try
 				if baseUrl is equal to "null" then return missing value
 			on error
@@ -537,7 +551,7 @@ on new(windowId, pTabIndex)
 			waitForPageLoad()
 		end waitForPageToLoad
 
-		on 	waitForPageLoad()
+		on waitForPageLoad()
 			delay 0.5
 			script SourceWaiter
 				tell application "Safari"
