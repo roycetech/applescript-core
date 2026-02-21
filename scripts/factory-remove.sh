@@ -6,6 +6,7 @@
 #
 # Created: August 9, 2023 7:57 PM
 
+script_name=$0
 list_key=$1
 new_decorator=$2
 
@@ -17,20 +18,22 @@ file_path=~/applescript-core/config-lib-factory.plist
 list_present=$(plutil -extract "$list_key" raw $file_path)
 if [[ $list_present != *"error"* ]];
 then
-	echo "List [$list_key] was found"
+	: # Do nothing.
+	# echo "D: ${script_name}: List [$list_key] was found"
 else
-	echo "Decorator $new_decorator was not found"
+	# echo "D: ${script_name}: Decorator $new_decorator was not found"
 	exit 1
 fi
 
-result=`awk "/>$list_key</,/<\\/array>/" $file_path | tail -n +2 | grep "$new_decorator"`
+result=$(awk "/>$list_key</,/<\\/array>/" $file_path | tail -n +2 | grep "$new_decorator")
 if [[ -n "$result" ]];
 then
-	echo "Removing: $new_decorator from $list_key"
+	echo "${script_name}: Removing: $new_decorator from $list_key"
 	escaped_decorator=$(echo "$new_decorator" | sed 's/[.*\/]/\\&/g')
 	cleaned_list=$(awk "/>$list_key</,/<\\/array>/" $file_path | tail -n +2 | sed "/$escaped_decorator/d")
 
-	trimmed=$(echo $cleaned_list | sed 's/ //g')
+	# trimmed=$(echo "$cleaned_list" | sed 's/ //g')
+	trimmed=${cleaned_list// /}
 	if [[ $trimmed == "<array></array>" ]];
 	then
 		plutil -remove "$list_key" $file_path
@@ -40,5 +43,6 @@ then
 	fi
 
 else
-	echo "Could not find: $new_decorator";
+	: # Do nothing.
+	# echo "D: ${script_name}: Could not find: $new_decorator";
 fi

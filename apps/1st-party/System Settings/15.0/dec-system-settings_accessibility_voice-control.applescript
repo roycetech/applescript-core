@@ -17,6 +17,7 @@ use loggerFactory : script "core/logger-factory"
 use retryLib : script "core/retry"
 
 property logger : missing value
+
 property retry : missing value
 
 property PANE_ID_DESKTOP_AND_DOCK : "com.apple.Desktop-Settings.extension"

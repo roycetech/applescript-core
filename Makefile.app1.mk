@@ -1,5 +1,13 @@
 # Makefile.app1.mk
 # @Created: Fri, Jul 19, 2024 at 1:14:29 PM
+# Contains targets for 1st party apps.
+#
+# @NOTE:
+#   Versions of scripts indicate the app and OS version when the script was created.
+#   New functionalities were only added to the latest version of the script at the time.
+#
+# @Change Logs:
+# - 2026-02-20: Added echo statements to the build targets to make the output more readable.
 
 
 build-all: \
@@ -20,15 +28,18 @@ build-apps-first-party: \
 	build-terminal
 
 
-# 1st Party Apps Library
+# 1st Party Apps Library ------------------------------------------------------
 
 build-automator:
-ifeq ($(OS_NAME), tahoe)
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Automator/2.10-Tahoe/automator
-else
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Automator/2.10/automator
+	@echo "\nBuilding Automator scripts..."
+	$(call _build-script, apps/1st-party/Automator/2.10/dec-automator-applescript)
+	$(call _build-script, apps/1st-party/Automator/2.10/automator)
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SEQUOIA) ] && echo yes),yes)
+	@echo "\nBuilding Automator 2.10-Tahoe scripts..."
+	$(call _build-script, apps/1st-party/Automator/2.10-Tahoe/automator)
 endif
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Automator/2.10/dec-automator-applescript
+	@echo "Build Automator completed\n"
 
 install-automator: build-automator
 	mkdir -p /Applications/AppleScript
@@ -37,131 +48,112 @@ install-automator: build-automator
 
 uninstall-automator:
 	@echo "TODO"
-	# TODO:
+
 
 
 build-calendar:
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/11.0/dec-calendar-view"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/15.0/calendar-event"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/15.0/dec-calendar-meetings"
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Calendar/15.0/calendar"
+	@echo "\nBuilding Calendar scripts..."
+	$(call _build-script, apps/1st-party/Calendar/11.0/dec-calendar-view)
+	$(call _build-script, apps/1st-party/Calendar/15.0/calendar-event)
+	$(call _build-script, apps/1st-party/Calendar/15.0/dec-calendar-meetings)
+	$(call _build-script, apps/1st-party/Calendar/15.0/calendar)
+	@echo "Build Calendar completed\n"
 
 install-calendar: build-calendar
 	osascript ./scripts/enter-user-country.applescript
 
 
 build-console:
-	$(SUDO) ./scripts/build-lib.sh "apps/1st-party/Console/v1.1/console"
+	@echo "\nBuilding Console scripts..."
+	$(call _build-script, apps/1st-party/Console/v1.1/console)
+	@echo "Build Console completed\n"
 
-# build-control-center:
-# 	# TODO:
-# 	$(SUDO) ./scripts/build-lib.sh macOS-version/16-tahoe/control-center_sound
-
-
-define build_finder
-	yes y | ./scripts/build-lib.sh $(1)
-endef
 
 build-finder:
-# ifeq ($(shell [ $(OS_VERSION_MAJOR) -eq 12 ] && echo yes),yes)
-# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/12.5/finder
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
+	@echo "Untested macOS version for Finder. Development started at least on macOS Monterey (v12)."
+endif
+	$(call _build-script,apps/1st-party/Finder/12.5/finder)
 
-# else ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt 12 ] && echo yes),yes)
-# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-mini
-# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-selection
-# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-tab
-# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-folders
-# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-files
-# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-paths
-# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-view
-# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder
-# endif
-
-# ifeq ($(shell [ $(OS_VERSION_MAJOR) -ge 26 ] && echo yes),yes)
-# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/26.0/dec-finder-view
-# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/26.1/dec-finder-dialog
-# 	yes y | ./scripts/build-lib.sh apps/1st-party/Finder/26.1/finder
-# endif
-# 	@echo "Build Finder completed"
-
-# Overwrites older version if a newer version is present.
-ifeq ($(IS_12),1)
-	$(call build_finder,apps/1st-party/Finder/12.5/finder)
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_MONTEREY) ] && echo yes),yes)
+	@echo "\nBuilding Finder 15.2 scripts..."
+	$(call _build-script,apps/1st-party/Finder/15.2/finder-mini)
+	$(call _build-script,apps/1st-party/Finder/15.2/dec-finder-selection)
+	$(call _build-script,apps/1st-party/Finder/15.2/finder-tab)
+	$(call _build-script,apps/1st-party/Finder/15.2/dec-finder-folders)
+	$(call _build-script,apps/1st-party/Finder/15.2/dec-finder-files)
+	$(call _build-script,apps/1st-party/Finder/15.2/dec-finder-paths)
+	$(call _build-script,apps/1st-party/Finder/15.2/dec-finder-view)
+	$(call _build-script,apps/1st-party/Finder/15.2/finder)
 endif
 
-ifeq ($(GT_12),1)
-	$(call build_finder,apps/1st-party/Finder/15.2/finder-mini)
-	$(call build_finder,apps/1st-party/Finder/15.2/dec-finder-selection)
-	$(call build_finder,apps/1st-party/Finder/15.2/finder-tab)
-	$(call build_finder,apps/1st-party/Finder/15.2/dec-finder-folders)
-	$(call build_finder,apps/1st-party/Finder/15.2/dec-finder-files)
-	$(call build_finder,apps/1st-party/Finder/15.2/dec-finder-paths)
-	$(call build_finder,apps/1st-party/Finder/15.2/dec-finder-view)
-	$(call build_finder,apps/1st-party/Finder/15.2/finder)
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SEQUOIA) ] && echo yes),yes)
+	@echo "\nBuilding Finder 26.0 scripts..."
+	$(call _build-script,apps/1st-party/Finder/26.0/dec-finder-view)
+	$(call _build-script,apps/1st-party/Finder/26.1/dec-finder-dialog)
+	$(call _build-script,apps/1st-party/Finder/26.1/finder)
 endif
-
-ifeq ($(GE_26),1)
-	$(call build_finder,apps/1st-party/Finder/26.0/dec-finder-view)
-	$(call build_finder,apps/1st-party/Finder/26.1/dec-finder-dialog)
-	$(call build_finder,apps/1st-party/Finder/26.1/finder)
-endif
-	@echo "Build Finder completed"
+	@echo "Build Finder completed\n"
 
 
 build-home:
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Home/7.0/home
+	$(call _build-script,apps/1st-party/Home/7.0/home)
+	@echo "Build Home completed\n"
 
 
 build-mail:
 	$(call _build-script,apps/1st-party/Mail/16.0/dec-mail-settings)
 	$(call _build-script,apps/1st-party/Mail/16.0/dec-mail-selection)
 	$(call _build-script,apps/1st-party/Mail/16.0/mail)
-	@echo "Build mail scripts completed"
+	@echo "Build mail scripts completed\n"
 
 
 build-passwords:
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Passwords/2.0/passwords
+	$(call _build-script,apps/1st-party/Passwords/2.0/passwords)
+	@echo "Build Passwords completed\n"
+
 
 build-preview:
-	$(SUDO) ./scripts/build-lib.sh core/decorators/dec-preview-markup
-ifeq ($(OS_NAME), tahoe)
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Preview/v11-Tahoe/preview
-else
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Preview/v11/preview
-endif
+	$(call _build-script,core/decorators/dec-preview-markup)
+	$(call _build-script,apps/1st-party/Preview/v11/preview)
 
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SEQUOIA) ] && echo yes),yes)
+	$(call _build-script,apps/1st-party/Preview/v11-Tahoe/preview)
+endif
+	@echo "Build Preview completed\n"
+
+
+VERSION_SAFARI_MAJOR_MINOR = $(shell osascript -e "tell application \"Safari\" to version" | awk -F. '{print $$1 "." $$2}')
+$(info     VERSION_SAFARI_MAJOR_MINOR: $(VERSION_SAFARI_MAJOR_MINOR))
+
+# dir — build when VERSION_SAFARI_MAJOR_MINOR >= dir (subfolders of Safari/, excluding 16.0)
+SAFARI_VERSION_BUILDS := $(filter-out 16.0,$(patsubst apps/1st-party/Safari/%/,%,$(wildcard apps/1st-party/Safari/*/)))
 
 build-safari: build-dock build-process
-	yes y | ./scripts/build-lib.sh core/Level_5/javascript
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-javascript
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/safari-tab
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.0/dec-safari-tab-finder2
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-ui-compact
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-sidebar
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.6/dec-safari-tab-group
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-inspector
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-preferences
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-general
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-tabs
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-extensions
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-advanced
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-profile
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-privacy-and-security
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.1/safari
-# ifeq ($(shell [ $(OS_VERSION) -eq 26.2 ] && echo yes),yes)
-ifeq ($(OS_VERSION),26.2)
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-ui-noncompact
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-tab-group
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-sidebar
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-tabs
-	yes y | ./scripts/build-lib.sh apps/1st-party/Safari/26.2/safari
-endif
+	# Older versions of scripts are built first and overwritten by newer versions.
+	$(call _build-script,core/Level_5/javascript)
+
+	@echo "Building Safari 16.0 scripts"
+	@for file in $(wildcard apps/1st-party/Safari/16.0/*.applescript); do \
+		no_ext=$${file%.applescript}; \
+		echo "Building $$file"; \
+		yes y | ./scripts/build-lib.sh "$$no_ext"; \
+	done
+
+	@for dir in $(SAFARI_VERSION_BUILDS); do \
+		dir_mm=$$(echo "$$dir" | awk -F. '{print $$1 "." $$2}'); \
+		if echo "$(VERSION_SAFARI_MAJOR_MINOR) $$dir_mm" | awk '{exit !($$1 >= $$2)}'; then \
+			echo "\nBuilding Safari $$dir scripts..."; \
+			for file in apps/1st-party/Safari/$$dir/*.applescript; do \
+				[ -e "$$file" ] || continue; \
+				no_ext=$${file%.applescript}; \
+				echo "Building $$file"; \
+				yes y | ./scripts/build-lib.sh "$$no_ext"; \
+			done; \
+		fi; \
+	done
 	osascript apps/1st-party/Safari/26.1/allow-javascript-from-apple-events.applescript
-	@echo "Build Safari completed"
+	@echo "Build Safari completed\n"
 
 install-safari: build-safari
 	osascript ./scripts/allow-apple-events-in-safari.applescript
@@ -170,92 +162,117 @@ install-safari: build-safari
 
 
 build-safari-technology-preview:  # Broken
-	./scripts/build-lib.sh  apps/1st-party/Safari Technology Preview/r168/dec-safari-technology-preview-javascript
-	./scripts/build-lib.sh  apps/1st-party/Safari Technology Preview/r168/safari-technology-preview
+	$(call _build-script,apps/1st-party/Safari Technology Preview/r168/dec-safari-technology-preview-javascript)
+	$(call _build-script,apps/1st-party/Safari Technology Preview/r168/safari-technology-preview)
 
 install-safari-technology-preview: build-safari-technology-preview
 	osascript ./scripts/allow-apple-events-in-safari-technology-preview.applescript
 
 
 build-script-editor:
-	$(SUDO) ./scripts/build-lib.sh 'apps/1st-party/Script Editor/2.11/script-editor-tab'
-	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-dialog"
-	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-tabs"
-	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-window"
-	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-content"
-	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-cursor"
-	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-settings"
-	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-settings-general"
-	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/dec-script-editor-settings-editing"
-	./scripts/build-lib.sh "apps/1st-party/Script Editor/2.11/script-editor"
+	$(call _build-script,apps/1st-party/Script Editor/2.11/script-editor-tab)
+	$(call _build-script,apps/1st-party/Script Editor/2.11/dec-script-editor-dialog)
+	$(call _build-script,apps/1st-party/Script Editor/2.11/dec-script-editor-tabs)
+	$(call _build-script,apps/1st-party/Script Editor/2.11/dec-script-editor-window)
+	$(call _build-script,apps/1st-party/Script Editor/2.11/dec-script-editor-content)
+	$(call _build-script,apps/1st-party/Script Editor/2.11/dec-script-editor-cursor)
+	$(call _build-script,apps/1st-party/Script Editor/2.11/dec-script-editor-settings)
+	$(call _build-script,apps/1st-party/Script Editor/2.11/dec-script-editor-settings-general)
+	$(call _build-script,apps/1st-party/Script Editor/2.11/dec-script-editor-settings-editing)
+	$(call _build-script,apps/1st-party/Script Editor/2.11/script-editor)
 	@echo "Build Script Editor completed"
 
 
+OS_VERSION_MAJOR = $(OS_TAHOE) # Debugging only.
+$(info     DEBUG: OS_VERSION_MAJOR: $(OS_VERSION_MAJOR))
+
 build-system-settings:
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
+	@echo "WARNING:Untested macOS version for system settings. Development started at least on macOS Monterey (v12)."
+endif
+	./scripts/factory-remove.sh SystemSettingsInstance core/dec-system-settings-sonoma
+	@echo "\nBuilding initial System Settings 15.0 scripts..."
+	$(call _build-script,apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control_voice-commands)
+	$(call _build-script,apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control)
+	$(call _build-script,apps/1st-party/System Settings/15.0/dec-system-settings_desktop-and-dock)
+	$(call _build-script,apps/1st-party/System Settings/15.0/dec-system-settings_displays)
+	$(call _build-script,apps/1st-party/System Settings/15.0/dec-system-settings_internet-accounts)
+	$(call _build-script,apps/1st-party/System Settings/15.0/dec-system-settings_keyboard)
+	$(call _build-script,apps/1st-party/System Settings/15.0/dec-system-settings_lock-screen)
+	$(call _build-script,apps/1st-party/System Settings/15.0/dec-system-settings_network)
+	$(call _build-script,apps/1st-party/System Settings/15.0/dec-system-settings_passwords)
+	$(call _build-script,apps/1st-party/System Settings/15.0/dec-system-settings_sound)
+	$(call _build-script,apps/1st-party/System Settings/15.0/system-settings)
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_VENTURA) ] && echo yes),yes)
+	@echo "\nBuilding System Settings 15.0 macOS Sonoma scripts..."
+	$(call _build-script,apps/1st-party/System Settings/15.0/macOS Sonoma/dec-system-settings-sonoma)
 	./scripts/factory-insert.sh SystemSettingsInstance core/dec-system-settings-sonoma
-	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/macOS Sonoma/dec-system-settings-sonoma"
-	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control"
-	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_accessibility_voice-control_voice-commands"
-	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_passwords"
-	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_displays"
-	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_sound"
-	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/dec-system-settings_desktop-and-dock"
-	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
-# ifeq ($(OS_NAME), sequoia)
-ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt 15 ] && echo yes),yes)
-	yes y | ./scripts/build-lib.sh 'apps/1st-party/System Settings/15.0/macOS Sequoia/dec-system-settings_apple-intelligence-and-siri'
-	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/system-settings"
 endif
 
-ifeq ($(shell [ $(OS_VERSION_MAJOR) -ge 26 ] && echo yes),yes)
-	yes y | ./scripts/build-lib.sh "apps/1st-party/System Settings/15.0/macOS Tahoe/system-settings"
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SONOMA) ] && echo yes),yes)
+	@echo "\nBuilding System Settings 15.0 macOS Sequoia scripts..."
+	$(call _build-script,apps/1st-party/System Settings/15.0/macOS Sequoia/dec-system-settings_apple-intelligence-and-siri)
+	$(call _build-script,apps/1st-party/System Settings/15.0/macOS Sequoia/system-settings)
+endif
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SEQUOIA) ] && echo yes),yes)
+	@echo "\nBuilding System Settings for macOS Tahoe scripts..."
+	$(call _build-script,apps/1st-party/System Settings/26.3/dec-system-settings_keyboard)
+	$(call _build-script,apps/1st-party/System Settings/26.3/dec-system-settings_general_about)
+	$(call _build-script,apps/1st-party/System Settings/26.3/dec-system-settings_general)
+	$(call _build-script,apps/1st-party/System Settings/26.3/dec-system-settings_keyboard)
 endif
 
 	@echo "Build System Settings completed"
 
 
 build-terminal:
-ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt 12 ] && echo yes),yes)
-$(error macOS version too old! Requires at least macOS Monterey (v12).)
-else ifeq ($(OS_NAME), sonoma)
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-output
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-path
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-run
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal
-
-else ifeq ($(OS_NAME), ventura)
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-output
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-path
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-prompt
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/dec-terminal-run
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/terminal
-
-else ifeq ($(OS_NAME), monterey)
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-output
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-path
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/dec-terminal-run
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.12.x/terminal
-# ifeq ($(OS_NAME), sequoia)
-else  # Sequoia or higher
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-output
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-path
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-prompt
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-run
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal-tab
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-general
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile-window
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile-keyboard
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal_tab-finder
-	$(SUDO) ./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/terminal
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
+	@echo "Untested macOS version for terminal. Development started at least on macOS Monterey (v12)."
 endif
-	$(SUDO) ./scripts/build-lib.sh libs/sftp/dec-terminal-prompt-sftp
+
+	@echo "\nBuilding Terminal 2.12.x scripts..."
+	$(call _build-script, apps/1st-party/Terminal/2.12.x/dec-terminal-output)
+	$(call _build-script, apps/1st-party/Terminal/2.12.x/dec-terminal-path)
+	$(call _build-script, apps/1st-party/Terminal/2.12.x/dec-terminal-prompt)
+	$(call _build-script, apps/1st-party/Terminal/2.12.x/dec-terminal-run)
+	$(call _build-script, apps/1st-party/Terminal/2.12.x/terminal)
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_MONTEREY) ] && echo yes),yes)
+	@echo "\nBuilding Terminal 2.13.x scripts..."
+	$(call _build-script, apps/1st-party/Terminal/2.13.x/dec-terminal-output)
+	$(call _build-script, apps/1st-party/Terminal/2.13.x/dec-terminal-path)
+	$(call _build-script, apps/1st-party/Terminal/2.13.x/dec-terminal-prompt)
+	$(call _build-script, apps/1st-party/Terminal/2.13.x/dec-terminal-run)
+	$(call _build-script, apps/1st-party/Terminal/2.13.x/terminal)
+endif
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_VENTURA) ] && echo yes),yes)
+	@echo "\nBuilding Terminal 2.14.x scripts..."
+	$(call _build-script, apps/1st-party/Terminal/2.14.x/dec-terminal-output)
+	$(call _build-script, apps/1st-party/Terminal/2.14.x/dec-terminal-path)
+	$(call _build-script, apps/1st-party/Terminal/2.14.x/dec-terminal-prompt)
+	$(call _build-script, apps/1st-party/Terminal/2.14.x/dec-terminal-run)
+	$(call _build-script, apps/1st-party/Terminal/2.14.x/terminal-tab)
+	$(call _build-script, apps/1st-party/Terminal/2.14.x/terminal)
+endif
+
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SONOMA) ] && echo yes),yes)
+	@echo "\nBuilding > macOS Sonoma Terminal 2.14.x scripts..."
+	$(call _build-script, apps/1st-party/Terminal/2.14.x/dec-terminal-settings)
+	$(call _build-script, apps/1st-party/Terminal/2.14.x/dec-terminal-settings-general)
+	$(call _build-script, apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile)
+	$(call _build-script, apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile-window)
+	$(call _build-script, apps/1st-party/Terminal/2.14.x/dec-terminal-settings-profile-keyboard)
+	$(call _build-script, apps/1st-party/Terminal/2.14.x/dec-terminal_tab-finder)
+endif
+
+	$(call _build-script, libs/sftp/dec-terminal-prompt-sftp)
 	@echo "Build Terminal completed"
 
+
 build-xcode:
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Xcode/15.4/xcode
+	$(call _build-script, apps/3rd-party/Xcode/15.4/dec-xcode-debugging)
+	$(call _build-script, apps/3rd-party/Xcode/15.4/xcode)
+	@echo "Build Xcode completed"

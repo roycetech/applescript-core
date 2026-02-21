@@ -7,7 +7,7 @@
 		applescript-core
  
 	@Build:
-		./scripts/build-lib.sh 'apps/1st-party/System Settings/15.0/macOS Tahoe/system-settings'
+		./scripts/build-lib.sh 'apps/1st-party/System Settings/26.3/system-settings'
 		 
 	@References:
 		https://derflounder.wordpress.com/2022/10/25/opening-macos-venturas-system-settings-to-desired-locations-via-the-command-line/
@@ -65,7 +65,7 @@ on spotCheck()
 	
 	set sut to new()
 	
-	sut's printPaneIds()
+	-- sut's printPaneIds()
 	logger's infof("Current panel title: {}", sut's getCurrentPanelTitle())
 	logger's infof("Left pane UI detected? {}", sut's getLeftPaneUI() is not missing value)
 	logger's infof("Right pane UI detected? {}", sut's getRightPaneUI() is not missing value)
@@ -139,11 +139,15 @@ on new()
 			
 			tell application "System Events" to tell process "System Settings"
 				try
-					return value of static text 1 of front window
+					outline 1 of scroll area 1 of group 1 of splitter group 1 of group 1 of front window
+					first row of result whose selected is true
+					return value of static text 1 of UI element 1 of result
+					
 				end try
 			end tell
 			missing value
 		end getCurrentPanelTitle
+		
 		
 		(* Strangely, sometimes it only prints the pane of the General pane. *)
 		on printPaneIds()
@@ -240,6 +244,7 @@ on new()
 		end getRightPaneUI
 	end script
 	
+	set decGeneral to script "core/dec-system-settings_general" 
 	set decPasswords to script "core/dec-system-settings_passwords"
 	set decVoiceControl to script "core/dec-system-settings_accessibility_voice-control"
 	set decVoiceCommand to script "core/dec-system-settings_accessibility_voice-control_voice-commands"
@@ -249,7 +254,8 @@ on new()
 	set decLockScreen to script "core/dec-system-settings_lock-screen"
 	set decKeyboard to script "core/dec-system-settings_keyboard"
 	
-	decPasswords's decorate(SystemSettingsInstance)
+	decGeneral's decorate(SystemSettingsInstance)
+	decPasswords's decorate(result)
 	decVoiceControl's decorate(result)
 	decVoiceCommand's decorate(result)
 	decDisplays's decorate(result)

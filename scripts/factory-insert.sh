@@ -5,6 +5,7 @@
 #
 # Created: August 9, 2023 7:33 PM
 
+script_name=$0
 list_key=$1
 new_decorator=$2
 
@@ -17,10 +18,11 @@ list_present=$(plutil -extract "$list_key" raw $file_path 2>&1)
 
 if [[ $list_present != *"error"* ]] ;
 then
+	: # Do nothing.
 	# echo "DEBUG: list_present: $list_present"
-	echo "List [$list_key] found"
+	# echo "D: ${script_name}: List [$list_key] found"
 else
-	echo "Creating a new list"
+	# echo "D: ${script_name}: Creating a new list"
 	plutil -replace  "$list_key" -xml '<array></array>' $file_path
 fi
 
@@ -28,10 +30,10 @@ result=$(awk "/>$list_key</,/<\\/array>/" $file_path | tail -n +2 | grep "$new_d
 
 if [[ -n "$result" ]]; #
 then
-	echo "Already installed: $new_decorator";
+	echo "I: ${script_name}: Already installed: $new_decorator";
 
 else
-	echo "Appending: $new_decorator into $list_key"
+	echo "I: ${script_name}: Appending: $new_decorator into $list_key"
 	plutil -insert "$list_key" -string "$new_decorator" -append $file_path
 
 fi
