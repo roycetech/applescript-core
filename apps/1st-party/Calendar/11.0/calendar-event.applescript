@@ -9,7 +9,7 @@
 	@Build:
 		make build-lib SOURCE=apps/1st-party/Calendar/11.0/calendar-event
 
-	@Last Modified: 2023-09-25 14:57:56
+	@Last Modified: 2026-02-20 13:14:38
 *)
 
 use scripting additions
@@ -24,11 +24,10 @@ use kbLib : script "core/keyboard"
 use sbLib : script "core/string-builder"
 use uiutilLib : script "core/ui-util"
 
-use spotScript : script "core/spot-test"
-
 use decoratorLib : script "core/decorator"
 
 property logger : missing value
+
 property kb : missing value
 property uiutil : missing value
 
@@ -53,6 +52,7 @@ on spotCheck()
 		Manual: Find a suitable calendar event for testing.
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

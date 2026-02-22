@@ -6,15 +6,12 @@
 	@Notes:
 		June 30, 2023 12:09 PM - Crashes when being debugged using Script Debugger.
 *)
-use listUtil : script "core/list"
-
 use loggerFactory : script "core/logger-factory"
-use loggerLib : script "core/logger"
+
 use usrLib : script "core/user"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
+
 property usr : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -23,6 +20,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Current Calendar View (Day, Week, Month, Year)
 		Switch to Day View
@@ -36,6 +34,7 @@ on spotCheck()
 		Switch View - Year
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

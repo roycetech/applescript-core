@@ -177,12 +177,13 @@ _build-script = \
 build-control-center:
 	# Supports macOS Monterey and later.
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
-	@echo "Unsupported macOS version for control-center"
-else
+	@echo "Untested macOS version for control-center"
+endif
+
 	$(call _build-script,macOS-version/12-monterey/control-center)
 
-# [Begin] nested control-center sub level 1
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_MONTEREY) ] && echo yes),yes)
+	@echo "\nBuilding Control Center 13-ventura scripts..."
 	$(call _build-script,macOS-version/13-ventura/control-center_network)
 	$(call _build-script,macOS-version/13-ventura/control-center_sound)
 	$(call _build-script,macOS-version/13-ventura/control-center_focus)
@@ -190,6 +191,7 @@ ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_MONTEREY) ] && echo yes),yes)
 endif
 
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_VENTURA) ] && echo yes),yes)
+	@echo "\nBuilding Control Center 14-sonoma scripts..."
 	$(call _build-script,macOS-version/14-sonoma/control-center_network)
 	$(call _build-script,macOS-version/14-sonoma/control-center_sound)
 	$(call _build-script,macOS-version/14-sonoma/control-center_focus)
@@ -203,23 +205,19 @@ ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SONOMA) ] && echo yes),yes)
 endif
 
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SEQUOIA) ] && echo yes),yes)
+	@echo "\nBuilding Control Center 26-tahoe scripts..."
 	$(call _build-script,macOS-version/26-tahoe/control-center_sound)
 	$(call _build-script,macOS-version/26-tahoe/control-center)
 endif
-# [End] nested control-center sub level 1
-
-endif
-	@echo "Build control-center completed"
+	@echo "Build control-center completed\n"
 
 install-control-center: build-control-center
 
 
 build-dock:
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
-	@echo "Unsupported macOS version for dock"
-
-else
-# [Begin] nested dock sub level 1
+	@echo "Untested macOS version for dock. Development started at least on macOS Monterey (v12)."
+endif
 	$(call _build-script,macOS-version/12-monterey/dock)
 
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_VENTURA) ] && echo yes),yes)
@@ -229,18 +227,14 @@ endif
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SONOMA) ] && echo yes),yes)
 	$(call _build-script,macOS-version/15-sequoia/dock)
 endif
-
-# [End] nested dock sub level 1
-endif
-	@echo "Build dock completed"
+	@echo "Build dock completed\n"
 
 
 build-notification-center:
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
-	@echo "Unsupported macOS version for notification-center"
+	@echo "Untested macOS version for notification-center. Please report any issues."
+endif
 
-else
-# [Begin] nested notification-center sub level 1
 	$(call _build-script,macOS-version/12-monterey/notification-center-helper)
 	$(call _build-script,macOS-version/12-monterey/notification-center)
 
@@ -258,8 +252,7 @@ ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SONOMA) ] && echo yes),yes)
 	$(call _build-script,macOS-version/15-sequoia/notification-center-helper)
 	$(call _build-script,macOS-version/15-sequoia/notification-center)
 endif
-# [End] nested notification-center sub level 1
-endif
+	@echo "Build notification-center completed\n"
 
 
 build-user:
