@@ -35,7 +35,7 @@
 		Wed, Jan 21, 2026, at 07:48:08 AM - Added dec-safari-tabs decorator.
 
 	@Created: Mon, Feb 10, 2025 at 7:30:44 AM
-	@Last Modified: 2026-02-20 16:14:23
+	@Last Modified: 2026-02-21 17:03:05
 *)
 
 use scripting additions
@@ -274,7 +274,6 @@ on new()
 	set decSafariTabFinder to script "core/dec-safari-tab-finder"
 	set decSafariTabFinder2 to script "core/dec-safari-tab-finder2"
 	set decSafariUiNoncompact to script "core/dec-safari-ui-noncompact"
-	set decSafariUiCompact to script "core/dec-safari-ui-compact"
 	set decSafariSidebar to script "core/dec-safari-sidebar"
 	set decSafariKeychain to script "core/dec-safari-keychain"
 	set decSafariInspector to script "core/dec-safari-inspector"
@@ -638,7 +637,6 @@ on new()
 	decSafariTabFinder's decorate(result)
 	decSafariTabFinder2's decorate(result)
 	decSafariUiNoncompact's decorate(result)
-	decSafariUiCompact's decorate(result)
 	decSafariSidebar's decorate(result)
 	decSafariKeychain's decorate(result)
 	decSafariPreferences's decorate(result)

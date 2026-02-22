@@ -10,19 +10,19 @@
 		./scripts/build-lib.sh apps/1st-party/Home/7.0/home
 
 	@Created: December 8, 2023 9:40 PM
-	@Last Modified: 2026-01-18 11:50:37
+	@Last Modified: 2026-02-20 13:16:50
 *)
 use scripting additions
 
 use textUtil : script "core/string"
-use listUtil : script "core/list"
+
 use loggerFactory : script "core/logger-factory"
+
 use systemEventLib : script "core/system-events"
 use retryLib : script "core/retry"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
+
 property systemEvent : missing value
 property retry : missing value
 
@@ -32,6 +32,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Switch Sidebar Item (Missing, Happy)
 		Manual: Click Tile
@@ -42,6 +43,7 @@ on spotCheck()
 		Manual: Camera
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

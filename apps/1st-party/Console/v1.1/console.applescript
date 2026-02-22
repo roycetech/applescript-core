@@ -9,13 +9,9 @@
 		./scripts/build-lib.sh apps/1st-party/Console/v1.1/console
 
 	@Created: Tuesday, September 26, 2023 at 1:16:23 PM
-	@Last Modified: 2024-04-24 12:57:40
+	@Last Modified: 2026-02-20 13:16:18
 *)
-
-use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -25,11 +21,13 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Toggle Now
 		Manual: Clear Console
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
