@@ -31,7 +31,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2026-01-18 11:51:19
+	@Last Modified: 2026-02-20 13:19:36
 *)
 
 use script "core/Text Utilities"
@@ -39,7 +39,6 @@ use scripting additions
 
 use std : script "core/std"
 use textUtil : script "core/string"
-use listUtil : script "core/list"
 use unic : script "core/unicodes"
 -- use regex : script "core/regex"
 
@@ -59,9 +58,8 @@ use winUtilLib : script "core/window"
 use dockLib : script "core/dock"
 use retryLib : script "core/retry"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
+
 property kb : missing value
 property uiutil : missing value
 property winUtil : missing value
@@ -74,6 +72,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Front Tab
 		Manual: First Tab
@@ -92,6 +91,7 @@ on spotCheck()
 		Manual: Select OTP
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

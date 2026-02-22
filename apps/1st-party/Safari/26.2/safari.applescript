@@ -35,7 +35,7 @@
 		Wed, Jan 21, 2026, at 07:48:08 AM - Added dec-safari-tabs decorator.
 
 	@Created: Mon, Feb 10, 2025 at 7:30:44 AM
-	@Last Modified: 2026-02-09 10:48:41
+	@Last Modified: 2026-02-20 16:14:23
 *)
 
 use scripting additions
@@ -57,11 +57,13 @@ use winUtilLib : script "core/window"
 property TopLevel : me
 
 property logger : missing value
+
 property winUtil : missing value
 property retry : missing value
 property dock : missing value
 
 property KEYWORD_FORM_SUBMIT_PROMPT : "send a form again"
+property KEYWORD_FORM_NON_PRIVATE_CONNECTION : "connection that is not private"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -83,14 +85,17 @@ on spotCheck()
 		Manual: Find Tab With Name ()
 		New Tab - Manually Check when no window is present in current space.
 
-		Open in Cognito
+		Open in Incognito
 		Get Tab by Window ID - Manual
 		Manual: Address Bar is Focused
 		Manual: Select OTP
 		Manual: Cancel Form Submit Again
 
 		Manual: Send Form Submit Again
+		Manual: Non Private - Cancel
+		Manual: Non Private - Visit Website
 		Manual: Integration: Reveal latest downloaded file
+		Dummy
 	")
 
 	set spotScript to script "core/spot-test"
@@ -108,6 +113,7 @@ on spotCheck()
 	logger's infof("Integration: Is Location Prompt Present: {}", sut's isLocationPromptPresent())
 	logger's infof("Integration: Current Group Name: {}", sut's getGroupName())
 	logger's infof("Is form submit again prompt present: {}", sut's isFormSubmitAgainPresent())
+	logger's infof("Non private connection prompt present: {}", sut's isNonPrivateConnectionPromptPresent())
 	logger's infof("Is downloads popup present: {}", sut's isDownloadsPopupPresent())
 
 	if caseIndex is 2 then
@@ -145,6 +151,7 @@ on spotCheck()
 			logger's infof("Is Loading: {}", sut's isLoading())
 			logger's infof("Is Playing: {}", sut's isPlaying())
 			logger's infof("Is Default Group: {}", sut's isDefaultGroup())
+			logger's infof("Is Downloads Popup Present: {}", sut's isDownloadsPopupPresent())
 
 			delay 3 -- Manually check below when in/visible.
 			logger's infof("Address Bar is focused: {}", sut's isAddressBarFocused())
@@ -245,6 +252,12 @@ on spotCheck()
 	else if caseIndex is 16 then
 		sut's confirmFormSubmitAgain()
 
+	else if caseIndex is 17 then
+		sut's cancelNonPrivateConnection()
+
+	else if caseIndex is 18 then
+		sut's visitNonPrivateConnection()
+
 	end if
 
 	spot's finish()
@@ -271,6 +284,12 @@ on new()
 	set decSafariTabs to script "core/dec-safari-tabs"
 	set decSafariDownloads to script "core/dec-safari-downloads"
 
+	set decSafariSettings to script "core/dec-safari-settings"
+	set decSafariSettingsGeneral to script "core/dec-safari-settings-general"
+	set decSafariSettingsDeveloper to script "core/dec-safari-settings-developer"
+	set decSafariSettingsTabs to script "core/dec-safari-settings-tabs"
+	set decSafariSettingsAdvanced to script "core/dec-safari-settings-advanced"
+
 	try
 		set decSafariTabGroup to script "core/dec-safari-tab-group"
 	on error
@@ -278,6 +297,15 @@ on new()
 	end try
 
 	script SafariInstance
+		on isDownloadsPopupPresent()
+			if running of application "Safari" is false then return false
+
+			tell application "System Events" to tell process "Safari"
+				exists (button "Clear downloads" of pop over 1 of toolbar 1 of front window)
+			end tell
+		end isDownloadsPopupPresent
+
+
 		on isPlaying()
 			set mainWindow to getFirstZoomableWindow()
 			if mainWindow is missing value then return false
@@ -323,6 +351,19 @@ on new()
 		end cancelFormSubmitAgain
 
 
+		on isNonPrivateConnectionPromptPresent()
+			run TopLevel's newPromptPresenceLambda(KEYWORD_FORM_NON_PRIVATE_CONNECTION)
+		end isNonPrivateConnectionPromptPresent
+
+		on cancelNonPrivateConnection()
+			_respondToAccessRequest(TopLevel's newPromptPresenceLambda(KEYWORD_FORM_NON_PRIVATE_CONNECTION), TopLevel's newPromptButtonFactory("Cancel"))
+		end cancelNonPrivateConnection
+
+		on visitNonPrivateConnection()
+			_respondToAccessRequest(TopLevel's newPromptPresenceLambda(KEYWORD_FORM_NON_PRIVATE_CONNECTION), TopLevel's newPromptButtonFactory("Visit Website"))
+		end visitNonPrivateConnection
+
+
 		(*
 			NOTE: App window must already be at the frontmost. Recommend the
 			user use dock's triggerAppMenu to accomplish this. setting to
@@ -357,6 +398,19 @@ on new()
 				value of attribute "AXFullScreen" of front window
 			end tell
 		end isFullscreen
+
+
+		on hasToolBar()
+			if running of application "Safari" is false then return false
+
+			tell application "System Events" to tell process "Safari"
+				try
+					return exists toolbar 1 of front window
+				end try
+			end tell
+
+			false
+		end hasToolBar
 
 		(* WARNING: Slow operation, 3s. *)
 		on isAddressBarFocused()
@@ -429,7 +483,12 @@ on new()
 		end isCompact
 
 		(*
-			TODO: Test for when Safari is not running.
+			Test Cases:
+				1. App not running
+				2. Running without a window
+				3. Running with a window using the same profile.
+				4. Running with a window using a different profile.
+
 			This is dependent on the user setting for new window/tabs, currently it is tested against when new window is on a "Start Page"
 		*)
 		on newWindow(targetUrl)
@@ -585,6 +644,11 @@ on new()
 	decSafariPreferences's decorate(result)
 	decSafariProfile's decorate(result)
 	decSafariPrivaceAndSecurity's decorate(result)
+	decSafariSettings's decorate(result)
+	decSafariSettingsGeneral's decorate(result)
+	decSafariSettingsTabs's decorate(result)
+	decSafariSettingsAdvanced's decorate(result)
+	decSafariSettingsDeveloper's decorate(result)
 	decSafariTabs's decorate(result)
 	decSafariDownloads's decorate(result)
 	set baseInstance to decSafariInspector's decorate(result)

@@ -10,18 +10,16 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder
 
 	@Created: Mon, Jul 22, 2024 at 12:28:44 PM
-	@Last Modified: 2024-12-31 19:30:37
+	@Last Modified: 2026-02-20 13:23:01
 	@Change Logs:
 *)
-use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 
 use safariTabLib : script "core/safari-tab"
-
-use spotScript : script "core/spot-test"
 use kbLib : script "core/keyboard"
 
 property logger : missing value
+
 property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -30,10 +28,12 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: findTabStartingWithUrl
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

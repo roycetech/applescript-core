@@ -10,13 +10,12 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings
 
 	@Created: Fri, Jul 12, 2024 at 2:58:38 PM
-	@Last Modified: 2025-06-14 13:36:50
+	@Last Modified: 2026-02-20 16:19:02
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
-
 
 property logger : missing value
 
@@ -80,7 +79,9 @@ on spotCheck()
 end spotCheck
 
 
-(*  *)
+(*
+	@mainScript - SafariInstance
+*)
 on decorate(mainScript)
 	loggerFactory's inject(me)
 
@@ -105,6 +106,7 @@ on decorate(mainScript)
 			tell application "System Events" to tell process "Safari"
 				click (first button of settingsWindow whose description is "close button")
 			end tell
+			""
 		end closeSettings
 
 

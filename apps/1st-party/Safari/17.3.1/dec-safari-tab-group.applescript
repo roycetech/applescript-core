@@ -10,10 +10,9 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.3.1/dec-safari-tab-group
 
 	@Created: Sunday, March 17, 2024 at 8:23:55 PM
-	@Last Modified: 2026-01-18 11:51:46
+	@Last Modified: 2026-02-20 13:20:00
 	@Change Logs:
 *)
-use listUtil : script "core/list"
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
 
@@ -22,9 +21,8 @@ use loggerFactory : script "core/logger-factory"
 use retryLib : script "core/retry"
 use kbLib : script "core/keyboard"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
+
 property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -33,11 +31,13 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Switch to applescript-core
 		Manual: Switch to Default
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

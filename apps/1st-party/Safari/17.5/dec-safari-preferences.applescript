@@ -10,14 +10,12 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-preferences
 
 	@Created: Fri, Jul 12, 2024 at 2:58:38 PM
-	@Last Modified: 2025-02-06 10:07:53
+	@Last Modified: 2026-02-20 13:22:36
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -39,6 +37,7 @@ on spotCheck()
 		Manual: Close on Target Status
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

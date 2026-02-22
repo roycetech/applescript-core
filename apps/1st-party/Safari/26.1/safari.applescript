@@ -31,7 +31,7 @@
 		end tell
 
 	@Migrated: Mon, Oct 27, 2025, at 07:37:56 AM
-	@Last Modified: 2026-01-18 11:54:56
+	@Last Modified: 2026-02-20 16:04:51
 *)
 
 use scripting additions
@@ -266,9 +266,9 @@ on new()
 	set dock to dockLib's new()
 
 	script SafariInstance
-		if running of application "Safari" is false then return false
-
 		on isDownloadsPopupPresent()
+			if running of application "Safari" is false then return false
+
 			tell application "System Events" to tell process "Safari"
 				exists (button "Clear downloads" of pop over 1 of toolbar 1 of front window)
 			end tell

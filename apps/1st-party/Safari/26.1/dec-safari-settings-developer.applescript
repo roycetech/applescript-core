@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/26.1/dec-safari-settings-developer
 
 	@Created: Sat, Jun 14, 2025 at 01:31:12 PM
-	@Last Modified: 2025-12-13 10:29:26
+	@Last Modified: 2026-02-20 16:16:34
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -51,7 +51,7 @@ on spotCheck()
 	if caseIndex is 1 then
 
 	else if caseIndex is 2 then
-		sut's toggleAllowJavascriptFromAppleEvents()
+		sut's toggleAllowJavaScriptFromAppleEvents()
 
 	else if caseIndex is 3 then
 		sut's setAllowJavascriptFromAppleEventsOn()
@@ -101,7 +101,7 @@ on decorate(mainScript)
 		end isAllowJavaScriptFromAppleEvents
 
 
-		on toggleAllowJavascriptFromAppleEvents()
+		on toggleAllowJavaScriptFromAppleEvents()
 			set settingsWindow to getSettingsWindow()
 			if settingsWindow is missing value then return missing value
 
@@ -110,16 +110,16 @@ on decorate(mainScript)
 					click checkbox CHECKBOX_ALLOW_JAVASCRIPT_FROM_APPLE_EVENTS of group 1 of group 1 of settingsWindow
 				end try
 			end tell
-		end toggleAllowJavascriptFromAppleEvents
+		end toggleAllowJavaScriptFromAppleEvents
 
 
 		on setAllowJavascriptFromAppleEventsOn()
-			if not isAllowJavaScriptFromAppleEvents() then toggleAllowJavascriptFromAppleEvents()
+			if not isAllowJavaScriptFromAppleEvents() then toggleAllowJavaScriptFromAppleEvents()
 		end setAllowJavascriptFromAppleEventsOn
 
 
 		on setAllowJavascriptFromAppleEventsOff()
-			if isAllowJavaScriptFromAppleEvents() then toggleAllowJavascriptFromAppleEvents()
+			if isAllowJavaScriptFromAppleEvents() then toggleAllowJavaScriptFromAppleEvents()
 		end setAllowJavascriptFromAppleEventsOff
 
 

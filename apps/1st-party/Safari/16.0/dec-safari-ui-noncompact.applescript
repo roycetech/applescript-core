@@ -11,13 +11,11 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-ui-noncompact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2026-01-18 11:51:08
+	@Last Modified: 2026-02-20 13:19:11
 	@Change Logs:
 *)
-use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 
-use spotScript : script "core/spot-test"
 use kbLib : script "core/keyboard"
 
 property logger : missing value
@@ -29,10 +27,12 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Loading State
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

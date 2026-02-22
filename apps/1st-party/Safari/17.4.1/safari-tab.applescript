@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/safari-tab
 
 	@Created: Sunday, March 31, 2024 at 9:31:30 AM
-	@Last Modified: 2024-09-25 14:34:38
+	@Last Modified: 2026-02-20 13:21:58
 
 	@Change Logs:
 		Sunday, March 31, 2024 at 9:28:23 AM - After Sonoma 14.4.1, document reference could no longer be passed from intermediary reference, it needs to be directly accessed to work.
@@ -19,12 +19,10 @@ use scripting additions
 use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
-
 use safariJavaScript : script "core/safari-javascript"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
+
 property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -39,6 +37,7 @@ on spotCheck()
 		Manual: Move tab to index
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

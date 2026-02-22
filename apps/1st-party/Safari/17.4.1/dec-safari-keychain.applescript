@@ -10,17 +10,16 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
 
 	@Created: Sunday, March 31, 2024 at 10:20:13 PM
-	@Last Modified: 2024-12-31 19:30:14
+	@Last Modified: 2026-02-20 13:20:57
 	@Change Logs:
 		Sunday, March 31, 2024 at 10:20:18 PM - Keychain UI layout has changed.
 *)
-use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 
-use spotScript : script "core/spot-test"
 use kbLib : script "core/keyboard"
 
 property logger : missing value
+
 property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -29,6 +28,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Info only
 		Manual: Select Keychain
@@ -36,6 +36,7 @@ on spotCheck()
 		Manual: Select other password
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

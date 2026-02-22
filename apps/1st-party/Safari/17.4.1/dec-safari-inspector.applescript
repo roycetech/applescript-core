@@ -9,14 +9,12 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-inspector
 
 	@Created: Friday, April 19, 2024 at 4:35:51 PM
-	@Last Modified: 2024-12-31 19:30:10
+	@Last Modified: 2026-02-20 13:20:23
 	@Change Logs:
 
 *)
-use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 
-use spotScript : script "core/spot-test"
 use kbLib : script "core/keyboard"
 
 property logger : missing value
@@ -28,6 +26,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Info only
 		Manual: Show Web Inspector
@@ -38,6 +37,7 @@ on spotCheck()
 		Manual: Switch Tab
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

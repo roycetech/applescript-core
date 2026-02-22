@@ -10,12 +10,11 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-tab-group
 
 	@Created: Friday, April 26, 2024 at 11:52:07 AM
-	@Last Modified: 2026-01-18 11:52:11
+	@Last Modified: 2026-02-20 13:21:20
 	@Change Logs:
 		Friday, April 26, 2024 at 11:55:54 AM
 			 - Switch to default stopped working because the default group was greyed out when programmatically clicking on the Tab Group menu button. Now we need to steal focus and use a 3rd party tool cliclick to simulate user interaction.
 *)
-use listUtil : script "core/list"
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
 
@@ -25,9 +24,8 @@ use cliclickLib : script "core/cliclick"
 use retryLib : script "core/retry"
 use kbLib : script "core/keyboard"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
+
 property kb : missing value
 property cliclick : missing value
 
@@ -37,11 +35,13 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Manual: Switch to applescript-core
 		Manual: Switch to Default
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

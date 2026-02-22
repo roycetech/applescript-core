@@ -65,7 +65,7 @@ build-process:
 		echo "Building $$file"; \
 		yes y | ./scripts/build-lib.sh "$$no_ext"; \
 	done
-	@echo "Done building process scripts"
+	@echo "Done building process scripts\n"
 
 
 # build-process:

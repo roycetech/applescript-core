@@ -11,17 +11,15 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-ui-noncompact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2026-01-18 11:52:20
+	@Last Modified: 2026-02-20 13:21:36
 	@Change Logs:
 		Sat, Jun 29, 2024 at 10:59:40 AM - Added isMuted() and implemented isPlaying()
 *)
-use listUtil : script "core/list"
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
 
-use spotScript : script "core/spot-test"
 use retryLib : script "core/retry"
 
 property retry : missing value
@@ -36,11 +34,13 @@ on spotCheck()
 	set kbLib to script "core/keyboard"
 	set kb to kbLib's new()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP
 		Manual: Loading State
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
