@@ -222,6 +222,7 @@ ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SEQUOIA) ] && echo yes),yes)
 	$(call _build-script,apps/1st-party/System Settings/26.3/dec-system-settings_general_about)
 	$(call _build-script,apps/1st-party/System Settings/26.3/dec-system-settings_general)
 	$(call _build-script,apps/1st-party/System Settings/26.3/dec-system-settings_keyboard)
+	$(call _build-script,apps/1st-party/System Settings/26.3/system-settings)
 endif
 
 	@echo "Build System Settings completed"
