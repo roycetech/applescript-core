@@ -142,9 +142,9 @@ install-sequel-ace: build-sequel-ace
 
 
 build-sourcetree:
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Sourcetree/4.2.11/dec-sourcetree-settings
-	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Sourcetree/4.2.11/sourcetree
-
+	$(call _build-script,apps/3rd-party/Sourcetree/4.2.11/dec-sourcetree-settings)
+	$(call _build-script,apps/3rd-party/Sourcetree/4.2.11/sourcetree)
+	@echo "Build Sourcetree completed"
 
 build-step-two:
 	$(SUDO) ./scripts/build-lib.sh apps/3rd-party/Step Two/3.1/step-two

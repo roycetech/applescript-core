@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Sourcetree/4.2.11/sourcetree
 
 	@Created: Monday, November 25, 2024 at 3:32:55 PM
-	@Last Modified: 2025-05-16 06:26:11
+	@Last Modified: 2026-02-22 10:29:00
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -20,13 +20,13 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-	
+
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		INFO
 		Manual: Trigger Menu Show Only
 		Manual: Trigger Menu Files View
-		Manual: Trigger Files View Submenu (Single Column)
+		Manual: Trigger Files View Sub menu (Single Column)
 		Manual: Select first unstage file
 
 		Manual: Select first file
@@ -38,13 +38,16 @@ on spotCheck()
 		Manual: Toggle Push Changes Immediately
 		Manual: Scroll down a page
 		Manual: Scroll up a page
-		Manual: Ignore Whitespace
-		Manual: Show Whitespace
+		Manual: Ignore White space
+		Manual: Show White space
 
 		Manual: Trigger Second Menu Button
 		Manual: Select File - second
+		Manual: Reveal selected file
+		Dummy
+		Dummy
 	")
-	
+
 	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
@@ -53,75 +56,80 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	set sut to new()
 	logger's infof("Commit message input focused: {}", sut's isCommitMessageFocused())
 	logger's infof("Push changes immediately {}", sut's isPushChangesImmediately())
-	
+
 	activate application "Sourcetree"
-	
+
 	if caseIndex is 1 then
-		
+
 	else if caseIndex is 2 then
 		sut's triggerMenuShowOnly()
-		
+
 	else if caseIndex is 3 then
 		sut's triggerMenuFilesView()
-		
+
 	else if caseIndex is 4 then
 		sut's triggerMenuFilesView()
 		delay 0.2
-		
+
 		set sutSubmenuKeyword to "single column"
 		set sutSubmenuKeyword to "multiple columns"
 		-- set sutSubmenuKeyword to "Tree view"
 		logger's debugf("sutSubmenuKeyword: {}", sutSubmenuKeyword)
-		
+
 		sut's selectFilesViewSubMenu(sutSubmenuKeyword)
-		
+
 	else if caseIndex is 5 then
 		sut's selectFirstUnstagedFile()
-		
+
 	else if caseIndex is 6 then
 		sut's selectFirstFile()
-		
+
 	else if caseIndex is 7 then
 		sut's selectNextFile()
-		
+
 	else if caseIndex is 8 then
 		sut's selectPreviousFile()
-		
+
 	else if caseIndex is 9 then
 		sut's stageFirstHunk()
-		
+
 	else if caseIndex is 10 then
 		sut's stageSelectedFile()
-		
+
 	else if caseIndex is 11 then
 		sut's togglePushChangesImmediately()
-		
+
 	else if caseIndex is 12 then
 		sut's scrollPageDown()
-		
+
 	else if caseIndex is 13 then
 		sut's scrollPageUp()
-		
+
 	else if caseIndex is 14 then
 		sut's setIgnoreWhiteSpace()
-		
+
 	else if caseIndex is 15 then
 		sut's setShowWhiteSpace()
-		
+
 	else if caseIndex is 16 then
 		set sutMenuItem to "Unicorn"
 		set sutMenuItem to "Flat list (multiple columns)"
 		logger's debugf("sutMenuItem: {}", sutMenuItem)
-		
+
 		-- sut's triggerSecondMenu(sutMenuItem)
 		sut's triggerSecondMenu("Fluid staging")
-		
+
+	else if caseIndex is 18 then
+		sut's revealSelectedFile()
+
 	end if
-	
+
+	activate
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -130,9 +138,9 @@ end spotCheck
 (*  *)
 on new()
 	loggerFactory's inject(me)
-	
+
 	script SourcetreeInstance
-		
+
 		(*
 			@ menuItemTitle
 				Flat list (single column)
@@ -144,18 +152,18 @@ on new()
 		*)
 		on triggerSecondMenu(menuItemTitle)
 			if running of application "Sourcetree" is false then return
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				set secondMenuButton to menu button 2 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 				click secondMenuButton
 				click menu item menuItemTitle of menu 1 of secondMenuButton
 			end tell
-			
+
 		end triggerSecondMenu
-		
-		
+
+
 		on setIgnoreWhiteSpace()
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				click menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 				-- entire contents of menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
@@ -163,90 +171,90 @@ on new()
 				click menu item "Ignore whitespace" of menu 1 of menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of window 1
 			end tell
 		end setIgnoreWhiteSpace
-		
-		
+
+
 		on setShowWhiteSpace()
 			tell application "System Events" to tell process "Sourcetree"
 				click menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 				click menu item "Show whitespace" of menu 1 of menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of window 1
 			end tell
 		end setShowWhiteSpace
-		
+
 		on isCommitMessageFocused()
 			if running of application "Sourcetree" is false then return false
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					return focused of text area 1 of scroll area 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 				end try
 			end tell
-			
+
 			false
 		end isCommitMessageFocused
-		
+
 		on scrollPageDown()
 			if running of application "Sourcetree" is false then return
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				click (first button of scroll bar 1 of scroll area 2 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window whose description is "increment page button")
 			end tell
 		end scrollPageDown
-		
+
 		on scrollPageUp()
 			if running of application "Sourcetree" is false then return
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				click (first button of scroll bar 1 of scroll area 2 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window whose description is "decrement page button")
 			end tell
 		end scrollPageUp
-		
+
 		on isPushChangesImmediately()
 			if running of application "Sourcetree" is false then return false
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					return value of first checkbox of splitter group 1 of splitter group 1 of splitter group 1 of window front window whose title starts with "Push changes immediately" is 1
 				end try
 			end tell
-			
+
 			false
 		end isPushChangesImmediately
-		
-		
+
+
 		on togglePushChangesImmediately()
 			if running of application "Sourcetree" is false then return
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					click (first checkbox of splitter group 1 of splitter group 1 of splitter group 1 of front window whose title starts with "Push changes immediately")
 				end try
 			end tell
 		end togglePushChangesImmediately
-		
-		
+
+
 		on triggerMenuShowOnly()
 			if running of application "Sourcetree" is false then return
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					click menu button 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 				end try
 			end tell
 		end triggerMenuShowOnly
-		
+
 		on triggerMenuFilesView()
 			if running of application "Sourcetree" is false then return
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					click menu button 2 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 				end try
 			end tell
 		end triggerMenuFilesView
-		
+
 		on selectFilesViewSubMenu(titleKeyword)
 			if running of application "Sourcetree" is false then return
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					click (first menu item of menu 1 of menu button 2 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window whose title contains titleKeyword)
@@ -255,18 +263,50 @@ on new()
 				end try
 			end tell
 		end selectFilesViewSubMenu
-		
+
+
+		on revealSelectedFile()
+			set fileRows to _getFileRowsUI()
+			if fileRows is missing value then return
+
+			tell application "System Events" to tell process "Sourcetree"
+				-- properties of button 1 of last UI Element of fileRows
+				try
+					first item of fileRows whose selected is true
+					set ellipsisButton to the button 1 of last UI element of result
+					click ellipsisButton
+					delay 0.5
+					click button "Show in Finder" of pop over 1 of ellipsisButton
+				end try
+				-- properties of result
+			end tell
+		end revealSelectedFile
+
+
+		on _getFileRowsUI()
+			if running of application "Sourcetree" is false then return
+
+			tell application "System Events" to tell process "Sourcetree"
+				try
+					return rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+				end try
+			end tell
+
+			missing value
+		end _getFileRowsUI
+
+
 		(* Requires flat view. See #selectFilesViewSubMenu *)
 		on selectFirstUnstagedFile()
 			if running of application "Sourcetree" is false then return
-			
+
 			set unstagedLabelFound to false
 			tell application "System Events" to tell process "Sourcetree"
 				-- set frontmost to true
 				try
 					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 				end try
-				
+
 				repeat with nextRow in targetRows
 					try
 						if not unstagedLabelFound then
@@ -274,7 +314,7 @@ on new()
 								set unstagedLabelFound to true
 								-- log unstagedLabelFound
 							end if
-							
+
 						else
 							-- log "Selecting first row after the unstaged label..."
 							set selected of nextRow to true
@@ -284,65 +324,65 @@ on new()
 				end repeat
 			end tell
 		end selectFirstUnstagedFile
-		
-		
+
+
 		on selectFile(fileIndex)
 			if running of application "Sourcetree" is false then return
 			if fileIndex is less than 1 then return
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 				end try
-				
+
 				set selected of item (fileIndex + 1) of targetRows to true
 			end tell
 		end selectFile
-		
+
 		(*
 		*)
 		on selectFirstFile()
 			if running of application "Sourcetree" is false then return
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 				end try
-				
+
 				set selected of second item of targetRows to true
 			end tell
 		end selectFirstFile
-		
-		
+
+
 		(* Requires flat view. See #selectFilesViewSubMenu *)
 		on selectLastFile()
 			if running of application "Sourcetree" is false then return
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 				end try
-				
+
 				set selected of last item of targetRows to true
 			end tell
 		end selectLastFile
-		
-		
+
+
 		on selectNextFile()
 			if running of application "Sourcetree" is false then return
-			
+
 			set selectedFound to false
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 				end try
-				
+
 				if selected of last item of targetRows is true then
 					-- log "Selecting the first row"
 					-- my selectFirstUnstagedFile()
 					return
 				end if
-				
+
 				repeat with nextRow in targetRows
 					try
 						if not selectedFound then
@@ -350,7 +390,7 @@ on new()
 								set selectedFound to true
 								log selectedFound
 							end if
-							
+
 						else
 							log "Selecting first row after the selected row"
 							set selected of nextRow to true
@@ -360,30 +400,30 @@ on new()
 				end repeat
 			end tell
 		end selectNextFile
-		
+
 		on selectPreviousFile()
 			if running of application "Sourcetree" is false then return
-			
+
 			set selectedFound to false
 			tell application "System Events" to tell process "Sourcetree"
-				
+
 				try
 					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 					set selectedRow to first item of targetRows whose selected is true
 				on error the errorMessage number the errorNumber
 					log errorMessage
-					
+
 					return
 				end try
 				log number of items in targetRows
-				
+
 				log selectedRow
 				if selectedRow is not missing value then
 					set selectedIndex to the value of attribute "AXIndex" of selectedRow
 					log "seleced index: " & selectedIndex
-					
+
 				end if
-				
+
 				try
 					set previousIsNotALabel to not (exists static text 1 of UI element 1 of item selectedIndex of targetRows)
 					if previousIsNotALabel then
@@ -393,20 +433,20 @@ on new()
 				end try
 			end tell
 		end selectPreviousFile
-		
+
 		on stageFirstHunk()
 			if running of application "Sourcetree" is false then return
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					click button "Stage hunk" of group 2 of group 1 of scroll area 2 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
 				end try
 			end tell
 		end stageFirstHunk
-		
+
 		on stageSelectedFile()
 			if running of application "Sourcetree" is false then return
-			
+
 			tell application "System Events" to tell process "Sourcetree"
 				try
 					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
