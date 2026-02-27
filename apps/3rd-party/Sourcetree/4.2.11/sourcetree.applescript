@@ -5,13 +5,20 @@
 	@Build:
 		./scripts/build-lib.sh apps/3rd-party/Sourcetree/4.2.11/sourcetree
 
+	@Change Logs:
+		Thu, Feb 26, 2026, at 05:35:40 PM - Added #getSelectedFilePath()
+
 	@Created: Monday, November 25, 2024 at 3:32:55 PM
-	@Last Modified: 2026-02-22 10:29:00
+	@Last Modified: 2026-02-26 17:36:08
 *)
 
 use loggerFactory : script "core/logger-factory"
 
+use clipLib : script "core/clipboard"
+
 property logger : missing value
+
+property clip : missing value
 
 property LABEL_UNSTAGED_FILES : "Unstaged files"
 
@@ -58,6 +65,7 @@ on spotCheck()
 	end if
 
 	set sut to new()
+	logger's infof("Selected file path: {}", sut's getSelectedFilePath())
 	logger's infof("Commit message input focused: {}", sut's isCommitMessageFocused())
 	logger's infof("Push changes immediately {}", sut's isPushChangesImmediately())
 
@@ -138,8 +146,33 @@ end spotCheck
 (*  *)
 on new()
 	loggerFactory's inject(me)
+	set clip to clipLib's new()
 
 	script SourcetreeInstance
+		on getSelectedFilePath()
+			tell application "System Events" to tell process "Sourcetree"
+				set targetRow to missing value
+				try
+					set targetRow to first row of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window whose selected is true
+				end try
+				if targetRow is missing value then
+					logger's info("Target row could not be found")
+					return
+				end if
+			end tell
+
+			script CopyPathScript
+				tell application "System Events" to tell process "Sourcetree"
+					set menuUi to table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					perform action 1 of menuUi
+					delay 0.1
+					click menu item "Copy Path To Clipboard" of menu 1 of menuUi
+				end tell
+			end script
+
+			set filePath to clip's extract(CopyPathScript)
+		end getSelectedFilePath
+
 
 		(*
 			@ menuItemTitle
