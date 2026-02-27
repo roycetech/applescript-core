@@ -21,6 +21,7 @@ build-apps-first-party: \
 	build-calendar \
 	build-console \
 	build-finder \
+	build-image-capture \
 	build-passwords \
 	build-preview \
 	install-safari \
@@ -99,6 +100,11 @@ endif
 build-home:
 	$(call _build-script,apps/1st-party/Home/7.0/home)
 	@echo "Build Home completed\n"
+
+
+build-image-capture:
+	$(call _build-script,apps/1st-party/Image Capture/26.3/image-capture)
+	@echo "Build Image Capture completed\n"
 
 
 build-mail:
