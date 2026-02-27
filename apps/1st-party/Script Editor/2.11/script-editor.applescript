@@ -271,7 +271,11 @@ on new()
 			
 			tell application "System Events" to tell process "Script Editor"
 				if exists (window "Open") then
-					click button "Cancel" of window "Open"
+					try
+						click button "Cancel" of window "Open"
+					on error
+						click button "Cancel" of splitter group 1 of window "Open"
+					end try
 				end if
 			end tell
 			
