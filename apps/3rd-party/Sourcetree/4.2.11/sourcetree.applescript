@@ -7,11 +7,11 @@
 
 	@Change Logs:
 		Thu, Feb 26, 2026, at 05:35:40 PM - Added #getSelectedFilePath()
+			Re-tested all spot cases (1-18)
 
 	@Created: Monday, November 25, 2024 at 3:32:55 PM
-	@Last Modified: 2026-02-26 17:36:08
+	@Last Modified: 2026-02-27 13:14:11
 *)
-
 use loggerFactory : script "core/logger-factory"
 
 use clipLib : script "core/clipboard"
@@ -30,7 +30,7 @@ on spotCheck()
 
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
-		INFO
+		INFO:
 		Manual: Trigger Menu Show Only
 		Manual: Trigger Menu Files View
 		Manual: Trigger Files View Sub menu (Single Column)
@@ -65,13 +65,13 @@ on spotCheck()
 	end if
 
 	set sut to new()
-	logger's infof("Selected file path: {}", sut's getSelectedFilePath())
 	logger's infof("Commit message input focused: {}", sut's isCommitMessageFocused())
 	logger's infof("Push changes immediately {}", sut's isPushChangesImmediately())
 
 	activate application "Sourcetree"
 
 	if caseIndex is 1 then
+		logger's infof("Selected file path: {}", sut's getSelectedFilePath())
 
 	else if caseIndex is 2 then
 		sut's triggerMenuShowOnly()
@@ -84,7 +84,7 @@ on spotCheck()
 		delay 0.2
 
 		set sutSubmenuKeyword to "single column"
-		set sutSubmenuKeyword to "multiple columns"
+		-- set sutSubmenuKeyword to "multiple columns"
 		-- set sutSubmenuKeyword to "Tree view"
 		logger's debugf("sutSubmenuKeyword: {}", sutSubmenuKeyword)
 
@@ -131,6 +131,9 @@ on spotCheck()
 		-- sut's triggerSecondMenu(sutMenuItem)
 		sut's triggerSecondMenu("Fluid staging")
 
+	else if caseIndex is 17 then
+		sut's selectFile(2)
+
 	else if caseIndex is 18 then
 		sut's revealSelectedFile()
 
@@ -149,18 +152,23 @@ on new()
 	set clip to clipLib's new()
 
 	script SourcetreeInstance
+		(*
+			WARNING: Triggers menu pop up.
+		*)
 		on getSelectedFilePath()
 			tell application "System Events" to tell process "Sourcetree"
 				set targetRow to missing value
 				try
-					set targetRow to first row of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window whose selected is true
+					set targetRow to first row of my _filesTable() whose selected is true
 				end try
 				if targetRow is missing value then
 					logger's info("Target row could not be found")
-					return
+					return missing value
+
 				end if
 			end tell
 
+			(* Path inlined: this script runs in clip's context and cannot call _filesTable(). *)
 			script CopyPathScript
 				tell application "System Events" to tell process "Sourcetree"
 					set menuUi to table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
@@ -187,7 +195,7 @@ on new()
 			if running of application "Sourcetree" is false then return
 
 			tell application "System Events" to tell process "Sourcetree"
-				set secondMenuButton to menu button 2 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+				set secondMenuButton to menu button 2 of my _toolbarGroup()
 				click secondMenuButton
 				click menu item menuItemTitle of menu 1 of secondMenuButton
 			end tell
@@ -198,18 +206,18 @@ on new()
 		on setIgnoreWhiteSpace()
 
 			tell application "System Events" to tell process "Sourcetree"
-				click menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
-				-- entire contents of menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
-				-- menu item "Show whitespace" of menu 1 of menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of window 1
-				click menu item "Ignore whitespace" of menu 1 of menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of window 1
+				set whitespaceMenu to menu button 3 of my _toolbarGroup()
+				click whitespaceMenu
+				click menu item "Ignore whitespace" of menu 1 of whitespaceMenu
 			end tell
 		end setIgnoreWhiteSpace
 
 
 		on setShowWhiteSpace()
 			tell application "System Events" to tell process "Sourcetree"
-				click menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
-				click menu item "Show whitespace" of menu 1 of menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of window 1
+				set whitespaceMenu to menu button 3 of my _toolbarGroup()
+				click whitespaceMenu
+				click menu item "Show whitespace" of menu 1 of whitespaceMenu
 			end tell
 		end setShowWhiteSpace
 
@@ -218,7 +226,7 @@ on new()
 
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					return focused of text area 1 of scroll area 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					return focused of text area 1 of my _commitScrollArea()
 				end try
 			end tell
 
@@ -229,7 +237,7 @@ on new()
 			if running of application "Sourcetree" is false then return
 
 			tell application "System Events" to tell process "Sourcetree"
-				click (first button of scroll bar 1 of scroll area 2 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window whose description is "increment page button")
+				click (first button of scroll bar 1 of my _diffScrollArea() whose description is "increment page button")
 			end tell
 		end scrollPageDown
 
@@ -237,7 +245,7 @@ on new()
 			if running of application "Sourcetree" is false then return
 
 			tell application "System Events" to tell process "Sourcetree"
-				click (first button of scroll bar 1 of scroll area 2 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window whose description is "decrement page button")
+				click (first button of scroll bar 1 of my _diffScrollArea() whose description is "decrement page button")
 			end tell
 		end scrollPageUp
 
@@ -246,7 +254,7 @@ on new()
 
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					return value of first checkbox of splitter group 1 of splitter group 1 of splitter group 1 of window front window whose title starts with "Push changes immediately" is 1
+					return value of first checkbox of my _pushCheckboxSplitter() whose title starts with "Push changes immediately" is 1
 				end try
 			end tell
 
@@ -254,12 +262,15 @@ on new()
 		end isPushChangesImmediately
 
 
+		(*
+			The checkbox must already be visible for visual confirmation.
+		*)
 		on togglePushChangesImmediately()
 			if running of application "Sourcetree" is false then return
 
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					click (first checkbox of splitter group 1 of splitter group 1 of splitter group 1 of front window whose title starts with "Push changes immediately")
+					click (first checkbox of my _pushCheckboxSplitter() whose title starts with "Push changes immediately")
 				end try
 			end tell
 		end togglePushChangesImmediately
@@ -270,27 +281,29 @@ on new()
 
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					click menu button 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					click menu button 1 of my _toolbarGroup()
 				end try
 			end tell
 		end triggerMenuShowOnly
+
 
 		on triggerMenuFilesView()
 			if running of application "Sourcetree" is false then return
 
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					click menu button 2 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					click menu button 2 of my _toolbarGroup()
 				end try
 			end tell
 		end triggerMenuFilesView
+
 
 		on selectFilesViewSubMenu(titleKeyword)
 			if running of application "Sourcetree" is false then return
 
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					click (first menu item of menu 1 of menu button 2 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window whose title contains titleKeyword)
+					click (first menu item of menu 1 of menu button 2 of my _toolbarGroup() whose title contains titleKeyword)
 				on error the errorMessage number the errorNumber
 					log errorMessage
 				end try
@@ -316,12 +329,43 @@ on new()
 		end revealSelectedFile
 
 
+		(* UI refs *)
+		on _filesTable()
+			tell application "System Events" to tell process "Sourcetree"
+				return table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+			end tell
+		end _filesTable
+
+		on _toolbarGroup()
+			tell application "System Events" to tell process "Sourcetree"
+				return group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+			end tell
+		end _toolbarGroup
+
+		on _commitScrollArea()
+			tell application "System Events" to tell process "Sourcetree"
+				return scroll area 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+			end tell
+		end _commitScrollArea
+
+		on _diffScrollArea()
+			tell application "System Events" to tell process "Sourcetree"
+				return scroll area 2 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+			end tell
+		end _diffScrollArea
+
+		on _pushCheckboxSplitter()
+			tell application "System Events" to tell process "Sourcetree"
+				return splitter group 1 of splitter group 1 of splitter group 1 of front window
+			end tell
+		end _pushCheckboxSplitter
+
 		on _getFileRowsUI()
 			if running of application "Sourcetree" is false then return
 
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					return rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					return rows of my _filesTable()
 				end try
 			end tell
 
@@ -335,9 +379,8 @@ on new()
 
 			set unstagedLabelFound to false
 			tell application "System Events" to tell process "Sourcetree"
-				-- set frontmost to true
 				try
-					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					set targetRows to rows of my _filesTable()
 				end try
 
 				repeat with nextRow in targetRows
@@ -365,7 +408,7 @@ on new()
 
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					set targetRows to rows of my _filesTable()
 				end try
 
 				set selected of item (fileIndex + 1) of targetRows to true
@@ -379,7 +422,7 @@ on new()
 
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					set targetRows to rows of my _filesTable()
 				end try
 
 				set selected of second item of targetRows to true
@@ -393,7 +436,7 @@ on new()
 
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					set targetRows to rows of my _filesTable()
 				end try
 
 				set selected of last item of targetRows to true
@@ -407,7 +450,7 @@ on new()
 			set selectedFound to false
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					set targetRows to rows of my _filesTable()
 				end try
 
 				if selected of last item of targetRows is true then
@@ -441,7 +484,7 @@ on new()
 			tell application "System Events" to tell process "Sourcetree"
 
 				try
-					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					set targetRows to rows of my _filesTable()
 					set selectedRow to first item of targetRows whose selected is true
 				on error the errorMessage number the errorNumber
 					log errorMessage
@@ -472,7 +515,7 @@ on new()
 
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					click button "Stage hunk" of group 2 of group 1 of scroll area 2 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					click button "Stage hunk" of group 2 of group 1 of my _diffScrollArea()
 				end try
 			end tell
 		end stageFirstHunk
@@ -482,7 +525,7 @@ on new()
 
 			tell application "System Events" to tell process "Sourcetree"
 				try
-					set targetRows to rows of table 1 of scroll area 1 of splitter group 1 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+					set targetRows to rows of my _filesTable()
 					set selectedRow to first item of targetRows whose selected is true
 					click checkbox 1 of UI element 1 of selectedRow
 				on error the errorMessage number the errorNumber
