@@ -10,7 +10,10 @@
 		./scripts/build-lib.sh apps/3rd-party/Talon/0.4/talon
 
 	@Created: Sat, Apr 05, 2025 at 12:24:07 PM
-	@Last Modified: 2025-05-02 07:42:40
+	@Last Modified: 2026-02-28 02:26:15
+
+	@Change Logs:
+
 *)
 use std : script "core/std"
 
@@ -31,6 +34,12 @@ on spotCheck()
 		Manual: Disable Speech
 		Manual: Show Logs
 		Manual: Show Console
+
+		Manual: Close Talon Logs
+		Manual: Bring Log Viewer to Front
+		Dummy
+		Dummy
+		Dummy
 	")
 
 	set spotScript to script "core/spot-test"
@@ -45,6 +54,7 @@ on spotCheck()
 	set sut to new()
 	logger's infof("Running: {}", sut's isRunning())
 	logger's infof("Listening: {}", sut's isListening())
+	logger's infof("Log Viewer Present: {}", sut's isLogViewerPresent())
 
 	if caseIndex is 1 then
 
@@ -59,6 +69,13 @@ on spotCheck()
 
 	else if caseIndex is 5 then
 		sut's showConsole()
+
+	else if caseIndex is 6 then
+		sut's closeLogViewer()
+
+	else if caseIndex is 7 then
+		sut's bringLogViewerToFront()
+
 	end if
 
 	spot's finish()
@@ -72,10 +89,46 @@ on new()
 
 	script TalonInstance
 
+		(* App may not be installed, so don't reference it directly. *)
 		property appName : "Talon"
+
+		on isLogViewerPresent()
+			if not isRunning() then return false
+
+			tell application "System Events" to tell process appName
+				try
+					return exists (window "Talon Log Viewer")
+				end try
+			end tell
+
+			false
+		end isLogViewerPresent
+
+
+		on closeLogViewer()
+			if not isLogViewerPresent() then return
+
+			tell application "System Events" to tell process appName
+				try
+					click (first button of window 1 whose description is "close button")
+				end try
+			end tell
+		end closeLogViewer
+
+
+		on bringLogViewerToFront()
+			if not isLogViewerPresent() then return
+
+			tell application "System Events" to tell process appName
+				set frontmost to true
+				perform action "AXRaise" of window 1
+			end tell
+		end bringLogViewerToFront
+
 
 		on isRunning()
 			if not std's appExists(appName) then return false
+
 			running of application appName
 		end isRunning
 
