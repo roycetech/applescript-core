@@ -10,18 +10,23 @@
 	@Created: Pre-2023
 
 	@Change Logs:
+		Fri, Feb 27, 2026, at 07:31:55 PM - Added #moveMainWindowToFront
 		Fri, Jan 23, 2026, at 11:16:56 AM - Added #clearSearch handler.
 		Wed, Jul 17, 2024 at 10:33:53 AM - Removed dependency with cliclick.
 *)
 
 use unic : script "core/unicodes"
+use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
 
+use dockLib : script "core/dock"
 use decMailSettings : script "core/dec-mail-settings"
 use decMailSelection : script "core/dec-mail-selection"
 
 property logger : missing value
+
+property dock : missing value
 
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -35,6 +40,7 @@ on spotCheck()
 		NOOP
 		Manual: Goto Favorite Folder
 		Manual: Focus message
+		Manual: Move main window to front
 	")
 
 	set spotScript to script "core/spot-test"
@@ -57,6 +63,7 @@ on spotCheck()
 	else if caseIndex is 2 then
 		set sutFolderName to "04 Updates"
 		set sutFolderName to "Inbox"
+		set sutFolderName to "Junk"
 		logger's debugf("sutFolderName: {}", sutFolderName)
 
 		sut's gotoFolder(sutFolderName)
@@ -75,6 +82,11 @@ on spotCheck()
 		logger's debugf("sutAccountName: {}", sutAccountName)
 
 		sut's focusMessage(sutAccountName, sutMailboxName, sutMessageId)
+
+
+	else if caseIndex is 4 then
+		sut's moveMainWindowToFront()
+
 	end if
 
 	spot's finish()
@@ -84,6 +96,7 @@ end spotCheck
 
 on new()
 	loggerFactory's inject(me)
+	set dock to dockLib's new()
 
 	script MailInstance
 		on focusMessage(accountName, mailboxName, messageId)
@@ -158,7 +171,13 @@ on new()
 		(*  *)
 		on gotoFolder(folderNameKeyword)
 			set mainMailWindow to getMainWindow()
-			if mainMailWindow is missing value then return
+			if mainMailWindow is missing value then
+				logger's info("Main window was not found")
+				dock's clickApp("Mail")
+			set mainMailWindow to getMainWindow()
+			else
+				moveMainWindowToFront()
+			end if
 
 			tell application "System Events" to tell process "Mail"
 				if title of mainMailWindow starts with folderNameKeyword then return
@@ -174,17 +193,20 @@ on new()
 				set frontmost to true
 				if folderNameKeyword is "Inbox" then
 					try
-						set selected of (2nd row of outline 1 of scroll area 1 of splitter group 1 of front window whose value of UI element 1 of UI element 1 contains folderNameKeyword) to true
+						set selected of (2nd row of outline 1 of scroll area 1 of splitter group 1 of mainMailWindow whose value of UI element 1 of UI element 1 contains folderNameKeyword) to true
 					end try
 					return
 				end if
 
 				try
-					set selected of (first row of outline 1 of scroll area 1 of splitter group 1 of front window whose value of UI element 1 of UI element 1 contains folderNameKeyword) to true
+					set selected of (first row of outline 1 of scroll area 1 of splitter group 1 of mainMailWindow whose value of UI element 1 of UI element 1 contains folderNameKeyword) to true
 					(*
 					on error the errorMessage number the errorNumber
 					row 12 of outline 1 of scroll area 1 of splitter group 1 of front window
 					*)
+				on error the errorMessage number the errorNumber
+					log errorMessage
+
 
 				end try
 			end tell
@@ -204,6 +226,25 @@ on new()
 			end tell
 			missing value
 		end getMainWindow
+
+
+		on moveMainWindowToFront()
+			tell application "System Events" to tell process "Mail"
+				try
+					first window whose title contains "messages" or title contains "drafts" or title contains "Searching"
+				on error the errorMessage number the errorNumber -- When there is no main window
+					return
+
+				end try
+				name of result as text
+			end tell
+			textUtil's stringBefore(result, space & unic's MAIL_SUBDASH)
+
+			tell application "Mail"
+				set index of window result to 1
+
+			end tell
+		end moveMainWindowToFront
 	end script
 
 	decMailSettings's decorate(result)
