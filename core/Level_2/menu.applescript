@@ -10,11 +10,16 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_2/menu
 
+	@Example:
+		Check if menu is checked
+			menu item "Minimap" of menu 1 of menu item "Appearance" of menu 1 of menu bar item "View" of menu bar 1
+			return value of attribute "AXMenuItemMarkChar" of result is equal to unic's MENU_CHECK
+
 	@Testing:
 		Test with Menu Pinned.  Cannot test the UI functionality because menu apps need to be deployed.
 
 	@Created: Saturday, September 30, 2023 at 5:50:31 PM
-	@Last Modified: 2025-09-21 10:53:56
+	@Last Modified: 2026-02-27 13:18:15
 *)
 use scripting additions
 use framework "Foundation"
