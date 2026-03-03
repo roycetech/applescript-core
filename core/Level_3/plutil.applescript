@@ -41,7 +41,7 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2025-02-19 07:01:43
+	@Last Modified: 2026-03-03 11:25:54
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
@@ -665,9 +665,9 @@ on new()
 
 
 				(*
-					Will serialize the record into a json string and then set the value as string.
+					Will serialize the record into a JSON string and then set the value as string.
 					You must explicitly read properties like this as record by using getRecord().
-					@recordValue the record value to persist as json.
+					@recordValue the record value to persist as JSON.
 				*)
 				on _setRecordAsJson(plistKey, recordValue)
 					set jsonString to json's toJsonString(recordValue)

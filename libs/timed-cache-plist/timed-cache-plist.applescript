@@ -16,6 +16,7 @@
 		Test timed-cache-plist
 
 	@Change Logs:
+		Tue, Mar 03, 2026, at 10:50:53 AM - Fix breakage.
 		Sun, Jan 11, 2026, at 03:36:29 PM - Switched to using shell script because setValue of plutil is storing the local time instead of UTC.
 *)
 
@@ -42,6 +43,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		First
 		Manual: Set Value
+		Manual: _getRegisteredSeconds
 	")
 
 	set spotScript to script "core/spot-test"
@@ -61,6 +63,11 @@ on spotCheck()
 
 	else if caseIndex is 2 then
 		sut's setValue("spot-key", "spot-value")
+
+	else if caseIndex is 3 then
+		logger's infof("Invocation 1 result: {}", sut's _getRegisteredSeconds(missing value))
+		logger's infof("Invocation 2 result: {}", sut's _getRegisteredSeconds("Unicorn"))
+		logger's infof("Invocation 3 result: {}", sut's _getRegisteredSeconds(""))
 
 	end if
 
@@ -101,7 +108,11 @@ on new(pExpirySeconds)
 			set currentSeconds to (do shell script "date +%s") as real
 			cache's setValue(_epochTimestampKey(mapKey), currentSeconds)
 			-- cache's setValue(_timestampKey(mapKey), current date)  -- TO FIX, it is not being stored as UTC date.
-			set shellCommand to "plutil -replace " & _timestampKey(mapKey) & " -date \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\" ~/applescript-core/" & cacheName & ".plist"
+
+			-- set shellCommand to "plutil -replace " & _timestampKey(mapKey) & " -date \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\" ~/applescript-core/" & cacheName & ".plist"
+			set quotedKey to cache's _quotePlistKey(_timestampKey(mapKey))
+			set shellCommand to "plutil -replace " & quotedKey & " -date \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\" ~/applescript-core/" & cacheName & ".plist"
+
 			do shell script shellCommand
 		end setValue
 
@@ -118,7 +129,9 @@ on new(pExpirySeconds)
 		on _getRegisteredSeconds(mapKey)
 			if mapKey is missing value then return missing value
 
-			cache's getValue(_epochTimestampKey(mapKey))
+			set epochTsKey to _epochTimestampKey(mapKey)
+			-- logger's debugf("_getRegisteredSeconds: epochTsKey: {}", epochTsKey)
+			cache's getValue(epochTsKey)
 		end _getRegisteredSeconds
 
 		on _epochTimestampKey(mapKey)
@@ -126,6 +139,7 @@ on new(pExpirySeconds)
 		end _epochTimestampKey
 
 		on _timestampKey(mapKey)
+			-- localCache's _quotePlistKey(mapKey & "-ts")
 			mapKey & "-ts"
 		end _timestampKey
 	end script

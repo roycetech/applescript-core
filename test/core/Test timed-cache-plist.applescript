@@ -8,7 +8,6 @@
 		1) Provide a description for this test suite and the name of the script to be tested.
 		2) Write tests :)
 
-	@charset macintosh
 	@Created: August 31, 2023 7:09 PM
 *)
 use AppleScript
@@ -157,7 +156,17 @@ script |getValue tests|
 		TopLevel's xmlUtil's __writeValue("string-ets", "integer", do shell script "date +%s")
 		assertEqual("string-value", sut's getValue("string")) 
 		TopLevel's xmlUtil's __deleteValue("string") 
-		TopLevel's xmlUtil's __deleteValue("string-ets") 
+		TopLevel's xmlUtil's __deleteValue("string-ets")  
+	end script
+
+	script |Retrieve existing, spaced key|
+		property parent : UnitTest(me) 
+		set sut to sutScript's new(1000)
+		TopLevel's xmlUtil's __writeValue("string spaced", "string", "'string spaced-value'") 
+		TopLevel's xmlUtil's __writeValue("string spaced-ets", "integer", do shell script "date +%s")
+		assertEqual("string spaced-value", sut's getValue("string spaced")) 
+		TopLevel's xmlUtil's __deleteValue("string spaced") 
+		TopLevel's xmlUtil's __deleteValue("string spaced-ets") 
 	end script
 
 	script |Retrieve existing but expired|
@@ -178,7 +187,7 @@ script |getValue tests|
 		property parent : UnitTest(me)
 		TopLevel's xmlUtil's __deleteTestPlist()
 	end script	
-end script
+end script 
 
 
 script |setValue tests|
@@ -196,17 +205,50 @@ script |setValue tests|
 		sut's setValue("string", "string-value")
 
 		set currentShellIsoDate to do shell script "date -u +'%Y-%m-%dT%H:%M:%SZ'"
+		set currentShellIsoDatePlusOne to do shell script "date -u -v+1S +'%Y-%m-%dT%H:%M:%SZ'"
+		set currentShellIsoDateMinusOne to do shell script "date -u -v-1S +'%Y-%m-%dT%H:%M:%SZ'"
+
 		set currentShellSeconds to do shell script "date +%s"
+		set currentShellSecondsPlusOne to do shell script "date -v+1S +%s"
+		set currentShellSecondsMinusOne to do shell script "date -v-1S +%s"
+		log "currentShellSeconds: " & currentShellSeconds
+		
 		assertEqual("<string>string-value</string>" , TopLevel's xmlUtil's __grepValueXml("string"))
-		assertEqual("<date>" & currentShellIsoDate & "</date>" , TopLevel's xmlUtil's __grepValueXml("string-ts"))
-		assertEqual("<real>" & currentShellSeconds & "</real>" , TopLevel's xmlUtil's __grepValueXml("string-ets"))
+		
+		set tsValue to TopLevel's xmlUtil's __grepValueXml("string-ts")
+		-- assertEqual("<date>" & currentShellIsoDate & "</date>" , tsValue)
+		ok(tsValue is equal to ("<date>" & currentShellIsoDate & "</date>") or tsValue is equal to ("<date>" & currentShellIsoDateMinusOne & "</date>") or tsValue is equal to ("<date>" & currentShellIsoDatePlusOne & "</date>") or tsValue is equal to ("<date>" & currentShellIsoDatePlusOne & "</date>"))
+		
+		set etsValue to TopLevel's xmlUtil's __grepValueXml("string-ets")
+		log "etsValue: " & etsValue
+
+		ok(("<real>" & currentShellSeconds & "</real>") is equal to etsValue or ("<real>" & currentShellSecondsMinusOne & "</real>") is equal to etsValue  or ("<real>" & currentShellSecondsPlusOne & "</real>") is equal to etsValue)
+	end script
+
+	script |Spaced Key| 
+		property parent : UnitTest(me)
+		set sut to sutScript's new(0)		
+		sut's setValue("spaced string", "spaced string-value")
+
+		set currentShellIsoDate to do shell script "date -u +'%Y-%m-%dT%H:%M:%SZ'"
+		set currentShellSeconds to do shell script "date +%s"
+		set currentShellSecondsMinusOne to currentShellSeconds - 1
+		log "currentShellSeconds: " & currentShellSeconds
+
+		assertEqual("<string>spaced string-value</string>" , TopLevel's xmlUtil's __grepValueXml("spaced string"))
+		assertEqual("<date>" & currentShellIsoDate & "</date>" , TopLevel's xmlUtil's __grepValueXml("spaced string-ts"))
+		
+		-- assertEqual("<real>" & currentShellSeconds & "</real>" , TopLevel's xmlUtil's __grepValueXml("spaced string-ets"))
+		set etsValue to TopLevel's xmlUtil's __grepValueXml("spaced string-ets")
+		log "etsValue: " & etsValue
+		ok(("<real>" & currentShellSeconds & "</real>") is equal to etsValue or ("<real>" & currentShellSecondsMinusOne & "</real>") is equal to etsValue)
 	end script
 
 	script |#afterClass|
-		property parent : UnitTest(me)
+		property parent : UnitTest(me) 
 		TopLevel's xmlUtil's __deleteTestPlist()
 	end script	
-end script
+end script 
 
 
 script |deleteKey tests|
@@ -242,6 +284,17 @@ string-ts"), TopLevel's xmlUtil's __readAllKeys())
 		assertEqual("", TopLevel's xmlUtil's __readAllKeys())
 	end script
 
+	script |Spaced Key| 
+		property parent : UnitTest(me)
+		set sut to sutScript's new(0)
+		TopLevel's xmlUtil's __writeValue("spaced string", "string", "string-value") 
+		TopLevel's xmlUtil's __writeValue("spaced string-ets", "integer", do shell script "date +%s")
+		set currentShellIsoDate to do shell script "date -u +'%Y-%m-%dT%H:%M:%SZ'"
+		TopLevel's xmlUtil's __writeValue("spaced string-ts", "string", currentShellIsoDate)
+		sut's deleteKey("spaced string")
+		assertEqual("", TopLevel's xmlUtil's __readAllKeys())
+	end script
+ 
 	script |#afterClass|
 		property parent : UnitTest(me)
 		TopLevel's xmlUtil's __deleteTestPlist()
