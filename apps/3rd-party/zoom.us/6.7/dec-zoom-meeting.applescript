@@ -6,10 +6,10 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting
+		./scripts/build-lib.sh apps/3rd-party/zoom.us/6.7/dec-zoom-meeting
 
 	@Created: Monday, August 12, 2024 at 4:29:20 PM
-	@Last Modified: 2026-02-27 19:49:27
+	@Last Modified: 2026-03-02 21:42:01
 	@Change Logs:
 		Mon, Dec 15, 2025, at 11:41:11 AM - Add closer of auto updater.
 *)
@@ -34,7 +34,7 @@ on spotCheck()
 		Manual: End Meeting for All
 
 		Manual: Close auto updater
-		Dummy
+		Manual: Wait for Meeting Preview Window
 		Dummy
 		Dummy
 		Dummy
@@ -71,6 +71,10 @@ on spotCheck()
 
 	else if caseIndex is 6 then
 		sut's waitInstallUpdates()
+
+	else if caseIndex is 7 then
+		sut's waitForMeetingPreviewWindow()
+		assertThat of std given condition:result is true, messageOnFail:"Failed to detect the zoom meeting preview window"
 
 	else
 
@@ -118,19 +122,14 @@ on decorate(mainScript)
 
 			tell application "System Events" to tell process "zoom.us"
 				-- click (first button of splitter group 1 of window "Zoom Workplace" whose description starts with "Start a new meeting")
-				click (first button of group 1 of splitter group 1 of window "Zoom Workplace" whose description starts with "Start a new meeting")  -- 6.5.9
+				click (first button of group 1 of splitter group 1 of window "Zoom Workplace" whose description starts with "Start" and description contains "new meeting") -- 6.5.9
 			end tell
-
-			return
-
-
-			set signinState to _waitForSignInOrSignedIn()
-			if signinState is "signedin" then
-				tell application "System Events" to tell process "zoom.us"
-					click (first button of splitter group 1 of window "Zoom" whose description is "Start a new meeting with video on")
-				end tell
-			end if
 		end newMeeting
+
+
+		on waitForMeetingPreview()
+
+		end waitForMeetingPreview
 
 
 		on waitInstallUpdates()
