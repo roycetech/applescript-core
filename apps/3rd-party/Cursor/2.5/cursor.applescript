@@ -9,13 +9,18 @@
 		./scripts/build-lib.sh apps/3rd-party/Cursor/2.5/cursor
 
 	@Created: Wed, Feb 25, 2026 at 12:27:36 PM
-	@Last Modified: 2026-02-26 16:56:13
+	@Last Modified: 2026-02-28 19:44:38
 *)
+use textUtil : script "core/string"
 use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
 
+use kbLib : script "core/keyboard"
+
 property logger : missing value
+
+property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -32,8 +37,8 @@ on spotCheck()
 		Manual: Hide minimap
 
 		Manual: Single file layout
-		Dummy
-		Dummy
+		Manual: Open file path via UI
+		Manual: Switch Project Tab
 		Dummy
 		Dummy
 	")
@@ -49,6 +54,7 @@ on spotCheck()
 
 	set sut to new()
 	logger's infof("Secondary side bar visible: {}", sut's isSecondarySideBarVisible())
+	logger's infof("Project name: {}", sut's getCurrentProjectName())
 	logger's infof("Is minimap visible: {}", sut's isMinimapVisible())
 
 	if caseIndex is 1 then
@@ -68,6 +74,19 @@ on spotCheck()
 	else if caseIndex is 6 then
 		sut's singleFileLayout()
 
+	else if caseIndex is 7 then
+		set sutFilePath to "/etc/hosts"
+		logger's debugf("sutFilePath: {}", sutFilePath)
+
+		sut's openFilePathViaUI(sutFilePath)
+
+	else if caseIndex is 8 then
+		set sutProjectTab to "Unicorn"
+		-- set sutProjectTab to "applescript-core"
+		logger's debugf("sutProjectTab: {}", sutProjectTab)
+
+		sut's switchProjectTab(sutProjectTab)
+
 	else
 
 	end if
@@ -82,8 +101,55 @@ on new()
 	loggerFactory's inject(me)
 	set decCursorLayout to script "core/dec-cursor-layout"
 	set decCursorCurrentFile to script "core/dec-cursor-current-file"
+	set kb to kbLib's new()
 
 	script CursorInstance
+
+		on switchProjectTab(projectTabKeyword)
+			if running of application "Cursor" is false then return
+
+			tell application "System Events" to tell process "Cursor"
+				try
+				click (first radio button of tab group 1 of window 1 whose title contains projectTabKeyword)
+				end try
+			end tell
+		end switchProjectTab
+
+
+		on getCurrentProjectName()
+			if running of application "Cursor" is false then return missing value
+
+			tell application "System Events" to tell process "Cursor"
+				title of window 1
+			end tell
+
+			textUtil's split(result, unic's SEPARATOR)
+			item 2 of result
+		end getCurrentProjectName
+
+
+		on _focusApp()
+			tell application "System Events" to tell process "Cursor"
+				if frontmost is false then set frontmost to true
+			end tell
+		end _focusApp
+
+		on openFilePathViaUI(filePath)
+			if running of application "Cursor" is false then return
+
+			_focusApp()
+			kb's pressCommandKey("p")
+			delay 0.5
+
+			_focusApp()
+			kb's typeText(filePath)
+			delay 2
+
+			_focusApp()
+			kb's pressKey(return)
+		end openFilePathViaUI
+
+
 		on isMinimapVisible()
 			if running of application "Cursor" is false then return false
 
