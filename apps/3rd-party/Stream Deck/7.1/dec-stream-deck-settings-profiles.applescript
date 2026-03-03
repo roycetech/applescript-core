@@ -6,7 +6,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh 'apps/3rd-party/Stream Deck/7.1.x/dec-stream-deck-settings-profiles'
+		./scripts/build-lib.sh 'apps/3rd-party/Stream Deck/7.1/dec-stream-deck-settings-profiles'
 
 	@Created: Thu, Jan 29, 2026 at 02:09:37 PM
 	@Last Modified: Thu, Jan 29, 2026 at 02:09:37 PM

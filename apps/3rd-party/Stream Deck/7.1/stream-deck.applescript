@@ -16,7 +16,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh 'apps/3rd-party/Stream Deck/7.1.x/stream-deck'
+		./scripts/build-lib.sh 'apps/3rd-party/Stream Deck/7.1/stream-deck'
 		
 	@Change Logs:
 		Wed, Jan 28, 2026, at 02:45:47 PM - Added handlers #getFirstProfileName, #getLastProfileName, and #shrinkEditorWindow
@@ -65,7 +65,6 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 	
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		NOOP: Info
@@ -81,6 +80,7 @@ on spotCheck()
 		Dummy
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
