@@ -11,7 +11,7 @@
 	@Created:
 
 	@Known Issues:
-		October 3, 2023 9:30 PM - Still fails intermittently, about 1 in every 5 runs. Warzone.
+		October 3, 2023 9:30 PM - Still fails intermittently, about 1 in every 5 runs. War zone.
 *)
 use AppleScript
 use scripting additions
@@ -99,6 +99,16 @@ script |posixFilePathExists tests|
 	property parent : TestSet(me)
 	property sut : missing value 
 
+	script |missing value|
+		property parent : unitTest(me)
+		notOk(sutScript's posixFilePathExists(missing value)) 
+	end script
+
+	script |empty string|
+		property parent : unitTest(me)
+		notOk(sutScript's posixFilePathExists("")) 
+	end script
+
 	script |Path with tilde|
 		property parent : unitTest(me)
 		ok(sutScript's posixFilePathExists("~/Library/Contacts/accounts.accountdb"))
@@ -160,7 +170,7 @@ script |getContainingDirectory tests|
 		assertEqual("/Users/" & std's getUsername(), sutScript's getContainingDirectory("~/unit-test.txt"))
 	end script
 
-	script |Home Subdirectory|
+	script |Home Sub-directory|
 		property parent : unitTest(me)
 		assertEqual("/Users/" & std's getUsername() & "/Library" , sutScript's getContainingDirectory("~/Library/Script Libraries/"))
 	end script

@@ -11,7 +11,7 @@
 	@Change Log:
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2026-01-15 09:27:27
+	@Last Modified: 2026-03-04 09:25:51
 *)
 
 use scripting additions
@@ -175,6 +175,9 @@ end readFile
 
 
 on posixFilePathExists(posixFilePath)
+	if posixFilePath is missing value then return false
+	if posixFilePath is "" then return false
+
 	set nonTildeFilePath to untilde(posixFilePath)
 	set shellCommand to format {"test -f {} && echo 'true'", quoted form of nonTildeFilePath}
 	try
