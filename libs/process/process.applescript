@@ -539,11 +539,11 @@ on new(pProcessName)
 	set decoratorWindow to script "core/dec-process-windows"
 	set decoratorWindowResizer to script "core/dec-process-window-resizer"
 	set decoratorWindowMover to script "core/dec-process-window-mover"
-	-- set decoratorDockAware to script "core/dec-process-dock-aware"
+	set decoratorDockAware to script "core/dec-process-dock-aware"
 	decoratorWindow's decorate(ProcessInstance)
 	decoratorWindowResizer's decorate(result)
 	decoratorWindowMover's decorate(result)
-	-- decoratorDockAware's decorate(result)
+	decoratorDockAware's decorate(result)
 	set nonBundleInstance to result
 
 	set staticDecoratedInstance to missing value
