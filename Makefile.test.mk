@@ -94,9 +94,9 @@ spot:  # Test single script here.
 # 	osascript "test/core/Test date-time.applescript"
 # 	osascript "test/core/Test speech.applescript"
 # 	osascript "test/apps/3rd-party/Test keyboard-maestro.applescript"
-	osascript "test/core/Test timed-cache-plist.applescript"
+# 	osascript "test/core/Test timed-cache-plist.applescript"
 # 	osascript "test/apps/1st-party/Test finder.applescript"
-# 	osascript "test/core/Test file.applescript"
+	osascript "test/core/Test file.applescript"
 # 	osascript "test/core/Test decorator.applescript"
 # 	osascript "test/core/Test dec-terminal-path.applescript"
 
