@@ -6,9 +6,10 @@ OMZ_EXISTS := $(wildcard ~/.oh-my-zsh/plugins)
 $(info     OMZ_EXISTS: $(OMZ_EXISTS))
 
 build-omz:
+	@echo "Building OMZ scripts..."
 	$(call _build-script,libs/zsh/oh-my-zsh)
 	$(call _build-script,apps/1st-party/Terminal/2.14.x/dec-terminal-prompt-omz)
-	@echo "Build OMZ completed"
+	@echo "Build OMZ completed\n"
 
 install-omz: build-omz
 	$(call _build-script,apps/1st-party/Terminal/2.14.x/dec-terminal-prompt-omz)
@@ -17,8 +18,9 @@ install-omz: build-omz
 
 # 3rd Party Apps Library ------------------------------------------------------
 build-one-password: build-cliclick
+	@echo "Building 1Password scripts..."
 	$(call _build-script,apps/3rd-party/1Password/v6/one-password)
-	@echo "Build 1Password completed"
+	@echo "Build 1Password completed\n"
 
 install-1password: build-one-password install-cliclick
 
@@ -28,97 +30,113 @@ install-atom:  ## Deprecated
 
 
 build-bartender:
+	@echo "Building Bartender scripts..."
 	$(call _build-script,apps/3rd-party/Bartender/v5/bartender)
-	@echo "Build Bartender completed"
+	@echo "Build Bartender completed\n"
+
 
 build-camera-hub:
+	@echo "Building Camera Hub scripts..."
 	$(call _build-script,apps/3rd-party/Camera Hub/1.10.2/camera-hub)
-	@echo "Build Camera Hub completed"
+	@echo "Build Camera Hub completed\n"
 
 
 build-cleanshot-x:
+	@echo "Building CleanShot X scripts..."
 	$(call _build-script,apps/3rd-party/CleanShot X/4.7.4/dec-cleanshot-x-general)
 	$(call _build-script,apps/3rd-party/CleanShot X/4.7.4/dec-cleanshot-x-shortcuts)
 	$(call _build-script,apps/3rd-party/CleanShot X/4.7.4/dec-cleanshot-x-quick-access)
 	$(call _build-script,apps/3rd-party/CleanShot X/4.7.4/cleanshot-x)
-	@echo "Build CleanShot X completed"
+	@echo "Build CleanShot X completed\n"
 
 
-build-cursor:
+build-cursor: build-base-app
+	@echo "Building Cursor scripts..."
 	$(call _build-script,apps/3rd-party/Cursor/2.5/dec-cursor-current-file)
 	$(call _build-script,apps/3rd-party/Cursor/2.5/dec-cursor-layout)
 	$(call _build-script,apps/3rd-party/Cursor/2.5/cursor)
-	@echo "Build Cursor completed"
+	@echo "Build Cursor completed\n"
 .PHONY: build-cursor
 
 
 install-eclipse:
+	@echo "Building Eclipse scripts..."
 	$(call _build-script,apps/3rd-party/Eclipse/v202306/eclipse)
-	@echo "Build Eclipse completed"
+	@echo "Build Eclipse completed\n"
 
 
 install-file-zilla:
+	@echo "Building FileZilla scripts..."
 	$(call _build-script,apps/3rd-party/FileZilla/3.69.x/file-zilla)
-	@echo "Build FileZilla completed"
+	@echo "Build FileZilla completed\n"
 
 
 install-git-kraken:
+	@echo "Building GitKraken scripts..."
 	$(call _build-script,apps/3rd-party/GitKraken/v9.8.2/git-kraken)
-	@echo "Build GitKraken completed"
+	@echo "Build GitKraken completed\n"
 
 
 build-google-chrome:
+	@echo "Building Google Chrome scripts..."
 	$(call _build-script,apps/3rd-party/Google Chrome/136.0/google-chrome-tab)
 	$(call _build-script,apps/3rd-party/Google Chrome/131.0/dec-google-chrome-tab-finder)
 	$(call _build-script,apps/3rd-party/Google Chrome/129.0/google-chrome-javascript)
 	$(call _build-script,apps/3rd-party/Google Chrome/134.0/dec-google-chrome-inspector)
 	$(call _build-script,apps/3rd-party/Google Chrome/139.0/google-chrome)
-	@echo "Build Google Chrome completed"
+	@echo "Build Google Chrome completed\n"
 
 
 build-guitar-pro:
+	@echo "Building Guitar Pro scripts..."
 	$(call _build-script,apps/3rd-party/Guitar Pro/7.6/dec-guitar-pro-note)
 	$(call _build-script,apps/3rd-party/Guitar Pro/7.6/guitar-pro)
-	@echo "Build Guitar Pro completed"
+	@echo "Build Guitar Pro completed\n"
 
 
 build-microsoft-edge:
+	@echo "Building Microsoft Edge scripts..."
 	$(call _build-script,apps/3rd-party/Microsoft Edge/140.0/microsoft-edge-javascript)
 	$(call _build-script,apps/3rd-party/Microsoft Edge/140.0/microsoft-edge-tab)
 	$(call _build-script,apps/3rd-party/Microsoft Edge/140.0/dec-microsoft-edge-tab-finder)
 	$(call _build-script,apps/3rd-party/Microsoft Edge/140.0/microsoft-edge)
-	@echo "Build Microsoft Edge completed"
+	@echo "Build Microsoft Edge completed\n"
 
 
 build-opera:
+	@echo "Building Opera scripts..."
 	$(call _build-script,apps/3rd-party/Opera/110.0/dec-opera-tab-finder)
 	$(call _build-script,apps/3rd-party/Opera/110.0/opera-javascript)
 	$(call _build-script,apps/3rd-party/Opera/110.0/opera-tab)
 	$(call _build-script,apps/3rd-party/Opera/110.0/opera)
-	@echo "Build Opera completed"
+	@echo "Build Opera completed\n"
 
 
 build-iterm:
+	@echo "Building iTerm2 scripts..."
 	$(call _build-script,apps/3rd-party/iTerm2/3.5.x/iterm2)
-	@echo "Build iTerm2 completed"
+	@echo "Build iTerm2 completed\n"
 
 
 build-intellij:
+	@echo "Building IntelliJ IDEA scripts..."
 	$(call _build-script,apps/3rd-party/IntelliJ IDEA/v2023.2.1/intellij-idea)
-	@echo "Build IntelliJ IDEA completed"
+	@echo "Build IntelliJ IDEA completed\n"
 
 
 install-intellij: build-intellij
 	$(SUDO) osascript ./scripts/setup-intellij-cli.applescript
 
 build-pulsar:
+	@echo "Building Pulsar scripts..."
 	$(call _build-script,apps/3rd-party/Pulsar/1.102.x/pulsar)
+	@echo "Build Pulsar completed\n"
 
 install-pulsar: build-pulsar
-	@echo "Build Pulsar completed"
 
 
 build-keyboard-maestro:
+	@echo "Building Keyboard Maestro scripts..."
 	$(call _build-script,apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-variables)
 	$(call _build-script,apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-preferences-variables)
 	$(call _build-script,apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-editor)
@@ -126,14 +144,16 @@ build-keyboard-maestro:
 	$(call _build-script,apps/3rd-party/Keyboard Maestro/keyboard-maestro)
 	$(call _build-script,apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro)
 	$(call _build-script,apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro-group)
-	@echo "Build Keyboard Maestro completed"
+	@echo "Build Keyboard Maestro completed\n"
 
 
 install-last-pass:
+	@echo "Building LastPass scripts..."
 	$(call _build-script,apps/3rd-party/LastPass/4.4.x/last-pass)
-	@echo "Build LastPass completed"
+	@echo "Build LastPass completed\n"
 
 build-marked:
+	@echo "Building Marked scripts..."
 	$(call _build-script,apps/3rd-party/Marked/2.6.46/marked-tab)
 	$(call _build-script,apps/3rd-party/Marked/2.6.46/dec-marked-scrolling)
 	$(call _build-script,apps/3rd-party/Marked/2.6.46/dec-marked-settings)
@@ -143,49 +163,56 @@ build-marked:
 	$(call _build-script,apps/3rd-party/Marked/2.6.46/dec-marked-settings-advanced)
 	$(call _build-script,apps/3rd-party/Marked/2.6.46/dec-marked-menu)
 	$(call _build-script,apps/3rd-party/Marked/2.6.46/marked)
-	@echo "Build Marked completed"
+	@echo "Build Marked completed\n"
 
 install-marked: build-marked
 
 
 build-mosaic:
+	@echo "Building Mosaic scripts..."
 	$(call _build-script,apps/3rd-party/Mosaic/v1.3.x/mosaic)
-	@echo "Build Mosaic completed"
+	@echo "Build Mosaic completed\n"
 
 
 build-paste:
+	@echo "Building Paste scripts..."
 	$(call _build-script,apps/3rd-party/Paste/4.4.2/paste)
-	@echo "Build Paste completed"
+	@echo "Build Paste completed\n"
 
 
 build-script-debugger:
+	@echo "Building Script Debugger scripts..."
 	$(call _build-script,'apps/3rd-party/Script Debugger/v8.0.x/script-debugger')
-	@echo "Build Script Debugger completed"
+	@echo "Build Script Debugger completed\n"
 
 install-script-debugger: build-script-debugger
 
 
 build-sequel-ace:
+	@echo "Building Sequel Ace scripts..."
 	$(call _build-script,apps/3rd-party/Sequel Ace/4.1.x/sequel-ace-tab)
 	$(call _build-script,apps/3rd-party/Sequel Ace/4.1.x/sequel-ace)
-	@echo "Build Sequel Ace completed"
+	@echo "Build Sequel Ace completed\n"
 
 install-sequel-ace: build-sequel-ace
 
 
 build-sourcetree:
+	@echo "Building Sourcetree scripts..."
 	$(call _build-script,apps/3rd-party/Sourcetree/4.2.11/dec-sourcetree-settings)
 	$(call _build-script,apps/3rd-party/Sourcetree/4.2.11/sourcetree)
-	@echo "Build Sourcetree completed"
+	@echo "Build Sourcetree completed\n"
 
 
 build-step-two:
+	@echo "Building Step Two scripts..."
 	$(call _build-script,apps/3rd-party/Step Two/3.1/step-two)
-	@echo "Build Step Two completed"
+	@echo "Build Step Two completed\n"
 
 
 build-stream-deck:
 	# 6.x is the OLDEST version.
+	@echo "Building Stream Deck scripts..."
 	$(call _build-script,apps/3rd-party/Stream Deck/6.x/dec-spot-stream-deck)
 	$(call _build-script,apps/3rd-party/Stream Deck/6.9.1/dec-stream-deck-settings)
 	$(call _build-script,apps/3rd-party/Stream Deck/6.9.1/dec-stream-deck-button)
@@ -221,31 +248,37 @@ install-text-mate:
 
 
 build-talon:
+	@echo "Building Talon scripts..."
 	$(call _build-script,apps/3rd-party/Talon/0.4/talon)
 	@echo "Build Talon completed"
 
 
 build-ui-browser:
+	@echo "Building UI Browser scripts..."
 	$(call _build-script,'apps/3rd-party/UI Browser/3.0.2/ui-browser')
 	@echo "Build UI Browser completed"
 
 
 build-viscosity: build-step-two
+	@echo "Building Viscosity scripts..."
 	$(call _build-script,apps/3rd-party/Viscosity/1.10.x/viscosity)
-	@echo "Build Viscosity completed"
+	@echo "Build Viscosity completed\n"
 
 
 build-visual-studio-code:
+	@echo "Building Visual Studio Code scripts..."
 	$(call _build-script,apps/3rd-party/Visual Studio Code/1.81/visual-studio-code)
-	@echo "Build Visual Studio Code completed"
+	@echo "Build Visual Studio Code completed\n"
 
 
 build-vlc:
+	@echo "Building VLC scripts..."
 	$(call _build-script,apps/3rd-party/VLC/3.0.x/vlc)
-	@echo "Build VLC completed"
+	@echo "Build VLC completed\n"
 
 
 build-zoom:
+	@echo "Building Zoom scripts..."
 	$(call _build-script,apps/3rd-party/zoom.us/6.0.x/dec-zoom-authentication)
 	$(call _build-script,apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting)
 	$(call _build-script,apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting-actions)
@@ -259,7 +292,7 @@ build-zoom:
 #	$(call _build-script,apps/3rd-party/zoom.us/5.x/zoom-participants)
 #	$(call _build-script,apps/3rd-party/zoom.us/dec-calendar-event-zoom)
 #	$(call _build-script,apps/3rd-party/zoom.us/5.x/zoom)
-	@echo "Build Zoom completed"
+	@echo "Build Zoom completed\n"
 
 install-zoom: build-zoom
 	mkdir -p ~/applescript-core/zoom.us/

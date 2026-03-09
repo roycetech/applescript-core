@@ -2,18 +2,12 @@
 	@Requires:
 		Permission to access the Calendar app.
 
-	@Plists
-		config-user.plist
-			User Country - User configured location country, used to select the
-			default timezone when reading the calendar events.
-
 	@Testing
 		Modify the handler getCurrentDate() for the desired test date.
 		Morning today
 
 	When parsing meetings for the day, list of records will be returned. In
 	parallel, a list ACTIVE_MEETINGs will contain the references to the UI.
-
 
 	TODO:
 		Broken when using 24H time format.
@@ -27,8 +21,6 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Calendar/15.0/calendar
 *)
-
-
 use scripting additions
 
 use script "core/Text Utilities"
@@ -44,7 +36,6 @@ use decoratorCalendarMeeting : script "core/dec-calendar-meetings"
 use calendarEventLib : script "core/calendar-event"
 
 use sbLib : script "core/string-builder"
-use uiutilLib : script "core/ui-util"
 use retryLib : script "core/retry"
 use configLib : script "core/config"
 use mapLib : script "core/map"
@@ -54,12 +45,15 @@ use processLib : script "core/process"
 use decoratorLib : script "core/decorator"
 
 property logger : missing value
-property uiutil : missing value
+
 property retry : missing value
 property plutil : missing value
 property configUser : missing value
 property calendarProcess : missing value
 property calendarEvent : missing value
+
+property CONFIG_USER : "user"
+property CONFIG_KEY_USER_COUNTRY : "User Country"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -224,14 +218,15 @@ end spotCheck
 
 on new()
 	loggerFactory's injectBasic(me)
-	set uiutil to uiutilLib's new()
 	set retry to retryLib's new()
 	set plutil to plutilLib's new()
-	set configUser to configLib's new("user")
+	set configUser to configLib's new(CONFIG_USER)
 	set calendarProcess to processLib's new("Calendar")
 	set calendarEvent to calendarEventLib's new()
+	set baseApp to script "core/base-app"
 
 	script CalendarInstance
+		property parent : baseApp's new()
 		property IS_TEST : false
 		property TEST_DATETIME : missing value
 		property appAlreadyRunning : false
@@ -274,7 +269,7 @@ on new()
 			configured in config-user.plist.
 		*)
 		on switchToDefaultTimezone()
-			set userCountry to configUser's getValue("User Country")
+			set userCountry to configUser's getValue(CONFIG_KEY_USER_COUNTRY)
 			if userCountry is not missing value then
 				set userCountry to text 1 thru -2 of userCountry
 			end if

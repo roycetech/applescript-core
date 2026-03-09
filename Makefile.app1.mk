@@ -9,7 +9,6 @@
 # @Change Logs:
 # - 2026-02-20: Added echo statements to the build targets to make the output more readable.
 
-
 build-all: \
 	build \
 	build-extras \
@@ -52,8 +51,8 @@ uninstall-automator:
 
 
 
-build-calendar:
-	@echo "\nBuilding Calendar scripts..."
+build-calendar: build-base-app
+	@echo "Building Calendar scripts..."
 	$(call _build-script, apps/1st-party/Calendar/11.0/dec-calendar-view)
 	$(call _build-script, apps/1st-party/Calendar/15.0/calendar-event)
 	$(call _build-script, apps/1st-party/Calendar/15.0/dec-calendar-meetings)
@@ -65,7 +64,7 @@ install-calendar: build-calendar
 
 
 build-console:
-	@echo "\nBuilding Console scripts..."
+	@echo "Building Console scripts..."
 	$(call _build-script, apps/1st-party/Console/v1.1/console)
 	@echo "Build Console completed\n"
 
@@ -98,16 +97,19 @@ endif
 
 
 build-home:
+	@echo "Building Home scripts..."
 	$(call _build-script,apps/1st-party/Home/7.0/home)
 	@echo "Build Home completed\n"
 
 
 build-image-capture:
+	@echo "Building Image Capture scripts..."
 	$(call _build-script,apps/1st-party/Image Capture/26.3/image-capture)
 	@echo "Build Image Capture completed\n"
 
 
 build-mail:
+	@echo "Building Mail scripts..."
 	$(call _build-script,apps/1st-party/Mail/16.0/dec-mail-settings)
 	$(call _build-script,apps/1st-party/Mail/16.0/dec-mail-selection)
 	$(call _build-script,apps/1st-party/Mail/16.0/mail)
@@ -115,11 +117,13 @@ build-mail:
 
 
 build-passwords:
+	@echo "Building Passwords scripts..."
 	$(call _build-script,apps/1st-party/Passwords/2.0/passwords)
 	@echo "Build Passwords completed\n"
 
 
 build-preview:
+	@echo "Building Preview scripts..."
 	$(call _build-script,core/decorators/dec-preview-markup)
 	$(call _build-script,apps/1st-party/Preview/v11/preview)
 
@@ -135,11 +139,11 @@ $(info     VERSION_SAFARI_MAJOR_MINOR: $(VERSION_SAFARI_MAJOR_MINOR))
 # dir — build when VERSION_SAFARI_MAJOR_MINOR >= dir (subfolders of Safari/, excluding 16.0)
 SAFARI_VERSION_BUILDS := $(filter-out 16.0,$(patsubst apps/1st-party/Safari/%/,%,$(wildcard apps/1st-party/Safari/*/)))
 
-build-safari: build-dock build-process
+build-safari: build-base-app build-dock build-process
 	# Older versions of scripts are built first and overwritten by newer versions.
+	@echo "Building Safari 16.0 scripts"
 	$(call _build-script,core/Level_5/javascript)
 
-	@echo "Building Safari 16.0 scripts"
 	@for file in $(wildcard apps/1st-party/Safari/16.0/*.applescript); do \
 		no_ext=$${file%.applescript}; \
 		echo "Building $$file"; \
@@ -168,14 +172,17 @@ install-safari: build-safari
 
 
 build-safari-technology-preview:  # Broken
+	@echo "Building Safari Technology Preview scripts..."
 	$(call _build-script,apps/1st-party/Safari Technology Preview/r168/dec-safari-technology-preview-javascript)
 	$(call _build-script,apps/1st-party/Safari Technology Preview/r168/safari-technology-preview)
+	@echo "Build Safari Technology Preview completed\n"
 
 install-safari-technology-preview: build-safari-technology-preview
 	osascript ./scripts/allow-apple-events-in-safari-technology-preview.applescript
 
 
 build-script-editor:
+	@echo "Building Script Editor scripts..."
 	$(call _build-script,apps/1st-party/Script Editor/2.11/script-editor-tab)
 	$(call _build-script,apps/1st-party/Script Editor/2.11/dec-script-editor-dialog)
 	$(call _build-script,apps/1st-party/Script Editor/2.11/dec-script-editor-tabs)
@@ -186,13 +193,14 @@ build-script-editor:
 	$(call _build-script,apps/1st-party/Script Editor/2.11/dec-script-editor-settings-general)
 	$(call _build-script,apps/1st-party/Script Editor/2.11/dec-script-editor-settings-editing)
 	$(call _build-script,apps/1st-party/Script Editor/2.11/script-editor)
-	@echo "Build Script Editor completed"
+	@echo "Build Script Editor completed\n"
 
 
 OS_VERSION_MAJOR = $(OS_TAHOE) # Debugging only.
 $(info     DEBUG: OS_VERSION_MAJOR: $(OS_VERSION_MAJOR))
 
 build-system-settings:
+	@echo "Building System Settings scripts..."
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
 	@echo "WARNING:Untested macOS version for system settings. Development started at least on macOS Monterey (v12)."
 endif
@@ -235,6 +243,7 @@ endif
 
 
 build-terminal:
+	@echo "Building Terminal scripts..."
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
 	@echo "Untested macOS version for terminal. Development started at least on macOS Monterey (v12)."
 endif
@@ -275,11 +284,22 @@ ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SONOMA) ] && echo yes),yes)
 	$(call _build-script, apps/1st-party/Terminal/2.14.x/dec-terminal_tab-finder)
 endif
 
+ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_SEQUOIA) ] && echo yes),yes)
+	@echo "\nBuilding 2.15.0 scripts"
+	@for file in $(wildcard apps/1st-party/Terminal/2.15/*.applescript); do \
+		no_ext=$${file%.applescript}; \
+		echo "Building $$file"; \
+		yes y | ./scripts/build-lib.sh "$$no_ext"; \
+	done
+
+endif
+
 	$(call _build-script, libs/sftp/dec-terminal-prompt-sftp)
 	@echo "Build Terminal completed"
 
 
 build-xcode:
+	@echo "Building Xcode scripts..."
 	$(call _build-script, apps/3rd-party/Xcode/15.4/dec-xcode-debugging)
 	$(call _build-script, apps/3rd-party/Xcode/15.4/xcode)
-	@echo "Build Xcode completed"
+	@echo "Build Xcode completed\n"

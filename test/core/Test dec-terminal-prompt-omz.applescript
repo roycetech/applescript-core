@@ -12,7 +12,6 @@
 		* Prefer to clean up the terminal manually after test cases that needs them.
 			* This is because having them on tear down is an expensive operation with little benefit.
 
-	@charset macintosh
 	@Created: Friday, May 24, 2024 at 11:14:07 AM 
 *)
 use AppleScript

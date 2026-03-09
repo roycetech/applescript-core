@@ -4,12 +4,13 @@
 
 	NOTES:
 		Cursor prefers "Side Bar" over Sidebar.
+		Cursor dialog should refer to window 1, instead of the usual window "Open" etc.
 
 	@Build:
 		./scripts/build-lib.sh apps/3rd-party/Cursor/2.5/cursor
 
 	@Created: Wed, Feb 25, 2026 at 12:27:36 PM
-	@Last Modified: 2026-02-28 19:44:38
+	@Last Modified: 2026-03-04 13:01:56
 *)
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
@@ -17,8 +18,10 @@ use unic : script "core/unicodes"
 use loggerFactory : script "core/logger-factory"
 
 use kbLib : script "core/keyboard"
+use retryLib : script "core/retry"
 
 property logger : missing value
+property retry : missing value
 
 property kb : missing value
 
@@ -39,7 +42,7 @@ on spotCheck()
 		Manual: Single file layout
 		Manual: Open file path via UI
 		Manual: Switch Project Tab
-		Dummy
+		Manual: Open file via Command O
 		Dummy
 	")
 
@@ -87,6 +90,11 @@ on spotCheck()
 
 		sut's switchProjectTab(sutProjectTab)
 
+	else if caseIndex is 9 then
+		set sutFilePath to "~/Projects/@roycetech/applescript-hub/src/apps/Sublime Text/Script Menu - Open in Cursor.applescript"
+		logger's debugf("sutFilePath: {}", sutFilePath)
+
+		sut's openFilePathViaCommandO(sutFilePath)
 	else
 
 	end if
@@ -103,14 +111,19 @@ on new()
 	set decCursorCurrentFile to script "core/dec-cursor-current-file"
 	set kb to kbLib's new()
 
+	set appWithFileDialogLib to script "core/abstract-app-with-file-dialog"
+	set appWithFileDialog to appWithFileDialogLib's new("Cursor")
+	set appWithFileDialog's doSetDialogTypeAsWindowReference to false
+
 	script CursorInstance
+		property parent : appWithFileDialog
 
 		on switchProjectTab(projectTabKeyword)
 			if running of application "Cursor" is false then return
 
 			tell application "System Events" to tell process "Cursor"
 				try
-				click (first radio button of tab group 1 of window 1 whose title contains projectTabKeyword)
+					click (first radio button of tab group 1 of window 1 whose title contains projectTabKeyword)
 				end try
 			end tell
 		end switchProjectTab
@@ -120,8 +133,10 @@ on new()
 			if running of application "Cursor" is false then return missing value
 
 			tell application "System Events" to tell process "Cursor"
-				title of window 1
+				set windowTitle to title of window 1
 			end tell
+
+			if windowTitle does not contain unic's SEPARATOR then return windowTitle
 
 			textUtil's split(result, unic's SEPARATOR)
 			item 2 of result
@@ -134,6 +149,9 @@ on new()
 			end tell
 		end _focusApp
 
+		(*
+			NOTE: Not reliable on long paths.
+		*)
 		on openFilePathViaUI(filePath)
 			if running of application "Cursor" is false then return
 
@@ -143,11 +161,40 @@ on new()
 
 			_focusApp()
 			kb's typeText(filePath)
-			delay 2
+			-- delay 2
+			delay 1
 
 			_focusApp()
 			kb's pressKey(return)
 		end openFilePathViaUI
+
+
+		on openFilePathViaCommandO(filePath)
+			set fileUtil to script "core/file"
+			if not fileUtil's posixFilePathExists(filePath) then return
+
+			_focusApp()
+			kb's pressCommandKey("o")
+			delay 0.5
+
+			fileDialogGoToFolder()
+			fileDialogEnterPath(filePath)
+			fileDialogAcceptFoundPath()
+			fileDialogChooseSelectionWithAction("Open")
+		end openFilePathViaCommandO
+
+		(*
+			@Overrides
+		*)
+		on fileDialogSheetUI()
+			tell application "System Events" to tell process "Cursor"
+				try
+					return sheet 1 of window 1
+
+				end try
+			end tell
+			missing value
+		end fileDialogSheetUI
 
 
 		on isMinimapVisible()
