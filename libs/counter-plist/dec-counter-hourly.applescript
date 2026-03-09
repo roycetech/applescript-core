@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh libs/counter-plist/dec-counter-hourly
 
 	@Created: Fri, Oct 10, 2025 at 08:11:21 AM
-	@Last Modified: 2025-10-17 15:04:44
+	@Last Modified: 2026-03-06 13:43:49
 	@Change Logs:
 *)
 use scripting additions
@@ -119,7 +119,7 @@ on decorate(mainScript)
 			-- logger's debugf("todayHour: {}", todayHour)
 
 			set keyThisHour to format {"{}-{}", {theKey, todayHour}}
-			logger's debugf("keyThisHour: {}", keyThisHour)
+			-- logger's debugf("keyThisHour: {}", keyThisHour)
 
 			set theCount to countHourly's getInt(keyThisHour)
 			if theCount is missing value then return 0
