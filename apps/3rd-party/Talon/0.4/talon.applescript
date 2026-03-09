@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Talon/0.4/talon
 
 	@Created: Sat, Apr 05, 2025 at 12:24:07 PM
-	@Last Modified: 2026-02-28 02:26:15
+	@Last Modified: 2026-03-03 17:33:03
 
 	@Change Logs:
 
@@ -205,7 +205,6 @@ on new()
 				end try
 			end tell
 		end showConsole
-
 
 	end script
 end new
