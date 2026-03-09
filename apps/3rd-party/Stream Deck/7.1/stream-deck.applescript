@@ -159,8 +159,13 @@ on new()
 	loggerFactory's inject(me)
 	set retry to retryLib's new()
 	set cliclick to cliclickLib's new()
-	
+
+	set appWithFileDialogLib to script "core/abstract-app-with-file-dialog"
+	set appWithFileDialog to appWithFileDialogLib's new("Stream Deck")
+		
 	script StreamDeckInstance
+		property parent : appWithFileDialog
+
 		on getFirstProfileName()
 			if running of application "Elgato Stream Deck" is false then return missing value
 			
