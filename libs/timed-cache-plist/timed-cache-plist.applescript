@@ -1,16 +1,13 @@
 (*
-	use tcache : script "core/timed-cache-plist"
+	@Example:
+		use timedCacheLib : script "core/timed-cache-plist"
+		set timedCache to timedCacheLib's new(2)
 
 	@Project:
 		applescript-core
 
 	@Build:
 		./scripts/build-lib.sh libs/timed-cache-plist/timed-cache-plist
-
-	@Plists:
-		config.plist
-		 	Timed Cache List - Can't find the reference for this - June 30, 2023 11:17 AM
-		timed-cache.plist - Contains the cached values.
 
 	@Unit Test
 		Test timed-cache-plist
@@ -29,9 +26,13 @@ use plutilLib : script "core/plutil"
 
 property logger : missing value
 
-(* Set a default cache name. *)
-property cacheName : "timed-cache"
+(* Set a default cache name, that will contain the expiring cached values. *)
+property PLIST_TIMED_CACHE : "timed-cache"
 
+property SUFFIX_EPOCH_TIMESTAMP : "-ets"
+property SUFFIX_TIMESTAMP : "-ts"
+
+property DATE_FORMAT_PARAMETER : "%Y-%m-%dT%H:%M:%SZ"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -79,14 +80,20 @@ end spotCheck
 (*  *)
 on new(pExpirySeconds)
 	set plutil to plutilLib's new()
-	if not plutil's plistExists(cacheName) then
-		plutil's createNewPList(cacheName)
+	if not plutil's plistExists(PLIST_TIMED_CACHE) then
+		plutil's createNewPList(PLIST_TIMED_CACHE)
 	end if
-	set localCache to plutil's new(cacheName)
+	set localCache to plutil's new(PLIST_TIMED_CACHE)
 
 	script TimedCacheInstance
 		property expirySeconds : pExpirySeconds
 		property cache : localCache
+
+		(*
+			Improves reliability by adding some delay after running the shell
+			command. Explore use of verification instead in the future.
+		*)
+		property writeCooldown : 0.1
 
 		(* @return missing value if the content has expired, so client can reset it again. *)
 		on getValue(mapKey)
@@ -100,8 +107,13 @@ on new(pExpirySeconds)
 				return missing value
 			end if
 
-			cache's getValue(mapKey)
+			try
+				return cache's getValue(mapKey)
+			end try
+
+			missing value
 		end getValue
+
 
 		on setValue(mapKey, newValue)
 			cache's setValue(mapKey, newValue)
@@ -109,11 +121,12 @@ on new(pExpirySeconds)
 			cache's setValue(_epochTimestampKey(mapKey), currentSeconds)
 			-- cache's setValue(_timestampKey(mapKey), current date)  -- TO FIX, it is not being stored as UTC date.
 
-			-- set shellCommand to "plutil -replace " & _timestampKey(mapKey) & " -date \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\" ~/applescript-core/" & cacheName & ".plist"
+			-- set shellCommand to "plutil -replace " & _timestampKey(mapKey) & " -date \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\" ~/applescript-core/" & PLIST_TIMED_CACHE & ".plist"
 			set quotedKey to cache's _quotePlistKey(_timestampKey(mapKey))
-			set shellCommand to "plutil -replace " & quotedKey & " -date \"$(date -u +'%Y-%m-%dT%H:%M:%SZ')\" ~/applescript-core/" & cacheName & ".plist"
+			set shellCommand to "plutil -replace " & quotedKey & " -date \"$(date -u +'" & DATE_FORMAT_PARAMETER & "')\" ~/applescript-core/" & PLIST_TIMED_CACHE & ".plist"
 
 			do shell script shellCommand
+			delay writeCooldown
 		end setValue
 
 
@@ -123,6 +136,7 @@ on new(pExpirySeconds)
 			cache's deleteKey(mapKey)
 			cache's deleteKey(_epochTimestampKey(mapKey))
 			cache's deleteKey(_timestampKey(mapKey))
+			delay writeCooldown  -- Fix intermittent error where the key is still read from the plist.
 		end deleteKey
 
 
@@ -135,12 +149,12 @@ on new(pExpirySeconds)
 		end _getRegisteredSeconds
 
 		on _epochTimestampKey(mapKey)
-			mapKey & "-ets"
+			mapKey & SUFFIX_EPOCH_TIMESTAMP
 		end _epochTimestampKey
 
 		on _timestampKey(mapKey)
 			-- localCache's _quotePlistKey(mapKey & "-ts")
-			mapKey & "-ts"
+			mapKey & SUFFIX_TIMESTAMP
 		end _timestampKey
 	end script
 end new
