@@ -1,9 +1,7 @@
 (*
-	Re-designed from scripteditor-tabs.applescript
-
-	Prerequisite:	
+	@Prerequisite:	
 		This script expects that finder preferences has to always
-	display the file extension.
+	display the file extension. TODO: Remove this requirement.
 
 	@Project:
 		applescript-core
@@ -12,15 +10,17 @@
 		./scripts/build-lib.sh 'apps/1st-party/Script Editor/2.11/script-editor'
 													
 	@Usage:
-		use seLib : script "core/script-editor" 
-		property se : seLib's new()
-		set frontTab to se's getFrontTab()
-		or
-		KM Text Expander: uuse scripteditor
+		use scriptEditorLib : script "core/script-editor" 
+		set scriptEditor to scriptEditorLib's new()
+		set scriptEditorFrontTab to scriptEditor's getFrontTab()
+		
+	@Change Logs:
+		Tue, Mar 10, 2026, at 11:18:50 AM - Fixed #getFrontTab error when code 
+			completion pop up is visible.
 *)
+use scripting additions
 
 use script "core/Text Utilities"
-use scripting additions
 
 use fileUtil : script "core/file"
 use textUtil : script "core/string"
@@ -167,15 +167,15 @@ on new()
 		-- on isAtNewDocumentWindow
 		on isNewDocumentWindowPresent()
 			if running of application "Script Editor" is false then return false
-
+			
 			tell application "System Events" to tell process "Script Editor"
 				exists (window "Open")
 			end tell
 		end isNewDocumentWindowPresent
-
+		
 		on getFrontContents()
 			set editorWindow to getEditorWindow()
-			if editorWindow is missing value then 
+			if editorWindow is missing value then
 				-- logger's debug("editorWindow is missing")
 				return missing value
 			end if
@@ -223,8 +223,8 @@ on new()
 				return scriptEditorTabLib's new(id of appWindow)
 			end tell
 		end findTabWithName
-
-
+		
+		
 		(* 
 			@tabTitle - the filename of the script.
 			@return  missing value of tab is not found. ScriptEditorInstance 
@@ -238,7 +238,7 @@ on new()
 				set appWindow to window tabTitle
 				return scriptEditorTabLib's new(id of appWindow)
 			end tell
-		end findTabWithName
+		end findTabByTitle
 		
 		
 		on getFrontTab()
@@ -253,7 +253,8 @@ on new()
 			if (exec of retry on result for 3) is missing value then return missing value
 			
 			tell application "Script Editor"
-				return scriptEditorTabLib's new(id of window 1)
+				first window whose titled is true
+				return scriptEditorTabLib's new(id of result) 
 			end tell
 		end getFrontTab
 		
@@ -334,8 +335,8 @@ on new()
 				end try
 			end tell
 		end closeLogsHistory
-
-
+		
+		
 		on closeLibrary()
 			tell application "System Events" to tell process "Script Editor"
 				try
