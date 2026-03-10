@@ -319,7 +319,7 @@ on new(windowId)
 			
 			set posixPath to missing value
 			tell application "Script Editor"
-				set posixPath to path of document of appWindow
+				set posixPath to path of document of my appWindow
 			end tell
 			
 			if my suffixedName is not missing value then -- Means it has been exported as workaround to assistive access bug.
