@@ -11,10 +11,13 @@
 	@Created: Wed, Feb 18, 2026 at 11:17:06 AM
 	@Last Modified: Wed, Feb 18, 2026 at 11:17:06 AM
 	@Change Logs:
+		Tue, Mar 10, 2026, at 05:58:59 PM - Wait for the about panel.
 *)
 use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
+
+use retryLib : script "core/retry"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -26,6 +29,7 @@ on spotCheck()
 	set cases to listUtil's splitByLine("
 		Main
 		Manual: Trigger Subpane about
+		Manual: Show About Panel
 	")
 	
 	set spotScript to script "core/spot-test"
@@ -49,6 +53,9 @@ on spotCheck()
 		sut's triggerSubPaneAbout()
 		
 	else if caseIndex is 3 then
+		sut's showAboutPanel()
+		
+	else if caseIndex is 3 then
 		
 	else
 		
@@ -65,6 +72,19 @@ on decorate(mainScript)
 	
 	script SystemSettingsGeneralAboutDecorator
 		property parent : mainScript
+		
+		on showAboutPanel()
+			triggerSubPaneAbout()
+			
+			set retry to retryLib's new()
+			script AboutPanelWaiter
+				tell application "System Events" to tell process "System Settings"
+if				exists (window "About") then return true
+				end tell
+			end script
+			exec of retry on result for 3
+		end showAboutPanel
+		
 		
 		on triggerSubPaneAbout()
 			set outlineUi to getRightPaneScrollArea()
