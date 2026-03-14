@@ -9,10 +9,12 @@
 		./scripts/build-lib.sh apps/3rd-party/Cursor/2.5/dec-cursor-current-file
 
 	@Created: Thu, Feb 26, 2026 at 03:53:46 PM
-	@Last Modified: 2026-02-26 16:55:01
+	@Last Modified: 2026-03-12 10:55:58
 	@Change Logs:
 *)
 use textUtil : script "core/string"
+use unic : script "core/unicodes"
+use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -24,7 +26,6 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set listUtil to script "core/list"
 	set cases to listUtil's splitByLine("
 		Main
 	")
@@ -44,6 +45,9 @@ on spotCheck()
 	set sut to decorate(sut)
 
 	logger's infof("Current file path: {}", sut's getCurrentFilePath())
+	logger's infof("Current filename: {}", sut's getCurrentFilename())
+	logger's infof("Current base filename: {}", sut's getCurrentBaseFilename())
+
 	if caseIndex is 1 then
 
 	else if caseIndex is 2 then
@@ -59,12 +63,36 @@ on spotCheck()
 end spotCheck
 
 
-(*  *)
+(* @mainScript - script "core/cursor" *)
 on decorate(mainScript)
 	loggerFactory's inject(me)
 
 	script CurrentFileDecorator
 		property parent : mainScript
+
+		on getCurrentFilename()
+			tell application "System Events" to tell process "Cursor"
+				set windowTitle to title of window 1
+			end tell
+
+			if windowTitle does not contain unic's SEPARATOR then return windowTitle
+
+			textUtil's split(windowTitle, unic's SEPARATOR)
+			first item of result
+
+		end getCurrentFilename
+
+
+		on getCurrentBaseFilename()
+			set filename to getCurrentFilename()
+			if filename is missing value then return missing value
+
+			set baseFilename to first item of listUtil's split(filename, ".")
+			if baseFilename is "" then return missing value
+
+			baseFilename
+		end getCurrentBaseFilename
+
 
 		on getCurrentFilePath()
 			if running of application "Cursor" is false then return missing value
