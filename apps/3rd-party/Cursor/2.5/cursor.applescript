@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Cursor/2.5/cursor
 
 	@Created: Wed, Feb 25, 2026 at 12:27:36 PM
-	@Last Modified: 2026-03-04 13:01:56
+	@Last Modified: 2026-03-12 10:45:03
 *)
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
@@ -21,6 +21,7 @@ use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 
 property logger : missing value
+
 property retry : missing value
 
 property kb : missing value
@@ -43,6 +44,12 @@ on spotCheck()
 		Manual: Open file path via UI
 		Manual: Switch Project Tab
 		Manual: Open file via Command O
+		Manual: Run command palette: Command Palette
+
+		Dummy
+		Dummy
+		Dummy
+		Dummy
 		Dummy
 	")
 
@@ -95,7 +102,12 @@ on spotCheck()
 		logger's debugf("sutFilePath: {}", sutFilePath)
 
 		sut's openFilePathViaCommandO(sutFilePath)
-	else
+
+	else if caseIndex is 10 then
+		set sutCommandKey to "Open Chat in Ask Mode"
+		logger's debugf("sutCommandKey: {}", sutCommandKey)
+
+		sut's runCommandPalette(sutCommandKey)
 
 	end if
 
@@ -114,6 +126,8 @@ on new()
 	set appWithFileDialogLib to script "core/abstract-app-with-file-dialog"
 	set appWithFileDialog to appWithFileDialogLib's new("Cursor")
 	set appWithFileDialog's doSetDialogTypeAsWindowReference to false
+
+	set decCursorHighLevel to script "core/dec-cursor-high-level"
 
 	script CursorInstance
 		property parent : appWithFileDialog
@@ -138,7 +152,7 @@ on new()
 
 			if windowTitle does not contain unic's SEPARATOR then return windowTitle
 
-			textUtil's split(result, unic's SEPARATOR)
+			textUtil's split(windowTitle, unic's SEPARATOR)
 			item 2 of result
 		end getCurrentProjectName
 
@@ -167,6 +181,23 @@ on new()
 			_focusApp()
 			kb's pressKey(return)
 		end openFilePathViaUI
+
+
+		on runCommandPalette(commandKey)
+			if running of application "Cursor" is false then return
+
+			_focusApp()
+			kb's pressShiftCommandKey("p")
+			delay 1 -- NOTE: Sub second delay results in intermittent failures.
+
+			_focusApp()
+			kb's typeText(commandKey)
+			delay 1
+
+			_focusApp()
+			kb's pressKey(return)
+			delay 1
+		end runCommandPalette
 
 
 		on openFilePathViaCommandO(filePath)
@@ -252,6 +283,7 @@ on new()
 					click menu item "Secondary Side Bar" of menu 1 of menu item "Appearance" of menu 1 of menu bar item "View" of menu bar 1
 				end try
 			end tell
+			delay 1
 		end showSecondarySideBar
 
 
@@ -265,6 +297,7 @@ on new()
 					click menu item "Secondary Side Bar" of menu 1 of menu item "Appearance" of menu 1 of menu bar item "View" of menu bar 1
 				end try
 			end tell
+			delay 1
 		end hideSecondarySideBar
 
 
@@ -284,4 +317,5 @@ on new()
 	end script
 	decCursorLayout's decorate(result)
 	decCursorCurrentFile's decorate(result)
+	decCursorHighLevel's decorate(result)
 end new
