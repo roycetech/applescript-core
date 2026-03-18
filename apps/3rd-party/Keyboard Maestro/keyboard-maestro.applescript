@@ -16,9 +16,9 @@
 		Wednesday, May 29, 2024 at 2:33:10 PM - Macro sorting handlers.
 		October 20, 2023 10:27 AM - Added focusSelectedMacroGroup().
 *)
+use scripting additions
 
 use script "core/Text Utilities"
-use scripting additions
 
 use std : script "core/std"
 use textUtil : script "core/string"

@@ -173,7 +173,7 @@ on decorate(mainScript)
 			if textToSelect is "" then return
 			
 			set substringIndex to textUtil's indexOf(getFrontContents(), textToSelect)
-			logger's debugf("substringIndex: {}", substringIndex)
+			-- logger's debugf("substringIndex: {}", substringIndex)
 			
 			if substringIndex is 0 then return
 			
@@ -275,15 +275,15 @@ on decorate(mainScript)
 			if lineNumber is greater than getTotalLines() then return
 			
 			set deleteStart to getInsertionPointAtLine(lineNumber) + 1
-			logger's debugf("deleteStart: {}", deleteStart)
+			-- logger's debugf("deleteStart: {}", deleteStart)
 			
 			set lineContents to getContentsAtLineNumber(lineNumber)
-			logger's debugf("lineContents: '{}'", lineContents)
+			-- logger's debugf("lineContents: '{}'", lineContents)
 			
 			-- set deleteEnd to 1 + the (count of characters in lineContents) -- 1 + to include the newline character
 			set deleteEnd to getInsertionPointAtLine(lineNumber + 1)
 			if deleteEnd is missing value then set deleteEnd to -1
-			logger's debugf("deleteEnd: {}", deleteEnd)
+			-- logger's debugf("deleteEnd: {}", deleteEnd)
 			
 			tell application "Script Editor" to tell front document
 				set selection to characters deleteStart thru deleteEnd
