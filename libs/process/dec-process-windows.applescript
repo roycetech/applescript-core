@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh libs/process/dec-process-windows
 
 	@Created: Friday, September 13, 2024 at 2:05:42 PM
-	@Last Modified: 2026-03-06 12:07:41
+	@Last Modified: 2026-03-18 12:08:36
 
 	@Change Logs:
 		Fri, Mar 06, 2026, at 12:01:36 PM - #raiseWindow handler
@@ -32,12 +32,6 @@ on spotCheck()
 		Manual: Move Window with Title Not Containing
 		Manual: Close Window
 		Dummy
-
-		Dummy
-		Dummy
-		Dummy
-		Dummy
-		Dummy
 	")
 
 	set spotScript to script "core/spot-test"
@@ -53,7 +47,7 @@ on spotCheck()
 	set sutLib to script "core/process"
 	set sutAppName to "Safari"
 	set sutAppName to "Script Editor"
-	set sutAppName to "Docker Desktop"
+	-- set sutAppName to "Docker Desktop"
 	logger's debugf("sutAppName: {}", sutAppName)
 
 	set sut to sutLib's new(sutAppName)
@@ -74,6 +68,7 @@ on spotCheck()
 
 	else if caseIndex is 4 then
 		sut's closeWindow()
+
 	else
 
 	end if
@@ -87,8 +82,9 @@ end spotCheck
 on decorate(mainScript)
 	loggerFactory's inject(me)
 
-	script ProcessDecorator
+	script ProcessWindowsDecorator
 		property parent : mainScript
+		property coordinatesBuffer : 20
 
 		on raiseWindow()
 			tell application "System Events" to tell process (my processName)
