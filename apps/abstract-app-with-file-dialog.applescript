@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/abstract-app-with-file-dialog
 
 	@Created: Sat, Feb 28, 2026 at 07:20:19 PM
-	@Last Modified: 2026-03-06 15:29:10
+	@Last Modified: 2026-03-17 14:06:21
 *)
 use scripting additions
 
@@ -47,9 +47,9 @@ on spotCheck()
 
 	set safariLab to script "core/safari"
 	set safari to safariLab's new()
-	logger's debugf("Unit test: Untilde home: {}", safari's _untilde("~"))
-	logger's debugf("Unit test: Untilde subpath: {}", safari's _untilde("~/Documents"))
-	logger's debugf("Unit test: Untilde non-home: {}", safari's _untilde("/Applications"))
+	logger's debugf("Unit test: Expand home: {}", safari's expandPath("~"))
+	logger's debugf("Unit test: Expand subpath: {}", safari's expandPath("~/Documents"))
+	logger's debugf("Unit test: Expand non-home: {}", safari's expandPath("/Applications"))
 
 	if caseIndex is 1 then
 
@@ -71,7 +71,7 @@ on spotCheck()
 		end if
 
 		safari's fileDialogGoToFolder()
-		set sutPath to safari's _untilde("~/Downloads/")
+		set sutPath to safari's expandPath("~/Downloads/")
 		logger's debugf("sutPath: {}", sutPath)
 
 		safari's fileDialogEnterPath(sutPath)
@@ -196,7 +196,7 @@ on new(pProcessName)
 
 
 		on fileDialogEnterPath(newPath)
-			set calcPath to _untilde(newPath)
+			set calcPath to expandPath(newPath)
 			kb's insertTextByPasting(newPath)
 
 			set retry to retryLib's new()
@@ -225,7 +225,7 @@ on new(pProcessName)
 		(*
 			@Created: Wed, Mar 04, 2026, at 08:20:56 AM
 		*)
-		on _untilde(tildePath)
+		on expandPath(tildePath)
 			set posixPath to tildePath
 
 			(*
@@ -240,15 +240,15 @@ on new(pProcessName)
 			*)
 
 			if tildePath starts with "~" then
-				set posixPath to POSIX path of (path to home folder)
+				set posixPath to text 1 thru -2 of POSIX path of (path to home folder)
 
 				if tildePath is not "~" then
-					set posixPath to posixPath & text 3 thru -1 of tildePath
+					set posixPath to posixPath & "/" & text 3 thru -1 of tildePath
 				end if
 			end if
 
 			posixPath
-		end _untilde
+		end expandPath
 
 	end script
 end new
