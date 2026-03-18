@@ -6,10 +6,10 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh core/decorators/dec-process-window-resizer
+		./scripts/build-lib.sh libs/process/dec-process-window-resizer
 
 	@Created: Sun, Oct 26, 2025 at 01:18:16 PM
-	@Last Modified: 2025-10-28 10:43:34
+	@Last Modified: 2026-03-17 12:05:35
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -41,7 +41,9 @@ on spotCheck()
 	set sutLib to script "core/process"
 
 	set sutAppName to "Script Editor"
+	set sutAppName to "iTerm2"
 	logger's debugf("sutAppName: {}", sutAppName)
+
 	sutLib's new(sutAppName)
 	set sut to decorate(result)
 
