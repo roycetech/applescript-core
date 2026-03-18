@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh libs/security-cli/security-cli
 
 	@Created: Thu, May 15, 2025 at 06:39:33 AM
-	@Last Modified: 2025-09-26 11:34:00
+	@Last Modified: 2026-03-14 15:24:56
 *)
 use scripting additions
 
@@ -102,7 +102,7 @@ on new()
 			set command to format {"security add-generic-password \\
 			    -s {} \\
 			    -a {} \\
-			    -w {}", {serviceName, username, secret}}
+			    -w '{}'", {serviceName, username, secret}}
 			try
 				do shell script command
 				return true
