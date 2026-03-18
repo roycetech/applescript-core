@@ -58,7 +58,7 @@ endif
 	touch ~/applescript-core/logs/applescript-core.log
 #	osascript scripts/setup-applescript-core-project-path.applescript
 # 	./scripts/setup-switches.sh
-	@echo "applescript-core installation completed"
+	@echo "applescript-core installation completed\n"
 
 $(LEVEL1_LIBS): Makefile
 	yes y | ./scripts/build-lib.sh "core/Level_1/$@"
@@ -81,12 +81,12 @@ endif
 
 # [End] nested standard sub level 1
 endif
-	@echo "Build standard completed"
+	@echo "Build standard completed\n"
 
 
 build-core-bundle:
 	$(SUDO) ./scripts/build-bundle.sh 'core/Text Utilities'
-	@echo "Core bundle built."
+	@echo "Core bundle built.\n"
 
 
 build: \
@@ -119,10 +119,10 @@ build-core: \
 	build-level4 \
 	build-user \
 	build-level5
-	@echo "Core libraries compiled."
+	@echo "Core libraries compiled.\n"
 
 build-level1: $(LEVEL1_LIBS)
-	@echo "Level 1 scripts compiled."
+	@echo "Level 1 scripts compiled.\n"
 
 
 LEVEL2_SCRIPTS = $(wildcard core/Level_2/*.applescript)
@@ -132,7 +132,7 @@ build-level2:
 		no_ext=$${file%.applescript}; \
 		yes y | ./scripts/build-lib.sh "$$no_ext"; \
 	done
-	@echo "Done building level 2 scripts"
+	@echo "Done building level 2 scripts\n"
 
 LEVEL3_SCRIPTS = $(wildcard core/Level_3/*.applescript)
 build-level3:
@@ -141,7 +141,7 @@ build-level3:
 		no_ext=$${file%.applescript}; \
 		yes y | ./scripts/build-lib.sh "$$no_ext"; \
 	done
-	@echo "Done building level 3 scripts"
+	@echo "Done building level 3 scripts\n"
 
 LEVEL4_SCRIPTS = $(wildcard core/Level_4/*.applescript)
 build-level4:
@@ -150,7 +150,7 @@ build-level4:
 		no_ext=$${file%.applescript}; \
 		yes y | ./scripts/build-lib.sh "$$no_ext"; \
 	done
-	@echo "Done building level 4 scripts"
+	@echo "Done building level 4 scripts\n"
 
 LEVEL5_SCRIPTS = $(wildcard core/Level_5/*.applescript)
 build-level5:
@@ -159,7 +159,7 @@ build-level5:
 		no_ext=$${file%.applescript}; \
 		yes y | ./scripts/build-lib.sh "$$no_ext"; \
 	done
-	@echo "Done building level 5 scripts"
+	@echo "Done building level 5 scripts\n"
 
 
 reveal-scripts:  # Reveal the deployed scripts.
@@ -257,7 +257,7 @@ endif
 
 build-user:
 	$(call _build-script,libs/user/user)
-	@echo "Build user completed"
+	@echo "Build user completed\n"
 
 
 # Directory containing the decorator scripts
