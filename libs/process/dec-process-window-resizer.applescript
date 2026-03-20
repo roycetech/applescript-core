@@ -9,10 +9,14 @@
 		./scripts/build-lib.sh libs/process/dec-process-window-resizer
 
 	@Created: Sun, Oct 26, 2025 at 01:18:16 PM
-	@Last Modified: 2026-03-17 12:05:35
+	@Last Modified: 2026-03-20 08:28:01
 	@Change Logs:
+
 *)
+use Math : script "core/math"
+
 use loggerFactory : script "core/logger-factory"
+
 
 property logger : missing value
 
@@ -69,6 +73,7 @@ on decorate(mainScript)
 
 	script ProcessWindowResizerDecorator
 		property parent : mainScript
+		property resizeThreshold : 100  -- Resizing too small is being ignored.
 
 		on resizeWindowsWithTitleContaining(titleKey, w, h)
 			if my processName is not "java" and running of application (my processName) is false then return
@@ -97,6 +102,14 @@ on decorate(mainScript)
 
 			tell application "System Events" to tell process (my processName)
 				try
+					set {currentW, currentH} to the size of first window
+					set delta to Math's abs(currentH - h)
+					-- logger's debugf("delta: {}", delta)
+
+					if delta is less than resizeThreshold then
+						set size of first window to {100, 100}
+						delay 0.5
+					end if
 					set size of first window to {w, h}
 				end try
 			end tell
