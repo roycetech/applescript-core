@@ -11,7 +11,7 @@
 	@Created:
 		Wed Dec 28 18:24:28 2022
 
-	@Last Modified: 2026-03-18 11:49:55
+	@Last Modified: 2026-03-18 14:46:24
 
 	@Change Logs:
 		Wed, Mar 18, 2026, at 10:43:28 AM - Added window overlap handlers.
@@ -188,34 +188,34 @@ on new()
 			set windowPointsOne to getWindowPoints(processNameOne)
 
 			-- compute x-overlap
-			logger's debugf("windowPointsOne's x1: {}", windowPointsOne's x1)
-			logger's debugf("windowPointsTwo's x1: {}", windowPointsTwo's x1)
+			-- logger's debugf("windowPointsOne's x1: {}", windowPointsOne's x1)
+			-- logger's debugf("windowPointsTwo's x1: {}", windowPointsTwo's x1)
 
 			if windowPointsOne's x1 is equal to windowPointsTwo's x1 or windowPointsOne's x2 is equal to windowPointsTwo's x2 then
-				logger's debug("window one is aligned horizontally with window two")
+				-- logger's debug("window one is aligned horizontally with window two")
 				set overlapX to 0
 
 			else if windowPointsOne's x1 < windowPointsTwo's x1 then
-				logger's debug("window one is to the left of window two")
+				-- logger's debug("window one is to the left of window two")
 				set overlapX to ((windowPointsOne's x1) + (windowPointsOne's w)) - (windowPointsTwo's x1)
 			else
-				logger's debug("window one is to the right of window two")
+				-- logger's debug("window one is to the right of window two")
 				set overlapX to ((windowPointsTwo's x1) + (windowPointsTwo's w)) - (windowPointsOne's x1)
 			end if
 
 			-- compute y-overlap
-			logger's debugf("windowPointsOne's y1: {}", windowPointsOne's y1)
-			logger's debugf("windowPointsTwo's y1: {}", windowPointsTwo's y1)
+			-- logger's debugf("windowPointsOne's y1: {}", windowPointsOne's y1)
+			-- logger's debugf("windowPointsTwo's y1: {}", windowPointsTwo's y1)
 
 			if windowPointsOne's y1 is equal to windowPointsTwo's y1 or windowPointsOne's y2 is equal to windowPointsTwo's y2 then
-				logger's debug("window one is aligned vertically with window two")
+				-- logger's debug("window one is aligned vertically with window two")
 				set overlapY to 0
 
 			else if windowPointsOne's y1 < windowPointsTwo's y1 then
-				logger's debug("window one is above window two")
+				-- logger's debug("window one is above window two")
 				set overlapY to ((windowPointsOne's y1) + (windowPointsOne's h)) - (windowPointsTwo's y1)
 			else
-				logger's debug("window two is above window one")
+				-- logger's debug("window two is above window one")
 				set overlapY to ((windowPointsTwo's y1) + (windowPointsTwo's h)) - (windowPointsOne's y1)
 
 			end if
