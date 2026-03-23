@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Cursor/2.5/cursor
 
 	@Created: Wed, Feb 25, 2026 at 12:27:36 PM
-	@Last Modified: 2026-03-12 10:45:03
+	@Last Modified: 2026-03-20 16:10:20
 *)
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
@@ -153,7 +153,13 @@ on new()
 			if windowTitle does not contain unic's SEPARATOR then return windowTitle
 
 			textUtil's split(windowTitle, unic's SEPARATOR)
-			item 2 of result
+			set titleProjectName to item 2 of result
+
+			if getCurrentFileExtension() is not equal to "code-workspace" then
+				return titleProjectName
+			end if
+
+			textUtil's stringBefore(titleProjectName, " (Workspace)")
 		end getCurrentProjectName
 
 
