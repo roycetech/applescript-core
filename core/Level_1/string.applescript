@@ -13,7 +13,7 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_1/string
 
-	@Last Modified: 2025-12-29 06:44:10
+	@Last Modified: 2026-03-20 09:09:32
 
 	@Change Logs:
 		Mon, Dec 08, 2025, at 03:14:06 PM
@@ -86,8 +86,9 @@ on splitAndTrimParagraphs(theText)
 	set listResult to {}
 	set textLines to paragraphs of theText
 	repeat with nextLine in textLines
-		set trimmedLine to do shell script "echo " & quoted form of nextLine & " | sed 's/[[:space:]]*$//' | sed 's/^[[:space:]]*//'"
-		if trimmedLine is not "" then set end of listResult to trimmedLine
+		-- set trimmedLine to do shell script "echo " & quoted form of nextLine & " | sed 's/[[:space:]]*$//' | sed 's/^[[:space:]]*//'"
+		set trimmedLine to trim(nextLine)
+		if trimmedLine is not equal to "" then set end of listResult to trimmedLine
 	end repeat
 	listResult
 end splitAndTrimParagraphs
@@ -493,30 +494,12 @@ on substringFrom(thisText, startIdx)
 end substringFrom
 
 
-on rtrim(theText)
-	if theText is missing value then return missing value
-	if theText is "" then return theText
-
-	set counter to 0
-	repeat with nextCharacter in reverse of characters of theText
-		if {tab, "
-", " "} does not contain the nextCharacter then exit repeat
-		set counter to counter + 1
-	end repeat
-
-	if counter is equal to the length of theText then return ""
-
-	text 1 thru ((the length of theText) - counter) of theText
-end rtrim
-
-
 on ltrim(theText)
 	if theText is missing value then return missing value
-	if theText is "" then return ""
+	if theText as text is equal to "" then return ""
 
 	set trimOffset to 1
-	repeat until (character trimOffset of theText) is not in {" ", "
-", tab}
+	repeat until (character trimOffset of theText) is not in {space, tab, return, linefeed}
 		set trimOffset to trimOffset + 1
 		if trimOffset is greater than or equal to (count of theText) then
 			return ""
@@ -527,12 +510,44 @@ on ltrim(theText)
 end ltrim
 
 
-(* NOTE: For Review! *)
+on rtrim(theText)
+	if theText is missing value then return missing value
+	if theText as text is "" then return theText
+
+	set counter to 0
+	repeat with nextCharacter in reverse of characters of theText
+		if {space, tab, return, linefeed} does not contain the nextCharacter then exit repeat
+		set counter to counter + 1
+	end repeat
+
+	if counter is equal to the length of theText then return ""
+
+	text 1 thru ((the length of theText) - counter) of theText
+end rtrim
+
+
+(*
+	NOTE: For Review!
+	TODO: Bugged, trims inside a multi-line text.
+
+*)
 on trim(theText)
+	if theText is missing value then return missing value
+
 	-- do shell script "ruby -e \"p '" & theText & "'.strip\" | sed 's/\"//g'"
 	-- do shell script "echo '" & ltrim(theText) & "' |  sed 's/ *$//g'  |  sed 's/^[[:space:]]*//g'"
-	do shell script "echo " & quoted form of theText & " | sed 's/[[:space:]]*$//' | sed 's/^[[:space:]]*//g'"
+	-- do shell script "echo " & quoted form of theText & " | sed 's/[[:space:]]*$//' | sed 's/^[[:space:]]*//g'"
+	reverseString(ltrim(reverseString(ltrim(theText))))
 end trim
+
+
+on reverseString(theText)
+    if theText is missing value then return missing value
+    if theText as text is equal to "" then return ""
+
+    (reverse of characters of theText) as text
+end reverseString
+
 
 
 (* Used for debugging to determine the ASCII number of each character of the string provided. *)

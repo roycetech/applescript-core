@@ -8,7 +8,6 @@
 		1) Provide a description for this test suite and the name of the script to be tested.
 		2) Write tests :)
 
-	@charset macintosh
 	@Created: August 26, 2023 11:01 AM
 *)
 use AppleScript
@@ -215,6 +214,47 @@ script |stringBetween tests|
 	script |Happy|
 		property parent : UnitTest(me)
 		assertEqual("bc", sutScript's stringBetween("abcde", "a", "d"))
+	end script
+end script
+
+
+script |trim tests|
+	property parent : TestSet(me)
+
+	script |Missing value|
+		property parent : UnitTest(me)
+		assertMissing(sutScript's trim(missing value))
+	end script
+		 
+	script |Preceding space, new line, and tab|
+		property parent : UnitTest(me)
+		assertEqual("SELECT", sutScript's trim("
+	 SELECT")) 
+	end script
+
+	script |Tabbed content|
+		property parent : UnitTest(me) 
+		assertEqual("{
+	\"hello\": \"world\"
+}", sutScript's trim("    {
+	\"hello\": \"world\"
+}"    ))
+	end script
+ 
+
+	script |No leading whitespace|
+		property parent : UnitTest(me)
+		assertEqual("SELECT", sutScript's trim("SELECT"))
+	end script
+
+	script |Spaces only|
+		property parent : UnitTest(me)
+		assertEqual("", sutScript's trim("   "))
+	end script
+
+	script |Empty string|
+		property parent : UnitTest(me)
+		assertEqual("", sutScript's trim(""))
 	end script
 end script
 
