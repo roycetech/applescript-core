@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Mail/16.0/dec-mail-settings
 
 	@Created: Sun, Feb 15, 2026 at 05:20:18 PM
-	@Last Modified: 2026-02-15 17:28:42
+	@Last Modified: 2026-03-20 08:10:27
 	@Change Logs:
 *)
 use listUtil : script "core/list" -- reviewed.
@@ -56,6 +56,10 @@ on spotCheck()
 	set sut to decorate(sut)
 
 	logger's infof("Settings window present?: {}", sut's isSettingsWindowPresent())
+	logger's infof("Settings tab name: {}", sut's getSettingsTabName())
+	logger's infof("New message notification: {}", sut's getNewMessageNotification())
+
+
 	if caseIndex is 1 then
 
 	else if caseIndex is 2 then
@@ -184,6 +188,16 @@ on decorate(mainScript)
 		end focusSettingsWindow
 
 
+		on getSettingsTabName()
+			set settingsWindow to getSettingsWindow()
+			if settingsWindow is missing value then return
+
+			tell application "System Events" to tell process "Mail"
+				title of settingsWindow
+			end tell
+		end getSettingsTabName
+
+
 		on switchSettingsTab(tabTitle)
 			if not isSettingsWindowPresent() then return
 			tell application "System Events" to tell process "Mail"
@@ -230,5 +244,18 @@ on decorate(mainScript)
 				end try -- When the passed optionTitle doesn't exist.
 			end tell
 		end pickNewMessageNotificationPopupOption
+
+
+		on getNewMessageNotification()
+			set settingsWindow to getSettingsWindow()
+			if settingsWindow is missing value then return
+
+			tell application "System Events" to tell process "Mail"
+				try
+					return value of pop up button 5 of group 1 of settingsWindow
+				end try
+			end tell
+			missing value
+		end getNewMessageNotification
 	end script
 end decorate
