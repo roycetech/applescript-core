@@ -9,12 +9,13 @@
 		./scripts/build-lib.sh apps/3rd-party/Cursor/2.5/dec-cursor-current-file
 
 	@Created: Thu, Feb 26, 2026 at 03:53:46 PM
-	@Last Modified: 2026-03-12 10:55:58
+	@Last Modified: 2026-03-20 16:07:45
 	@Change Logs:
 *)
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
 use listUtil : script "core/list"
+use fileUtil : script "core/file"
 
 use loggerFactory : script "core/logger-factory"
 
@@ -44,9 +45,11 @@ on spotCheck()
 	set sut to sutLib's new()
 	set sut to decorate(sut)
 
+	logger's infof("Project path: {}", sut's getProjectPath())
 	logger's infof("Current file path: {}", sut's getCurrentFilePath())
 	logger's infof("Current filename: {}", sut's getCurrentFilename())
 	logger's infof("Current base filename: {}", sut's getCurrentBaseFilename())
+	logger's infof("Current file extension: {}", sut's getCurrentFileExtension())
 
 	if caseIndex is 1 then
 
@@ -70,6 +73,30 @@ on decorate(mainScript)
 	script CurrentFileDecorator
 		property parent : mainScript
 
+
+		(*
+			Retrofitted from visual-studio-code.
+		*)
+		on getProjectPath()
+			set projectName to getCurrentProjectName() -- Diverged from vsc in the handler name to get the project name.
+			logger's debugf("projectName: {}", projectName)
+
+			if projectName is missing value then return missing value
+
+			(* Extract path from the window title. *)
+			(*
+			tell application "System Events" to tell process "Cursor"
+				title of front window
+				textUtil's split(result, unic's SEPARATOR)
+			end tell
+			first item of result
+			textUtil's stringBefore(result, projectName) & projectName
+			fileUtil's expandPath(result)
+			*)
+			textUtil's stringBefore(getCurrentFilePath(), projectName) & projectName
+		end getProjectPath
+
+
 		on getCurrentFilename()
 			tell application "System Events" to tell process "Cursor"
 				set windowTitle to title of window 1
@@ -81,6 +108,17 @@ on decorate(mainScript)
 			first item of result
 
 		end getCurrentFilename
+
+
+		on getCurrentFileExtension()
+			set filename to getCurrentFilename()
+			if filename is missing value then return missing value
+
+			set fileExtension to textUtil's stringAfter(filename, ".")
+			if fileExtension is "" or fileExtension is missing value then return missing value
+
+			fileExtension
+		end getCurrentFileExtension
 
 
 		on getCurrentBaseFilename()
