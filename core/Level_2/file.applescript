@@ -9,9 +9,10 @@
 		./scripts/build-lib.sh core/Level_2/file
 
 	@Change Log:
+		Mon, Mar 23, 2026, at 08:52:05 AM - Use recomment expandPath and collapsePath.
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2026-03-04 09:25:51
+	@Last Modified: 2026-03-23 08:52:26
 *)
 
 use scripting additions
@@ -309,23 +310,49 @@ on convertPathToPOSIXString(thePath)
 end convertPathToPOSIXString
 
 
-on convertPathToTilde(filePath)
+(*
+	@filePath file path in POSIX or Mac OS Notation (colon-separated)
+	@returns the path in tilde notation.
+	Example: "/Users/cloud/Projects" -> "~/Projects"
+*)
+on collapsePath(filePath)
 	set markerText to "/Users/" & std's getUsername()
 	if filePath starts with markerText then
 		return textUtil's replace(filePath, markerText, "~")
 	end if
 
 	filePath
+end collapsePath
+
+
+(*
+	@Deprecated. Use # collapsePath.
+*)
+on convertPathToTilde(filePath)
+	collapsePath(filePath)
 end convertPathToTilde
 
 
+on expandPath(tildePath)
+	if tildePath is missing value then return missing value
+
+	textUtil's replace(tildePath, "~", "/Users/" & std's getUsername())
+end expandPath
+
+
+(*
+		@Deprecated. Use # expandPath.
+*)
 on untilde(tildePath)
 	expandTildePath(tildePath)
 end untilde
 
 
+(*
+		@Deprecated. Use # expandPath.
+*)
 on expandTildePath(tildePath)
-	textUtil's replace(tildePath, "~", "/Users/" & std's getUsername())
+	expandPath(tildePath)
 end expandTildePath
 
 
