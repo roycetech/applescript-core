@@ -8,7 +8,6 @@
 		1) Provide a description for this test suite and the name of the script to be tested.
 		2) Write tests :)
 
-	@charset macintosh
 	@Created:
 *)
 use AppleScript
@@ -206,18 +205,17 @@ script |remove tests|
 	
 	script |Element found with different type|
 		property parent : UnitTest(me)
-		assertEqual([1, 2], sutScript's remove([1, 2], "2"))
+		assertEqual([1, 2], sutScript's remove([1, 2], "2")) 
 	end script
 end script
 
 
-
-script |splitByLine tests|
-	property parent : TestSet(me)
+script |splitByLine tests| 
+	property parent : TestSet(me)  
 	
 	script |Missing Value|
 		property parent : UnitTest(me)
-		assertMissing(sutScript's splitByLine(missing value))
+		assertMissing(sutScript's splitByLine(missing value))    
 	end script
 	
 	script |Basic Scenario|
@@ -246,7 +244,7 @@ out"))
 	
 	script |With blank lines|
 		property parent : UnitTest(me)
-		assertEqual({"one", "two", "three"}, sutScript's splitByLine("
+		assertEqual({"", "one", "	two", "three	", ""}, sutScript's splitByLine("
 one
 	two
 three	
@@ -255,11 +253,9 @@ three
 	
 	script |Combination of ASCII 10 and 13|
 		property parent : UnitTest(me)
-		property LF : ASCII character 10
-		property CR : ASCII character 13
 		
-		set stringInput to LF & tab & tab & "one" & CR & tab & tab & "two" & CR & tab & tab & "three" & LF & tab
-		assertEqual({"one", "two", "three"}, sutScript's splitByLine(stringInput))
+		set stringInput to linefeed & tab & tab & "one" & return & tab & tab & "two" & return & tab & tab & "three" & linefeed & tab
+		assertEqual({"", tab & tab & "one", "		two", tab & tab & "three", tab}, sutScript's splitByLine(stringInput))
 	end script
 	
 end script

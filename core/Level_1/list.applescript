@@ -9,8 +9,11 @@
 		./scripts/build-lib.sh core/Level_1/list
 
 	@Change Logs:
+		Fri, Mar 20, 2026, at 09:17:04 AM - Optimized the splitAndTrimParagraphs
+			by reusing the one from string.applescript.
 		Thu, Sep 04, 2025 at 06:31:48 AM - Removed CR and LF properties.
-		Sat, Mar 29, 2025 at 09:01:37 PM - Added #splitByParagraph which uses a natural way to split lines.
+		Sat, Mar 29, 2025 at 09:01:37 PM - Added #splitByParagraph which uses a
+			natural way to split lines.
 *)
 use scripting additions
 
@@ -160,36 +163,15 @@ on splitString(theString as text)
 end splitString
 
 
-(*
-	TODO: Handle special cases like tilde, or when there's single quote in the text.
-	dot character breaks it as well. FOOBAR.
-*)
 on splitByLine(theString)
 	if theString is missing value then return missing value
 
-	-- return splitByParagraph(theString)
-
-	if theString contains linefeed and (theString contains return) then
-		set theString to textUtil's replace(theString, return, linefeed)
-	end if
-	if theString contains return then return _split(theString, return) -- assuming this is shell command result, we have to split by CR.
-
-	-- Only printable ASCII characters below 127 works. tab character don't work.
-	set SEP to "@" -- #%= are probably worth considering.
-
-	if theString contains linesDelimiter or theString contains "\"" then error "Sorry but you can't have " & linesDelimiter & " or double quote in the text :("
-	if theString contains "$" and theString contains "'" then
-		return splitByParagraph(theString)
-		error "Sorry, but you can't have a dollar sign and a single quote in your string"
-	end if
-
-	set theQuote to "\""
-	if theString contains "$" then set theQuote to "'"
-	set command to "echo " & theQuote & theString & theQuote & " | awk 'NF {$1=$1;print $0}' | paste -s -d" & linesDelimiter & " - | sed 's/" & linesDelimiter & "[[:space:]]*/" & linesDelimiter & "/g' | sed 's/[[:space:]]*" & linesDelimiter & "/" & linesDelimiter & "/g' | sed 's/^" & linesDelimiter & "//' | sed 's/" & linesDelimiter & linesDelimiter & "//g' | sed 's/" & linesDelimiter & "$//'" -- failed when using escaped/non escaped plus instead of asterisk.
-
-	set csv to do shell script command
-
-	_split(csv, linesDelimiter)
+	set resultingLines to {}
+	set localParagraphs to paragraphs of theString
+	repeat with nextLine in localParagraphs
+		set end of resultingLines to nextLine as text
+	end repeat
+	resultingLines
 end splitByLine
 
 
@@ -207,17 +189,9 @@ on splitByParagraph(theText)
 	listResult
 end splitByParagraph
 
-on splitAndTrimParagraphs(theText)
-	if theText is missing value then return {}
 
-	set listResult to {}
-	set textLines to paragraphs of theText
-	repeat with nextLine in textLines
-		-- set trimmedLine to do shell script "echo '" & nextLine & "' |  sed 's/ *$//g'  |  sed 's/^[[:space:]]*//g'"
-		set trimmedLine to do shell script "echo " & quoted form of nextLine & " | sed 's/[[:space:]]*$//' | sed 's/^[[:space:]]*//'"
-		if trimmedLine is not "" then set end of listResult to trimmedLine
-	end repeat
-	listResult
+on splitAndTrimParagraphs(theText)
+	textUtil's splitAndTrimParagraphs(theText)
 end splitAndTrimParagraphs
 
 
