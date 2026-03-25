@@ -27,7 +27,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Is Mic In Use
 		Manual: Switch to AirPods (N/A, Happy, Already Selected)
 		Manual: Switch to Default (Happy, Already Selected)

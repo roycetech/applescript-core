@@ -41,7 +41,7 @@
 				Zoom User Meeting ID
 
 	@Created: Wed, Aug 14, 2024 at 10:15:17 AM
-	@Last Modified: 2024-09-10 13:43:08
+	@Last Modified: 2026-03-24 17:31:36
 *)
 
 use textUtil : script "core/string"
@@ -88,7 +88,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Wait Main Window
 		Manual: Switch Tab

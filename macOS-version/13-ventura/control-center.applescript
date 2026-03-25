@@ -25,7 +25,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Show Widgets
 
 		DND On

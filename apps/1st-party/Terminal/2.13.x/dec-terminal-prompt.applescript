@@ -39,7 +39,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Is Shell Prompt - zsh, bash, docker with/out command, redis, sftp, EC2 ssh
 		Manual: Wait for Prompt
 		Manual: Prompt With Command (Git/Non Git, Parens, Lingering Command)

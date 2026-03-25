@@ -50,7 +50,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP:
 		Manual: Load File (App Open, Not Running, Already Loaded)
 		Manual: Document Info (sample.txt, no file, search result, nav bar un/focused, Settings)

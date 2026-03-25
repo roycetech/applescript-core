@@ -1,6 +1,6 @@
 (*
 	@Created: July 9, 2023 11:52 AM
-	@Last Modified: 2023-09-18 22:33:08
+	@Last Modified: 2026-03-24 17:31:34
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -17,7 +17,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Found
 		Manual: Not found
 	")

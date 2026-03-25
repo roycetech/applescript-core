@@ -33,7 +33,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Notice Meetings
 	")

@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-preferences
 
 	@Created: Fri, Jul 12, 2024 at 2:58:38 PM
-	@Last Modified: 2026-02-20 13:22:36
+	@Last Modified: 2026-03-24 17:45:54
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -26,7 +26,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 		Manual: Show Preferences Window
 		Manual: Close Preferences Window

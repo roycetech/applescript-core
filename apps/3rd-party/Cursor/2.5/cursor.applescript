@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Cursor/2.5/cursor
 
 	@Created: Wed, Feb 25, 2026 at 12:27:36 PM
-	@Last Modified: 2026-03-20 16:10:20
+	@Last Modified: 2026-03-24 17:31:31
 *)
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
@@ -33,7 +33,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Show secondary side bar
 		Manual: Hide secondary side bar
@@ -64,7 +64,6 @@ on spotCheck()
 
 	set sut to new()
 	logger's infof("Secondary side bar visible: {}", sut's isSecondarySideBarVisible())
-	logger's infof("Project name: {}", sut's getCurrentProjectName())
 	logger's infof("Is minimap visible: {}", sut's isMinimapVisible())
 
 	if caseIndex is 1 then
@@ -143,26 +142,6 @@ on new()
 		end switchProjectTab
 
 
-		on getCurrentProjectName()
-			if running of application "Cursor" is false then return missing value
-
-			tell application "System Events" to tell process "Cursor"
-				set windowTitle to title of window 1
-			end tell
-
-			if windowTitle does not contain unic's SEPARATOR then return windowTitle
-
-			textUtil's split(windowTitle, unic's SEPARATOR)
-			set titleProjectName to item 2 of result
-
-			if getCurrentFileExtension() is not equal to "code-workspace" then
-				return titleProjectName
-			end if
-
-			textUtil's stringBefore(titleProjectName, " (Workspace)")
-		end getCurrentProjectName
-
-
 		on _focusApp()
 			tell application "System Events" to tell process "Cursor"
 				if frontmost is false then set frontmost to true
@@ -187,6 +166,25 @@ on new()
 			_focusApp()
 			kb's pressKey(return)
 		end openFilePathViaUI
+
+
+		(*
+		*)
+		on openFilePathViaUIRushed(filePath)
+			if running of application "Cursor" is false then return
+
+			_focusApp()
+			kb's pressCommandKey("p")
+			delay 0.5
+
+			_focusApp()
+			kb's typeText(filePath)
+			-- delay 2
+			delay 0.2
+
+			_focusApp()
+			kb's pressKey(return)
+		end openFilePathViaUIRushed
 
 
 		on runCommandPalette(commandKey)

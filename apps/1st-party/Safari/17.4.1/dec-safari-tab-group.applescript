@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-tab-group
 
 	@Created: Friday, April 26, 2024 at 11:52:07 AM
-	@Last Modified: 2026-02-20 13:21:20
+	@Last Modified: 2026-03-24 17:45:54
 	@Change Logs:
 		Friday, April 26, 2024 at 11:55:54 AM
 			 - Switch to default stopped working because the default group was greyed out when programmatically clicking on the Tab Group menu button. Now we need to steal focus and use a 3rd party tool cliclick to simulate user interaction.
@@ -36,7 +36,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Switch to applescript-core
 		Manual: Switch to Default
 	")

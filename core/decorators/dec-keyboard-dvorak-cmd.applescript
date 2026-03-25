@@ -27,7 +27,7 @@ on spotCheck()
 
 	-- All spot check cases are manual.
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: pressKey (dvorak/us input);
 		Manual: pressControlKey (dvorak/us input);
 		Manual: pressCommandKey (dvorak/us input);

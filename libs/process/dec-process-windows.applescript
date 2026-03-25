@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh libs/process/dec-process-windows
 
 	@Created: Friday, September 13, 2024 at 2:05:42 PM
-	@Last Modified: 2026-03-18 12:08:36
+	@Last Modified: 2026-03-24 17:31:26
 
 	@Change Logs:
 		Fri, Mar 06, 2026, at 12:01:36 PM - #raiseWindow handler
@@ -26,7 +26,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Move Window with Title Containing
 		Manual: Move Window with Title Not Containing

@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/Level_4/dotenv
 
 	@Created: Sat, Mar 14, 2026 at 02:11:57 PM
-	@Last Modified: 2026-03-14 18:28:50
+	@Last Modified: 2026-03-24 17:31:26
 *)
 use fileUtil : script "core/file"
 use listUtil : script "core/list"
@@ -29,7 +29,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Read Key
 	")

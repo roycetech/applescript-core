@@ -37,14 +37,14 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-	
-	set cases to listUtil's splitByLine("
+
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Main Actions
 		Step
 		Step with Token
 	")
-	
+
 	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
@@ -53,7 +53,7 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	set sut to new()
 	if caseIndex is 2 then
 		sut's initMainActionsFromString("
@@ -61,7 +61,7 @@ on spotCheck()
 			two
 		")
 		log sut's mainActions
-		
+
 	else if caseIndex is 3 then
 		set speakStep of sut to true
 		sut's initMainActionsFromString("
@@ -70,27 +70,27 @@ on spotCheck()
 		")
 		sut's step()
 		sut's step()
-		
+
 	else if caseIndex is 4 then
 		set speakStep of sut to true
 		sut's initMainActions({"Hello '{}'"})
-		
+
 		step of sut given token:"World"
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
 
 on new()
 	loggerFactory's inject(me)
-	
+
 	script ProgressInstance
 		property currentStep : 0
 		property totalStep : 0
 		property mainActions : missing value
 		property logging : true
-		
+
 		on initProgress(theTotal, theDesc, theSubDesc)
 			set my totalStep to theTotal
 			set progress total steps to theTotal
@@ -98,31 +98,31 @@ on new()
 			set progress description to theDesc
 			set progress additional description to theSubDesc
 		end initProgress
-		
-		
+
+
 		on initMainActionsFromString(actions)
-			initMainActions(listUtil's splitByLine(actions))
+			initMainActions(listUtil's splitAndTrimParagraphs(actions))
 		end initMainActionsFromString
-		
-		
+
+
 		on initMainActions(actions)
 			set my mainActions to actions
 			set my totalStep to count of actions
 			set my currentStep to 0
-			
+
 			set progress total steps to count of actions
 			set progress completed steps to 0
 			set progress description to "Initializing..."
 			-- set progress additional description to theSubDesc
 		end initMainActions
-		
+
 		on step given token:theToken : ""
 			try
 				theToken
 			on error
 				set theToken to ""
 			end try
-			
+
 			set currentStep to currentStep + 1
 			set progress completed steps to currentStep
 			if currentStep is greater than the (count of mainActions) then
@@ -130,17 +130,17 @@ on new()
 				return
 			end if
 			set currentAction to format {item currentStep of mainActions, theToken}
-			
+
 			set progress description to the currentAction
 		end step
-		
-		
+
+
 		on finish()
 			set currentStep to (count of mainActions) - 1
 			step()
 		end finish
-		
-		
+
+
 		(* Complicated, do not to use! *)
 		on stepWithSkip(skipPrevious as boolean)
 			if skipPrevious then
@@ -149,16 +149,16 @@ on new()
 			end if
 			step()
 		end stepWithSkip
-		
-		
+
+
 		on nextProgress(theSubDetail)
 			set currentStep to currentStep + 1
 			set progress completed steps to currentStep
-			
+
 			set progress additional description to theSubDetail & " " & currentStep & " of " & totalStep
 		end nextProgress
-		
-		
+
+
 		on resetProgress()
 			-- Reset the progress information
 			set progress total steps to 0

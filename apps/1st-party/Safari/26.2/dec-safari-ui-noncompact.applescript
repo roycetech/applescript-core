@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-ui-noncompact
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2026-02-21 17:11:45
+	@Last Modified: 2026-03-24 17:45:56
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -29,7 +29,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Loading State
 	")

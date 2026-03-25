@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-dialog
 
 	@Created: Thu, Dec 18, 2025 at 04:33:57 PM
-	@Last Modified: 2025-12-18 16:37:18
+	@Last Modified: 2026-03-24 17:45:52
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -23,7 +23,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Respond Empty Trash
 	")

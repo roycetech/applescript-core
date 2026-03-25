@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.0/safari-tab
 
 	@Created: Fri, Nov 22, 2024 at 7:29:47 AM
-	@Last Modified: 2024-11-26 07:27:21
+	@Last Modified: 2026-03-24 17:45:54
 
 	@Change Logs:
 		Fri, Nov 22, 2024 at 7:29:51 AM
@@ -35,7 +35,7 @@ on spotCheck()
 
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 		Manual: Closed Tab
 		Manual: Move tab to index

@@ -9,7 +9,7 @@
 	@Build:
 		make build-lib SOURCE=apps/1st-party/Calendar/11.0/calendar-event
 
-	@Last Modified: 2026-02-20 13:14:38
+	@Last Modified: 2026-03-24 17:45:51
 *)
 
 use scripting additions
@@ -47,7 +47,7 @@ on spotCheck()
 	logger's start()
 
 	set my isSpot to true
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: To JSON String
 		Manual: Find a suitable calendar event for testing.
 	")

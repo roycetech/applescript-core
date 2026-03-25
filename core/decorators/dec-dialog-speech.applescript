@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/decorators/dec-dialog-speech
 
 	@Created: Sun, Dec 07, 2025 at 04:08:25 PM
-	@Last Modified: 2025-12-08 09:54:53
+	@Last Modified: 2026-03-24 17:31:36
 	@Change Logs:
 *)
 use scripting additions
@@ -29,7 +29,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Show OK Dialog
 		Manual: Show Warning

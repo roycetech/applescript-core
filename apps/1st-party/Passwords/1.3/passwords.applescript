@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/1st-party/Passwords/1.3/passwords
 
 	@Created: Fri, Mar 07, 2025 at 08:42:28 AM
-	@Last Modified: 2025-03-16 12:40:59
+	@Last Modified: 2026-03-24 17:45:53
 *)
 use scripting additions
 
@@ -23,7 +23,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Search
 		Manual: Select First Credential

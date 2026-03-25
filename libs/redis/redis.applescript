@@ -33,7 +33,7 @@
 	@Known Issues:
 		September 2, 2023 9:53 AM - Records are not currently supported.
 
-	@Last Modified: 2025-12-07 11:24:39
+	@Last Modified: 2026-03-24 17:31:26
  *)
 
 use scripting additions
@@ -68,7 +68,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Read Value
 		Manual: Zulu Date
 		Manual: Write Value

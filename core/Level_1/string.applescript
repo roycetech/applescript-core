@@ -13,7 +13,7 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_1/string
 
-	@Last Modified: 2026-03-20 09:09:32
+	@Last Modified: 2026-03-24 17:31:30
 
 	@Change Logs:
 		Mon, Dec 08, 2025, at 03:14:06 PM
@@ -32,7 +32,7 @@ on spotCheck()
 
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Wing It!
 		Encode Multi Line Command
 		Manual: Improve format to be allow more tokens than placeholders
@@ -542,10 +542,10 @@ end trim
 
 
 on reverseString(theText)
-    if theText is missing value then return missing value
-    if theText as text is equal to "" then return ""
+	if theText is missing value then return missing value
+	if theText as text is equal to "" then return ""
 
-    (reverse of characters of theText) as text
+	(reverse of characters of theText) as text
 end reverseString
 
 
@@ -598,3 +598,5 @@ on unitTest()
 		done()
 	end tell
 end unitTest
+
+

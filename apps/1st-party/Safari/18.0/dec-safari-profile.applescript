@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.0/dec-safari-profile
 
 	@Created: Sunday, October 6, 2024 at 7:27:33 PM
-	@Last Modified: 2025-10-27 07:20:31
+	@Last Modified: 2026-03-24 17:45:54
 	@Change Logs:
 *)
 use textUtil : script "core/string"
@@ -28,7 +28,7 @@ on spotCheck()
 
 	set listUtil to script "core/list"
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: New Business Tab
 	")

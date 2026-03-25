@@ -2,7 +2,7 @@
 	Utility for testing Terminal app scripts.
 
 	@Created: Friday, May 17, 2024 at 9:50:26 AM
-	@Last Modified: 2026-01-15 20:33:22
+	@Last Modified: 2026-03-24 17:31:28
 
 	@Plists:
 		config-user:
@@ -49,7 +49,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Launch Test Window
 	")

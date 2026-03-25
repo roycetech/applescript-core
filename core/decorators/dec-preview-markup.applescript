@@ -7,7 +7,7 @@
 		./scripts/build-lib.sh core/decorators/dec-preview-markup
 
 	@Created: Wednesday, December 4, 2024 at 7:39:09 AM
-	@Last Modified: 2024-12-31 19:33:47
+	@Last Modified: 2026-03-24 17:31:36
 	@Change Logs:
 *)
 
@@ -26,7 +26,7 @@ on spotCheck()
 
 	set listUtil to script "core/list"
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP:
 		Manual: Toggle markup toolbar
 		Manual: Show markup toolbar

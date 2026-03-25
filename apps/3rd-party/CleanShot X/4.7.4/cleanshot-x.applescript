@@ -40,7 +40,7 @@ on spotCheck()
 	
 	set processLib to script "core/process"
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP:
 		Manual: Show Settings
 		Manual: Switch Tab

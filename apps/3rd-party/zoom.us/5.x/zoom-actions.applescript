@@ -10,7 +10,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/5.x/zoom-actions
 
-	@Last Modified: 2024-12-31 19:33:03
+	@Last Modified: 2026-03-24 17:31:35
 *)
 
 use listUtil : script "core/list"
@@ -40,7 +40,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual Mute
 		Manual: Unmute
 		Manual: Start Video

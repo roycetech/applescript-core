@@ -12,7 +12,7 @@
 
 	TODO: Reduce the spot checks and move to Test plist-buddy.
 
-	@Last Modified: 2025-02-19 06:45:31
+	@Last Modified: 2026-03-24 17:31:26
 *)
 
 use script "core/Text Utilities"
@@ -43,7 +43,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Add a key-value pair (existing, non-existing, root not/found)
 		Manual: Delete a root key (existing, non-existing)
 		Manual: Delete a key-value pair

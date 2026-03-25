@@ -43,7 +43,7 @@ on spotCheck()
 
 	-- All spot check cases are manual.
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual Checks
 		Paste Text with Emoji
 		Manual: Modifier Pressed

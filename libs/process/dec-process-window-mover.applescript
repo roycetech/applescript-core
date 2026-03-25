@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/decorators/dec-process-window-mover
 
 	@Created: Sun, Oct 26, 2025 at 01:16:46 PM
-	@Last Modified: 2025-10-28 10:43:34
+	@Last Modified: 2026-03-24 17:31:26
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -23,7 +23,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Move Window
 	")

@@ -54,7 +54,7 @@ on spotCheck()
 
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Nonexistent App
 		Manual: Terminate (Launch Automator). (Running/Not Running)
 		Manual: Is Front Most (Running,Not Running)

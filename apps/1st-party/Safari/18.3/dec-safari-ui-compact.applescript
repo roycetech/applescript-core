@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-ui-compact
 
 	@Created: Wed, Feb 12, 2025 at 11:23:10 AM
-	@Last Modified: 2026-01-25 13:35:47
+	@Last Modified: 2026-03-24 17:45:55
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -29,7 +29,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		General
 		Manual: Loading State
 	")

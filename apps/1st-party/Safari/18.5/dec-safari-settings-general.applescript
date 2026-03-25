@@ -23,7 +23,7 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Toggle Open safe files after downloading
 		Manual: Set Open safe files after downloading - ON

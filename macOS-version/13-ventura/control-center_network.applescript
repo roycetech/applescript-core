@@ -31,7 +31,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: List of Hotspot (Maybe used to identify your hotpot key, mind the Unicode apostrophe, test no hotspot available)
 		Manual: Join Hotspot (Not Joined, Already Joined, Not Found)
 		Manual: Join WIFI (Not Joined, Already Joined, Not Found)

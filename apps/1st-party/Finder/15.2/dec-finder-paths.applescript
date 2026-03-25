@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-paths
 
 	@Created: Tuesday, December 31, 2024 at 6:17:40 PM
-	@Last Modified: 2025-12-02 09:24:24
+	@Last Modified: 2026-03-24 17:45:52
 	@Change Logs:
 *)
 use scripting additions
@@ -29,7 +29,7 @@ on spotCheck()
 
 	set listUtil to script "core/list"
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Get File Path
 		Manual: Open POSIX Path

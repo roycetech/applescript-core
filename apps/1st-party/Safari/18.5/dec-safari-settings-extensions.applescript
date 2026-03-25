@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings-extensions
 
 	@Created: Fri, Jun 06, 2025 at 08:39:15 AM
-	@Last Modified: 2025-06-14 08:33:47
+	@Last Modified: 2026-03-24 17:45:55
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -23,7 +23,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 	")
 

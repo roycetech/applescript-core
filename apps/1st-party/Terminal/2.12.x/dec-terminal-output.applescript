@@ -2,7 +2,7 @@
 	@Build:
 		make build-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-prompt-sftp
 
-	@Last Modified: 2023-09-25 14:57:56
+	@Last Modified: 2026-03-24 17:45:56
 *)
 
 use listUtil : script "core/list"
@@ -24,7 +24,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Recent Output
 		Manual: Last Output (With/out lastCommand, Shell, Non-Shell)
 		Complete Output

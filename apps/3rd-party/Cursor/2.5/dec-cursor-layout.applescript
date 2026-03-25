@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Cursor/2.5/dec-cursor-layout
 
 	@Created: Wed, Feb 25, 2026 at 02:26:39 PM
-	@Last Modified: 2026-02-25 16:41:52
+	@Last Modified: 2026-03-24 17:31:31
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -23,7 +23,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Single file layout
 		Manual: Two columns layout

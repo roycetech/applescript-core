@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/marked
 
 	@Migrated: Mon, May 26, 2025 at 08:05:41 AM
-	@Last Modified: 2025-10-13 07:32:20
+	@Last Modified: 2026-03-24 17:31:33
 *)
 
 use std : script "core/std"
@@ -41,7 +41,7 @@ on spotCheck()
 	set configSystem to configLib's new("system")
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 		Open File - Not Running
 		Open File - Running

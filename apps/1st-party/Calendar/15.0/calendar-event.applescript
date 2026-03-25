@@ -12,7 +12,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Calendar/15.0/calendar-event
 
-	@Last Modified: 2025-03-23 17:40:16
+	@Last Modified: 2026-03-24 17:45:51
 *)
 
 use scripting additions
@@ -45,7 +45,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: To JSON String
 		Manual: Find a suitable calendar event for testing.
 		Manual: Specific Date - Hide Empty

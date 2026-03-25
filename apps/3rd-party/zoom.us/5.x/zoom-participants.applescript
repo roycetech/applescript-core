@@ -29,7 +29,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Is Participants View Visible
 		Manual: Show Participants View (Absent, Already Present)
 		Manual: Hide Participants View (Absent, Already Present)

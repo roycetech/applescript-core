@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/base-app
 
 	@Created: Sat, Feb 28, 2026 at 07:17:25 PM
-	@Last Modified: 2026-02-28 19:59:39
+	@Last Modified: 2026-03-24 17:31:28
 *)
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -21,7 +21,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Calendar
 		Manual: Safari

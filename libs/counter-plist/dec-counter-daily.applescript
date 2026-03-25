@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh libs/counter-plist/dec-counter-daily
 
 	@Created: Thu, Oct 16, 2025 at 01:58:11 PM
-	@Last Modified: 2025-10-17 06:35:20
+	@Last Modified: 2026-03-24 17:31:26
 	@Change Logs:
 *)
 use scripting additions
@@ -32,7 +32,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Increment Daily
 	")

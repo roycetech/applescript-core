@@ -1,7 +1,7 @@
 (*
 	Provides handlers about the meeting window.
 
-	@Last Modified: 2024-12-31 19:33:11
+	@Last Modified: 2026-03-24 17:31:35
 
 	@Project:
 		applescript-core
@@ -28,7 +28,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Close Home Window (Screen Sharing/Non Sharing)
 		Manual: Toggle Always on Top
 		Manual: Turn On Always on Top

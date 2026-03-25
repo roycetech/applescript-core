@@ -37,7 +37,7 @@ on spotCheck()
 	logger's start()
 	set configSystem to configLib's new("system")
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Current File details (No file, Find Result, Ordinary File)
 		Manual: Focus Window
 		Manual: Open File

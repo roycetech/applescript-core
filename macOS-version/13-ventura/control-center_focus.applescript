@@ -53,7 +53,7 @@ on spotCheck()
 	(*
 		Re-run manual tests with the Microphone ON.
 	*)
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: DND Status( ON, OFF, Other Focus)
 		Manual: DND On (Off, On, From Work Focus)
 		Manual: DND Off (Off, On, From Work Focus)

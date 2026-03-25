@@ -11,7 +11,7 @@
 	@Created:
 		Wed Dec 28 18:24:28 2022
 
-	@Last Modified: 2026-03-18 14:46:24
+	@Last Modified: 2026-03-24 17:31:31
 
 	@Change Logs:
 		Wed, Mar 18, 2026, at 10:43:28 AM - Added window overlap handlers.
@@ -27,7 +27,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO:
 		Manual: Has Window (Check absence, presence, and on another desktop)
 		Dummy

@@ -15,7 +15,7 @@
 			#isShellPrompt()
 			#getPrompt()
 
-	@Last Modified: 2026-03-02 13:57:51
+	@Last Modified: 2026-03-24 17:45:57
 
 	@Refactored Out:
 		Wednesday, May 15, 2024 at 10:53:05 PM
@@ -50,7 +50,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: INFO
 		Manual: Wait for Shell Prompt
 	")

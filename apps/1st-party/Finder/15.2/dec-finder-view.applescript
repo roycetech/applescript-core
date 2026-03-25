@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-view
 
 	@Created: Sun, May 04, 2025 at 10:40:36 AM
-	@Last Modified: 2025-11-01 13:43:47
+	@Last Modified: 2026-03-24 17:45:52
 	@Change Logs:
 *)
 use unic : script "core/unicodes"
@@ -25,7 +25,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Set View Type
 		Manual: Sort By Name

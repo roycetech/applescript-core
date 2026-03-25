@@ -14,7 +14,7 @@
 		WARNING: This script requires re-compilation each time there's a change on this file.
 
 	@Created: Sunday, January 28, 2024 at 2:35:54 PM
-	@Last Modified: 2025-12-29 06:39:04
+	@Last Modified: 2026-03-24 17:45:57
 *)
 use script "core/Text Utilities"
 use scripting additions
@@ -51,7 +51,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: New Window
 		Manual: New Tab

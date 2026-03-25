@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/decorators/dec-system-settings-cliclick
 
 	@Created: Saturday, September 21, 2024 at 10:36:44 AM
-	@Last Modified: 2025-12-08 15:32:21
+	@Last Modified: 2026-03-24 17:31:36
 	@Change Logs:
 *)
 use script "core/Text Utilities"
@@ -31,7 +31,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 	")
 

@@ -89,7 +89,7 @@ on spotCheck()
 	logger's start()
 
 	-- set skip of overrider to true
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Front Tab and Info
 		Manual: New Tab, Find
 		Focus

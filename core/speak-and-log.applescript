@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh core/speak-and-log
 
 	@Created: Tuesday, December 19, 2023 at 3:35:33 PM
-	@Last Modified: 2025-12-07 14:28:03
+	@Last Modified: 2026-03-24 17:31:36
 *)
 
 use scripting additions
@@ -28,7 +28,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Synchronous
 	")
 

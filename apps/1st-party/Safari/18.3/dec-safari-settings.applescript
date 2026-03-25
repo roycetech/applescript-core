@@ -12,7 +12,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-settings
 
 	@Created: Fri, Jul 12, 2024 at 2:58:38 PM
-	@Last Modified: 2026-02-20 13:12:32
+	@Last Modified: 2026-03-24 17:45:55
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -28,7 +28,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 		Manual: Show Settings Window
 		Manual: Close Settings Window

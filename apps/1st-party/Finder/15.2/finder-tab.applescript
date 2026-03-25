@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-tab
 
 	@Created: Tuesday, December 31, 2024 at 6:01:47 PM
-	@Last Modified: 2026-01-18 11:49:49
+	@Last Modified: 2026-03-24 17:45:52
 *)
 use scripting additions
 
@@ -27,7 +27,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 		Manual: Focus
 	")

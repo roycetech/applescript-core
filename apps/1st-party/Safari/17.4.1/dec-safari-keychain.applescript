@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-keychain
 
 	@Created: Sunday, March 31, 2024 at 10:20:13 PM
-	@Last Modified: 2026-02-20 13:20:57
+	@Last Modified: 2026-03-24 17:45:54
 	@Change Logs:
 		Sunday, March 31, 2024 at 10:20:18 PM - Keychain UI layout has changed.
 *)
@@ -29,7 +29,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Info only
 		Manual: Select Keychain
 		Manual: Show other passwords

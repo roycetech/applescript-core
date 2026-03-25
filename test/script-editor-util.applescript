@@ -2,7 +2,7 @@
 	Utility for testing Script Editor app scripts.
 	CAVEAT: It uses the script-editor.applescript to test itself to keep it simple.
 
-	@Last Modified: 2026-01-15 13:37:09
+	@Last Modified: 2026-03-24 17:31:28
 
 	@Plists:
 		config-user:
@@ -45,7 +45,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Launch Test Window
 	")

@@ -42,7 +42,7 @@ on spotCheck()
 	(*
 		Re-run manual tests with the Microphone ON.
 	*)
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP:
 		Turn Off
 		Turn On

@@ -6,7 +6,7 @@
 		make build-lib SOURCE="apps/3rd-party/Eclipse/v202306/eclipse"
 
 	@Created: September 7, 2023 11:02 AM
-	@Last Modified: 2023-09-25 14:57:56
+	@Last Modified: 2026-03-24 17:31:31
 *)
 
 use textUtil : script "core/string"
@@ -27,7 +27,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Show Preferences
 		Manual: Appearance Preferences
 		Manual: Switch to Light Mode

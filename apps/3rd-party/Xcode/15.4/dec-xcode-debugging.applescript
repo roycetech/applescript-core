@@ -7,7 +7,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Xcode/15.4/dec-xcode-debugging
 
 	@Created: Friday, August 2, 2024 at 5:42:38 PM
-	@Last Modified: 2024-12-31 19:32:59
+	@Last Modified: 2026-03-24 17:31:35
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -22,7 +22,7 @@ on spotCheck()
 	logger's start()
 
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Resume
 		Manual: Step Over
 		Manual: Step Into

@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/dec-finder-files
 
 	@Created: Tuesday, December 31, 2024 at 6:11:21 PM
-	@Last Modified: 2025-01-03 07:59:02
+	@Last Modified: 2026-03-24 17:45:52
 	@Change Logs:
 *)
 use scripting additions
@@ -26,7 +26,7 @@ on spotCheck()
 
 	set listUtil to script "core/list"
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Create File
 		Manual: Copy File

@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/terminal-tab
 
 	@Created: October 7, 2023 10:27 AM
-	@Last Modified: 2024-02-08 13:29:52
+	@Last Modified: 2026-03-24 17:45:56
 *)
 use script "core/Text Utilities"
 use scripting additions
@@ -46,7 +46,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 	")
 

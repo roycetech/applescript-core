@@ -12,7 +12,7 @@
 		Mon, Mar 23, 2026, at 08:52:05 AM - Use recomment expandPath and collapsePath.
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2026-03-23 08:52:26
+	@Last Modified: 2026-03-24 17:31:31
 *)
 
 use scripting additions
@@ -32,7 +32,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Read Text File
 		Manual: Modification Date
 		Manual: Creation Date

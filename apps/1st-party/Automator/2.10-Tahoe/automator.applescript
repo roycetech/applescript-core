@@ -16,7 +16,7 @@
 		Assumes automator is not used or opened for purposes other than the exclusive use of this script.
 		Wipes out clipboard contents.
 
-	@Last Modified: 2026-01-18 11:49:26
+	@Last Modified: 2026-03-24 17:45:51
 
 	@Change Logs:
 		Tue, Nov 18, 2025, at 10:25:20 AM - Tahoe UI restructure.
@@ -60,7 +60,7 @@ on spotCheck()
 	set processLib to script "core/process"
 	set dockLib to script "core/dock"
 	set dock to dockLib's new()
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: E2E: Create New App Script
 		Manual: E2E: Create Voice Command App

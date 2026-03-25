@@ -22,7 +22,7 @@ on spotCheck()
 
 	set terminal to terminalLib's new()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Regular Shell Prompt - Yes
 		Manual: Regular Shell Prompt - No
 		Manual: Redis Shell Prompt - Yes

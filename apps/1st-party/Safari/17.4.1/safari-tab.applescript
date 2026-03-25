@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/safari-tab
 
 	@Created: Sunday, March 31, 2024 at 9:31:30 AM
-	@Last Modified: 2026-02-20 13:21:58
+	@Last Modified: 2026-03-24 17:45:54
 
 	@Change Logs:
 		Sunday, March 31, 2024 at 9:28:23 AM - After Sonoma 14.4.1, document reference could no longer be passed from intermediary reference, it needs to be directly accessed to work.
@@ -32,7 +32,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Closed Tab
 		Manual: Move tab to index
 	")

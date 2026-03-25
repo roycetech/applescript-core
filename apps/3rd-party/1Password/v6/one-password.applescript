@@ -33,7 +33,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Unlocked (yes, no)
 		Manual: Retrieve a password
 		Retrieve a password via mini - Manual (Takes 1s vs 3s for the standard.)
@@ -99,7 +99,7 @@ on new()
 			if unlocked then
 				pwd's selectCategory("Logins")
 				set credKey to "your-unique-key"
-				set credKey to "" -- << TEST YOUR CRED HERE, DO NOT COMMIT.
+				set credKey to "" -- << TEST YOUR CRED HERE, DO NOT VERSION CONTROL!.
 
 				-- set thePassword to pwd's doGetPassword(credKey)
 				-- set thePassword to pwd's doGetOTP(credKey)

@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Xcode/15.4/xcode
 
 	@Created: Monday, May 27, 2024 at 1:22:50 PM
-	@Last Modified: 2024-08-02 18:29:36
+	@Last Modified: 2026-03-24 17:31:35
 
 	@Known Issues:
 		Sat, Jul 13, 2024 at 3:17:17 PM - Files created outside of target will be referenced incorrectly by the
@@ -37,7 +37,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Quick Open File
 	")

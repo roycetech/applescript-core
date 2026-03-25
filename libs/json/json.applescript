@@ -30,7 +30,7 @@ on spotCheck()
 	set configSystem to configLib's new("system")
 	set asProjectPath to configSystem's getValue("AppleScript Core Project Path")
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Read JSON File - Dictionary
 		Read JSON File - List
 		Convert object to JSON String

@@ -10,7 +10,7 @@
 		instance name
 		handler name
 
-	@Last Modified: 2023-09-18 22:33:05
+	@Last Modified: 2026-03-24 17:31:26
 *)
 
 use listUtil : script "core/list"
@@ -33,7 +33,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Regular Shell Prompt - Yes
 		Manual: Regular Shell Prompt - No
 		Manual: Redis Shell Prompt - Yes

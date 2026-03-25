@@ -12,7 +12,7 @@
 		Sun, Oct 12, 2025, at 05:25:57 AM - Menu can be out of sync with reality. Re-toggle manually from the Marked 2 app menu to fix.
 
 	@Created: Sat, Oct 11, 2025 at 09:13:12 AM
-	@Last Modified: 2025-10-12 05:26:32
+	@Last Modified: 2026-03-24 17:31:33
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -26,7 +26,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Toggle Dark Mode
 		Turn On Dark Mode

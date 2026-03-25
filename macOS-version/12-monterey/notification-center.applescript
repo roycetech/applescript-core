@@ -4,7 +4,7 @@
 	@Plists:
 		notification-appname - contains mapping for app id to app name.
 
-	@Last Modified: 2023-09-18 22:33:39
+	@Last Modified: 2026-03-24 17:31:27
 
 	For Mail notifications, the grouping must be set to Off.
 *)
@@ -38,7 +38,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Info
 		Manual: Expand First Notice
 		Manual: For Each - Notification Util

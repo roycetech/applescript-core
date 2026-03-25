@@ -11,7 +11,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/1st-party/Finder/26.1/finder
 
-	@Last Modified: 2026-01-18 11:50:14
+	@Last Modified: 2026-03-24 17:45:52
 *)
 
 use script "core/Text Utilities"
@@ -43,7 +43,7 @@ on spotCheck()
 
 	(* Have a Finder window open and manually verify result. *)
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO:
 		Integration: finder-tab
 		Manual: New Tab for Path

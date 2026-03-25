@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/6.7/dec-zoom-meeting
 
 	@Created: Monday, August 12, 2024 at 4:29:20 PM
-	@Last Modified: 2026-03-02 21:42:01
+	@Last Modified: 2026-03-24 17:31:36
 	@Change Logs:
 		Mon, Dec 15, 2025, at 11:41:11 AM - Add closer of auto updater.
 *)
@@ -26,7 +26,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP: Info
 		Manual: New Meeting
 		Manual: End Meeting

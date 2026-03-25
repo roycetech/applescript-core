@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Calendar/15.0/dec-calendar-meetings
 
 	@Created: Sun, Mar 23, 2025 at 11:00:07 AM
-	@Last Modified: 2025-03-23 17:47:13
+	@Last Modified: 2026-03-24 17:45:52
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -32,7 +32,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 	")
 

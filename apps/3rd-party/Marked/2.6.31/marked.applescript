@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.31/marked
 
 	@Created: January 13, 2024 1:29:36 PM
-	@Last Modified: 2025-02-17 06:40:03
+	@Last Modified: 2026-03-24 17:31:33
 *)
 
 use std : script "core/std"
@@ -35,7 +35,7 @@ on spotCheck()
 
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 
 		Open File - Not Running

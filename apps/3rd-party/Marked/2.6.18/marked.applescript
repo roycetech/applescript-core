@@ -7,7 +7,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.18/marked
 
-	@Last Modified: 2023-12-20 15:15:02
+	@Last Modified: 2026-03-24 17:31:33
 
 	@Known Issues:
 		July 2, 2023 8:39 PM - Application keeps reference to closed windows,
@@ -39,7 +39,7 @@ on spotCheck()
 
 	set configSystem to configLib's new("system")
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Open File - Not Running
 		Open File - Running
 		Open File - Running - No document

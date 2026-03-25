@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh libs/process/dec-process-window-resizer
 
 	@Created: Sun, Oct 26, 2025 at 01:18:16 PM
-	@Last Modified: 2026-03-20 08:28:01
+	@Last Modified: 2026-03-24 17:31:26
 	@Change Logs:
 
 *)
@@ -27,7 +27,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Resize Window
 	")

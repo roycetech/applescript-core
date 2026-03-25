@@ -52,7 +52,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Stacked Notice Details - toString()
 		Manual: App Names
 		Manual: For Each - Notification Helper

@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/6.7/dec-zoom-preview
 
 	@Created: Mon, Mar 02, 2026 at 04:54:43 PM
-	@Last Modified: 2026-03-02 21:34:57
+	@Last Modified: 2026-03-24 17:31:36
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -27,7 +27,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Toggle Preview Mute
 		Manual: Mute Preview

@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/FileZilla/3.68.x/file-zilla
 
 	@Created: Wednesday, January 15, 2025 at 9:46:35 AM
-	@Last Modified: 2025-05-08 06:42:29
+	@Last Modified: 2026-03-24 17:31:31
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -20,7 +20,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Reconnect Latest
 	")

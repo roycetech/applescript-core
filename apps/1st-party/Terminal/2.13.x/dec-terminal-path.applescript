@@ -18,7 +18,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Posix Path
 		Manual: Is User Path (true, false, home path)
 		Manual: Is Home Path (true, false)

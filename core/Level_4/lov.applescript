@@ -10,7 +10,7 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_4/lov
 
-	@Last Modified: 2025-12-20 11:15:45
+	@Last Modified: 2026-03-24 17:31:26
 *)
 
 use scripting additions
@@ -35,7 +35,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Binary
 		Manual: Tertiary
 		Manual: missing value returns the first item

@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh libs/counter-plist/dec-counter-hourly
 
 	@Created: Fri, Oct 10, 2025 at 08:11:21 AM
-	@Last Modified: 2026-03-06 13:43:49
+	@Last Modified: 2026-03-24 17:31:26
 	@Change Logs:
 *)
 use scripting additions
@@ -31,7 +31,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Increment this hour
 	")

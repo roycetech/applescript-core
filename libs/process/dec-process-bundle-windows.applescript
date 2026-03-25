@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh core/decorators/dec-process-bundle-windows
 
 	@Created: Thursday, September 12, 2024 at 5:27:09 PM
-	@Last Modified: 2025-05-21 11:46:26
+	@Last Modified: 2026-03-24 17:31:26
 	@Change Logs:
 *)
 
@@ -28,7 +28,7 @@ on spotCheck()
 
 	set listUtil to script "core/list"
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Matched Windows by Name
 		Manual: Mismatched Windows by Name

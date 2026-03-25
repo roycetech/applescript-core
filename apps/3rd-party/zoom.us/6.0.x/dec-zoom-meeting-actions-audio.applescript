@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting-actions
 
 	@Created: Monday, August 19, 2024 at 2:29:13 PM
-	@Last Modified: 2024-12-31 19:33:22
+	@Last Modified: 2026-03-24 17:31:35
 	@Change Logs:
 *)
 use unic : script "core/unicodes"
@@ -28,7 +28,7 @@ on spotCheck()
 
 	set listUtil to script "core/list"
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main: INFO
 		Manual: Mute Microphone
 		Manual: Unmute Microphone

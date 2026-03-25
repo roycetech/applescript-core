@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/abstract-app-with-file-dialog
 
 	@Created: Sat, Feb 28, 2026 at 07:20:19 PM
-	@Last Modified: 2026-03-17 14:06:21
+	@Last Modified: 2026-03-24 17:31:28
 *)
 use scripting additions
 
@@ -29,7 +29,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Safari example
 		Manual: Go To Folder

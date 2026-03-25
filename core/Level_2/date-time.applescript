@@ -5,7 +5,7 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_2/date-time
 
-	@Last Modified: 2026-01-15 20:44:42
+	@Last Modified: 2026-03-24 17:31:31
 *)
 use framework "Foundation"
 
@@ -26,7 +26,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP:
 		Manual: is24H
 		File Prefix

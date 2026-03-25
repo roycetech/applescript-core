@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-group
 
 	@Created: Sunday, March 17, 2024 at 8:23:05 PM
-	@Last Modified: 2026-02-20 13:18:24
+	@Last Modified: 2026-03-24 17:45:53
 	@Change Logs:
 *)
 use textUtil : script "core/string"
@@ -31,7 +31,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Switch to applescript-core
 		Manual: Switch to Default
 	")

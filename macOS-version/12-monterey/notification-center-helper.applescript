@@ -4,7 +4,7 @@
 
 	@Requires notification-center to be deployed first.
 
-	@Last Modified: 2023-09-18 22:33:05
+	@Last Modified: 2026-03-24 17:31:27
 *)
 
 use scripting additions
@@ -25,7 +25,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Simple Sort
 		First Notice
 		Last Notice

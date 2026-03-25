@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/ChatGPT/1.2025.168/chat-gpt
 
 	@Created: Tue, Jul 01, 2025 at 07:20:31 AM
-	@Last Modified: 2026-02-10 08:07:28
+	@Last Modified: 2026-03-24 17:31:25
 
 	@Change Logs:
 		Tue, Feb 10, 2026, at 08:07:18 AM - Added handler #closeRightSideBar
@@ -23,7 +23,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: New Chat
 		Manual: Close right side bar

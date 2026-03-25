@@ -12,7 +12,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.6/dec-safari-inspector
 
 	@Created: Thu, Feb 27, 2025 at 11:42:33 AM
-	@Last Modified: 2025-08-12 15:27:34
+	@Last Modified: 2026-03-24 17:45:55
 	@Change Logs:
 
 	@References:
@@ -37,7 +37,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Info only
 		Manual: Show Web Inspector
 		Manual: Close Web Inspector

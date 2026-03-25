@@ -14,7 +14,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/26.3/dec-safari-inspector
 
 	@Created: Sat, Mar 07, 2026, at 01:29:17 PM
-	@Last Modified: 2026-03-07 13:32:58
+	@Last Modified: 2026-03-24 17:45:56
 	@Change Logs:
 		Sat, Mar 07, 2026, at 01:29:32 PM - Added a toggleInspector handler.
 
@@ -37,7 +37,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Info only
 		Manual: Show Web Inspector
 		Manual: Close Web Inspector

@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/Level_3/ui-util
 
 	@Created: Pre-2024.
-	@Last Modified: 2024-12-04 07:45:30
+	@Last Modified: 2026-03-24 17:31:26
 
 	TODO: Register 2 new handlers to the Text Expander.
 *)
@@ -28,7 +28,7 @@ on spotCheck()
 	logger's start()
 
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Find By ID - not found
 		Manual: Find By ID - found
 		Manual: Find Containing ID - found

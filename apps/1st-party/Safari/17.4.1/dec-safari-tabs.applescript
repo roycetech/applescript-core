@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-tab-group
 
 	@Created: Friday, April 26, 2024 at 11:52:07 AM
-	@Last Modified: 2026-01-20 18:37:53
+	@Last Modified: 2026-03-24 17:45:54
 	@Change Logs:
 *)
 use scripting additions
@@ -30,7 +30,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Get Tabs
 		Manual: Sort
 	")
@@ -53,7 +53,7 @@ on spotCheck()
 		set tabs to sut's getTabs()
 
 	else if caseIndex is 2 then
-		set testUrls to listUtil's splitByLine("
+		set testUrls to listUtil's splitAndTrimParagraphs("
 			https://go.dev/doc/
 			https://www.udemy.com/join/login-popup/?next=/course/typescript-the-complete-developers-guide/learn/lecture/15066520#overview
 			https://app.pluralsight.com/ilx/video-courses/10dc83a5-6eb0-498f-bff5-e2f310b2fed9/eddf76a9-495b-465e-8e69-a1ba6e3cb147/b3e79167-c23d-4272-8b3c-7757338988e4

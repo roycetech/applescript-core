@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-finder
 
 	@Created: Mon, Jul 22, 2024 at 12:28:44 PM
-	@Last Modified: 2026-02-20 13:23:01
+	@Last Modified: 2026-03-24 17:45:54
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -29,7 +29,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: findTabStartingWithUrl
 	")
 

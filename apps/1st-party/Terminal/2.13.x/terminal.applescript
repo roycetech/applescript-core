@@ -77,7 +77,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Front Tab and Info
 		Manual: New Tab, Find
 		Focus

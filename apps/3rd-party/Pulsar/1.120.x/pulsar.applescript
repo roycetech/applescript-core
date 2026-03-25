@@ -53,7 +53,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP:
 		Manual: Load File (App Open, Not Running, Already Loaded)
 		Manual: Document Info (sample.txt, no file, search result, nav bar un/focused, Settings)

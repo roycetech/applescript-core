@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh libs/security-cli/security-cli
 
 	@Created: Thu, May 15, 2025 at 06:39:33 AM
-	@Last Modified: 2026-03-14 15:24:56
+	@Last Modified: 2026-03-24 17:45:27
 *)
 use scripting additions
 
@@ -26,7 +26,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Create a secret
 		Manual: Retrieve a secret
@@ -54,11 +54,6 @@ on spotCheck()
 	set sutServiceName to "spot-service"
 	set sutUsername to "spot-username"
 	set sutSecret to "spot-secret"
-
-	-- [Start] Create new secret.
-	-- Do not commit anything between the [Start] and [End]
-
-	-- [End] Create new secret
 
 	logger's infof("sutServiceName: {}", sutServiceName)
 	logger's infof("sutUsername: {}", sutUsername)

@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/1st-party/Stickies/10.3/stickies
 
 	@Created: Wed, Jul 16, 2025 at 08:54:28 AM
-	@Last Modified: 2025-07-31 07:54:56
+	@Last Modified: 2026-03-24 17:45:56
 *)
 use loggerFactory : script "core/logger-factory"
 
@@ -19,7 +19,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: New Note
 		Manual: Change Color

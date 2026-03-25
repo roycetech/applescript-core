@@ -2,7 +2,7 @@
 	@Build:
 		make build-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-path
 
-	@Last Modified: 2023-09-25 14:57:56
+	@Last Modified: 2026-03-24 17:45:56
 *)
 
 use scripting additions
@@ -24,7 +24,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 	")
 

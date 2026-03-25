@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.14.x/dec-terminal_tab-finder
 
 	@Created: Mon, Jun 02, 2025 at 06:48:38 AM
-	@Last Modified: 2025-07-02 07:52:41
+	@Last Modified: 2026-03-24 17:45:57
 *)
 
 use winUtilLib : script "core/window"
@@ -29,7 +29,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Find Tab by Title
 		Manual: Find Tab by Title Prefix

@@ -34,7 +34,7 @@
 		end tell
 
 	@Created: Fri, Jul 12, 2024 at 3:01:31 PM
-	@Last Modified: 2026-01-18 11:53:30
+	@Last Modified: 2026-03-24 17:45:54
 *)
 
 use scripting additions
@@ -67,7 +67,7 @@ on spotCheck()
 
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 		Manual: Front Tab
 		Manual: First Tab

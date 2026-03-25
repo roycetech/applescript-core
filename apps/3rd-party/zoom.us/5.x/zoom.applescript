@@ -38,7 +38,7 @@
 			config-business
 				Zoom User Meeting ID
 
-	@Last Modified: 2023-11-10 09:57:06
+	@Last Modified: 2026-03-24 17:31:35
 *)
 
 use listUtil : script "core/list"
@@ -81,7 +81,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Login via Password
 		Manual: New Meeting
 		Start Personal Meeting - End to End

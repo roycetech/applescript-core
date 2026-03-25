@@ -58,7 +58,7 @@ on spotCheck()
 
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP:
 		Manual: Click on Show Accessory View - Default
 		Manual: Click on Show Accessory View - Reset

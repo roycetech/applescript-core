@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Sourcetree/4.2.10/sourcetree
 
 	@Created: Monday, November 25, 2024 at 3:32:55 PM
-	@Last Modified: 2025-05-16 06:26:11
+	@Last Modified: 2026-03-24 17:31:34
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -22,7 +22,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 		Manual: Trigger Menu Show Only
 		Manual: Trigger Menu Files View

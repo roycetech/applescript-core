@@ -53,7 +53,7 @@ on spotCheck()
 
 	(* TODO: Re-organize spot check cases after case 2. *)
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Stacked Notice Details - toString()
 		Manual: Perform Action
 

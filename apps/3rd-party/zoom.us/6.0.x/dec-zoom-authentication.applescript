@@ -7,7 +7,7 @@
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/6.0.x/dec-zoom-authentication
 
 	@Created: Wed, Aug 14, 2024 at 10:20:40 AM
-	@Last Modified: 2024-12-31 19:33:18
+	@Last Modified: 2026-03-24 17:31:35
 	@Change Logs:
 *)
 use listUtil : script "core/list"
@@ -22,7 +22,7 @@ on spotCheck()
 	logger's start()
 
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP: Info
 	")
 

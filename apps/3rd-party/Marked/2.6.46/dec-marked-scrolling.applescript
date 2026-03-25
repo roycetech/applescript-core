@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/dec-marked-scrolling
 
 	@Created: Tue, May 27, 2025 at 03:23:37 PM
-	@Last Modified: 2025-10-13 07:12:41
+	@Last Modified: 2026-03-24 17:31:33
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -23,7 +23,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Scroll to Bottom
 		Manual: Scroll to Top

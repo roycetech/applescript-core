@@ -32,7 +32,7 @@
 		end tell
 
 	@Created: Wednesday, April 24, 2024 at 1:03:10 PM
-	@Last Modified: 2026-02-20 13:22:24
+	@Last Modified: 2026-03-24 17:45:54
 *)
 
 use script "core/Text Utilities"
@@ -73,7 +73,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Front Tab
 		Manual: First Tab
 		Manual: Show Side Bar (Visible,Hidden)

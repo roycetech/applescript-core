@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Spotify/1.2.40/spotify
 
 	@Created: Tuesday, July 2, 2024 at 10:06:42 AM
-	@Last Modified: 2024-07-08 11:32:08
+	@Last Modified: 2026-03-24 17:31:34
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -28,7 +28,7 @@ on spotCheck()
 	logger's infof("Is paused: {} ", sut's isPaused())
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 		Manual: Play
 		Manual: Pause

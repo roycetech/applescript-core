@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/26.0/dec-finder-view
 
 	@Created: Tue, Sep 23, 2025, at 03:11:04 PM
-	@Last Modified: 2025-09-25 08:14:12
+	@Last Modified: 2026-03-24 17:45:52
 	@Change Logs:
 		Thu, Sep 25, 2025, at 08:13:35 AM - Switch back to sorting via Menu. Sort By is not available on some virtual views like 'Recent'
 *)
@@ -28,7 +28,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP:
 		Manual: Set View Type
 		Manual: Sort By Name

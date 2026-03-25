@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/VLC/3.0.x/vlc
 
 	@Created: Tuesday, August 27, 2024 at 7:43:41 PM
-	@Last Modified: 2024-08-28 10:49:39
+	@Last Modified: 2026-03-24 17:31:35
 *)
 
 use unic : script "core/unicodes"
@@ -23,7 +23,7 @@ on spotCheck()
 
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 		Manual: Play
 		Manual: Pause

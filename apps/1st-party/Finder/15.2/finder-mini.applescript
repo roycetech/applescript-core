@@ -11,7 +11,7 @@
 		./scripts/build-lib.sh apps/1st-party/Finder/15.2/finder-mini
 
 	@Created: Monday, December 30, 2024 at 11:56:11 AM
-	@Last Modified: 2025-12-02 09:20:02
+	@Last Modified: 2026-03-24 17:45:52
 *)
 use script "core/Text Utilities"
 
@@ -33,7 +33,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Trigger go to Folder
 		Manual: Enter Path

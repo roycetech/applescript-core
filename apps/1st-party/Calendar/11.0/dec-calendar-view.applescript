@@ -21,7 +21,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Current Calendar View (Day, Week, Month, Year)
 		Switch to Day View
 		Switch to Week View

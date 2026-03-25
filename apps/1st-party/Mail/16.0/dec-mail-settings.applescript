@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Mail/16.0/dec-mail-settings
 
 	@Created: Sun, Feb 15, 2026 at 05:20:18 PM
-	@Last Modified: 2026-03-20 08:10:27
+	@Last Modified: 2026-03-24 17:45:53
 	@Change Logs:
 *)
 use listUtil : script "core/list" -- reviewed.
@@ -27,7 +27,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Show Settings Window
 		Manual: Close Settings Window
@@ -103,7 +103,7 @@ end spotCheck
 on decorate(mainScript)
 	loggerFactory's inject(me)
 
-	set SETTINGS_TITLES to listUtil's splitByLine("
+	set SETTINGS_TITLES to listUtil's splitAndTrimParagraphs("
 		General
 		Accounts
 		Junk Mail
@@ -190,7 +190,7 @@ on decorate(mainScript)
 
 		on getSettingsTabName()
 			set settingsWindow to getSettingsWindow()
-			if settingsWindow is missing value then return
+			if settingsWindow is missing value then return missing value
 
 			tell application "System Events" to tell process "Mail"
 				title of settingsWindow
@@ -248,11 +248,17 @@ on decorate(mainScript)
 
 		on getNewMessageNotification()
 			set settingsWindow to getSettingsWindow()
-			if settingsWindow is missing value then return
+			if settingsWindow is missing value then
+				logger's debug("Settings window was not found")
+				return missing value
+			end if
 
 			tell application "System Events" to tell process "Mail"
 				try
 					return value of pop up button 5 of group 1 of settingsWindow
+				on error the errorMessage number the errorNumber
+					log errorMessage
+
 				end try
 			end tell
 			missing value

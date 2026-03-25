@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/1st-party/Messages/14.0/messages
 
 	@Created: Mon, Jul 07, 2025 at 08:17:22 AM
-	@Last Modified: 2026-02-09 10:14:17
+	@Last Modified: 2026-03-24 17:45:53
 *)
 
 use loggerFactory : script "core/logger-factory"
@@ -20,7 +20,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 	")
 

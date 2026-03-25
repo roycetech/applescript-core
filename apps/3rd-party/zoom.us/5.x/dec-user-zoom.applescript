@@ -17,7 +17,7 @@
 		make remove-lib SOURCE=libs/user/dec-user-zoom
 		plutil -remove 'UserInstance' ~/applescript-core/config-lib-factory.plist
 
-	@Last Modified: 2023-11-09 20:01:01
+	@Last Modified: 2026-03-24 17:31:35
 *)
 use std : script "core/std"
 use listUtil : script "core/list"
@@ -36,7 +36,7 @@ on spotCheck()
 	logger's start()
 
 	-- All spot check cases are manual.
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Info (In meeting [yes, no], Screen Sharing [yes, no])
 	")
 

@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-tab-group
 
 	@Created: Monday, June 10, 2024 at 11:42:13 AM
-	@Last Modified: 2026-01-20 15:01:38
+	@Last Modified: 2026-03-24 17:45:56
 
 	@Change Logs:
 		Tue, Dec 23, 2025, at 11:14:51 AM - Migrated to 26.2
@@ -40,7 +40,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO: NOOP
 		Manual: Switch to applescript-core
 		Manual: Switch to Default

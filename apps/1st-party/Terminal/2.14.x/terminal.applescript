@@ -72,9 +72,9 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-	
+
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Front Tab and Info
 		Manual: New Tab, Find
 		Focus
@@ -86,7 +86,7 @@ on spotCheck()
 		Manual: New Window (Not running, no window, has window)
 		Manual: Set Tab Name
 	")
-	
+
 	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
@@ -95,16 +95,16 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	set sut to new()
 	set frontTab to sut's getFrontTab()
-	
+
 	logger's infof("Name: {}", name of frontTab)
 	logger's infof("Has Tab Bar: {}", sut's hasTabBar())
 	logger's infof("Tab Name: {}", frontTab's getTabName())
 	logger's infof("Posix Path: {}", frontTab's getPosixPath())
 	logger's infof("Lingering Command: {}", frontTab's getLingeringCommand())
-	
+
 	(* Manually test: zsh, bash, docker, sftp, redis-cli. *)
 	logger's infof("Is Shell Prompt: {}", frontTab's isShellPrompt())
 	logger's infof("Is Bash: {}", frontTab's isBash())
@@ -113,11 +113,11 @@ on spotCheck()
 	logger's infof("Prompt Text: {}", frontTab's getPromptText())
 	logger's infof("Prompt: {}", frontTab's getPrompt())
 	logger's infof("Last Output: {}", frontTab's getLastOutput()) -- BROKEN on @rt
-	
+
 	logger's infof("Settings dialog present: {}", sut's isSettingsWindowPresent())
-	
+
 	if caseIndex is 1 then
-		
+
 	else if caseIndex is 2 then
 		set spotTab to sut's newWindow("ls", "Main")
 		spotTab's setProfile("Ocean")
@@ -130,38 +130,38 @@ on spotCheck()
 			spotTab's focus()
 			-- foundTab's focus()
 		end if
-		
+
 	else if caseIndex is 3 then
-		
-		
-		
+
+
+
 	else if caseIndex is 4 then
-		
+
 	else if caseIndex is 5 then
 		frontTab's focus()
-		
+
 	else if caseIndex is 6 then
 		frontTab's clearLingeringCommand()
-		
+
 	else if caseIndex is 7 then
 		sut's waitForPrompt()
-		
+
 	else if caseIndex is 9 then
 		sut's newWindow("echo case 9", "spot")
-		
-		
+
+
 	else if caseIndex is 12 then
 		frontTab's _setTabName("Spot Tab " & emoji's TUBE)
-		
-		
-		
+
+
+
 	else if caseIndex is 16 then
 		set spotTabName to "AS " & emoji's WORK
 		set spotTab to sut's newWindow("ls", "Main")
-		
-		
+
+
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -173,29 +173,29 @@ on new()
 	set syseve to syseveLib's new()
 	set retry to retryLib's new()
 	set dock to dockLib's new()
-	
+
 	set decSettings to script "core/dec-terminal-settings"
 	set decSettingsGeneral to script "core/dec-terminal-settings-general"
 	set decSettingsProfile to script "core/dec-terminal-settings-profile"
 	set decSettingsProfileWindow to script "core/dec-terminal-settings-profile-window"
 	set decSettingsProfileKeyboard to script "core/dec-terminal-settings-profile-keyboard"
 	set decTerminalTabFinder to script "core/dec-terminal_tab-finder"
-	
+
 	script TerminalInstance
 		on getWindowsCount()
 			if running of application "Terminal" is false then return 0
-			
+
 			tell application "System Events" to tell process "Terminal"
 				count of windows
 			end tell
 		end getWindowsCount
-		
-		
+
+
 		on getFrontTab()
 			if running of application "Terminal" is false then return missing value
-			
+
 			tell application "System Events" to tell process "Terminal"
-				if (count of windows) is 0 then return missing value	
+				if (count of windows) is 0 then return missing value
 			end tell
 
 			tell application "Terminal"
@@ -203,8 +203,8 @@ on new()
 			end tell
 			terminalTabLib's new(frontWinID)
 		end getFrontTab
-		
-		
+
+
 		on confirmTerminateActiveTab()
 			tell application "System Events" to tell process "Terminal"
 				try
@@ -212,17 +212,17 @@ on new()
 				end try
 			end tell
 		end confirmTerminateActiveTab
-		
-		
+
+
 		(* @Deprecated use getFrontTab. *)
 		on getFrontMostInstance()
 			getFrontTab()
 		end getFrontMostInstance
-				
-		
+
+
 		on hasTabBar()
 			if winUtil's hasWindow("Terminal") is false then return false
-			
+
 			tell application "System Events" to tell process "Terminal"
 				try
 					tab group 1 of front window
@@ -231,7 +231,7 @@ on new()
 			end tell
 			false
 		end hasTabBar
-		
+
 		(*
 			Launches a new terminal window and set as frontmost.
 			@returns TerminalTabInstance
@@ -246,13 +246,13 @@ on new()
 			else
 				_newWindow_appNotRunning(bashCommand)
 			end if
-			
+
 			set theTab to terminalTabLib's new(result)
 			theTab's _setTabName(tabName)
-			
+
 			theTab
 		end newWindow
-		
+
 		(*
 			@returns windowId
 		*)
@@ -268,8 +268,8 @@ on new()
 			end tell
 			windowId
 		end _newWindow_appNotRunning
-		
-		
+
+
 		(*
 			NOTE: Starts running the command after the "Last Login" text is detected from the terminal.
 		*)
@@ -284,8 +284,8 @@ on new()
 			tell application "System Events" to tell process "Terminal" to set frontmost to true
 			windowId
 		end _newWindow_noWindow
-		
-		
+
+
 		(* Test Cases:
 			System Settings:
 				Prefer tabs when opening documents: FullScreen (default)
@@ -293,7 +293,7 @@ on new()
 		*)
 		on _newWindow_hasWindow(bashCommand)
 			-- logger's debug("_newWindow_hasWindow")
-			
+
 			tell application "System Events" to tell process "Terminal"
 				set initialWindowCount to count of windows
 				click menu item 1 of menu 1 of menu item "New Window" of menu 1 of menu bar item "Shell" of menu bar 1
@@ -301,21 +301,21 @@ on new()
 			end tell
 			set alwaysTabbed to initialWindowCount is equal to newWindowCount
 			-- logger's debugf("alwaysTabbed: {}", alwaysTabbed) -- System Settings: Prefer tabs when opening documents: Always
-			
+
 			_waitTerminalReady()
 			if alwaysTabbed then
 				tell application "System Events" to tell process "Terminal"
 					click menu item "Move Tab to New Window" of menu 1 of menu bar item "Window" of menu bar 1
 				end tell
 			end if
-			
+
 			_autoUpdateFrontTab()
 			tell application "Terminal"
 				if bashCommand is not missing value then do script bashCommand in front window
 				id of front window as integer
 			end tell
 		end _newWindow_hasWindow
-		
+
 		(*
 			After launching a new terminal window, it waits so that you only issue the command once the prompt is present. No consequence but for vanity.
 		*)
@@ -338,12 +338,12 @@ on new()
 			exec of retry on result for 20 by 0.2
 			if result is missing value then return missing value
 		end _waitTerminalReady
-		
+
 		on _autoUpdateFrontTab()
 			tell application "Terminal"
 				if (contents of selected tab of front window as text) contains "Would you like to update?" then
 					do script "Y" in front window
-					
+
 					set maxWait to 30
 					repeat until (contents of selected tab of front window as text) contains "has been updated" or maxWait is less than 0
 						delay 1
@@ -351,10 +351,10 @@ on new()
 					end repeat
 				end if
 			end tell
-			
+
 		end _autoUpdateFrontTab
 	end script
-	
+
 	decSettings's decorate(result)
 	decSettingsGeneral's decorate(result)
 	decSettingsProfile's decorate(result)

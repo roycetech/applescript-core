@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Talon/0.4/talon
 
 	@Created: Sat, Apr 05, 2025 at 12:24:07 PM
-	@Last Modified: 2026-03-03 17:33:03
+	@Last Modified: 2026-03-24 17:31:35
 
 	@Change Logs:
 
@@ -28,7 +28,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Enable Speech
 		Manual: Disable Speech

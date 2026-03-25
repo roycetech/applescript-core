@@ -32,7 +32,7 @@
 				Zoom User Meeting ID
 
 	@Created: Wed, Aug 14, 2024 at 10:15:17 AM
-	@Last Modified: 2026-03-02 21:23:30
+	@Last Modified: 2026-03-24 17:31:36
 *)
 use scripting additions
 use script "core/Text Utilities"
@@ -77,7 +77,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Wait Main Window
 		Manual: Switch Tab

@@ -2,7 +2,7 @@
 	@Build:
 		make build-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-prompt
 
-	@Last Modified: 2023-09-25 14:57:56
+	@Last Modified: 2026-03-24 17:45:56
 *)
 
 use script "core/Text Utilities"
@@ -28,7 +28,7 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Is Shell Prompt - zsh, bash, docker with/out command, redis, sftp, EC2 ssh
 		Manual: Wait for Prompt
 		Manual: Prompt With Command (Git/Non Git, Parens, Lingering Command)

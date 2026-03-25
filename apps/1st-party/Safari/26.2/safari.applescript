@@ -35,7 +35,7 @@
 		Wed, Jan 21, 2026, at 07:48:08 AM - Added dec-safari-tabs decorator.
 
 	@Created: Mon, Feb 10, 2025 at 7:30:44 AM
-	@Last Modified: 2026-02-21 17:03:05
+	@Last Modified: 2026-03-24 17:45:56
 *)
 
 use scripting additions
@@ -72,7 +72,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 		Manual: Front Tab
 		Manual: Show Side Bar (Visible,Hidden)

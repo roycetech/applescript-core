@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh core/Level_2/speech-recognition-server
 
 	@Created: Friday, December 1, 2023 at 10:28:21 AM
-	@Last Modified: 2024-07-10 18:27:39
+	@Last Modified: 2026-03-24 17:31:31
 *)
 use loggerFactory : script "core/logger-factory"
 
@@ -20,7 +20,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Basic Listen For
 		Manual: Listen For with Timeout
 	")

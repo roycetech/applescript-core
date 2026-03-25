@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/decorators/dec-progress-speech
 
 	@Created: Mon, Dec 08, 2025 at 01:56:00 PM
-	@Last Modified: 2025-12-08 15:09:30
+	@Last Modified: 2026-03-24 17:31:36
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -30,7 +30,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Step
 	")

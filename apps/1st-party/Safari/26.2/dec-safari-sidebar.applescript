@@ -11,7 +11,7 @@
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
 	@Migrated: Fri, Jan 16, 2026, at 10:42:08 AM
-	@Last Modified: 2026-01-18 11:55:08
+	@Last Modified: 2026-03-24 17:45:56
 	@Change Logs: .
 *)
 use loggerFactory : script "core/logger-factory"
@@ -30,7 +30,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Show Side Bar
 		Manual: Hide Side Bar

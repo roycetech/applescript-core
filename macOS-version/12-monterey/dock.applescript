@@ -25,7 +25,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Assign to Desktop 1
 		Assign to Desktop 2
 		Assign to All

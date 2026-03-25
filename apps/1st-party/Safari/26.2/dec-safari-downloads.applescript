@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-downloads
 
 	@Created: Mon, Feb 09, 2026 at 10:45:42 AM
-	@Last Modified: 2026-02-09 10:47:47
+	@Last Modified: 2026-03-24 17:45:56
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -23,7 +23,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Integration: Reveal latest downloaded file
 	")

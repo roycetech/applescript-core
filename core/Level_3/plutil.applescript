@@ -41,7 +41,7 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2026-03-03 11:25:54
+	@Last Modified: 2026-03-24 17:32:18
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
@@ -91,7 +91,7 @@ on spotCheck()
 
 	(* Plist creation already tested. *)
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP: (Below to shift down)
 		Unit Test
 		Instantiate non-existent plist
@@ -193,7 +193,7 @@ on spotCheck()
 		plutil's createNewPList("spot-plist")
 
 	else if caseIndex is 13 then
-		set testPlists to listUtil's splitByLine("
+		set testPlists to listUtil's splitAndTrimParagraphs("
 			app-windows/region-windows_big-bottom
 			app-notes/shared/URL-Pattern
 			app-windows/region-windows_big-bottomx

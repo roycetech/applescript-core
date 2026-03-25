@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/iTerm2/3.5.x/iterm2
 
 	@Created: Tuesday, February 11, 2025 at 6:30:28 AM
-	@Last Modified: 2025-04-29 06:33:47
+	@Last Modified: 2026-03-24 17:31:32
 *)
 
 use textUtil : script "core/string"
@@ -25,7 +25,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Run Command
 		Manual: Type Command

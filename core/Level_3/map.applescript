@@ -41,7 +41,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		From PList - Skip this
 		From String
@@ -185,7 +185,7 @@ on newFromString(theText)
 	if theText is missing value then return missing value
 
 	set userDictionary to new()
-	set mapLines to listUtil's splitByLine(theText as text)
+	set mapLines to listUtil's splitAndTrimParagraphs(theText as text)
 	if the (count of mapLines) is 0 then return userDictionary
 
 	repeat with nextLine in mapLines

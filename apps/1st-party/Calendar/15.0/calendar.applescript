@@ -63,7 +63,7 @@ on spotCheck()
 
 	(* Manual Visual Verification. *)
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Go to Today
 		Go to date: Jan 7, 2021
 		(Not Covered Here) Current Meeting/s - Non Cached

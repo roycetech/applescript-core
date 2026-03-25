@@ -16,7 +16,7 @@
 		./scripts/build-lib.sh core/decorators/dec-process-dock-aware
 
 	@Created: Thu, Feb 27, 2025 at 08:05:29 AM
-	@Last Modified: 2025-12-08 16:42:41
+	@Last Modified: 2026-03-24 17:31:36
 	@Change Logs:
 *)
 use scripting additions
@@ -37,7 +37,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Reduce window size
 	")

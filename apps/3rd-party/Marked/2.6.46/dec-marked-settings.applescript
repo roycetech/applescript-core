@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.46/dec-marked-settings
 
 	@Created: Mon, May 26, 2025 at 08:08:00 AM
-	@Last Modified: 2025-12-05 10:26:10
+	@Last Modified: 2026-03-24 17:31:33
 	@Change Logs:
 		Fri, Dec 05, 2025, at 10:25:45 AM - Fix settings window detection when regular window has zoom info in the title.
 *)
@@ -24,7 +24,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Show Settings
 		Manual: Close Settings

@@ -20,7 +20,7 @@
 		and the only why I found to do this is via manual iteration. - TODO: Verify if this is the same case with Safari.
 
 	@Created: Thu, Feb 20, 2025 at 07:12:25 AM
-	@Last Modified: 2025-11-06 10:26:21
+	@Last Modified: 2026-03-24 17:45:55
 	@Change Logs:
 
 *)
@@ -48,7 +48,7 @@ on spotCheck()
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP:
 
 		Manual: Find Tab by Title

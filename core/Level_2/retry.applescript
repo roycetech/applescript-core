@@ -26,14 +26,14 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
-	
+
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Exhaust retry
 		Manual: Success on retry
 	")
-	
+
 	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
@@ -42,31 +42,31 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-	
+
 	if caseIndex is 2 then
 		script SpotExhaust
 			property counter : 0
-			
+
 			set counter to counter + 1
 			if counter < 5 then error "failed"
 			"won't get printed"
 		end script
 		set sut to new()
 		log (exec of sut on SpotExhaust by 1 for 3) -- expected missing value
-		
+
 	else if caseIndex is 3 then
 		script SpotSuccess
 			property counter : 0
-			
+
 			set counter to counter + 1
 			if counter < 3 then error "failed"
 			"success"
 		end script
 		set sut to new()
 		log (exec of sut on SpotSuccess by 1 for 3) -- expected "success"
-		
+
 	end if
-	
+
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -111,6 +111,6 @@ on wait on theUi for nseconds
 		if theUi exists then return true
 		delay 1
 	end repeat
-	
+
 	return false
 end wait

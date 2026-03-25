@@ -30,7 +30,7 @@ on spotCheck()
 
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Is Mic In Use (Off, Mic only, Mic and Camera)
 		Manual: Switch to AirPods (N/A, Happy, Already Selected)
 		Manual: Switch to Default (Happy, Already Selected)

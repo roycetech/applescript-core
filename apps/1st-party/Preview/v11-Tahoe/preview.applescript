@@ -4,7 +4,7 @@
 	updating the UI layout of the app.
 
 		@Created: July 14, 2023 6:57 PM
-		@Last Modified: 2025-11-18 13:19:40
+		@Last Modified: 2026-03-24 17:45:53
 
 	@Project:
 		applescript-core
@@ -41,7 +41,7 @@ on spotCheck()
 
 	(* These test cases are run in order. *)
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP:
 		Manual: New From Clipboard
 		Manual: Trigger File > Save

@@ -32,7 +32,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Recent Output
 		Manual: Last Output (With/out lastCommand, Shell, Non-Shell)
 		Complete Output

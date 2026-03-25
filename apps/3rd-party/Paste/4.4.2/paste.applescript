@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Paste/4.4.2/paste
 
 	@Created: Tuesday, December 31, 2024 at 12:46:53 PM
-	@Last Modified: 2024-12-31 15:47:45
+	@Last Modified: 2026-03-24 17:31:34
 *)
 use scripting additions
 
@@ -24,7 +24,7 @@ on spotCheck()
 
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP:
 		Manual: Show Settings
 		Manual: Switch Tab

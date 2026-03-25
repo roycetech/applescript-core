@@ -31,7 +31,7 @@
 		13")
 		end tell
 
-	@Last Modified: 2026-02-20 13:19:36
+	@Last Modified: 2026-03-24 17:45:53
 *)
 
 use script "core/Text Utilities"
@@ -73,7 +73,7 @@ on spotCheck()
 	logger's start()
 
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Front Tab
 		Manual: First Tab
 		Manual: Show Side Bar (Visible,Hidden)
