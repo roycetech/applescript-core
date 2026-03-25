@@ -33,7 +33,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Quit App (Running/Not Running)
 		Manual: Reveal Security & Privacy > Privacy

@@ -32,7 +32,7 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 on spotCheck()
 	logger's start()
 	
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Quit App (Running/Not Running)
 		Manual: Reveal Security & Privacy > Privacy		
 		Manual: Unlock Security & Privacy > Privacy (Unlock button must be visible already) 

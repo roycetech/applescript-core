@@ -28,7 +28,7 @@ on spotCheck()
 	
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Open Google Translate
 		Manual: Closed Tab
 		Manual: Move tab to index

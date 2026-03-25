@@ -37,7 +37,7 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Reveal the Voice Control Panel
 		Manual: Trigger the Commands... button
 		Manual: Click Add Voice Commands

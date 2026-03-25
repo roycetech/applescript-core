@@ -47,7 +47,7 @@ on spotCheck()
 	logger's start()
 	
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 		Manual: Switch to Query
 		Manual: Run Query

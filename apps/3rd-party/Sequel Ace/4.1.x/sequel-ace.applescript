@@ -46,7 +46,7 @@ on spotCheck()
 	set configUser to configLib's new(CONFIG_USER)
 	
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		INFO
 		Manual: New Tab
 		Manual: Get Front Tab

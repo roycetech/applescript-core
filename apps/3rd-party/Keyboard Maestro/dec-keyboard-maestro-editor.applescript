@@ -34,7 +34,7 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Set macro name (un/focused)
 		Manual: Select macro group by name

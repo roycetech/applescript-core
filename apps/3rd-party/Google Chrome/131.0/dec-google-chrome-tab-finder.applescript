@@ -42,7 +42,7 @@ on spotCheck()
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP:
 		
 		Manual: Find Tab by Title

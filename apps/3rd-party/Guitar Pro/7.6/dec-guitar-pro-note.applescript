@@ -23,7 +23,7 @@ on spotCheck()
 	logger's start()
 	
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Decrease note duration
 		Manual: Increase note duration

@@ -55,7 +55,7 @@ on spotCheck()
 	logger's start()
 	
 	-- If you haven't got these imports already.
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Open File
 		Open Resource via UI

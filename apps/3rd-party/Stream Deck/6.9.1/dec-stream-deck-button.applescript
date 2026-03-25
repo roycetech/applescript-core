@@ -34,7 +34,7 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Resize window for coordinates scripting
 		Manual: Select Button

@@ -22,7 +22,7 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: New Instance (Missing, Present)
 		Manual: Enable Macro Group, get state
 		Manual: Disable Macro Group, get state

@@ -27,7 +27,7 @@ on spotCheck()
 	
 	set listUtil to script "core/list"
 	set spotScript to script "core/spot-test"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Menu Find in Files
 		Manual: Set filter mask

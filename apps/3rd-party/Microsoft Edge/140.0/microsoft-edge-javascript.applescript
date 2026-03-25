@@ -36,7 +36,7 @@ on spotCheck()
 	
 	(* Tests are based on current apple.com website, very likely to change in the future. *)
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: AWS Login, IAM Radio Option
 		Manual: Link Text Visible
 		Manual: Selector Exists

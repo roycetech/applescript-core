@@ -44,7 +44,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 	
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Switch Profile: Found
 		Manual: Switch Profile: Not Found
 		Manual: Switch Profile: Percipio

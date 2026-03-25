@@ -23,7 +23,7 @@ on spotCheck()
 	-- All spot check cases are manual.
 	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Basic Test
 	")
 	

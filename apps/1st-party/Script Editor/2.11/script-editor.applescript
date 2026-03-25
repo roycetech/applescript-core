@@ -57,7 +57,7 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: File Info (Core Project, Other Project)
 		Open file
 		Open file with single quote in name

@@ -44,7 +44,7 @@ on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
 	
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: File Info (Core Project, Other Project)
 		Open file
 		Open file with single quote in name

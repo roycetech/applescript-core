@@ -31,7 +31,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 			Manual: New Window
 			Manual: New Tab
 			Manual: Open the Developer tools

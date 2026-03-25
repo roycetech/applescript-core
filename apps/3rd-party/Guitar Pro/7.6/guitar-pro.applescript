@@ -23,7 +23,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 	
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: nil
 		Manual: Turn On Metronome
 		Manual: Turn Off Metronome

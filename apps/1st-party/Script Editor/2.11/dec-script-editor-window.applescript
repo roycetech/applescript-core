@@ -30,7 +30,7 @@ on spotCheck()
 	logger's start()
 	
 	set listUtil to script "core/list"
-	set cases to listUtil's splitByLine("
+	set cases to listUtil's splitAndTrimParagraphs("
 		Main
 		Manual: Switch Accessory View > Tab (bottom left buttons)
 		Manual: Switch Accessory View > Log > Tab
