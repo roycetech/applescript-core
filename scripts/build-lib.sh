@@ -42,4 +42,4 @@ fi
 staging_directory="/tmp"
 osacompile -o "${staging_directory}/${base_filename}.scpt" "${input_file_path}.applescript"
 
-mv "${staging_directory}/${base_filename}.scpt" "${deployment_path}${deploy_subpath}/${base_filename}.scpt"
+mv "${staging_directory}/${base_filename}.scpt" "${deployment_path}${deploy_subpath}${base_filename}.scpt"
