@@ -6,12 +6,14 @@
 		./scripts/build-lib.sh apps/3rd-party/Sourcetree/4.2.11/sourcetree
 
 	@Change Logs:
+		Thu, Mar 26, 2026, at 11:07:03 AM - Added #toggleWhitespace.
 		Thu, Feb 26, 2026, at 05:35:40 PM - Added #getSelectedFilePath()
 			Re-tested all spot cases (1-18)
 
 	@Created: Monday, November 25, 2024 at 3:32:55 PM
-	@Last Modified: 2026-03-24 17:31:34
+	@Last Modified: 2026-03-26 15:34:26
 *)
+use unic : script "core/unicodes"
 use loggerFactory : script "core/logger-factory"
 
 use clipLib : script "core/clipboard"
@@ -51,7 +53,7 @@ on spotCheck()
 		Manual: Trigger Second Menu Button
 		Manual: Select File - second
 		Manual: Reveal selected file
-		Dummy
+		Manual: Toggle Whitespace
 		Dummy
 	")
 
@@ -65,10 +67,11 @@ on spotCheck()
 	end if
 
 	set sut to new()
+	activate application "Sourcetree"
+
 	logger's infof("Commit message input focused: {}", sut's isCommitMessageFocused())
 	logger's infof("Push changes immediately {}", sut's isPushChangesImmediately())
-
-	activate application "Sourcetree"
+	logger's infof("Is whitespace visible: {}", sut's isWhitespaceVisible())
 
 	if caseIndex is 1 then
 		logger's infof("Selected file path: {}", sut's getSelectedFilePath())
@@ -118,10 +121,10 @@ on spotCheck()
 		sut's scrollPageUp()
 
 	else if caseIndex is 14 then
-		sut's setIgnoreWhiteSpace()
+		sut's setIgnoreWhitespace()
 
 	else if caseIndex is 15 then
-		sut's setShowWhiteSpace()
+		sut's setShowWhitespace()
 
 	else if caseIndex is 16 then
 		set sutMenuItem to "Unicorn"
@@ -136,6 +139,9 @@ on spotCheck()
 
 	else if caseIndex is 18 then
 		sut's revealSelectedFile()
+
+	else if caseIndex is 19 then
+		sut's toggleWhitespace()
 
 	end if
 
@@ -203,23 +209,50 @@ on new()
 		end triggerSecondMenu
 
 
-		on setIgnoreWhiteSpace()
+		on isWhitespaceVisible()
+			"impossible"
+		end isWhitespaceVisible
 
+		on toggleWhitespace()
+			tell application "System Events" to tell process "Sourcetree"
+				set menuButton to menu button 3 of group 1 of splitter group 1 of splitter group 1 of splitter group 1 of window 1
+				click menuButton
+				set whiteSpaceShown to unic's MENU_CHECK is equal to value of attribute "AXMenuItemMarkChar" of menu item 3 of menu 1 of menuButton
+			end tell
+
+			if whiteSpaceShown then
+				tell application "System Events" to tell process "Sourcetree"
+					set whitespaceMenu to menu button 3 of my _toolbarGroup()
+					click menu item "Ignore whitespace" of menu 1 of menuButton
+				end tell
+
+			else
+				tell application "System Events" to tell process "Sourcetree"
+					click menu item "Show whitespace" of menu 1 of menuButton
+				end tell
+
+			end if
+		end toggleWhitespace
+
+
+		on setIgnoreWhitespace()
 			tell application "System Events" to tell process "Sourcetree"
 				set whitespaceMenu to menu button 3 of my _toolbarGroup()
 				click whitespaceMenu
+
 				click menu item "Ignore whitespace" of menu 1 of whitespaceMenu
 			end tell
-		end setIgnoreWhiteSpace
+		end setIgnoreWhitespace
 
 
-		on setShowWhiteSpace()
+		on setShowWhitespace()
 			tell application "System Events" to tell process "Sourcetree"
 				set whitespaceMenu to menu button 3 of my _toolbarGroup()
 				click whitespaceMenu
 				click menu item "Show whitespace" of menu 1 of whitespaceMenu
 			end tell
-		end setShowWhiteSpace
+		end setShowWhitespace
+
 
 		on isCommitMessageFocused()
 			if running of application "Sourcetree" is false then return false
@@ -338,7 +371,8 @@ on new()
 
 		on _toolbarGroup()
 			tell application "System Events" to tell process "Sourcetree"
-				return group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+				-- return group 1 of splitter group 1 of splitter group 1 of splitter group 1 of front window
+				return group 1 of splitter group 1 of splitter group 1 of splitter group 1 of window 1
 			end tell
 		end _toolbarGroup
 
