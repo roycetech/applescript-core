@@ -22,6 +22,7 @@ use loggerFactory : script "core/logger-factory"
 use retryLib : script "core/retry"
 
 property logger : missing value
+
 property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()

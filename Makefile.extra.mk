@@ -93,7 +93,9 @@ uninstall-process-dock:
 
 build-redis:
 	@echo "Building Redis scripts..."
-	osascript ./scripts/setup-redis-cli.applescript
+	@if ! plutil -extract RedisCLI raw ~/applescript-core/config-lib-factory.plist &>/dev/null; then \
+		osascript ./scripts/setup-redis-cli.applescript; \
+	fi
 	$(call _build-script,libs/redis/redis)
 	@echo "Build redis scripts completed\n"
 
