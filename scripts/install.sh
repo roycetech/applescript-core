@@ -17,5 +17,13 @@ else
     git -C "$REPO_DIR" pull --depth=1 --rebase
 fi
 
+# Add the current user to the wheel group and allow group write access to the Script Libraries folder.
+echo "Adding $(whoami) to the wheel group and allowing group write access to the Script Libraries folder..."
+sudo dseditgroup -o edit -a "$(whoami)" -t user wheel \
+  && sudo chmod g+w "/Library/Script Libraries" \
+  && sudo chmod g+w "/Library/Script Libraries/core" \
+  && sudo chmod g+w "/Library/Script Libraries/core/test" \
+  && sudo chmod g+w "/Library/Script Libraries/core/app"
+
 cd "$REPO_DIR"
 make set-user-deploy-type install
