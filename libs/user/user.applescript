@@ -209,6 +209,15 @@ on new()
 		end afplay
 
 
+		(* Same sounds as afplay; returns immediately while audio plays in the background. *)
+		on afplayAsync(filename)
+			try
+				set soundPath to PATH_SOUNDS & "/" & filename
+				do shell script "afplay " & quoted form of soundPath & " >/dev/null 2>&1 &"
+			end try
+		end afplayAsync
+
+
 		on isInMeeting()
 			return cc's isMicInUse()
 		end isInMeeting
