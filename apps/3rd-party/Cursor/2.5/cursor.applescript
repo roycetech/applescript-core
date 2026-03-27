@@ -10,7 +10,12 @@
 		./scripts/build-lib.sh apps/3rd-party/Cursor/2.5/cursor
 
 	@Created: Wed, Feb 25, 2026 at 12:27:36 PM
-	@Last Modified: 2026-03-24 17:31:31
+	@Last Modified: 2026-03-27 14:40:03
+
+	@Change Logs:
+		Fri, Mar 27, 2026, at 02:37:47 PM - Added return value to the
+			#switchProjectTab handler.
+
 *)
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
@@ -23,7 +28,6 @@ use retryLib : script "core/retry"
 property logger : missing value
 
 property retry : missing value
-
 property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -131,14 +135,20 @@ on new()
 	script CursorInstance
 		property parent : appWithFileDialog
 
+		(*
+			@projectTabKeyword - e.g. applescript-core.
+			@return - true if successful, false otherwise.
+		*)
 		on switchProjectTab(projectTabKeyword)
 			if running of application "Cursor" is false then return
 
 			tell application "System Events" to tell process "Cursor"
 				try
 					click (first radio button of tab group 1 of window 1 whose title contains projectTabKeyword)
+					return true
 				end try
 			end tell
+			false
 		end switchProjectTab
 
 
