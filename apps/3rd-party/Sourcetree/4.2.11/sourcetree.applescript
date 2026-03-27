@@ -6,14 +6,17 @@
 		./scripts/build-lib.sh apps/3rd-party/Sourcetree/4.2.11/sourcetree
 
 	@Change Logs:
+		Fri, Mar 27, 2026, at 02:33:04 PM - Added #getCurrentRepositoryName
 		Thu, Mar 26, 2026, at 11:07:03 AM - Added #toggleWhitespace.
 		Thu, Feb 26, 2026, at 05:35:40 PM - Added #getSelectedFilePath()
 			Re-tested all spot cases (1-18)
 
 	@Created: Monday, November 25, 2024 at 3:32:55 PM
-	@Last Modified: 2026-03-26 15:34:26
+	@Last Modified: 2026-03-27 14:33:12
 *)
 use unic : script "core/unicodes"
+use textUtil : script "core/string"
+
 use loggerFactory : script "core/logger-factory"
 
 use clipLib : script "core/clipboard"
@@ -69,6 +72,7 @@ on spotCheck()
 	set sut to new()
 	activate application "Sourcetree"
 
+	logger's infof("Current repository name: {}", sut's getCurrentRepositoryName())
 	logger's infof("Commit message input focused: {}", sut's isCommitMessageFocused())
 	logger's infof("Push changes immediately {}", sut's isPushChangesImmediately())
 	logger's infof("Is whitespace visible: {}", sut's isWhitespaceVisible())
@@ -158,6 +162,15 @@ on new()
 	set clip to clipLib's new()
 
 	script SourcetreeInstance
+
+		on getCurrentRepositoryName()
+			if running of application "Sourcetree" is false then return missing value
+
+			tell application "System Events" to tell process "Sourcetree"
+				return textUtil's stringBefore(name of front window, space)
+			end tell
+		end getCurrentRepositoryName
+
 		(*
 			WARNING: Triggers menu pop up.
 		*)
