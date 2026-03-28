@@ -26,4 +26,4 @@ sudo dseditgroup -o edit -a "$(whoami)" -t user wheel \
   && sudo chmod g+w "/Library/Script Libraries/core/app"
 
 cd "$REPO_DIR"
-make set-user-deploy-type install
+make set-computer-deploy-type install
