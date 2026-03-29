@@ -9,7 +9,13 @@ set safari to safariLib's new()
 
 activate application "Safari"
 safari's showSettings()
+
 safari's switchSettingsTab("Developer")
+if not result then
+	safari's switchSettingsTab("Advanced")
+	safari's setShowFeaturesForWebDevelopersOn()
+	safari's switchSettingsTab("Developer")
+end if
 
 if safari's isAllowJavaScriptFromAppleEvents() then
 	log "JavaScript is already allowed from Apple Events"
