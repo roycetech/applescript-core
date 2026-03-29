@@ -6,7 +6,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh core/Level_3/ui-util
+		./scripts/build-lib.sh core/Level_2/ui-util
 
 	@Created: Pre-2024.
 	@Last Modified: 2026-03-24 17:31:26
