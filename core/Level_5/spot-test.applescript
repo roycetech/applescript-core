@@ -12,7 +12,7 @@
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh core/Level_4/spot-test
+		./scripts/build-lib.sh core/Level_5/spot-test
 
 	@Last Modified: 2025-08-29 07:19:51
 
@@ -65,12 +65,12 @@ end if
 on spotCheck()
 	loggerFactory's injectBasic(me)
 	logger's start()
-
+	
 	set spotClass to new()
 	set sut to spotClass's new("spot-spotCheck", {"one", "two", "three", "four", "five"})
 	set autoIncrement of sut to true
 	set currentCase to sut's start()
-
+	
 	-- do some tests here
 	if my logger is missing value then
 		log "Current Case"
@@ -78,9 +78,9 @@ on spotCheck()
 	else
 		my logger's logObj("Current Case", currentCase)
 	end if
-
+	
 	sut's finish()
-
+	
 	if my logger is missing value then
 		log "Spot check completed."
 	else
@@ -92,12 +92,12 @@ end spotCheck
 on new()
 	loggerFactory's injectBasic(me)
 	set session to plutilLib's new()'s new("session")
-
+	
 	script SpotTestInstance
 		on setSessionCaseIndex(newCaseIndex)
 			session's setValue(SESS_CURRENT_CASE_INDEX, newCaseIndex)
 		end setSessionCaseIndex
-
+		
 		(*
 			@pCaseId test case identifier. It can be a string or the object itself.
 			@pCases the list of test cases usually retrieved from the session.
@@ -107,16 +107,16 @@ on new()
 			if class of pCaseId is script then
 				set localCaseId to (the name of pCaseId) & "-spot"
 			end if
-
+			
 			script SpotTestCaseInstance
 				property caseId : localCaseId
 				property cases : pCases
 				property autoIncrement : false
-
+				
 				property _currentCase : 0
 				property _currentCaseCount : 0
 				property _valid : true
-
+				
 				(* @returns {caseId, caseDescription} *)
 				on start()
 					set newCaseCount to count of cases
@@ -128,18 +128,18 @@ on new()
 					set runDirect to session's getBool(SESSION_KEY_RUN_SPOT_DIRECT)
 					set REINITIALIZE to (caseIdChanged or caseCountChanged) and not runDirect and newCaseCount is greater than 1
 					session's setValue(SESS_CASE_LABELS, cases)
-
+					
 					if REINITIALIZE is true then
 						if caseIdChanged then
 							session's setValue(SESS_CASE_ID, caseId)
 							session's setValue(SESS_CURRENT_CASE_INDEX, 1)
 							set my _valid to false
-
+							
 							set noticeText to "Subject Changed, select desired case from menu and re-run"
 							logger's info(noticeText)
 							notifyChange({event_type:"spot:event:new-case", case_index:_currentCase as integer})
 							return {0, "Re-run recommended"}
-
+							
 						else
 							if newCaseCount is less than _currentCaseCount then
 								session's setValue(SESS_CURRENT_CASE_INDEX, newCaseCount)
@@ -161,50 +161,50 @@ on new()
 							set _currentCaseCount to newCaseCount
 						end if
 					end if
-
+					
 					set _currentCase to session's getInt(SESS_CURRENT_CASE_INDEX)
 					-- DEBUG_LOGF("_currentCase", _currentCase)
-
+					
 					if _currentCase is 0 or _currentCase is greater than the number of items in cases then
 						-- DEBUG_LOGF("Resetting case to 1 because of case label count", number of items in caseLabels)
-
+						
 						set _currentCase to 1
 						session's setValue(SESS_CURRENT_CASE_INDEX, _currentCase)
 					end if
-
+					
 					set autoText to "M"
 					if autoIncrement is true then set autoText to "A"
-
+					
 					set calculatedCaseCount to _currentCaseCount
 					if newCaseCount is 1 then set _currentCaseCount to newCaseCount
-
+					
 					if my logger is missing value then
 						log "Running case: " & _currentCase & "/" & _currentCaseCount & " (" & autoText & "): " & item _currentCase of cases
 					else
 						logger's infof("Running case: {}/{} ({}): {}", {_currentCase, _currentCaseCount, autoText, item _currentCase of cases})
 					end if
-
+					
 					notifyChange({event_type:"spot:event:run-case", case_index:_currentCase as integer})
 					session's deleteKey(SESSION_KEY_RUN_SPOT_DIRECT)
 					{_currentCase as integer, item _currentCase of cases}
 				end start
-
-
+				
+				
 				(* eventRecord - a record containing event_type and or case_index. *)
 				on notifyChange(eventRecord)
-
+					
 				end notifyChange
-
-
+				
+				
 				on setAutoIncrement(newValue)
 					set incrementSwitch to switchLib's new(SWITCH_AUTO_INCREMENT_CASE)
 					incrementSwitch's setValue(newValue)
 				end setAutoIncrement
-
-
+				
+				
 				on finish()
 					if my _valid is false then return
-
+					
 					if autoIncrement then
 						session's setValue(SESS_CURRENT_CASE_INDEX, _currentCase + 1)
 						if _currentCase is greater than or equal to _currentCaseCount then
@@ -216,10 +216,10 @@ on new()
 							session's setValue(SESS_CURRENT_CASE_INDEX, 1)
 						end if
 					end if
-
+					
 				end finish
-
-
+				
+				
 				on DEBUG_LOGF(message, value)
 					if my logger is missing value then
 						log "DEBUG " & message & ": " & value
@@ -227,7 +227,7 @@ on new()
 						logger's debugf("{}: {}", {message, value})
 					end if
 				end DEBUG_LOGF
-
+				
 				on DEBUG_LOG(message)
 					if my logger is missing value then
 						log "DEBUG " & message
@@ -235,17 +235,17 @@ on new()
 						logger's debug(message)
 					end if
 				end DEBUG_LOG
-
+				
 			end script
-
+			
 			set incrementSwitch to switchLib's new(SWITCH_AUTO_INCREMENT_CASE)
 			set autoIncrement of SpotTestCaseInstance to incrementSwitch's active()
-
+			
 			set decoratorInner to decoratorLib's new(SpotTestCaseInstance)
 			decoratorInner's decorate()
 		end new
 	end script
-
+	
 	set decoratorOuter to decoratorLib's new(result)
 	decoratorOuter's decorate()
 end new
