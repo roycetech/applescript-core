@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/safari-tab
 
 	@Created: Wednesday, September 20, 2023 at 3:23:31 PM
-	@Last Modified: 2026-03-24 17:45:53
+	@Last Modified: 2026-03-29 15:40:17
 *)
 
 use scripting additions
@@ -15,9 +15,8 @@ use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
 
-use safariJavaScript : script "core/safari-javascript"
-
 property logger : missing value
+
 property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
@@ -26,13 +25,13 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
-	set spotScript to script "core/spot-test"
 	set listUtil to script "core/list"
 	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Closed Tab
 		Manual: Move tab to index
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
@@ -319,6 +318,7 @@ on new(windowId, pTabIndex)
 		end getSysEveWindow
 	end script
 
+	set safariJavaScript to script "core/safari-javascript"
 	tell application "Safari"
 		set appWindow of SafariTabInstance to window id windowId
 		set _url of SafariTabInstance to URL of document of window id windowId
