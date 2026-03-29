@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.5/dec-safari-settings
 
 	@Created: Fri, Jul 12, 2024 at 2:58:38 PM
-	@Last Modified: 2026-03-24 17:45:55
+	@Last Modified: 2026-03-29 13:15:36
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -115,15 +115,21 @@ on decorate(mainScript)
 		end isSettingsWindowPresent
 
 
+		(*
+			@tabName - e.g. "General", "Privacy", "Extensions", etc.
+			@returns true if successful, false otherwise.
+		*)
 		on switchSettingsTab(tabName)
 			set settingsWindow to getSettingsWindow()
-			if settingsWindow is missing value then return
+			if settingsWindow is missing value then return false
 
 			tell application "System Events" to tell process "Safari"
 				try
 					click (first button of toolbar 1 of settingsWindow whose title contains tabName)
+					return true
 				end try
 			end tell
+			false
 		end switchSettingsTab
 
 
