@@ -262,6 +262,7 @@ ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_MONTEREY) ] && echo yes),yes)
 	$(call _build-script, apps/1st-party/Terminal/2.13.x/dec-terminal-path)
 	$(call _build-script, apps/1st-party/Terminal/2.13.x/dec-terminal-prompt)
 	$(call _build-script, apps/1st-party/Terminal/2.13.x/dec-terminal-run)
+	$(call _build-script, apps/1st-party/Terminal/2.13.x/terminal-tab)
 	$(call _build-script, apps/1st-party/Terminal/2.13.x/terminal)
 endif
 
