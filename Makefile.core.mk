@@ -9,14 +9,6 @@ else
   SUDO :=
 endif
 
-# 	config
-
-LEVEL1_LIBS := \
-	decorator \
-	string \
-	logger \
-	logger-factory \
-	list
 
 APPS_PATH=/Applications/AppleScript
 
@@ -59,6 +51,46 @@ endif
 #	osascript scripts/setup-applescript-core-project-path.applescript
 # 	./scripts/setup-switches.sh
 	@echo "applescript-core installation completed\n"
+
+
+uninstall:
+	@printf 'This will remove the app-notes scripts from the system. \n
+	User settings will be preserved. Proceed? [y/N] '; IFS= read -r reply; reply=$${reply:-n}; \
+	case "$$reply" in \
+		[Yy]|[Yy][Ee][Ss]) \
+			echo "Confirmed."; \
+			;; \
+		*) \
+			echo "Not confirmed (default: no)."; \
+			exit 1; \
+			;; \
+	esac
+
+	@if [ -d "$HOME/Library/Script Libraries/com.roycetech/app-notes" ]; then \
+		echo "Uninstalling app-notes scripts from the user script library..."; \
+		echo rm -rf "$HOME/Library/Script Libraries/com.roycetech/app-notes"; \
+	else \
+		:; \
+		echo "D: Installation in user scope was not found, skipping."; \
+	fi
+
+	@if [ -d "/Library/Script Libraries/com.roycetech/app-notes" ]; then \
+		echo "Uninstalling app-notes scripts from the computer script library..."; \
+		echo rm -rf "/Library/Script Libraries/com.roycetech/app-notes"; \
+	else \
+		:; \
+		echo "D: Installation in computer scope was not found."; \
+	fi
+.PHONY: uninstall
+
+
+# NOTE: The compilation order is important
+LEVEL1_LIBS := \
+	decorator \
+	string \
+	logger \
+	logger-factory \
+	list
 
 $(LEVEL1_LIBS): Makefile
 	yes y | ./scripts/build-lib.sh "core/Level_1/$@"
