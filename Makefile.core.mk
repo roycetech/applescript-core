@@ -66,7 +66,7 @@ build-standard:
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -lt $(OS_MONTEREY) ] && echo yes),yes)
 	@echo "Unsupported macOS version for standard script"
 else
-	$(call _build-script,macOS-version/12-monterey/control-center)
+	$(call _build-script,macOS-version/12-monterey/std)
 
 # [Begin] nested standard sub level 1
 ifeq ($(shell [ $(OS_VERSION_MAJOR) -gt $(OS_MONTEREY) ] && echo yes),yes)
@@ -124,49 +124,54 @@ build-core: \
 # level 1 scripts. This is because other level 1 scripts depend on them.
 LEVEL1_SCRIPTS = $(wildcard core/Level_1/*.applescript)
 build-level1: $(LEVEL0_LIBS)
+	@echo "Building level 1 scripts..."
 	@for file in $(LEVEL1_SCRIPTS); do \
 		echo "Building $$file"; \
 		no_ext=$${file%.applescript}; \
 		yes y | ./scripts/build-lib.sh "$$no_ext"; \
 	done
-	@echo "Done building level 1 scripts\n"
+	@echo "Build level 1 scripts completed\n"
 
 
 LEVEL2_SCRIPTS = $(wildcard core/Level_2/*.applescript)
 build-level2:
+	@echo "Building level 2 scripts..."
 	@for file in $(LEVEL2_SCRIPTS); do \
 		echo "Building $$file"; \
 		no_ext=$${file%.applescript}; \
 		yes y | ./scripts/build-lib.sh "$$no_ext"; \
 	done
-	@echo "Done building level 2 scripts\n"
+	@echo "Build level 2 scripts completed\n"
 
 LEVEL3_SCRIPTS = $(wildcard core/Level_3/*.applescript)
 build-level3:
+	@echo "Building level 3 scripts..."
 	@for file in $(LEVEL3_SCRIPTS); do \
 		echo "Building $$file"; \
 		no_ext=$${file%.applescript}; \
 		yes y | ./scripts/build-lib.sh "$$no_ext"; \
 	done
-	@echo "Done building level 3 scripts\n"
+	@echo "Build level 3 scripts completed\n"
 
 LEVEL4_SCRIPTS = $(wildcard core/Level_4/*.applescript)
 build-level4:
+	@echo "Building level 4 scripts..."
 	@for file in $(LEVEL4_SCRIPTS); do \
 		echo "Building $$file"; \
 		no_ext=$${file%.applescript}; \
 		yes y | ./scripts/build-lib.sh "$$no_ext"; \
 	done
-	@echo "Done building level 4 scripts\n"
+	@echo "Build level 4 scripts completed\n"
 
 LEVEL5_SCRIPTS = $(wildcard core/Level_5/*.applescript)
 build-level5:
+	@echo "Building level 5 scripts..."
 	@for file in $(LEVEL5_SCRIPTS); do \
 		echo "Building $$file"; \
 		no_ext=$${file%.applescript}; \
 		yes y | ./scripts/build-lib.sh "$$no_ext"; \
 	done
-	@echo "Done building level 5 scripts\n"
+	@echo "Build level 5 scripts completed\n"
 
 
 reveal-scripts:  # Reveal the deployed scripts.
