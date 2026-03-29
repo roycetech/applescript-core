@@ -10,24 +10,26 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.4.1/dec-safari-tab-group
 
 	@Created: Friday, April 26, 2024 at 11:52:07 AM
-	@Last Modified: 2026-03-24 17:45:54
+	@Last Modified: 2026-03-29 13:11:58
 	@Change Logs:
+		Sun, Mar 29, 2026, at 01:11:33 PM - Change dependency to cliclick a runtime type.
 		Friday, April 26, 2024 at 11:55:54 AM
-			 - Switch to default stopped working because the default group was greyed out when programmatically clicking on the Tab Group menu button. Now we need to steal focus and use a 3rd party tool cliclick to simulate user interaction.
+			 - Switch to default stopped working because the default group was
+			 greyed out when programmatically clicking on the Tab Group menu
+			 button. Now we need to steal focus and use a 3rd party tool
+			 cliclick to simulate user interaction.
 *)
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
 
 use loggerFactory : script "core/logger-factory"
 
-use cliclickLib : script "core/cliclick"
 use retryLib : script "core/retry"
 use kbLib : script "core/keyboard"
 
 property logger : missing value
 
 property kb : missing value
-property cliclick : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -81,7 +83,6 @@ on decorate(mainScript)
 
 	set retry to retryLib's new()
 	set kb to kbLib's new()
-	set cliclick to cliclickLib's new()
 
 	script SafariTabGroupDecorator
 		property parent : mainScript
@@ -149,6 +150,9 @@ on decorate(mainScript)
 			@groupName - The group name to switch to. Missing value for default.
 		*)
 		on switchGroup(groupName)
+			set cliclickLib to script "core/cliclick"
+			set cliclick to cliclickLib's new()
+
 			if running of application "Safari" is false then
 				logger's debug("Launching Safari...")
 				activate application "Safari"
