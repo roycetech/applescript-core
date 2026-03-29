@@ -54,14 +54,14 @@ set-user-deploy-type:
 	mkdir ~/applescript-core || true
 	cp -n plist.template ~/applescript-core/session.plist || true
 	plutil -replace '[app-core] Deployment Type - LOV Selected' -string 'user' ~/applescript-core/session.plist
-	echo "Deployment type changed to 'user-scope'"
+	@echo "Deployment type changed to 'user-scope'"
 
 
 set-computer-deploy-type:
 	mkdir ~/applescript-core || true
 	cp -n plist.template ~/applescript-core/session.plist || true
 	plutil -replace '[app-core] Deployment Type - LOV Selected' -string 'computer' ~/applescript-core/session.plist
-	echo "Deployment type changed to 'computer-scope'"
+	@echo "Deployment type changed to 'computer-scope'"
 
 
 detect-deploy-type:  # Detects actual deployment type
