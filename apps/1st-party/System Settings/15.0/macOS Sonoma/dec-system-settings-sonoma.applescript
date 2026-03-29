@@ -21,7 +21,6 @@ use loggerFactory : script "core/logger-factory"
 
 use retryLib : script "core/retry"
 use uiutilLib : script "core/ui-util"
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -35,6 +34,7 @@ on spotCheck()
 		Main
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

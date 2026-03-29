@@ -7,7 +7,7 @@
 	@Build:
 		./scripts/build-lib.sh apps/3rd-party/Marked/2.6.18/marked
 
-	@Last Modified: 2026-03-24 17:31:33
+	@Last Modified: 2026-03-29 10:16:44
 
 	@Known Issues:
 		July 2, 2023 8:39 PM - Application keeps reference to closed windows,
@@ -27,7 +27,6 @@ use configLib : script "core/config"
 
 use decoratorLib : script "core/decorator"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -65,6 +64,7 @@ on spotCheck()
 	set testFile1 to examplesPath & "/example-1.md"
 	set testFile2 to examplesPath & "/example-2.md"
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

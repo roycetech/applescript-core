@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh apps/3rd-party/Xcode/15.4/xcode
 
 	@Created: Monday, May 27, 2024 at 1:22:50 PM
-	@Last Modified: 2026-03-24 17:31:35
+	@Last Modified: 2026-03-29 10:16:45
 
 	@Known Issues:
 		Sat, Jul 13, 2024 at 3:17:17 PM - Files created outside of target will be referenced incorrectly by the
@@ -21,7 +21,6 @@ use loggerFactory : script "core/logger-factory"
 use kbLib : script "core/keyboard"
 use decXcodeDebugging : script "core/dec-xcode-debugging"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
@@ -42,6 +41,7 @@ on spotCheck()
 		Manual: Quick Open File
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

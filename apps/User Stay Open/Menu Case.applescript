@@ -45,8 +45,6 @@ use mapLib : script "core/map"
 use switchLib : script "core/switch"
 use plutilLib : script "core/plutil"
 
-use spotScript : script "core/spot-test"
-
 property logger : missing value
 property speech : missing value
 property plutil : missing value
@@ -67,6 +65,7 @@ set plutil to plutilLib's new()
 set session to plutil's new("session")
 set speech to speechLib's new()
 
+set spotScript to script "core/spot-test"
 set spotLib to spotScript's new()
 
 set currentSessionCaseIndex to session's getValue("Current Case Index")

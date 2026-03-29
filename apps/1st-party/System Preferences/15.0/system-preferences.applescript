@@ -19,7 +19,6 @@ use listUtil : script "core/list"
 use retryLib : script "core/retry"
 use usrLib : script "core/user"
 
-use spotScript : script "core/spot-test"
 
 use decoratorLib : script "core/decorator"
 
@@ -46,6 +45,7 @@ on spotCheck()
 		Manual: Click Vocabulary
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	-- spot's setAutoIncrement(true)

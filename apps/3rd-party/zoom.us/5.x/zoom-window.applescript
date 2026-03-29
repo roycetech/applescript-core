@@ -1,7 +1,7 @@
 (*
 	Provides handlers about the meeting window.
 
-	@Last Modified: 2026-03-24 17:31:35
+	@Last Modified: 2026-03-29 10:16:45
 
 	@Project:
 		applescript-core
@@ -16,7 +16,6 @@ use loggerFactory : script "core/logger-factory"
 use usrLib : script "core/user"
 use zoomUtilLib : script "core/zoom"
 
-use spotScript : script "core/spot-test"
 
 property usr : missing value
 property logger : missing value
@@ -35,6 +34,7 @@ on spotCheck()
 		Manual: Turn Off Always on Top
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

@@ -19,7 +19,6 @@ use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 use terminalLib : script "core/terminal"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
@@ -42,6 +41,7 @@ on spotCheck()
 		Clear
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

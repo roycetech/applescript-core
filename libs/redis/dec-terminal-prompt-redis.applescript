@@ -10,7 +10,7 @@
 		instance name
 		handler name
 
-	@Last Modified: 2026-03-24 17:31:26
+	@Last Modified: 2026-03-29 10:16:45
 *)
 
 use listUtil : script "core/list"
@@ -20,7 +20,6 @@ use regex : script "core/regex"
 use loggerFactory : script "core/logger-factory"
 use terminalLib : script "core/terminal"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property terminal : missing value
@@ -43,6 +42,7 @@ on spotCheck()
 		Manual: Prompt Text - Redis
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

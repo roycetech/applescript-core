@@ -24,7 +24,6 @@ use loggerFactory : script "core/logger-factory"
 
 use configLib : script "core/config"
 
-use spotScript : script "core/spot-test"
 
 use decoratorLib : script "core/decorator"
 
@@ -45,6 +44,7 @@ on spotCheck()
 		Run Remote File - e2e
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

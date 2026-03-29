@@ -32,7 +32,7 @@
 		end tell
 
 	@Created: Fri, Jul 12, 2024 at 3:01:31 PM
-	@Last Modified: 2026-03-24 17:45:54
+	@Last Modified: 2026-03-29 10:16:10
 *)
 
 use script "core/Text Utilities"
@@ -60,7 +60,6 @@ use winUtilLib : script "core/window"
 use dockLib : script "core/dock"
 use retryLib : script "core/retry"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
@@ -93,6 +92,7 @@ on spotCheck()
 		Manual: Select OTP
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

@@ -17,15 +17,13 @@
 		make remove-lib SOURCE=libs/user/dec-user-zoom
 		plutil -remove 'UserInstance' ~/applescript-core/config-lib-factory.plist
 
-	@Last Modified: 2026-03-24 17:31:35
+	@Last Modified: 2026-03-29 10:16:53
 *)
 use std : script "core/std"
 use listUtil : script "core/list"
 
 use loggerFactory : script "core/logger-factory"
 use usrLib : script "core/user"
-
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -40,6 +38,7 @@ on spotCheck()
 		Manual: Info (In meeting [yes, no], Screen Sharing [yes, no])
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotLib to spotScript's new()
 	set spot to spotLib's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

@@ -28,7 +28,6 @@ use calendarLib : script "core/calendar"
 use calendarEventLib : script "core/calendar-event"
 use decoratorLib : script "core/decorator"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -47,6 +46,7 @@ on spotCheck()
 		Manual: Extract Info
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

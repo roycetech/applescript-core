@@ -11,13 +11,12 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/18.3/dec-safari-ui-compact
 
 	@Created: Wed, Feb 12, 2025 at 11:23:10 AM
-	@Last Modified: 2026-03-24 17:45:55
+	@Last Modified: 2026-03-29 10:16:10
 	@Change Logs:
 *)
 use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 
-use spotScript : script "core/spot-test"
 use kbLib : script "core/keyboard"
 
 property logger : missing value
@@ -34,6 +33,7 @@ on spotCheck()
 		Manual: Loading State
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

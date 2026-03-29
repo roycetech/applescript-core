@@ -4,7 +4,7 @@
 
 	@Requires notification-center to be deployed first.
 
-	@Last Modified: 2026-03-24 17:31:27
+	@Last Modified: 2026-03-29 10:16:45
 *)
 
 use scripting additions
@@ -14,7 +14,6 @@ use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 use notificationCenterLib : script "core/notification-center"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property notificationCenter : missing value
@@ -32,6 +31,7 @@ on spotCheck()
 		Notice Meetings
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

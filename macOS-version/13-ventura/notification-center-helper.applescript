@@ -14,7 +14,6 @@ use scripting additions
 use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 
-use spotScript : script "core/spot-test"
 
 use loggerLib : script "core/logger"
 use notificationCenterLib : script "core/notification-center"
@@ -33,6 +32,7 @@ on spotCheck()
 		Last Notice
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

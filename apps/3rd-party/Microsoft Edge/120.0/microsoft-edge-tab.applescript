@@ -19,7 +19,6 @@ use retryLib : script "core/retry"
 
 use microsoftEdgeJavaScript : script "core/microsoft-edge-javascript"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property retry : missing value
@@ -38,6 +37,7 @@ on spotCheck()
 		Manual: Run a Script
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

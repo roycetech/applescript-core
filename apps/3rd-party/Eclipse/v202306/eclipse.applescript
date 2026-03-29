@@ -6,7 +6,7 @@
 		make build-lib SOURCE="apps/3rd-party/Eclipse/v202306/eclipse"
 
 	@Created: September 7, 2023 11:02 AM
-	@Last Modified: 2026-03-24 17:31:31
+	@Last Modified: 2026-03-29 10:16:44
 *)
 
 use textUtil : script "core/string"
@@ -15,7 +15,6 @@ use loggerFactory : script "core/logger-factory"
 
 use cliclickLib : script "core/cliclick"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property cliclick : missing value
@@ -44,6 +43,7 @@ on spotCheck()
 		Manual: Show Default View
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

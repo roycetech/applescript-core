@@ -20,7 +20,6 @@ use listUtil : script "core/list"
 use winUtilLib : script "core/window"
 use msedgeTabLib : script "core/microsoft-edge-tab"
 
-use spotScript : script "core/spot-test"
 
 property winUtil : missing value
 property logger : missing value
@@ -42,6 +41,7 @@ on spotCheck()
 			Deactivate Chat
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

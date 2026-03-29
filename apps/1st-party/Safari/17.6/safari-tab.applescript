@@ -9,7 +9,7 @@
 	@Version: 17.6
 
 	@Created: Wed, Sep 25, 2024 at 2:36:07 PM
-	@Last Modified: 2026-03-24 17:45:54
+	@Last Modified: 2026-03-29 10:16:10
 
 	@Change Logs:
 		Sunday, March 31, 2024 at 9:28:23 AM - After Sonoma 14.4.1, document reference could no longer be passed from intermediary reference, it needs to be directly accessed to work.
@@ -23,7 +23,6 @@ use retryLib : script "core/retry"
 
 use safariJavaScript : script "core/safari-javascript"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property retry : missing value
@@ -41,6 +40,7 @@ on spotCheck()
 		Manual: Switch to Tab Index
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

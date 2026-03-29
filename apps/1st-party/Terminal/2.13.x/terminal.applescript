@@ -57,7 +57,6 @@ use winUtilLib : script "core/window"
 use syseveLib : script "core/system-events"
 use retryLib : script "core/retry"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property winUtil : missing value
@@ -94,6 +93,7 @@ on spotCheck()
 		Manual: Set Tab Name
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

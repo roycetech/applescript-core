@@ -11,7 +11,6 @@ use listUtil : script "core/list"
 use loggerFactory : script "core/logger-factory"
 use kbLib : script "core/keyboard"
 
-use spotScript : script "core/spot-test"
 use decoratorNetwork : script "core/control-center_network"
 use decoratorSound : script "core/control-center_sound"
 use decoratorFocus : script "core/control-center_focus"
@@ -41,6 +40,7 @@ on spotCheck()
 		Manual: Join WIFI (Not Joined, Already Joined, Not Found)
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

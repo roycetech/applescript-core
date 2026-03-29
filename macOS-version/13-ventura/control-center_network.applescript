@@ -19,7 +19,6 @@ use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 use ccLib : script "core/control-center"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
@@ -37,6 +36,7 @@ on spotCheck()
 		Manual: Join WIFI (Not Joined, Already Joined, Not Found)
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

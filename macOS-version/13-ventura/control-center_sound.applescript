@@ -14,7 +14,6 @@ use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 use ccLib : script "core/control-center"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
@@ -33,6 +32,7 @@ on spotCheck()
 		Manual: Switch to Default (Happy, Already Selected)
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

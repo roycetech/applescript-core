@@ -60,7 +60,6 @@ use extRun : script "core/dec-terminal-run"
 use extPath : script "core/dec-terminal-path"
 use extPrompt : script "core/dec-terminal-prompt"
 
-use spotScript : script "core/spot-test"
 
 use decoratorLib : script "core/decorator"
 
@@ -108,6 +107,7 @@ on spotCheck()
 
 	loggerFactory's share(me, spotScript)
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

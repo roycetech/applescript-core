@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/17.5/dec-safari-tab-group
 
 	@Created: Monday, June 10, 2024 at 11:42:13 AM
-	@Last Modified: 2026-03-24 17:45:54
+	@Last Modified: 2026-03-29 10:16:10
 	@Change Logs:
 		Monday, June 10, 2024 at 11:47:12 AM - cliclick no longer required.
 *)
@@ -23,7 +23,6 @@ use loggerFactory : script "core/logger-factory"
 use retryLib : script "core/retry"
 use kbLib : script "core/keyboard"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
@@ -42,6 +41,7 @@ on spotCheck()
 		Manual: Switch to Default
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

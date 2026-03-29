@@ -1,13 +1,12 @@
 (*
 	@Created: July 9, 2023 11:52 AM
-	@Last Modified: 2026-03-24 17:31:34
+	@Last Modified: 2026-03-29 10:16:45
 *)
 
 use loggerFactory : script "core/logger-factory"
 
 use listUtil : script "core/list"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 
@@ -22,6 +21,7 @@ on spotCheck()
 		Manual: Not found
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

@@ -51,7 +51,6 @@ use kbLib : script "core/keyboard"
 use uiutilLib : script "core/ui-util"
 use winUtilLib : script "core/window"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property retry : missing value
@@ -87,6 +86,7 @@ on spotCheck()
 		Manual: Select OTP
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

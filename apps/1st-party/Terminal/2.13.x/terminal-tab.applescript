@@ -8,7 +8,7 @@
 		./scripts/build-lib.sh apps/1st-party/Terminal/2.13.x/terminal-tab
 
 	@Created: October 7, 2023 10:27 AM
-	@Last Modified: 2026-03-24 17:45:56
+	@Last Modified: 2026-03-29 10:16:44
 *)
 use script "core/Text Utilities"
 use scripting additions
@@ -31,7 +31,6 @@ use extRun : script "core/dec-terminal-run"
 use extPath : script "core/dec-terminal-path"
 use extPrompt : script "core/dec-terminal-prompt"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property kb : missing value
@@ -50,6 +49,7 @@ on spotCheck()
 		Main
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

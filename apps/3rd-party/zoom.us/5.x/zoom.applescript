@@ -38,7 +38,7 @@
 			config-business
 				Zoom User Meeting ID
 
-	@Last Modified: 2026-03-24 17:31:35
+	@Last Modified: 2026-03-29 10:16:45
 *)
 
 use listUtil : script "core/list"
@@ -60,7 +60,6 @@ use cliclickLib : script "core/cliclick"
 
 use decoratorLib : script "core/decorator"
 
-use spotScript : script "core/spot-test"
 
 property configBusiness : missing value
 property plutil : missing value
@@ -96,6 +95,7 @@ on spotCheck()
 		Manual: Cycle Camera
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

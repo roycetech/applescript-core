@@ -2,7 +2,7 @@
 	@Build:
 		make build-lib SOURCE=apps/1st-party/Terminal/2.12.x/dec-terminal-prompt-sftp
 
-	@Last Modified: 2026-03-24 17:45:56
+	@Last Modified: 2026-03-29 10:16:44
 *)
 
 use listUtil : script "core/list"
@@ -12,7 +12,6 @@ use loggerFactory : script "core/logger-factory"
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
 
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property retry : missing value
@@ -34,6 +33,7 @@ on spotCheck()
 		Clear
 	")
 
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()

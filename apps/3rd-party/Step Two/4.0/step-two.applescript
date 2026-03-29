@@ -27,7 +27,6 @@ use loggerFactory : script "core/logger-factory"
 
 use processLib : script "core/process"
 use dateTimeLib : script "core/date-time"
-use spotScript : script "core/spot-test"
 
 property logger : missing value
 property dateTime : missing value
@@ -50,6 +49,7 @@ on spotCheck()
 		Manual: Get OTP by Cred Key (Found, Not Found)
 	")
 	
+	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
