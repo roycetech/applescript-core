@@ -14,7 +14,6 @@
 use scripting additions
 
 use textUtil : script "core/string"
-use decoratorLib : script "core/decorator"
 
 property filename : "applescript-core.log"
 -- property name : missing value
@@ -281,6 +280,7 @@ on new(pObjectName)
 		end placeholder
 	end script
 
+	set decoratorLib to script "core/decorator"
 	set decorator to decoratorLib's new(LoggerOverridableInstance)
 	decorator's decorate()
 end new

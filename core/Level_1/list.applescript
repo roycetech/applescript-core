@@ -19,8 +19,6 @@ use scripting additions
 
 use textUtil : script "core/string"
 
-use loggerFactory : script "core/logger-factory"
-
 property logger : missing value
 
 property ERROR_LIST_COUNT_INVALID : 1000
@@ -32,6 +30,7 @@ property linesDelimiter : "@"
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
 on spotCheck()
+	set loggerFactory to script "core/logger-factory"
 	loggerFactory's inject(me)
 	logger's start()
 

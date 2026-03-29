@@ -53,15 +53,12 @@ endif
 	@echo "applescript-core installation completed\n"
 
 
-# NOTE: The compilation order is important
-LEVEL1_LIBS := \
-	decorator \
+LEVEL0_LIBS := \
 	string \
-	logger \
-	logger-factory \
-	list
+	logger
 
-$(LEVEL1_LIBS): Makefile
+
+$(LEVEL0_LIBS): Makefile
 	yes y | ./scripts/build-lib.sh "core/Level_1/$@"
 
 
@@ -122,8 +119,17 @@ build-core: \
 	build-level5
 	@echo "Core libraries compiled.\n"
 
-build-level1: $(LEVEL1_LIBS)
-	@echo "Level 1 scripts compiled.\n"
+
+# NOTE: string and logger (Level 0 libs) has to be built first before all other
+# level 1 scripts. This is because other level 1 scripts depend on them.
+LEVEL1_SCRIPTS = $(wildcard core/Level_1/*.applescript)
+build-level1: $(LEVEL0_LIBS)
+	@for file in $(LEVEL1_SCRIPTS); do \
+		echo "Building $$file"; \
+		no_ext=$${file%.applescript}; \
+		yes y | ./scripts/build-lib.sh "$$no_ext"; \
+	done
+	@echo "Done building level 1 scripts\n"
 
 
 LEVEL2_SCRIPTS = $(wildcard core/Level_2/*.applescript)
