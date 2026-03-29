@@ -143,6 +143,7 @@ build-safari: build-base-app build-dock build-process
 	# Older versions of scripts are built first and overwritten by newer versions.
 	@echo "Building Safari 16.0 scripts"
 	$(call _build-script,core/Level_5/javascript)
+	$(call _build-script,apps/1st-party/Safari/16.0/safari-tabs)
 
 	@for file in $(wildcard apps/1st-party/Safari/16.0/*.applescript); do \
 		no_ext=$${file%.applescript}; \

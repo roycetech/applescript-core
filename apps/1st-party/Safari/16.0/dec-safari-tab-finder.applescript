@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/16.0/dec-safari-tab-finder
 
 	@Created: Wednesday, September 20, 2023 at 10:13:11 AM
-	@Last Modified: 2026-03-24 17:45:53
+	@Last Modified: 2026-03-29 13:05:01
 	@Change Logs: .
 *)
 use loggerFactory : script "core/logger-factory"
@@ -19,6 +19,7 @@ use safariTabLib : script "core/safari-tab"
 use kbLib : script "core/keyboard"
 
 property logger : missing value
+
 property kb : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
