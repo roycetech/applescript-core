@@ -51,7 +51,7 @@ uninstall-automator:
 
 
 
-build-calendar: build-base-app
+build-calendar: build-base-app build-process
 	@echo "Building Calendar scripts..."
 	$(call _build-script, apps/1st-party/Calendar/11.0/dec-calendar-view)
 	$(call _build-script, apps/1st-party/Calendar/15.0/calendar-event)
