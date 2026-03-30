@@ -2,11 +2,17 @@
 	Enable Allow JavaScript from Apple Events. Manual user authentication still required.
 
 	@Created: Sat, Dec 13, 2025, at 10:04:54 AM
+
+	@Change Logs:
+		Mon, Mar 30, 2026, at 09:53:33 AM - Re-focus to the terminal app on completion.
 *)
 use safariLib : script "core/safari"
+use systemEventLib : script "core/system-events"
+set systemEvent to systemEventLib's new()
 
 set safari to safariLib's new()
 
+set currentAppName to systemEvent's getFrontAppName()
 activate application "Safari"
 safari's showSettings()
 
@@ -28,3 +34,4 @@ else
 end if
 
 safari's closeSettings()
+activate application currentAppName
