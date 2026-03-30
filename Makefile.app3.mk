@@ -149,10 +149,7 @@ install-stream-deck: build-stream-deck
 
 install-sublime-text: build-finder
 	osascript ./scripts/setup-sublime-text-cli.applescript
-	plutil \
-		-replace 'SystemEventsInstance' \
-		-string 'core/dec-system-events-with-sublime-text' \
-		~/applescript-core/config-lib-factory.plist
+	./scripts/factory-insert.sh SystemEventsInstance core/dec-system-events-with-sublime-text
 	$(call _build-script,apps/3rd-party/Sublime Text/4.x/dec-sublime-text-tabs)
 	$(call _build-script,apps/3rd-party/Sublime Text/4.x/sublime-text)
 	$(call _build-script,apps/3rd-party/Sublime Text/4.x/dec-system-events-with-sublime-text)
@@ -187,7 +184,9 @@ install-zoom: build-zoom
 	mkdir -p ~/applescript-core/zoom.us/
 	cp -n plist.template ~/applescript-core/zoom.us/config.plist || true
 	osascript ./apps/3rd-party/zoom.us/setup-zoom-configurations.applescript
-	# plutil -replace 'UserInstance' -string 'core/dec-user-zoom' ~/applescript-core/config-lib-factory.plist
-	./scripts/plist-insert.sh ~/applescript-core/config-lib-factory.plist "UserInstance" "core/dec-user-zoom"
-	plutil -replace 'CalendarEventLibrary' -string 'core/dec-calendar-event-zoom' ~/applescript-core/config-lib-factory.plist
-	@echo "Install Zoom completed"
+# plutil -replace 'UserInstance' -string 'core/dec-user-zoom' ~/applescript-core/config-lib-factory.plist
+# ./scripts/plist-insert.sh ~/applescript-core/config-lib-factory.plist "UserInstance" "core/dec-user-zoom"
+# plutil -replace 'CalendarEventLibrary' -string 'core/dec-calendar-event-zoom' ~/applescript-core/config-lib-factory.plist
+	./scripts/factory-insert.sh UserInstance core/dec-user-zoom
+	./scripts/factory-insert.sh CalendarEventLibrary core/dec-calendar-event-zoom
+	@echo "Install Zoom completed\n"

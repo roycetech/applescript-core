@@ -26,7 +26,6 @@ use std : script "core/std"
 use textUtil : script "core/string"
 use regex : script "core/regex"
 use fileUtil : script "core/file"
-use omz : script "core/oh-my-zsh"
 use extOutput : script "core/dec-terminal-output"
 use extPrompt : script "core/dec-terminal-prompt"
 use extPath : script "core/dec-terminal-path"
@@ -37,8 +36,10 @@ use retryLib : script "core/retry"
 use terminalLib : script "core/terminal"
 
 property logger : missing value
+
 property retry : missing value
 property terminal : missing value
+property omz : missing value
 
 property TERMINAL_START_TEXT : "Last Login:"
 
@@ -118,7 +119,7 @@ end spotCheck
 on decorate(termTabScript)
 	loggerFactory's inject(me)
 	set retry to retryLib's new()
-
+	set omz to script "core/oh-my-zsh"
 	set computedDefaultPrompt to omz's OMZ_ARROW & "  "
 	-- logger's debugf("computedDefaultPrompt: {}", computedDefaultPrompt)
 	script TerminalPromptOmzDecorator
