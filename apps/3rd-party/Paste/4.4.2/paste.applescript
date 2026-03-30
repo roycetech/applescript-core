@@ -6,14 +6,16 @@
 		./scripts/build-lib.sh apps/3rd-party/Paste/4.4.2/paste
 
 	@Created: Tuesday, December 31, 2024 at 12:46:53 PM
-	@Last Modified: 2026-03-24 17:31:34
+	@Last Modified: 2026-03-29 19:03:22
 *)
 use scripting additions
 
 use loggerFactory : script "core/logger-factory"
+
 use retryLib : script "core/retry"
 
 property logger : missing value
+
 property retry : missing value
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()

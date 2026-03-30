@@ -6,75 +6,55 @@ OMZ_EXISTS := $(wildcard ~/.oh-my-zsh/plugins)
 $(info     OMZ_EXISTS: $(OMZ_EXISTS))
 
 build-omz:
+ifeq ($(OMZ_EXISTS),)
+	@echo "Oh My Zsh not found (~/.oh-my-zsh/plugins missing), aborting OMZ build\n"
+	exit 1
+else
 	@echo "Building OMZ scripts..."
 	$(call _build-script,libs/zsh/oh-my-zsh)
 	$(call _build-script,apps/1st-party/Terminal/2.14.x/dec-terminal-prompt-omz)
 	@echo "Build OMZ completed\n"
+endif
+
 
 install-omz: build-omz
-	$(call _build-script,apps/1st-party/Terminal/2.14.x/dec-terminal-prompt-omz)
-	$(SUDO) ./scripts/factory-insert.sh TerminalTabInstance core/dec-terminal-prompt-omz
+	./scripts/factory-insert.sh TerminalTabInstance core/dec-terminal-prompt-omz
 
 
 # 3rd Party Apps Library ------------------------------------------------------
 build-one-password: build-cliclick
-	@echo "Building 1Password scripts..."
-	$(call _build-script,apps/3rd-party/1Password/v6/one-password)
-	@echo "Build 1Password completed\n"
+	$(call _build-app-scripts-if-exists,1Password,apps/3rd-party/1Password/v6)
 
 install-1password: build-one-password install-cliclick
 
 
-install-atom:  ## Deprecated
-	$(call _build-script,apps/3rd-party/Atom/1.60.0/atom)
-
-
 build-bartender:
-	@echo "Building Bartender scripts..."
-	$(call _build-script,apps/3rd-party/Bartender/v5/bartender)
-	@echo "Build Bartender completed\n"
+	$(call _build-app-scripts-if-exists,Bartender,apps/3rd-party/Bartender/v5)
 
 
 build-camera-hub:
-	@echo "Building Camera Hub scripts..."
-	$(call _build-script,apps/3rd-party/Camera Hub/1.10.2/camera-hub)
-	@echo "Build Camera Hub completed\n"
+	$(call _build-app-scripts-if-exists,Camera Hub,apps/3rd-party/Camera Hub/1.10.2)
 
 
 build-cleanshot-x:
-	@echo "Building CleanShot X scripts..."
-	$(call _build-script,apps/3rd-party/CleanShot X/4.7.4/dec-cleanshot-x-general)
-	$(call _build-script,apps/3rd-party/CleanShot X/4.7.4/dec-cleanshot-x-shortcuts)
-	$(call _build-script,apps/3rd-party/CleanShot X/4.7.4/dec-cleanshot-x-quick-access)
-	$(call _build-script,apps/3rd-party/CleanShot X/4.7.4/cleanshot-x)
-	@echo "Build CleanShot X completed\n"
+	$(call _build-app-scripts-if-exists,CleanShot X,apps/3rd-party/CleanShot X/4.7.4)
 
 
 build-cursor: build-base-app
-	@echo "Building Cursor scripts..."
-	$(call _build-script,apps/3rd-party/Cursor/2.5/dec-cursor-current-file)
-	$(call _build-script,apps/3rd-party/Cursor/2.5/dec-cursor-layout)
-	$(call _build-script,apps/3rd-party/Cursor/2.5/cursor)
-	@echo "Build Cursor completed\n"
+	$(call _build-app-scripts-if-exists,Cursor,apps/3rd-party/Cursor/2.5)
 .PHONY: build-cursor
 
 
 install-eclipse:
-	@echo "Building Eclipse scripts..."
-	$(call _build-script,apps/3rd-party/Eclipse/v202306/eclipse)
-	@echo "Build Eclipse completed\n"
+	$(call _build-app-scripts-if-exists,Eclipse,apps/3rd-party/Eclipse/v202306)
 
 
 install-file-zilla:
-	@echo "Building FileZilla scripts..."
-	$(call _build-script,apps/3rd-party/FileZilla/3.69.x/file-zilla)
-	@echo "Build FileZilla completed\n"
+	$(call _build-app-scripts-if-exists,FileZilla,apps/3rd-party/FileZilla/3.69.x)
 
 
 install-git-kraken:
-	@echo "Building GitKraken scripts..."
-	$(call _build-script,apps/3rd-party/GitKraken/v9.8.2/git-kraken)
-	@echo "Build GitKraken completed\n"
+	$(call _build-app-scripts-if-exists,GitKraken,apps/3rd-party/GitKraken/v9.8.2)
 
 
 build-google-chrome:
@@ -88,126 +68,66 @@ build-google-chrome:
 
 
 build-guitar-pro:
-	@echo "Building Guitar Pro scripts..."
-	$(call _build-script,apps/3rd-party/Guitar Pro/7.6/dec-guitar-pro-note)
-	$(call _build-script,apps/3rd-party/Guitar Pro/7.6/guitar-pro)
-	@echo "Build Guitar Pro completed\n"
+	$(call _build-app-scripts-if-exists,Guitar Pro,apps/3rd-party/Guitar Pro/7.6)
 
 
 build-microsoft-edge:
-	@echo "Building Microsoft Edge scripts..."
-	$(call _build-script,apps/3rd-party/Microsoft Edge/140.0/microsoft-edge-javascript)
-	$(call _build-script,apps/3rd-party/Microsoft Edge/140.0/microsoft-edge-tab)
-	$(call _build-script,apps/3rd-party/Microsoft Edge/140.0/dec-microsoft-edge-tab-finder)
-	$(call _build-script,apps/3rd-party/Microsoft Edge/140.0/microsoft-edge)
-	@echo "Build Microsoft Edge completed\n"
-
-
-build-opera:
-	@echo "Building Opera scripts..."
-	$(call _build-script,apps/3rd-party/Opera/110.0/dec-opera-tab-finder)
-	$(call _build-script,apps/3rd-party/Opera/110.0/opera-javascript)
-	$(call _build-script,apps/3rd-party/Opera/110.0/opera-tab)
-	$(call _build-script,apps/3rd-party/Opera/110.0/opera)
-	@echo "Build Opera completed\n"
+	$(call _build-app-scripts-if-exists,Microsoft Edge,apps/3rd-party/Microsoft Edge/140.0)
 
 
 build-iterm:
-	@echo "Building iTerm2 scripts..."
-	$(call _build-script,apps/3rd-party/iTerm2/3.5.x/iterm2)
-	@echo "Build iTerm2 completed\n"
+	$(call _build-app-scripts-if-exists,iTerm2,apps/3rd-party/iTerm2/3.5.x)
 
 
 build-intellij:
-	@echo "Building IntelliJ IDEA scripts..."
-	$(call _build-script,apps/3rd-party/IntelliJ IDEA/v2023.2.1/intellij-idea)
-	@echo "Build IntelliJ IDEA completed\n"
+	$(call _build-app-scripts-if-exists,IntelliJ IDEA,apps/3rd-party/IntelliJ IDEA/v2024.2.4)
 
 
 install-intellij: build-intellij
 	$(SUDO) osascript ./scripts/setup-intellij-cli.applescript
 
-build-pulsar:
-	@echo "Building Pulsar scripts..."
-	$(call _build-script,apps/3rd-party/Pulsar/1.102.x/pulsar)
-	@echo "Build Pulsar completed\n"
-
-install-pulsar: build-pulsar
-
 
 build-keyboard-maestro:
-	@echo "Building Keyboard Maestro scripts..."
-	$(call _build-script,apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-variables)
-	$(call _build-script,apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-preferences-variables)
-	$(call _build-script,apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-editor)
-	$(call _build-script,apps/3rd-party/Keyboard Maestro/dec-keyboard-maestro-editor-actions)
-	$(call _build-script,apps/3rd-party/Keyboard Maestro/keyboard-maestro)
-	$(call _build-script,apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro)
-	$(call _build-script,apps/3rd-party/Keyboard Maestro/keyboard-maestro-macro-group)
-	@echo "Build Keyboard Maestro completed\n"
+	$(call _build-app-scripts-if-exists,Keyboard Maestro,apps/3rd-party/Keyboard Maestro)
 
 
 install-last-pass:
-	@echo "Building LastPass scripts..."
-	$(call _build-script,apps/3rd-party/LastPass/4.4.x/last-pass)
-	@echo "Build LastPass completed\n"
+	$(call _build-app-scripts-if-exists,LastPass,apps/3rd-party/LastPass/4.4.x)
+
 
 build-marked:
-	@echo "Building Marked scripts..."
-	$(call _build-script,apps/3rd-party/Marked/2.6.46/marked-tab)
-	$(call _build-script,apps/3rd-party/Marked/2.6.46/dec-marked-scrolling)
-	$(call _build-script,apps/3rd-party/Marked/2.6.46/dec-marked-settings)
-	$(call _build-script,apps/3rd-party/Marked/2.6.46/dec-marked-settings-general)
-	$(call _build-script,apps/3rd-party/Marked/2.6.46/dec-marked-settings-preview)
-	$(call _build-script,apps/3rd-party/Marked/2.6.46/dec-marked-settings-apps)
-	$(call _build-script,apps/3rd-party/Marked/2.6.46/dec-marked-settings-advanced)
-	$(call _build-script,apps/3rd-party/Marked/2.6.46/dec-marked-menu)
-	$(call _build-script,apps/3rd-party/Marked/2.6.46/marked)
-	@echo "Build Marked completed\n"
-
-install-marked: build-marked
+	$(call _build-app-scripts-if-exists,Marked 2,apps/3rd-party/Marked/2.6.46)
 
 
 build-mosaic:
-	@echo "Building Mosaic scripts..."
-	$(call _build-script,apps/3rd-party/Mosaic/v1.3.x/mosaic)
-	@echo "Build Mosaic completed\n"
+	$(call _build-app-scripts-if-exists,Mosaic,apps/3rd-party/Mosaic/v1.3.x)
 
 
-build-paste:
-	@echo "Building Paste scripts..."
-	$(call _build-script,apps/3rd-party/Paste/4.4.2/paste)
-	@echo "Build Paste completed\n"
+build-paste: build-base-app
+	$(call _build-app-scripts-if-exists,Paste,apps/3rd-party/Paste/4.4.2)
+
+
+build-pulsar:
+	$(call _build-app-scripts-if-exists,Pulsar,apps/3rd-party/Pulsar/1.128.x)
 
 
 build-script-debugger:
-	@echo "Building Script Debugger scripts..."
-	$(call _build-script,'apps/3rd-party/Script Debugger/v8.0.x/script-debugger')
-	@echo "Build Script Debugger completed\n"
-
-install-script-debugger: build-script-debugger
+	$(call _build-app-scripts-if-exists,Script Debugger,apps/3rd-party/Script Debugger/v8.0.x)
 
 
 build-sequel-ace:
-	@echo "Building Sequel Ace scripts..."
-	$(call _build-script,apps/3rd-party/Sequel Ace/4.1.x/sequel-ace-tab)
-	$(call _build-script,apps/3rd-party/Sequel Ace/4.1.x/sequel-ace)
-	@echo "Build Sequel Ace completed\n"
+	$(call _build-app-scripts-if-exists,Sequel Ace,apps/3rd-party/Sequel Ace/4.1.x)
+
 
 install-sequel-ace: build-sequel-ace
 
 
 build-sourcetree:
-	@echo "Building Sourcetree scripts..."
-	$(call _build-script,apps/3rd-party/Sourcetree/4.2.11/dec-sourcetree-settings)
-	$(call _build-script,apps/3rd-party/Sourcetree/4.2.11/sourcetree)
-	@echo "Build Sourcetree completed\n"
+	$(call _build-app-scripts-if-exists,Sourcetree,apps/3rd-party/Sourcetree/4.2.11)
 
 
 build-step-two:
-	@echo "Building Step Two scripts..."
-	$(call _build-script,apps/3rd-party/Step Two/3.1/step-two)
-	@echo "Build Step Two completed\n"
+	$(call _build-app-scripts-if-exists,Step Two,apps/3rd-party/Step Two/3.1)
 
 
 build-stream-deck:
@@ -222,10 +142,6 @@ build-stream-deck:
 
 
 install-stream-deck: build-stream-deck
-# 	plutil \
-# 		-replace 'SpotTestInstance' \
-# 		-string 'core/dec-spot-stream-deck' \
-# 		~/applescript-core/config-lib-factory.plist
 	yes y | ./scripts/factory-insert.sh StreamDeckInstance core/dec-spot-stream-deck
 	@echo "Install Stream Deck completed"
 
@@ -243,56 +159,28 @@ install-sublime-text: build-finder
 
 
 install-text-mate:
-	$(call _build-script,apps/3rd-party/TextMate/2.0.x/text-mate)
-	@echo "Build TextMate completed"
-
-
-build-talon:
-	@echo "Building Talon scripts..."
-	$(call _build-script,apps/3rd-party/Talon/0.4/talon)
-	@echo "Build Talon completed"
+	$(call _build-app-scripts-if-exists,TextMate,apps/3rd-party/TextMate/2.0.x)
 
 
 build-ui-browser:
-	@echo "Building UI Browser scripts..."
-	$(call _build-script,'apps/3rd-party/UI Browser/3.0.2/ui-browser')
-	@echo "Build UI Browser completed"
+	$(call _build-app-scripts-if-exists,UI Browser,apps/3rd-party/UI Browser/3.0.2)
 
 
 build-viscosity: build-step-two
-	@echo "Building Viscosity scripts..."
-	$(call _build-script,apps/3rd-party/Viscosity/1.10.x/viscosity)
-	@echo "Build Viscosity completed\n"
+	$(call _build-app-scripts-if-exists,Viscosity,apps/3rd-party/Viscosity/1.10.x)
 
 
 build-visual-studio-code:
-	@echo "Building Visual Studio Code scripts..."
-	$(call _build-script,apps/3rd-party/Visual Studio Code/1.81/visual-studio-code)
-	@echo "Build Visual Studio Code completed\n"
+	$(call _build-app-scripts-if-exists,Visual Studio Code,apps/3rd-party/Visual Studio Code/1.81)
 
 
 build-vlc:
-	@echo "Building VLC scripts..."
-	$(call _build-script,apps/3rd-party/VLC/3.0.x/vlc)
-	@echo "Build VLC completed\n"
+	$(call _build-app-scripts-if-exists,VLC,apps/3rd-party/VLC/3.0.x)
 
 
 build-zoom:
-	@echo "Building Zoom scripts..."
-	$(call _build-script,apps/3rd-party/zoom.us/6.0.x/dec-zoom-authentication)
-	$(call _build-script,apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting)
-	$(call _build-script,apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting-actions)
-	$(call _build-script,apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting-actions-audio)
-	$(call _build-script,apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting-actions-video)
-	$(call _build-script,apps/3rd-party/zoom.us/6.0.x/dec-zoom-meeting-actions-sharing)
-	$(call _build-script,apps/3rd-party/zoom.us/6.0.x/zoom)
-#	$(call _build-script,apps/3rd-party/zoom.us/5.x/dec-user-zoom)
-#	$(call _build-script,apps/3rd-party/zoom.us/5.x/zoom-window)
-#	$(call _build-script,apps/3rd-party/zoom.us/5.x/zoom-actions)
-#	$(call _build-script,apps/3rd-party/zoom.us/5.x/zoom-participants)
-#	$(call _build-script,apps/3rd-party/zoom.us/dec-calendar-event-zoom)
-#	$(call _build-script,apps/3rd-party/zoom.us/5.x/zoom)
-	@echo "Build Zoom completed\n"
+	$(call _build-app-scripts-if-exists,Zoom,apps/3rd-party/zoom.us/6.0.x)
+
 
 install-zoom: build-zoom
 	mkdir -p ~/applescript-core/zoom.us/
@@ -302,3 +190,20 @@ install-zoom: build-zoom
 	./scripts/plist-insert.sh ~/applescript-core/config-lib-factory.plist "UserInstance" "core/dec-user-zoom"
 	plutil -replace 'CalendarEventLibrary' -string 'core/dec-calendar-event-zoom' ~/applescript-core/config-lib-factory.plist
 	@echo "Install Zoom completed"
+
+
+# @1 - App name
+# @2 - folder to build the scripts from
+_build-app-scripts-if-exists = \
+	@if [ -d "/Applications/$(1).app" ]; then \
+		echo "Building $(1) scripts..."; \
+		find "$(2)" -maxdepth 1 -type f -name '*.applescript' -print0 \
+		| while IFS= read -r -d '' file; do \
+			echo "Building $$file"; \
+			no_ext=$${file%.applescript}; \
+			yes y | ./scripts/build-lib.sh "$$no_ext"; \
+		done; \
+		echo "Build $(1) scripts completed\n"; \
+	else \
+		echo "$(1) not found, skipping build"; \
+	fi
