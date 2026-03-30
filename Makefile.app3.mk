@@ -4,6 +4,7 @@
 
 OMZ_EXISTS := $(wildcard ~/.oh-my-zsh/plugins)
 $(info     OMZ_EXISTS: $(OMZ_EXISTS))
+$(info )
 
 build-omz:
 ifeq ($(OMZ_EXISTS),)
@@ -190,20 +191,3 @@ install-zoom: build-zoom
 	./scripts/plist-insert.sh ~/applescript-core/config-lib-factory.plist "UserInstance" "core/dec-user-zoom"
 	plutil -replace 'CalendarEventLibrary' -string 'core/dec-calendar-event-zoom' ~/applescript-core/config-lib-factory.plist
 	@echo "Install Zoom completed"
-
-
-# @1 - App name
-# @2 - folder to build the scripts from
-_build-app-scripts-if-exists = \
-	@if [ -d "/Applications/$(1).app" ]; then \
-		echo "Building $(1) scripts..."; \
-		find "$(2)" -maxdepth 1 -type f -name '*.applescript' -print0 \
-		| while IFS= read -r -d '' file; do \
-			echo "Building $$file"; \
-			no_ext=$${file%.applescript}; \
-			yes y | ./scripts/build-lib.sh "$$no_ext"; \
-		done; \
-		echo "Build $(1) scripts completed\n"; \
-	else \
-		echo "$(1) not found, skipping build"; \
-	fi
