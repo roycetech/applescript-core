@@ -82,7 +82,7 @@ build-iterm:
 
 build-intellij:
 	$(call _build-app-scripts-if-exists,IntelliJ IDEA,apps/3rd-party/IntelliJ IDEA/v2024.2.4)
-
+.PHONY: build-intellij
 
 install-intellij: build-intellij
 	$(SUDO) osascript ./scripts/setup-intellij-cli.applescript
@@ -190,3 +190,20 @@ install-zoom: build-zoom
 	./scripts/factory-insert.sh UserInstance core/dec-user-zoom
 	./scripts/factory-insert.sh CalendarEventLibrary core/dec-calendar-event-zoom
 	@echo "Install Zoom completed\n"
+
+
+# @1 - App name
+# @2 - folder to build the scripts from
+_build-app-scripts-if-exists = \
+	@if [ -d "/Applications/$(1).app" ]; then \
+		echo "Building $(1) scripts..."; \
+		find "$(2)" -maxdepth 1 -type f -name '*.applescript' -print0 \
+		| while IFS= read -r -d '' file; do \
+			echo "Building $$file"; \
+			no_ext=$${file%.applescript}; \
+			yes y | ./scripts/build-lib.sh "$$no_ext"; \
+		done; \
+		echo "Build $(1) scripts completed\n"; \
+	else \
+		echo "$(1) not found, skipping build"; \
+	fi
