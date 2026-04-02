@@ -8,11 +8,10 @@
 		./scripts/build-lib.sh apps/3rd-party/Spotify/1.2.40/spotify
 
 	@Created: Tuesday, July 2, 2024 at 10:06:42 AM
-	@Last Modified: 2026-03-29 10:16:45
+	@Last Modified: 2026-03-30 14:10:14
 *)
 
 use loggerFactory : script "core/logger-factory"
-
 
 property logger : missing value
 
@@ -95,7 +94,7 @@ on new()
 
 
 		on play()
-			if running of application "Spotify" is false then return false
+			if running of application "Spotify" is false then return
 
 			tell application "Spotify"
 				play
@@ -104,6 +103,8 @@ on new()
 
 
 		on pause()
+			if running of application "Spotify" is false then return
+
 			tell application "Spotify"
 				pause
 			end tell

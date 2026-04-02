@@ -41,6 +41,7 @@ on spotCheck()
 		Manual: Goto Favorite Folder
 		Manual: Focus message
 		Manual: Move main window to front
+		Manual: Clear Search
 	")
 
 	set spotScript to script "core/spot-test"
@@ -87,6 +88,9 @@ on spotCheck()
 	else if caseIndex is 4 then
 		sut's moveMainWindowToFront()
 
+	else if caseIndex is 5 then
+		sut's clearSearch()
+
 	end if
 
 	spot's finish()
@@ -123,7 +127,8 @@ on new()
 			if mainWindow is missing value then return
 
 			tell application "System Events" to tell process "Mail"
-				click (first button of text field 1 of last group of toolbar 1 of front window whose description is "cancel")
+				-- click (first button of text field 1 of last group of toolbar 1 of front window whose description is "cancel")
+				click (first button of text field 1 of last group of toolbar 1 of mainWindow whose description is "cancel")
 			end tell
 		end clearSearch
 
@@ -174,7 +179,7 @@ on new()
 			if mainMailWindow is missing value then
 				logger's info("Main window was not found")
 				dock's clickApp("Mail")
-			set mainMailWindow to getMainWindow()
+				set mainMailWindow to getMainWindow()
 			else
 				moveMainWindowToFront()
 			end if

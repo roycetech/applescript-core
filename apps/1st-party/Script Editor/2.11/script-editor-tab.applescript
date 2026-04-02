@@ -195,9 +195,9 @@ on new(windowId)
 		end getBaseScriptName
 		
 		(* 
-					@Deprecated. 
-					Broken, because it assumed that the project will always be applescript-core :( 
-				*)
+			@Deprecated. 
+			Broken, because it assumed that the project will always be applescript-core :( 
+		*)
 		on getResourcePath()
 			if running of application "Script Editor" is false then return missing value
 			
