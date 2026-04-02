@@ -9,8 +9,10 @@
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/6.7/dec-zoom-meeting
 
 	@Created: Monday, August 12, 2024 at 4:29:20 PM
-	@Last Modified: 2026-03-24 17:31:36
+	@Last Modified: 2026-03-30 17:17:32
+
 	@Change Logs:
+		Mon, Mar 30, 2026, at 05:17:15 PM - Removed hard reference to an optional app.
 		Mon, Dec 15, 2025, at 11:41:11 AM - Add closer of auto updater.
 *)
 use loggerFactory : script "core/logger-factory"
@@ -136,10 +138,11 @@ on decorate(mainScript)
 			if running of application "zoom.us" is false then return
 
 			set retry to retryLib's new()
+			set autoUpdaterName to "ZoomAutoUpdater"
 			script WaitInstall
-				if running of application "ZoomAutoUpdater" is false then return false
+				if running of application autoUpdaterName is false then return false
 
-				tell application "System Events" to tell process "ZoomAutoUpdater"
+				tell application "System Events" to tell process autoUpdaterName
 					click button "Close" of window 1
 					return true
 				end tell
