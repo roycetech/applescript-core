@@ -45,6 +45,9 @@ build-cursor: build-base-app
 	$(call _build-app-scripts-if-exists,Cursor,apps/3rd-party/Cursor/2.5)
 .PHONY: build-cursor
 
+install-cursor: build-cursor
+	osascript ./scripts/setup-cursor-cli.applescript
+
 
 install-eclipse:
 	$(call _build-app-scripts-if-exists,Eclipse,apps/3rd-party/Eclipse/v202306)
