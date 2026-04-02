@@ -10,13 +10,15 @@
 		./scripts/build-lib.sh apps/3rd-party/Cursor/2.5/cursor
 
 	@Created: Wed, Feb 25, 2026 at 12:27:36 PM
-	@Last Modified: 2026-03-27 14:40:03
+	@Last Modified: 2026-03-31 18:35:40
 
 	@Change Logs:
 		Fri, Mar 27, 2026, at 02:37:47 PM - Added return value to the
 			#switchProjectTab handler.
 
 *)
+use scripting additions
+
 use textUtil : script "core/string"
 use unic : script "core/unicodes"
 
@@ -24,11 +26,16 @@ use loggerFactory : script "core/logger-factory"
 
 use kbLib : script "core/keyboard"
 use retryLib : script "core/retry"
+use configSystemLib : script "core/config"
 
 property logger : missing value
 
 property retry : missing value
 property kb : missing value
+property configSystem : missing value
+
+property CONFIG_TYPE_SYSTEM : "system"
+property CONFIG_KEY_CURSOR_CLI : "Cursor CLI"
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -50,7 +57,7 @@ on spotCheck()
 		Manual: Open file via Command O
 		Manual: Run command palette: Command Palette
 
-		Dummy
+		Manual: Open File via Shell
 		Dummy
 		Dummy
 		Dummy
@@ -112,6 +119,9 @@ on spotCheck()
 
 		sut's runCommandPalette(sutCommandKey)
 
+	else if caseIndex is 11 then
+		sut's openFileViaShell("~/.talon/user/roycetech/apps/Cursor.talon")
+
 	end if
 
 	spot's finish()
@@ -125,6 +135,7 @@ on new()
 	set decCursorLayout to script "core/dec-cursor-layout"
 	set decCursorCurrentFile to script "core/dec-cursor-current-file"
 	set kb to kbLib's new()
+	set configSystem to configSystemLib's new(CONFIG_TYPE_SYSTEM)
 
 	set appWithFileDialogLib to script "core/abstract-app-with-file-dialog"
 	set appWithFileDialog to appWithFileDialogLib's new("Cursor")
@@ -157,6 +168,19 @@ on new()
 				if frontmost is false then set frontmost to true
 			end tell
 		end _focusApp
+
+
+		on openFileViaShell(filePath)
+			if running of application "Cursor" is false then return
+
+			set expandedFilePath to expandPath(filePath)
+			set cursorCli to configSystem's getValue(CONFIG_KEY_CURSOR_CLI)
+			if cursorCli is missing value then return
+
+			tell application "System Events" to tell process "Cursor"
+				do shell script cursorCli & space & quoted form of expandedFilePath
+			end tell
+		end openFileViaShell
 
 		(*
 			NOTE: Not reliable on long paths.
