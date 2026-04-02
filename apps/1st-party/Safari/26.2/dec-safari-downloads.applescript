@@ -9,8 +9,10 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-downloads
 
 	@Created: Mon, Feb 09, 2026 at 10:45:42 AM
-	@Last Modified: 2026-03-24 17:45:56
+	@Last Modified: 2026-03-31 11:02:56
+
 	@Change Logs:
+		Tue, Mar 31, 2026, at 10:50:15 AM - Added the handler #clearDownloads()
 *)
 use loggerFactory : script "core/logger-factory"
 
@@ -25,7 +27,8 @@ on spotCheck()
 	set listUtil to script "core/list"
 	set cases to listUtil's splitAndTrimParagraphs("
 		Main
-		Manual: Integration: Reveal latest downloaded file
+		Manual: Reveal latest downloaded file
+		Manual: Clear Downloads
 	")
 
 	set spotScript to script "core/spot-test"
@@ -48,6 +51,7 @@ on spotCheck()
 		logger's infof("Result: {}", sut's revealLatestDownloadedFile())
 
 	else if caseIndex is 3 then
+		sut's clearDownloads()
 
 	else
 
@@ -66,6 +70,17 @@ on decorate(mainScript)
 
 	script SafariDownloadsDecorator
 		property parent : mainScript
+
+		on clearDownloads()
+			if not isDownloadsPopupPresent() then
+				openDownloadsPopup()
+			end if
+
+			set downloadsButton to _getDownloadsButton()
+			tell application "System Events" to tell process "Safari"
+				click button 1 of button "Clear downloads" of pop over 1 of downloadsButton
+			end tell
+		end clearDownloads
 
 		(*
 			@Purpose:
@@ -105,6 +120,18 @@ on decorate(mainScript)
 
 			false
 		end isDownloadsPopupPresent
+
+
+		on _getDownloadsButton()
+			set mainWindow to getFirstZoomableWindow()
+			if mainWindow is missing value then return missing value
+
+			tell application "System Events" to tell process "Safari"
+				try
+					set downloadsButton to the first button of toolbar 1 of mainWindow whose description is "Downloads"
+				end try
+			end tell
+		end _getDownloadsButton
 
 
 		on closeDownloadsPopup()
