@@ -9,9 +9,10 @@
 		./scripts/build-lib.sh apps/3rd-party/zoom.us/6.7/dec-zoom-meeting
 
 	@Created: Monday, August 12, 2024 at 4:29:20 PM
-	@Last Modified: 2026-03-30 17:17:32
+	@Last Modified: 2026-04-03 10:15:44
 
 	@Change Logs:
+		Fri, Apr 03, 2026, at 10:15:36 AM - Removed Auto Updater.
 		Mon, Mar 30, 2026, at 05:17:15 PM - Removed hard reference to an optional app.
 		Mon, Dec 15, 2025, at 11:41:11 AM - Add closer of auto updater.
 *)
@@ -116,7 +117,7 @@ on decorate(mainScript)
 				end if
 			end if
 
-			waitInstallUpdates()
+			-- waitInstallUpdates()
 
 			if getTabName() is not "Home" then
 				switchTab("Home")
