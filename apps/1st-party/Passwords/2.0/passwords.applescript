@@ -11,7 +11,6 @@
 		passwords's getUsername()
 		passwords's getPassword()
 
-
 	@Project:
 		applescript-core
 
@@ -19,7 +18,10 @@
 		./scripts/build-lib.sh apps/1st-party/Passwords/2.0/passwords
 
 	@Created: Wed, Sep 24, 2025, at 07:39:47 AM
-	@Last Modified: 2026-03-24 17:45:53
+	@Last Modified: 2026-04-02 17:04:03
+
+	@Change Logs:
+		Thu, Apr 02, 2026, at 04:51:30 PM - Added #triggerEdi, #triggerSave, and #triggerCancel handlers.
 *)
 use scripting additions
 
@@ -48,6 +50,12 @@ on spotCheck()
 		Manual: Select First Credential
 		Manual: Clear Search Field
 		Manual: Wait Unlock
+
+		Manual: UI: trigger Edit Credential
+		Manual: UI: trigger Save Credential
+		Manual: UI: trigger Cancel Edit
+		Dummy
+		Dummy
 	")
 
 	set spotScript to script "core/spot-test"
@@ -66,7 +74,7 @@ on spotCheck()
 	logger's infof("Has credential selected: {}", sut's hasCredentialSelected())
 
 	logger's infof("Current username: {}", sut's getLoadedUsername())
-	logger's infof("Current password: {}", sut's getLoadedPassword())
+	log "X/X/XX 00:00:00 passwords> Current password: " & sut's getLoadedPassword()
 
 	if caseIndex is 1 then
 
@@ -89,7 +97,16 @@ on spotCheck()
 			set frontmost to true
 		end tell
 		sut's waitUnlock()
-		logger's infof("Unlock result: {}", result)
+
+	else if caseIndex is 6 then
+		sut's triggerEdit()
+
+	else if caseIndex is 7 then
+		sut's triggerSave()
+
+	else if caseIndex is 8 then
+		sut's triggerCancel()
+
 	end if
 
 	spot's finish()
@@ -105,6 +122,40 @@ on new()
 	set usr to usrLib's new()
 
 	script PasswordsInstance
+		on triggerSave()
+			if running of application "Passwords" is false then return false
+			if isLocked() then return false
+
+			tell application "System Events" to tell process "Passwords"
+				click (first button of toolbar 1 of front window whose description is "Save")
+			end tell
+		end triggerSave
+
+
+		on triggerEdit()
+			if running of application "Passwords" is false then return false
+			if isLocked() then return false
+
+			tell application "System Events" to tell process "Passwords"
+				try
+					click (first button of toolbar 1 of front window whose description is "Edit")
+				end try
+			end tell
+		end triggerEdit
+
+
+		on triggerCancel()
+			if running of application "Passwords" is false then return false
+			if isLocked() then return false
+
+			tell application "System Events" to tell process "Passwords"
+				try
+					click (first button of toolbar 1 of front window whose description is "Cancel")
+				end try
+			end tell
+		end triggerCancel
+
+
 		on hasSearchFilter()
 			if running of application "Passwords" is false then return false
 			if isLocked() then return false
@@ -227,6 +278,7 @@ on new()
 			end script
 			clip's extract(result)
 		end getLoadedPassword
+
 
 		on clearSearch()
 			if running of application "Passwords" is false then return missing value
