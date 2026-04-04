@@ -42,6 +42,8 @@ on spotCheck()
 		Manual: Focus message
 		Manual: Move main window to front
 		Manual: Clear Search
+
+		Manual: Message Window
 	")
 
 	set spotScript to script "core/spot-test"
@@ -56,7 +58,12 @@ on spotCheck()
 	set sut to new()
 	set isMessageWindow to sut's isMessageWindowActive()
 	logger's infof("Message window at front?: {}", isMessageWindow)
+	if isMessageWindow then
+
+	end if
+
 	logger's infof("Sender: {}", sut's getMessageSender())
+	logger's infof("Sender domain: {}", sut's getMessageSenderDomain())
 	logger's infof("Integration: Settings window present?: {}", sut's isSettingsWindowPresent())
 
 	if caseIndex is 1 and not isMessageWindow then
@@ -171,6 +178,14 @@ on new()
 				end if
 			end tell
 		end getMessageSender
+
+
+		on getMessageSenderDomain()
+			set messageSender to getMessageSender()
+			if messageSender is missing value then return missing value
+
+			textUtil's stringAfter(messageSender, "@")
+		end getMessageSenderDomain
 
 
 		(*  *)
