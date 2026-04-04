@@ -10,7 +10,7 @@
 		./scripts/build-lib.sh apps/1st-party/Safari/26.2/dec-safari-tab-group
 
 	@Created: Monday, June 10, 2024 at 11:42:13 AM
-	@Last Modified: 2026-03-24 17:45:56
+	@Last Modified: 2026-04-03 18:06:56
 
 	@Change Logs:
 		Tue, Dec 23, 2025, at 11:14:51 AM - Migrated to 26.2
@@ -337,6 +337,7 @@ on decorate(mainScript)
 				menu button 1 of toolbar 1 of mainWindow
 			end tell
 		end _getTabGroupPickerUI
+
 
 		on _getTabGroupMenuUI()
 			set mainWindow to getFirstZoomableWindow()
