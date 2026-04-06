@@ -17,42 +17,6 @@ build-counter:
 install-counter: build-counter
 
 
-build-cliclick:
-	@echo "Building cliclick scripts..."
-	@if command -v cliclick >/dev/null 2>&1; then \
-		osascript libs/cliclick/setup-cliclick-cli.applescript; \
-		./scripts/build-lib.sh libs/cliclick/cliclick; \
-		echo "Done installing cliclick"; \
-	else \
-		echo "Error: cliclick is not installed. Please check https://github.com/BlueM/cliclick" >&2; \
-		exit 1; \
-	fi
-	@echo "Build cliclick scripts completed\n"
-
-install-cliclick-decorators:
-	@echo "Installing cliclick decorators..."
-	$(SUDO) ./scripts/plist-insert.sh ~/applescript-core/config-lib-factory.plist "SystemSettingsInstance" "core/dec-system-settings-cliclick"
-	@echo "Install cliclick decorators completed\n"
-
-uninstall-cliclick-decorators:
-	$(SUDO) ./scripts/plist-remove.sh ~/applescript-core/config-lib-factory.plist "SystemSettingsInstance" "core/dec-system-settings-cliclick"
-
-
-build-jira:
-	@echo "Building jira scripts..."
-	$(call _build-script,libs/jira/jira)
-	@echo "Build jira scripts completed\n"
-
-
-# Optional with 3rd party app dependency.
-build-json:
-	@echo "Building json scripts..."
-	$(call _build-script,libs/json/json)
-	@echo "Build json scripts completed\n"
-
-install-json: build-json
-
-
 build-log4as:
 	@echo "Building log4as scripts..."
 	$(call _build-script,libs/log4as/log4as)
@@ -89,22 +53,6 @@ install-process-dock:
 
 uninstall-process-dock:
 	./scripts/factory-remove.sh ProcessInstance core/dec-process-dock
-
-
-build-redis:
-	@echo "Building Redis scripts..."
-	@if ! plutil -extract RedisCLI raw ~/applescript-core/config-lib-factory.plist &>/dev/null; then \
-		osascript ./scripts/setup-redis-cli.applescript; \
-	fi
-	$(call _build-script,libs/redis/redis)
-	@echo "Build redis scripts completed\n"
-
-build-redis-terminal:
-	@echo "Building Redis terminal scripts..."
-	$(call _build-script,libs/redis/dec-terminal-prompt-redis)
-	@echo "Build redis terminal scripts completed\n"
-
-install-redis: build-redis
 
 
 build-security-cli:

@@ -4,17 +4,15 @@ AppleScript Core Framework
 
 A framework and collection of libraries for for writing AppleScripts that utilizes re-usability of components.
 
-
 ## Project Description
 
 AppleScript Core is a collection of wrapper AppleScripts that allows you to write automation AppleScripts faster and more efficiently.
 
 For the more comprehensive documentation, see [README-Full.md](./README-Full.md)
 
-
 ## News
-*   Wed, Jan 28, 2026 - Planning to move the first party wrapper scripts into its own project open source project.  Will move the 3rd party apps into a private project for my personal use.
 
+* Wed, Jan 28, 2026 - Planning to move the first party wrapper scripts into their own open source project.  Will move the 3rd party apps into a private project for my personal use.
 
 ## Installation
 
@@ -32,8 +30,8 @@ To install on the computer scope, re-install with: `$ make uninstall set-compute
 
 ### Limitations
 
-*   English-language only macOS.
-*   Initially conceived as a side project, the primary objective was to achieve a functional solution promptly.
+* English-language only macOS.
+* Initially conceived as a side project, the primary objective was to achieve a functional solution promptly.
 This approach expedited the development of automation scripts that met the immediate requirements, but it also led to the accumulation of technical debt and implementation gaps.
 
 ## Uninstall
@@ -42,12 +40,12 @@ Run `$ make uninstall` to remove the installed scripts under Script Libraries.
 
 ### Recommended 3rd party dependency
 
-*   Install [CliClick](https://github.com/BlueM/cliclick) to allow simulating user mouse interactions.  This is used only in few cases where the default click does not
+* Install [CliClick](https://github.com/BlueM/cliclick) to allow simulating user mouse interactions.  This is used only in few cases where the default click does not
 trigger UI controls .
 
 ### Recommended AppleScript applications
-*   [Create Automator App](apps/User/Create%20Automator%20App.applescript) - For easily creating AppleScript app wrapped by Automator that can be invoked via Spotlight.
-*   [Create Menu App](apps/User/Create%20Menu%20App.applescript) - For easily creating stay-open app that can sit in the menu bar.
+* [Create Automator App](apps/User/Create%20Automator%20App.applescript) - For easily creating AppleScript app wrapped by Automator that can be invoked via Spotlight.
+* [Create Menu App](apps/User/Create%20Menu%20App.applescript) - For easily creating stay-open app that can sit in the menu bar.
 
 ## License
 

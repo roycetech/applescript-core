@@ -1,14 +1,11 @@
 (*
 	This library contains commonly used system event functions.
-	For additional functions related to the inspection of a process or a window, see inspector.applescript.
 	For additional functions related to a process/app, see process.applescript.
 
 	@Usage:
 		use systemEventsLib : script "core/system-events")
 
 		property systemEvents : systemEventsLib's new()
-
-	Or type: sset systemEvents
 
 	@Project:
 		applescript-core
@@ -32,7 +29,6 @@ if {"Script Editor", "Script Debugger"} contains the name of current application
 
 on spotCheck()
 	loggerFactory's injectBasic(me)
-	set caseId to "system-events-spotCheck"
 	logger's start()
 
 	set listUtil to script "core/list"
@@ -43,7 +39,7 @@ on spotCheck()
 
 	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
-	set spot to spotClass's new(caseId, cases)
+	set spot to spotClass's new(me, cases)
 	set {caseIndex, caseDesc} to spot's start()
 
 	set sut to new()

@@ -4,9 +4,11 @@
 # 	Contains the core libraries.
 
 ifeq ($(USE_SUDO),true)
-  SUDO := sudo
+	SUDO := sudo
+	SCRIPT_LIBRARY_PATH := /Library/Script Libraries
 else
-  SUDO :=
+	SUDO :=
+	SCRIPT_LIBRARY_PATH := $(HOME)/Library/Script Libraries
 endif
 
 
@@ -83,22 +85,23 @@ endif
 
 
 build-core-bundle:
-	$(SUDO) ./scripts/build-bundle.sh 'core/Text Utilities'
-	@echo "Core bundle built.\n"
+	@if [ -d "$(SCRIPT_LIBRARY_PATH)/core/Text Utilities.scptd" ]; then \
+		echo "Core bundle already exists, skipping build.\n"; \
+	else \
+		$(SUDO) ./scripts/build-bundle.sh 'core/Text Utilities'; \
+		echo "Core text utilities bundle built.\n"; \
+	fi
 
 
 build: \
 	build-core-bundle \
 	build-core \
 	build-control-center \
-	build-dock \
-	build-user
+	build-dock
 
 
 build-extras: \
-	build-counter \
-	build-redis \
-	build-terminal
+	build-counter
 
 
 build-all: \
@@ -117,14 +120,14 @@ build-core: \
 	build-level4 \
 	build-user \
 	build-level5
-	@echo "Core libraries compiled.\n"
+	@echo "Core libraries built.\n"
 
 
 # NOTE: string and logger (Level 0 libs) has to be built first before all other
 # level 1 scripts. This is because other level 1 scripts depend on them.
 LEVEL1_SCRIPTS = $(wildcard core/Level_1/*.applescript)
 build-level1: $(LEVEL0_LIBS)
-	@echo "Building level 1 scripts..."
+	@echo "\nBuilding level 1 scripts..."
 	@for file in $(LEVEL1_SCRIPTS); do \
 		echo "Building $$file"; \
 		no_ext=$${file%.applescript}; \
@@ -175,7 +178,7 @@ build-level5:
 
 
 reveal-scripts:  # Reveal the deployed scripts.
-	open ~/Library/Script\ Libraries
+	open "$(SCRIPT_LIBRARY_PATH)/core"
 
 
 # Helper function to build and confirm with yes to the prompt.
