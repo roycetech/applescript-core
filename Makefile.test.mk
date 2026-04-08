@@ -7,20 +7,19 @@
 # 	and not re-opened.  (Script Editor will prompt if there are unsaved changes.)
 #
 # @Change Logs:
+# 	Tue, Apr 07, 2026, at 01:17:41 PM - Cleaned up references to apps.
 
 
 build-test:
 	yes | mkdir -p $(SCRIPT_LIBRARY_PATH)/core/test
-	yes | ./scripts/build-lib.sh  test/terminal-util
-	yes | ./scripts/build-lib.sh  test/script-editor-util
 	yes | ./scripts/build-lib.sh  test/xml-util
 .PHONY: build-test
 
+
 reveal-test-utils:
-	open /Library/Script\ Libraries/core/test
+	open "$(SCRIPT_LIBRARY_PATH)/core/test"
 
-
-test-all: test-unit test-integration
+test-all: test-unit
 # 	osascript "test/Test Loader.applescript"  # This runs scripts disregarding the context.
 
 
@@ -29,7 +28,6 @@ test: test-all
 
 
 test-unit:
-	osascript "test/libs/Test cliclick.applescript"
 	osascript "test/libs/Test log4as.applescript"
 	osascript "test/core/Test date-time.applescript"
 	osascript "test/core/Test decorator.applescript"
@@ -42,7 +40,6 @@ test-unit:
 	osascript "test/core/Test property-list.applescript"
 	osascript "test/core/Test regex.applescript"
 	osascript "test/core/Test regex-pattern.applescript"
-	osascript "test/core/Test safari-javascript.applescript"
 # 	osascript "test/core/Test speech.applescript" # For Review
 	osascript "test/core/Test stack.applescript"
 	osascript "test/core/Test string.applescript"
@@ -51,52 +48,23 @@ test-unit:
 	osascript "test/core/Test timed-cache-plist.applescript"
 
 
-test-integration:
-# 	osascript "test/core/Test dec-terminal-path.applescript"
-
-	osascript -e 'quit application "Keyboard Maestro Engine"'
-
-# ifneq ($(OMZ_EXISTS),)
-# 	osascript "test/core/Test dec-terminal-prompt-omz.applescript"
-# else
-# 	osascript "test/core/Test dec-terminal-prompt.applescript"
-# endif
-
-	osascript "test/apps/1st-party/Test script-editor.applescript"
-	osascript "test/apps/1st-party/Test dec-script-editor-content.applescript"
-	open -a "Keyboard Maestro Engine"
-
 watch: watch-unit
 
 watch-unit: test-unit
 	scripts/run-tests_on-change.sh  # This runs test-unit target on change.
 
-watch-integration: test-integration
-	scripts/run-integration-tests_on-change.sh  # This runs test-unit target on change.
 
 spot:  # Test single script here.
-# 	osascript 'apps/3rd-party/Google Chrome/131.0/dec-google-chrome-tab-finder.applescript'
+	osascript "test/core/Test date-time.applescript"
+# 	osascript "test/core/Test decorator.applescript"
 # 	osascript "test/core/Test file.applescript"
-# 	osascript "test/core/Test date-time.applescript"
-# 	osascript "test/core/Test dec-terminal-path.applescript"
-# ifneq ($(OMZ_EXISTS),)
-# 	osascript "test/core/Test dec-terminal-prompt-omz.applescript"
-# else
-# 	osascript "test/core/Test dec-terminal-prompt.applescript"
-# endif
-# 	osascript "test/core/Test string.applescript"
-# 	osascript "test/apps/1st-party/Test script-editor.applescript"
-# 	osascript "test/apps/1st-party/Test dec-script-editor-content.applescript"
+# 	osascript "test/core/Test list.applescript"
 # 	osascript "test/libs/Test log4as.applescript"
-# 	osascript "test/core/Test date-time.applescript"
-	osascript "test/core/Test list.applescript"
+	osascript "test/core/Test plutil.applescript"
+# 	osascript "test/core/Test property-list.applescript"
 # 	osascript "test/core/Test speech.applescript"
 # 	osascript "test/core/Test string.applescript"
 # 	osascript "test/core/Test timed-cache-plist.applescript"
-# 	osascript "test/apps/1st-party/Test finder.applescript"
-# 	osascript "test/core/Test file.applescript"
-# 	osascript "test/core/Test decorator.applescript"
-# 	osascript "test/core/Test dec-terminal-path.applescript"
 
 spot-watch: spot
 # 	scripts/run-spot_on-change.sh
