@@ -1,20 +1,14 @@
 (*!
 	The subject script needs to be installed first because .applescript files could not be dynamically loaded as compared to .scpt.
 
-	@header
 	@abstract
 		A template for unit testing.
+
 	@discussion
 		Copy this template in the folder containing the script to be tested and customize it as follows:
 
 		1) Provide a description for this test suite and the name of the script to be tested.
 		2) Write tests :)
-
-	@charset macintosh
-
-	@Adding New Test Cases:
-		You need to manually update the number of max cases each time you change
-		the number of test cases.
 
 	@Created: July 18, 2023 2:03 PM
 	@Last Modified: 2023-07-24 17:43:34
@@ -32,21 +26,25 @@ property plist : "plutil-test"
 global sutScript -- The variable holding the script to be tested
 ---------------------------------------------------------------------------------------
 
-use textUtil : script "core/string"
+use textUtil : script "core/string" 
 
 use loggerFactory : script "core/logger-factory"
 
 use xmlUtilLib : script "core/test/xml-util"
 use usrLib : script "core/user"
+use dateTimeLib : script "core/date-time"  -- A bit of integration testing.
 
 property logger : missing value
+
 property xmlUtil : missing value
+property dateTime : missing value
 
 property TopLevel : me
 property suite : makeTestSuite(suitename)
 
 loggerFactory's inject(me)
 set xmlUtil to xmlUtilLib's newPlist(plist)
+set dateTime to dateTimeLib's new()
 autorun(suite)
 
 ---------------------------------------------------------------------------------------
@@ -82,7 +80,7 @@ script |Load script|
 	end script
 end script
 
-
+ 
 script |plutil instantiation tests|
 	property parent : TestSet(me)
 	property sut : missing value
@@ -105,7 +103,6 @@ script |plutil instantiation tests|
 		assertEqual(name of sut's new("abc"), "PlutilPlistInstance")
 	end script
 
-
 	script |PList Name with Nesting|
 		property parent : unitTest(me)
 		assertEqual(name of sut's new("abc/xyz/omg"), "PlutilPlistInstance")
@@ -113,34 +110,16 @@ script |plutil instantiation tests|
 end script
 
 
-script |plutil _buildKeyNameFromList tests|
+script |plutil _buildKeyNameFromList tests| 
 	property parent : TestSet(me)
 	property sutLib : missing value
 	property sut : missing value
 
-	property executedTestCases : 0
-
-	on beforeClass()
-		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("plutil-test")
 	end setUp
 
-	on tearDown()
-		if my name is "afterClass" then
-			afterClass()
-		end if
-	end tearDown
-
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
 
 	script |Single|
 		property parent : unitTest(me)
@@ -157,9 +136,9 @@ script |plutil _buildKeyNameFromList tests|
 		assertEqual("one.two", sut's _buildKeyNameFromList({"one", "two"}))
 	end script
 
-	script |afterClass|
+	script |#afterClass|
 		property parent : unitTest(me)
-		ok(true)
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end script
 end script
 
@@ -168,28 +147,15 @@ script |plutil hasValue tests|
 	property parent : TestSet(me)
 	property sut : missing value
 
-	property executedTestCases : 0
-
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("plutil-test")
 	end setUp
 
-	on tearDown()
-		if my name is "afterClass" then
-			afterClass()
-		end if
-	end tearDown
-
-	on beforeClass()
+	script |#beforeClass|
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 
 	script |Not Found|
 		property parent : unitTest(me)
@@ -209,9 +175,9 @@ script |plutil hasValue tests|
 		ok(sut's hasValue("found.yes"))
 	end script
 
-	script |afterClass|
+	script |#afterClass|
 		property parent : unitTest(me)
-		ok(true)
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end script
 end script
 
@@ -221,27 +187,15 @@ script |plutil getValue tests|
 	property sutLib : missing value
 	property sut : missing value
 
-	property executedTestCases : 0
-
-	on beforeClass()
-		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("plutil-test")
 	end setUp
 
-	on tearDown()
-		if my name is "afterClass" then afterClass()
-	end tearDown
-
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
+	script |#beforeClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __createTestPlist()
+	end script
 
 	script |Non existing PList|
 		property parent : unitTest(me)
@@ -308,12 +262,13 @@ script |plutil getValue tests|
 		TopLevel's xmlUtil's __deleteValue("float")
 	end script
 
-	script |Get Date|
+	script |Get Date (Integration with date-time.applescript)|
 		property parent : unitTest(me)
-		TopLevel's xmlUtil's __writeValue("date", "date", "2023-07-19T00:01:02Z")
-		assertEqual("Wednesday, July 19, 2023 at 8:01:02 AM", sut's getValue("date") as text)
+		set zuluDateText to "2023-07-19T00:01:02Z"
+		TopLevel's xmlUtil's __writeValue("date", "date", zuluDateText)		
+		assertEqual(dateTime's fromZuluDateText(zuluDateText), sut's getValue("date"))
 		TopLevel's xmlUtil's __deleteValue("date")
-	end script
+	end script 
 
 	script |Get integer array|
 		property parent : unitTest(me)
@@ -364,9 +319,9 @@ script |plutil getValue tests|
 		TopLevel's xmlUtil's __deleteValue("_1grand")
 	end script
 
-	script |afterClass|
+	script |#afterClass|
 		property parent : unitTest(me)
-		ok(true) -- dummy test to trigger the afterClass
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end script
 end script
 
@@ -375,23 +330,15 @@ script |plutil getScalarValue tests|
 	property parent : TestSet(me)
 	property sut : missing value
 
-	property executedTestCases : 0
-
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("plutil-test")
 	end setUp
-	on tearDown()
-		if my name is "afterClass" then afterClass()
-	end tearDown
-	on beforeClass()
+
+	script |#beforeClass|
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 
 	script |Get Int|
 		property parent : unitTest(me)
@@ -433,47 +380,35 @@ script |plutil getScalarValue tests|
 		TopLevel's xmlUtil's __deleteValue("boolean")
 	end script
 
-	script |Get Date|
+	script |Get Date (Integration with date-time.applescript)|
 		property parent : unitTest(me)
-		TopLevel's xmlUtil's __writeValue("date", "date", "2023-07-19T00:01:02Z")
-		-- Will likely fail due to localization.
-		assertEqual(date "Wednesday, July 19, 2023 at 8:01:02 AM", sut's getDate("date"))
+		set testZuluDateText to "2023-07-19T00:01:02Z"
+		TopLevel's xmlUtil's __writeValue("date", "date", testZuluDateText)
+		set expectedDate to dateTime's fromZuluDateText(testZuluDateText)
+		assertEqual(expectedDate, sut's getDate("date"))
 		TopLevel's xmlUtil's __deleteValue("date")
 	end script
 
-	script |afterClass|
+	script |#afterClass|
 		property parent : unitTest(me)
-		ok(true)
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end script
-end script
+end script  # |plutil getScalarValue tests|
 
 
 script |getList set|
 	property parent : TestSet(me)
 	property sut : missing value
 
-	property executedTestCases : 0
-
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("plutil-test")
 	end setUp
 
-	on tearDown()
-		if my name is "afterClass" then afterClass()
-	end tearDown
-
-	on beforeClass()
+	script |#beforeClass|
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
-
+	end script
 
 	script |getList - Not Found|
 		property parent : unitTest(me)
@@ -529,10 +464,10 @@ script |getList set|
 		TopLevel's xmlUtil's __deleteValue("array")
 	end script
 
-	script |afterClass|
+	script |#afterClass|
 		property parent : unitTest(me)
-		ok(true)
-	end script
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script	
 end script
 
 
@@ -540,26 +475,15 @@ script |plutil getValueWithDefault tests|
 	property parent : TestSet(me)
 	property sut : missing value
 
-	property executedTestCases : 0
-
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("plutil-test")
 	end setUp
 
-	on tearDown()
-		if my name is "afterClass" then afterClass()
-	end tearDown
-
-	on beforeClass()
+	script |#beforeClass|
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 
 	script |With Value|
 		property parent : unitTest(me)
@@ -576,7 +500,7 @@ script |plutil getValueWithDefault tests|
 
 	script |afterClass|
 		property parent : unitTest(me)
-		ok(true)
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end script
 end script
 
@@ -585,26 +509,15 @@ script |plutil appendValue tests|
 	property parent : TestSet(me)
 	property sut : missing value
 
-	property executedTestCases : 0
-
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("plutil-test")
 	end setUp
 
-	on tearDown()
-		if my name is "afterClass" then afterClass()
-	end tearDown
-
-	on beforeClass()
+	script |#beforeClass|
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		-- TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 
 	script |Non Existing|
 		property parent : unitTest(me)
@@ -687,7 +600,7 @@ script |plutil appendValue tests|
 
 	script |afterClass|
 		property parent : unitTest(me)
-		ok(true)
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end script
 end script
 
@@ -696,28 +609,15 @@ script |plutil removeElement tests|
 	property parent : TestSet(me)
 	property sut : missing value
 
-	property executedTestCases : 0
-
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("plutil-test")
 	end setUp
 
-	on tearDown()
-		if my name is "afterClass" then afterClass()
-	end tearDown
-
-
-	on beforeClass()
+	script |#beforeClass|
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
-
+	end script
 
 	script |Missing Value as element|
 		property parent : unitTest(me)
@@ -775,9 +675,9 @@ script |plutil removeElement tests|
 		TopLevel's xmlUtil's __deleteValue("array-main")
 	end script
 
-	script |afterClass|
+	script |#afterClass|
 		property parent : unitTest(me)
-		ok(true)
+		TopLevel's xmlUtil's __deleteTestPlist()
 	end script
 end script
 
@@ -786,27 +686,15 @@ script |plutil _getDateText tests|
 	property parent : TestSet(me)
 	property sut : missing value
 
-	property executedTestCases : 0
-
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("plutil-test")
 	end setUp
 
-	on tearDown()
-		if my name is "afterClass" then afterClass()
-	end tearDown
-
-	on beforeClass()
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script	
 
 	script |Happy Case|
 		property parent : unitTest(me)
@@ -822,37 +710,26 @@ script |plutil _getDateText tests|
 		TopLevel's xmlUtil's __deleteValue("date nest")
 	end script
 
-	script |afterClass|
-		property parent : unitTest(me)
-		ok(true)
-	end script
+	script |#afterClass|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script	
 end script
+
 
 script |plutil setValue tests|
 	property parent : TestSet(me)
 	property sut : missing value
 
-	property executedTestCases : 0
-
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("plutil-test")
 	end setUp
 
-	on tearDown()
-		if my name is "afterClass" then afterClass()
-	end tearDown
-
-	on beforeClass()
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script	
 
 	script |String Value|
 		property parent : unitTest(me)
@@ -880,9 +757,20 @@ script |plutil setValue tests|
 
 	script |Date Value|
 		property parent : unitTest(me)
-		set testDate to "7-31-2023" -- Will likely fail for different region due to localization.
+		set testDate to "7-31-2023"
 		sut's setValue("Date", date testDate)
-		assertEqual("<date>2023-07-31T04:00:00Z</date>", TopLevel's xmlUtil's __grepValueXml("Date"))
+
+		set expectedDateTime to (current date)
+		tell expectedDateTime
+			set its year to 2023
+			set its month to 7
+			set its day to 31
+			set its hours to 0
+			set its minutes to 0
+			set its seconds to 0
+		end tell
+		set expectedZuluDate to dateTime's toZuluDateText(expectedDateTime)
+		assertEqual("<date>" & expectedZuluDate & "</date>", TopLevel's xmlUtil's __grepValueXml("Date"))
 	end script
 
 	script |Integer Array Values|
@@ -956,40 +844,30 @@ script |plutil setValue tests|
 		assertEqual("string-value", TopLevel's xmlUtil's __readValue("string spaced"))
 	end script
 
-	script |afterClass|
-		property parent : unitTest(me)
-		ok(true)
-	end script
+	script |#afterClass|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script	
 end script
 
 script |plutil delete tests set|
 	property parent : TestSet(me)
 	property sut : missing value
 
-	property beforeClassExecuted : false
-	property executedTestCases : 0
-
 	(* Each Test. *)
 	on setUp()
-		if not beforeClassExecuted then beforeClass()
-		set executedTestCases to executedTestCases + 1
-
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("plutil-test")
 	end setUp
 
-	on beforeClass()
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
+	end script	
 
 	on tearDown()
 		TopLevel's xmlUtil's __deleteValue("key-root")
-		if my name is "afterClass" then afterClass()
 	end tearDown
-
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
 
 
 	script |Delete Nonexistent Key|
@@ -1034,12 +912,11 @@ script |plutil delete tests set|
 		TopLevel's xmlUtil's __deleteValue("key-root")
 	end script
 
-	script |afterClass|
-		property parent : unitTest(me)
-		ok(true)
-	end script
+	script |#afterClass|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script	
 end script
-
 
 ---------------------------------------------------------------------------------------
 -- Shared Private Handler Tests
@@ -1047,14 +924,11 @@ end script
 script |_getTypedGetterShellTemplate|
 	property parent : TestSet(me)
 	property sut : missing value
-	property executedTestCases : 0
 
 	on setUp()
 		set sutLib to sutScript's new()
 		set sut to sutLib's new("plutil-test")
 	end setUp
-	on tearDown()
-	end tearDown
 
 	script |Key Name - Text|
 		property parent : unitTest(me)
@@ -1078,7 +952,6 @@ end script
 script |plutil _validatePlistKey tests|
 	property parent : TestSet(me)
 	property sut : missing value
-	property executedTestCases : 0
 
 	on setUp()
 		set sutLib to sutScript's new()

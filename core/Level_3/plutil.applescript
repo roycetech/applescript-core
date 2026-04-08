@@ -41,7 +41,7 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2026-03-24 17:32:18
+	@Last Modified: 2026-04-08 10:54:38
 	@Change Logs:
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
@@ -53,7 +53,7 @@ use textUtil : script "core/string"
 
 use loggerFactory : script "core/logger-factory"
 
-use dateLib : script "core/date-time"
+use dateTimeLib : script "core/date-time"
 use decoratorLib : script "core/decorator"
 
 -- PROPERTIES =================================================================
@@ -63,9 +63,9 @@ property homeFolderPath : missing value
 property linesDelimiter : "~"
 property isSpot : false
 property regex : missing value
-property dt : missing value
+property dateTime : missing value
 
-property TZ_OFFSET : (do shell script "date +'%z' | cut -c 2,3") as integer
+property TZ_OFFSET : missing value
 
 property ERROR_PLIST_PATH_INVALID : 1000
 property ERROR_PLIST_KEY_MISSING_VALUE : 1001
@@ -214,7 +214,8 @@ end spotCheck
 on new()
 	loggerFactory's injectBasic(me)
 	set regex to script "core/regex"
-	set dt to dateLib's new()
+	set dateTime to dateTimeLib's new()
+	set my TZ_OFFSET TO ((do shell script "date +'%z'") as integer / 100) as integer
 
 	script PlutilInstance
 		(*
@@ -834,7 +835,12 @@ on new()
 				end _escapeDollarAndAmpersand
 
 
-				(* Keep this handler here despite being date-specific because this library is considered essential and we don't want to make the date library an essential library by putting a depnedency from an essential library. *)
+				(*
+					Keep this handler here despite being date-specific because
+					this library is considered essential and we don't want to
+					make the date library an essential library by putting a
+					dependency from an essential library.
+				*)
 				on _formatPlistDate(theDate)
 					if theDate is missing value then return missing value
 
@@ -845,11 +851,15 @@ on new()
 					if myMonth is less than 10 then set myMonth to "0" & myMonth
 					set myDom to (second word of dateString) as integer
 
-					set timeString to dt's _cleanTimeString(time string of theDate)
+					set timeString to dateTime's _cleanTimeString(time string of theDate)
 
 					set myHour to ((first word of timeString) as integer)
+					if myHour is 12 and timeString ends with "AM" then set myHour to 0
+					-- log "myHour: " & myHour
 					if timeString contains "PM" and myHour is not equal to 12 then set myHour to myHour + 12
-					set myHour to myHour - TZ_OFFSET -- Local PH Timezone adjustment
+					set myHour to myHour - TZ_OFFSET -- Local Timezone adjustment
+					-- log "TZ_OFFSET: " & TZ_OFFSET
+					-- log "myHour 2: " & myHour
 
 					if myHour is less than 0 then
 						set myHour to (myHour + 24) mod 24
@@ -868,6 +878,8 @@ on new()
 				end _formatPlistDate
 
 				on _zuluToLocalDate(zuluDateText)
+					return dateTime's fromZuluDateText(zuluDateText)
+
 					if zuluDateText is missing value then return missing value
 
 					set dateTimeTokens to _split(zuluDateText, "T", "string")
@@ -878,13 +890,15 @@ on new()
 					set dom to last word of datePart
 					set nextDayFlag to false
 					set timezoneOffset to TZ_OFFSET
-					set hourPart to (first word of timePart as integer) + timezoneOffset -- PH local timezone
+					-- log "timezoneOffset: " & timezoneOffset
+					set hourPart to (first word of timePart as integer) + timezoneOffset -- local timezone
 					set amPm to "AM"
 
 					set hourInt to (hourPart as integer) mod 24
 					if hourInt is greater than 11 and hourInt is less than 23 then
 						set amPm to "PM"
 					end if
+					-- log "amPm: " & amPm
 
 					if hourInt is less than TZ_OFFSET and hourInt is not 0 then set dom to dom + 1 -- Problem on new year
 					set hourPart to hourPart mod 12

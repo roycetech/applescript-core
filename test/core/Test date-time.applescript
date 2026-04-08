@@ -8,7 +8,6 @@
 		1) Provide a description for this test suite and the name of the script to be tested.
 		2) Write tests :)
 
-	@charset macintosh
 	@Created: August 31, 2023 10:17 AM
 *)
 use framework "Foundation"
