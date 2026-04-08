@@ -5,11 +5,12 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_2/date-time
 
-	@Last Modified: 2026-03-24 17:31:31
+	@Last Modified: 2026-04-08 10:02:57
 *)
+use scripting additions
+
 use framework "Foundation"
 
-use scripting additions
 use script "core/Text Utilities"
 
 use std : script "core/std"
@@ -308,5 +309,35 @@ on new()
 			-- Convert to AppleScript date (local time automatically)
 			return dateObject as date
 		end fromZuluDateText
+
+
+		on toZuluDateText(theDateTime)
+			set hourOffset to (((do shell script "date +'%z'") as integer) / 100) as integer
+			set localDateTime to theDateTime + (hourOffset * hours) * -1
+			tell localDateTime
+				set localYear to its year
+				set localMonth to its month as integer
+				set localMonthFormatted to my _zeroPad(localMonth, 2)
+				set localDay to its day
+
+				set localHour to its hours
+				set localHourFormatted to my _zeroPad(localHour, 2)
+				set localMinutes to its minutes
+				set localMinutesFormatted to my _zeroPad(localMinutes, 2)
+				set localSeconds to its seconds
+				set localSecondsFormatted to my _zeroPad(localSeconds, 2)
+			end tell
+
+			format {"{}-{}-{}T{}:{}:{}Z", {localYear, localMonthFormatted, localDay, localHourFormatted, localMinutesFormatted, localSecondsFormatted}}
+		end toZuluDateText
+
+
+		on _zeroPad(n, width)
+			set padding to ""
+			repeat width times
+				set padding to padding & "0"
+			end repeat
+			return text -width thru -1 of (padding & n)
+		end _zeroPad
 	end script
 end new
