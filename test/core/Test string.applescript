@@ -546,6 +546,87 @@ script |decodeUrl|
 end script
 
 
+script |indexOf tests|
+	property parent : TestSet(me)
+	script |Missing source text|
+		property parent : UnitTest(me)
+		assertEqual(0, sutScript's indexOf(missing value, "object"))
+	end script
+
+	script |Missing substring|
+		property parent : UnitTest(me)
+		assertEqual(0, sutScript's indexOf("object", missing value))
+	end script
+
+	script |Substring not found|
+		property parent : UnitTest(me)
+		assertEqual(0, sutScript's indexOf("object", "not found"))
+	end script
+
+	script |Substring found|
+		property parent : UnitTest(me)
+		assertEqual(7, sutScript's indexOf("Hello object world", "object"))
+	end script
+
+	script |Substring found - start index|
+		property parent : UnitTest(me)
+		assertEqual(1, sutScript's indexOf("Hello object world", "Hello"))
+	end script
+
+	script |Substring found - end index|
+		property parent : UnitTest(me)
+		assertEqual(14, sutScript's indexOf("Hello object world", "world"))
+	end script
+end script
+
+
+script |indexOfAfter tests|
+	property parent : TestSet(me)
+
+	script |Missing source text|
+		property parent : UnitTest(me)
+		assertEqual(0, sutScript's indexOfAfter(missing value, "object", 1))
+	end script
+
+	script |Missing substring|
+		property parent : UnitTest(me)
+		assertEqual(0, sutScript's indexOfAfter("object", missing value, 1))
+	end script
+
+	script |Substring not found|
+		property parent : UnitTest(me)
+		assertEqual(0, sutScript's indexOfAfter("object", "not found", 1))
+	end script
+
+	script |Substring found - Single match|
+		property parent : UnitTest(me)  
+		assertEqual(4, sutScript's indexOfAfter("1234567890", "456", 1))
+	end script
+
+	script |Substring found - Multiple matches|
+		property parent : UnitTest(me)
+		assertEqual(7, sutScript's indexOfAfter("Hello object world", "object", 1))
+	end script 
+
+	script |Substring found - Multiple matches after the start index|
+		property parent : UnitTest(me) 
+		assertEqual(14, sutScript's indexOfAfter("123456789012345678901234567890", "456", 7))
+	end script 
+
+	script |Start index out of bounds|
+		property parent : UnitTest(me)
+		set sutText to "Hello object world object again"
+		assertEqual(0, sutScript's indexOfAfter(sutText, "object", number of characters in sutText + 1))
+	end script
+
+	script |Index at start|
+		property parent : UnitTest(me)
+		set sutText to "1234567890"
+		assertEqual(7, sutScript's indexOfAfter(sutText, "789", 7))
+	end script 
+end script
+
+
 script |title|
 	property parent : TestSet(me)
 

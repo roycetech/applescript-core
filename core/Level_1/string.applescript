@@ -13,14 +13,17 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_1/string
 
-	@Last Modified: 2026-03-24 17:31:30
+	@Last Modified: 2026-04-23 09:37:36
 
 	@Change Logs:
-		Mon, Dec 08, 2025, at 03:14:06 PM
+		Thu, Apr 23, 2026, at 09:31:26 AM - Added #indexOfAfter.
+			Added considerCase property and apply to indexOf
 *)
 use scripting additions
 
 property logger : missing value
+
+property considerCase : false
 
 if {"Script Debugger", "Script Editor"} contains the name of current application then spotCheck()
 
@@ -102,7 +105,7 @@ end splitAndTrimParagraphs
 *)
 on multiline(sourceText)
 	replace(sourceText, "
-", ASCII character 13)
+", return)
 end multiline
 
 
@@ -220,7 +223,7 @@ on encodeUrl(theString as text)
 	-- printAsciiNumber(theString)
 
 	-- do shell script "urlencode_grouped_case \"" & theString & "\""
-	set replacedText to replace(theString, ASCII character 10, "%0A")
+	set replacedText to replace(theString, linefeed, "%0A")
 	set replacedText to replace(replacedText, " ", "%20")
 	set replacedText to replace(replacedText, "[", "%5B")
 	set replacedText to replace(replacedText, "]", "%5D")
@@ -403,10 +406,38 @@ end join
 on indexOf(sourceText, substring)
 	if substring is missing value then return 0
 	if sourceText is missing value then return 0
-	if (offset of substring in sourceText) is 0 then return 0
 
-	offset of substring in sourceText
+	if considerCase then
+		considering case
+			if (offset of substring in sourceText) is 0 then return 0
+
+			return offset of substring in sourceText
+		end considering
+	else
+		if (offset of substring in sourceText) is 0 then return 0
+
+		return offset of substring in sourceText
+	end if
 end indexOf
+
+
+on indexOfAfter(sourceText, substring, startIdx)
+	if startIdx is missing value then return 0
+	if startIdx is less than 1 then return 0
+	if sourceText is missing value then return 0
+	if substring is missing value then return 0
+	if startIdx is greater than the (length of sourceText) then return 0
+	if sourceText does not contain substring then return 0
+
+	(* Below is auto-completed by Cursor. *)
+	-- set theList to split(sourceText, substring)
+	-- Below returns the index of the last match after the start index. I want the first instead.
+	-- return (length of sourceText) - (length of last item of theList) - (length of substring) + 1
+
+	set fromStartIdx to text startIdx thru -1 of sourceText
+	set originalLength to length of sourceText
+	originalLength - the (length of fromStartIdx) + indexOf(fromStartIdx, substring)
+end indexOfAfter
 
 
 on lastIndexOf(sourceText, substring)
