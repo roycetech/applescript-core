@@ -178,7 +178,11 @@ build-level5:
 
 
 reveal-scripts:  # Reveal the deployed scripts.
-	open "$(SCRIPT_LIBRARY_PATH)/core"
+	@if [ -d "$(SCRIPT_LIBRARY_PATH)/core" ]; then \
+		open "$(SCRIPT_LIBRARY_PATH)/core"; \
+	else \
+		open "$(SCRIPT_LIBRARY_PATH)"; \
+	fi
 
 
 # Helper function to build and confirm with yes to the prompt.
