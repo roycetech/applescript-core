@@ -8,6 +8,9 @@
 
 	@Build:
 		./scripts/build-lib.sh core/Level_2/property-list
+
+	@Change Logs:
+		Tue, Apr 07, 2026, at 01:15:10 PM - Revisited
  *)
 
 use scripting additions
@@ -15,11 +18,11 @@ use script "core/Text Utilities"
 
 use loggerFactory : script "core/logger-factory"
 
--- PROPERTIES =================================================================
 property logger : missing value
 
 property ERROR_PLIST_NOT_FOUND : 1000
 property ERROR_PLIST_CREATE_ALREADY_EXISTS : 1001
+property ERROR_PLIST_KEY_NOT_FOUND : 1002
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
 
@@ -29,9 +32,11 @@ on spotCheck()
 
 	set listUtil to script "core/list"
 	set cases to listUtil's splitAndTrimParagraphs("
+		NOOP
 		Create new plist
 		Instantiate non-existent plist
 		Debug Note Menu Links
+		Manual: Type
 	")
 
 	set spotScript to script "core/spot-test"
@@ -44,7 +49,7 @@ on spotCheck()
 	end if
 
 	set spotPList to new("spot-plist")
-	if caseIndex is 1 then
+	if caseIndex is 2 then
 		set plistName to "spot-plist"
 		if not plistExists(plistName) then createNewPList(plistName)
 
@@ -57,13 +62,13 @@ on spotCheck()
 		log spotPList's hasValue("missing")
 		log spotPList's hasValue(plistKey)
 
-	else if caseIndex is 2 then
+	else if caseIndex is 3 then
 		try
 			new("godly")
 			tell me to error "Error expected!"
 		end try
 
-	else if caseIndex is 3 then
+	else if caseIndex is 4 then
 		set sut to new("app-menu-links")
 		log sut's getValue("Sublime Text")'s toString()
 
@@ -102,6 +107,11 @@ on createNewPList(plistName)
 end createNewPList
 
 
+on newWithPath(plistPath)
+
+end newWithPath
+
+
 on new(plistName)
 	set calcPlistFilename to format {"~/applescript-core/{}.plist", {plistName}}
 
@@ -117,7 +127,6 @@ on new(plistName)
 		property plistFilename : calcPlistFilename
 		property quotedPlistPosixPath : quoted form of localPlistPosixPath
 
-		-- HANDLERS ==================================================================
 		on setValue(plistKey, newValue)
 			tell application "System Events"
 				if newValue is equal to missing value and my getValue(plistKey) is not missing value then
@@ -134,6 +143,19 @@ on new(plistName)
 		end setValue
 
 
+		(*
+			@returns the type of the value (not as string).
+				string, number, boolean, list, record, date.
+			@throws error when the key is not found.
+		*)
+		on getType(plistKey)
+			tell application "System Events" to tell property list file plistFilename
+				if not exists property list item plistKey then error "Key not found" number ERROR_PLIST_KEY_NOT_FOUND
+				kind of property list item plistKey
+			end tell
+		end getType
+
+
 		on getValue(plistKey)
 			tell application "System Events" to tell property list file plistFilename
 				try
@@ -145,9 +167,11 @@ on new(plistName)
 			end tell
 		end getValue
 
+
 		on hasValue(mapKey)
 			getValue(mapKey) is not missing value
 		end hasValue
+
 
 		on appendElement(plistKey, newValue)
 			set theList to getValue(plistKey)

@@ -8,7 +8,6 @@
 		1) Provide a description for this test suite and the name of the script to be tested.
 		2) Write tests :)
 
-	@charset macintosh
 	@Created: September 4, 2023 2:02 PM
 *)
 use AppleScript
@@ -70,23 +69,12 @@ end script
 
 script |property-list.new tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 2
 
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-	end setUp
-	on tearDown()
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+	script |#beforeClass|
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
-	
+	end script
+		
 	script |Plist not found|
 		property parent : UnitTest(me)
 		script Lambda
@@ -101,31 +89,358 @@ script |property-list.new tests|
 		assertInstanceOf(script, sut)
 		assertEqual("PListClassicInstance", name of sut)
 	end script
+
+	script |#afterClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script
+end script
+
+
+script |property-list.getValue tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	on setUp()
+		set sut to sutScript's new(TopLevel's plistKey)
+	end setUp
+	on tearDown()
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
+	end tearDown
+
+	script |#beforeClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __createTestPlist()
+	end script
+	
+	script |String|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "string-value")
+		assertEqual("string-value", sut's getValue(TopLevel's commonKeyName))
+	end script
+
+	script |Int|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "integer", 1)
+		assertEqual(1, sut's getValue(TopLevel's commonKeyName))
+	end script 
+
+	script |Float|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "float", 1.5)
+		assertEqual(1.5, sut's getValue(TopLevel's commonKeyName))
+	end script
+
+	script |Boolean|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "bool", true)
+		ok(sut's getValue(TopLevel's commonKeyName))
+	end script
+
+	script |Array|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array><integer>1</integer><string>text</string></array>")
+		assertEqual({1, "text"}, sut's getValue(TopLevel's commonKeyName))
+	end script
+
+	script |Empty Array|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array/>")
+		assertEqual({}, sut's getValue(TopLevel's commonKeyName))
+	end script
+
+	script |Record|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<dict><key>a</key><integer>1</integer></dict>")		
+		assertEqual({a: 1}, sut's getValue(TopLevel's commonKeyName))
+	end script
+
+	script |Number Key| 
+		property parent : UnitTest(me)
+		-- TopLevel's xmlUtil's __writeValue(1, "integer", 2) -- Breaks because plutil can't have number as key.
+		sut's setValue(1, 2)
+		assertEqual(2, sut's getValue(1))
+		TopLevel's xmlUtil's __deleteValue(1)
+	end script
+
+	script |#afterClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script
+end script
+
+
+script |property-list.getType tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	on setUp()
+		set sut to sutScript's new(TopLevel's plistKey)
+	end setUp
+	on tearDown()
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
+	end tearDown
+
+	script |#beforeClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __createTestPlist()
+	end script
+
+	script |Inexistent key|
+		property parent : UnitTest(me) 
+		script Lambda
+			sut's getType("inexistent-key") 
+		end script
+		shouldRaise(sutScript's ERROR_PLIST_KEY_NOT_FOUND, Lambda, "Expected error was not thrown")
+	end script
+
+
+	script |String|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "string-value")
+		assertEqual(string, sut's getType(TopLevel's commonKeyName))
+	end script
+
+	script |Int|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "integer", 1)
+		assertEqual(number, sut's getType(TopLevel's commonKeyName))
+	end script
+
+	script |Float|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "float", 1.5)
+		assertEqual(number, sut's getType(TopLevel's commonKeyName))
+	end script
+
+	script |Boolean|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "bool", true)
+		assertEqual(boolean, sut's getType(TopLevel's commonKeyName))
+	end script
+
+	script |List|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array><integer>1</integer><string>text</string></array>")
+		assertEqual(list, sut's getType(TopLevel's commonKeyName))
+	end script
+
+	script |Empty List|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array/>")
+		assertEqual(list, sut's getType(TopLevel's commonKeyName))
+	end script
+
+	script |Record|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<dict><key>a</key><integer>1</integer></dict>")		
+		assertEqual(record, sut's getType(TopLevel's commonKeyName))
+	end script
+
+	script |#afterClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script
+end script
+
+
+script |property-list.hasValue tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	on setUp()
+		set sut to sutScript's new(TopLevel's plistKey)
+	end setUp
+
+	script |#beforeClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __createTestPlist()
+	end script
+	
+	script |Not found|
+		property parent : UnitTest(me)
+		notOk(sut's hasValue("Unicorn"))
+	end script
+
+	script |Found|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "string-value")
+		ok(sut's hasValue(TopLevel's commonKeyName))
+	end script
+
+	script |#afterClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script
+end script
+
+
+script |property-list.appendElement tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	on setUp()
+		set sut to sutScript's new(TopLevel's plistKey)
+	end setUp
+	on tearDown()
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
+	end tearDown
+
+	script |#beforeClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __createTestPlist()
+	end script
+	
+	script |Empty array|
+		property parent : UnitTest(me)
+		sut's appendElement(TopLevel's commonKeyName, "first-element")
+		assertEqual("<array><string>first-element</string></array>", textUtil's replace(TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName), " ", ""))
+	end script
+
+	script |Non-empty array|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array><string>first-element</string></array>")
+		sut's appendElement(TopLevel's commonKeyName, 2)
+		assertEqual("<array><string>first-element</string><integer>2</integer></array>", textUtil's replace(TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName), " ", ""))
+	end script
+
+	script |#afterClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script
+end script
+
+
+script |property-list.deleteKey tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	on setUp()
+		set sut to sutScript's new(TopLevel's plistKey)
+	end setUp
+	on tearDown()
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
+	end tearDown
+
+	script |#beforeClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __createTestPlist()
+	end script
+
+	script |Not found|
+		property parent : UnitTest(me)
+		notOk(sut's deleteKey(TopLevel's commonKeyName))
+	end script
+
+	script |Found - scalar|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "for-deletion")
+		assertEqual("<string>for-deletion</string>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+		ok(sut's deleteKey(TopLevel's commonKeyName))
+		refuteEqual("<string>for-deletion</string>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+	end script
+
+	script |Found - composite|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array/>")
+		assertEqual("<array/>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+		ok(sut's deleteKey(TopLevel's commonKeyName))
+		refuteEqual("<array/>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
+	end script
+
+	script |#afterClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script
+end script
+
+
+script |property-list.plistExists tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	on setUp()
+		set sut to sutScript's new(TopLevel's plistKey)
+	end setUp
+	on tearDown()
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
+	end tearDown
+	
+	script |#beforeClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __createTestPlist()
+	end script
+
+	script |Not found|
+		property parent : UnitTest(me)
+		notOk(sutScript's plistExists("Unicorn"))
+	end script
+
+	script |Found|
+		property parent : UnitTest(me)
+		ok(sutScript's plistExists(TopLevel's plistKey))
+	end script
+
+	script |#afterClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script
+end script
+
+
+script |property-list.createNewPlist tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	on setUp()	
+		set sut to sutScript's new(TopLevel's plistKey)
+	end setUp
+	on tearDown()
+		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
+	end tearDown
+
+	script |#beforeClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __createTestPlist()
+	end script
+
+	script |Found|
+		property parent : UnitTest(me)
+		script Lambda
+			sutScript's createNewPList(TopLevel's plistKey)
+		end script
+		shouldRaise(sutScript's ERROR_PLIST_CREATE_ALREADY_EXISTS, Lambda, "Expected error was not raised")
+	end script 
+
+	script |Not found|
+		property parent : UnitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+		ok(sutScript's createNewPList(TopLevel's plistKey))
+	end script
+
+	script |#afterClass|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __deleteTestPlist()
+	end script
 end script
 
 
 script |property-list.setValue tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 10
 	property sut : missing value
 
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
 		set sut to sutScript's new(TopLevel's plistKey)
 	end setUp
 	on tearDown()
 		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
-		if executedTestCases is equal to the totalTestCases then afterClass()
 	end tearDown
-	on beforeClass()
+
+	script |#beforeClass|
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
-	
+	end script
+
 	script |String|
 		property parent : UnitTest(me)
 		sut's setValue(TopLevel's commonKeyName, "string-value")
@@ -187,267 +502,9 @@ script |property-list.setValue tests|
 		assertEqual("<integer>2</integer>", TopLevel's xmlUtil's __grepValueXml(1))
 		TopLevel's xmlUtil's __deleteValue(1)
 	end script
-end script
 
-
-script |property-list.getValue tests|
-	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 8
-	property sut : missing value
-
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(TopLevel's plistKey)
-	end setUp
-	on tearDown()
-		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
-		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
+	script |#afterClass|
+		property parent : unitTest(me)
 		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
-	
-	script |String|
-		property parent : UnitTest(me)
-		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "string-value")
-		assertEqual("string-value", sut's getValue(TopLevel's commonKeyName))
-	end script
-
-	script |Int|
-		property parent : UnitTest(me)
-		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "integer", 1)
-		assertEqual(1, sut's getValue(TopLevel's commonKeyName))
-	end script 
-
-	script |Float|
-		property parent : UnitTest(me)
-		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "float", 1.5)
-		assertEqual(1.5, sut's getValue(TopLevel's commonKeyName))
-	end script
-
-	script |Boolean|
-		property parent : UnitTest(me)
-		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "bool", true)
-		ok(sut's getValue(TopLevel's commonKeyName))
-	end script
-
-	script |Array|
-		property parent : UnitTest(me)
-		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array><integer>1</integer><string>text</string></array>")
-		assertEqual({1, "text"}, sut's getValue(TopLevel's commonKeyName))
-	end script
-
-	script |Empty Array|
-		property parent : UnitTest(me)
-		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array/>")
-		assertEqual({}, sut's getValue(TopLevel's commonKeyName))
-	end script
-
-	script |Record|
-		property parent : UnitTest(me)
-		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<dict><key>a</key><integer>1</integer></dict>")		
-		assertEqual({a: 1}, sut's getValue(TopLevel's commonKeyName))
-	end script
-
-	script |Number Key| 
-		property parent : UnitTest(me)
-		-- TopLevel's xmlUtil's __writeValue(1, "integer", 2) -- Breaks because plutil can't have number as key.
-		sut's setValue(1, 2)
-		assertEqual(2, sut's getValue(1))
-		TopLevel's xmlUtil's __deleteValue(1)
-	end script
-end script
-
-
-script |property-list.hasValue tests|
-	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 2
-	property sut : missing value
-
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(TopLevel's plistKey)
-	end setUp
-	on tearDown()
-		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
-		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
-	
-	script |Not found|
-		property parent : UnitTest(me)
-		notOk(sut's hasValue("Unicorn"))
-	end script
-
-	script |Found|
-		property parent : UnitTest(me)
-		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "string-value")
-		ok(sut's hasValue(TopLevel's commonKeyName))
-	end script
-end script
-
-
-script |property-list.appendElement tests|
-	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 2
-	property sut : missing value
-
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(TopLevel's plistKey)
-	end setUp
-	on tearDown()
-		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
-		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
-	
-	script |Empty array|
-		property parent : UnitTest(me)
-		sut's appendElement(TopLevel's commonKeyName, "first-element")
-		assertEqual("<array><string>first-element</string></array>", textUtil's replace(TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName), " ", ""))
-	end script
-
-	script |Non-empty array|
-		property parent : UnitTest(me)
-		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array><string>first-element</string></array>")
-		sut's appendElement(TopLevel's commonKeyName, 2)
-		assertEqual("<array><string>first-element</string><integer>2</integer></array>", textUtil's replace(TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName), " ", ""))
-	end script
-end script
-
-
-script |property-list.deleteKey tests|
-	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 3
-	property sut : missing value
-
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(TopLevel's plistKey)
-	end setUp
-	on tearDown()
-		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
-		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
-	
-	script |Not found|
-		property parent : UnitTest(me)
-		notOk(sut's deleteKey(TopLevel's commonKeyName))
-	end script
-
-	script |Found - scalar|
-		property parent : UnitTest(me)
-		TopLevel's xmlUtil's __writeValue(TopLevel's commonKeyName, "string", "for-deletion")
-		assertEqual("<string>for-deletion</string>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
-		ok(sut's deleteKey(TopLevel's commonKeyName))
-		refuteEqual("<string>for-deletion</string>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
-	end script
-
-	script |Found - composite|
-		property parent : UnitTest(me)
-		TopLevel's xmlUtil's __insertXml(TopLevel's commonKeyName, "<array/>")
-		assertEqual("<array/>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
-		ok(sut's deleteKey(TopLevel's commonKeyName))
-		refuteEqual("<array/>", TopLevel's xmlUtil's __grepValueXml(TopLevel's commonKeyName))
-	end script
-end script
-
-
-script |property-list.plistExists tests|
-	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 2
-	property sut : missing value
-
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(TopLevel's plistKey)
-	end setUp
-	on tearDown()
-		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
-		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
-	
-	script |Not found|
-		property parent : UnitTest(me)
-		notOk(sutScript's plistExists("Unicorn"))
-	end script
-
-	script |Found|
-		property parent : UnitTest(me)
-		ok(sutScript's plistExists(TopLevel's plistKey))
-	end script
-end script
-
-
-script |property-list.createNewPlist tests|
-	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 2
-	property sut : missing value
-
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(TopLevel's plistKey)
-	end setUp
-	on tearDown()
-		TopLevel's xmlUtil's __deleteValue(TopLevel's commonKeyName)
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
-		TopLevel's xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		TopLevel's xmlUtil's __deleteTestPlist()
-	end afterClass
-	
-	script |Found|
-		property parent : UnitTest(me)
-		script Lambda
-			sutScript's createNewPList(TopLevel's plistKey)
-		end script
-		shouldRaise(sutScript's ERROR_PLIST_CREATE_ALREADY_EXISTS, Lambda, "Expected error was not raised")
-	end script 
-
-	script |Not found|
-		property parent : UnitTest(me)
-		TopLevel's xmlUtil's __deleteTestPlist()
-		ok(sutScript's createNewPList(TopLevel's plistKey))
 	end script
 end script

@@ -61,9 +61,9 @@ spot:  # Test single script here.
 # 	osascript "test/core/Test list.applescript"
 # 	osascript "test/libs/Test log4as.applescript"
 # 	osascript "test/core/Test plutil.applescript"
-# 	osascript "test/core/Test property-list.applescript"
+	osascript "test/core/Test property-list.applescript"
 # 	osascript "test/core/Test speech.applescript"
-	osascript "test/core/Test string.applescript"
+	# osascript "test/core/Test string.applescript"
 # 	osascript "test/core/Test timed-cache-plist.applescript"
 
 spot-watch: spot

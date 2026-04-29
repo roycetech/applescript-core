@@ -19,15 +19,17 @@
 		Test with Menu Pinned.  Cannot test the UI functionality because menu apps need to be deployed.
 
 	@Created: Saturday, September 30, 2023 at 5:50:31 PM
-	@Last Modified: 2026-02-27 13:18:15
+	@Last Modified: 2026-04-08 16:14:18
 *)
 use scripting additions
+
 use framework "Foundation"
 use framework "AppKit"
 
 use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
+
 property isSpot : false
 
 if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
