@@ -16,7 +16,7 @@ use loggerFactory : script "core/logger-factory"
 property logger : missing value
 property username : short user name of (system info)
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)

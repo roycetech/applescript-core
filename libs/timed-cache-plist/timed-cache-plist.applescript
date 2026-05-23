@@ -34,7 +34,7 @@ property SUFFIX_TIMESTAMP : "-ts"
 
 property DATE_FORMAT_PARAMETER : "%Y-%m-%dT%H:%M:%SZ"
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)

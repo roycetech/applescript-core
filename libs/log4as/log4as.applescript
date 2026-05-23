@@ -35,7 +35,7 @@ property plistName : "log4as"
 property plistBuddyLog4as : missing value
 property logClasses : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 (*
 	Note: Bad idea to use logger here for spot checking.

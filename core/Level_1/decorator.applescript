@@ -30,14 +30,14 @@
 	@Makefile:
 		Neither the decorator nor the decorated must be required at compile time.
 
-	@Last Modified: 2025-05-22 13:55:29
+	@Last Modified: 2026-05-23 09:52:07
 	@Change Logs:
 		Tue, May 20, 2025 at 11:50:46 AM - Silence the error by returning an empty string in case of an error.
 		Thursday, May 23, 2024 at 1:37:40 PM - Use detect the original instance name to handle an internally decorated script objects.
 		August 10, 2023 7:49 AM - Allow multiple overrides on the same instance name.
 *)
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	script SublimeTextInstance

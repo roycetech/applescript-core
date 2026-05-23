@@ -11,7 +11,7 @@
 	@Created:
 		Wed Dec 28 18:24:28 2022
 
-	@Last Modified: 2026-03-24 17:31:31
+	@Last Modified: 2026-05-23 09:49:04
 
 	@Change Logs:
 		Wed, Mar 18, 2026, at 10:43:28 AM - Added window overlap handlers.
@@ -20,7 +20,7 @@ use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)

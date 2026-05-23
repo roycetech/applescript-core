@@ -27,14 +27,14 @@ property ERROR_OUT_OF_BOUNDS : 1001
 -- #%+= are probably worth considering.
 property linesDelimiter : "@"
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	set loggerFactory to script "core/logger-factory"
 	loggerFactory's inject(me)
 	logger's start()
 
-	set cases to splitByLine("
+	set cases to splitAndTrimParagraphs("
 		NOOP
 		Split By Line (TODO: presence of single quote results in error)
 		Trailing empty line
@@ -206,6 +206,7 @@ end splitByLineX
 
 (*
 	Removes all the references of the target element.
+
 	@returns the resulting list.
 *)
 on remove(aList, targetElement)

@@ -4,7 +4,7 @@
 
 	@Requires notification-center to be deployed first.
 
-	@Last Modified: 2026-03-29 10:16:45
+	@Last Modified: 2026-05-23 09:49:06
 *)
 
 use scripting additions
@@ -18,7 +18,7 @@ use notificationCenterLib : script "core/notification-center"
 property logger : missing value
 property notificationCenter : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)

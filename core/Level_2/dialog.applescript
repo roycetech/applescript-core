@@ -11,7 +11,7 @@
 	@Change Logs:
 		Thu, Nov 20, 2025, at 12:41:55 PM - Added #promptForInputWithDefault
 
-	@Last Modified: 2026-03-24 17:31:31
+	@Last Modified: 2026-05-23 09:49:05
 *)
 use scripting additions
 
@@ -26,7 +26,7 @@ use decoratorLib : script "core/decorator"
 
 property logger : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)

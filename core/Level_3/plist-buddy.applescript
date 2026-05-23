@@ -12,7 +12,7 @@
 
 	TODO: Reduce the spot checks and move to Test plist-buddy.
 
-	@Last Modified: 2026-03-24 17:31:26
+	@Last Modified: 2026-05-23 09:49:04
 *)
 
 use script "core/Text Utilities"
@@ -36,7 +36,7 @@ property ERROR_PLIST_KEY_EMPTY : 1001
 property ERROR_PLIST_KEY_INVALID_TYPE : 1002
 property ERROR_LIST_COUNT_INVALID : 1003
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)

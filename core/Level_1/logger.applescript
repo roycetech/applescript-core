@@ -21,7 +21,7 @@ property logOverride : false
 property startSeconds : 0
 property logLite : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	set sut to newBase("logger")

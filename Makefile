@@ -70,3 +70,7 @@ detect-deploy-type:  # Detects actual deployment type
 
 uninstall:
 	./scripts/uninstall.sh
+
+
+watch:
+	scripts/run-osascript_on-change.sh

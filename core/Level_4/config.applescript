@@ -1,6 +1,6 @@
 (*
 	@Usage:
-    		use configLib :  script "core/config"
+    	use configLib :  script "core/config"
 
 		property configUser : configLib's new("user")
 
@@ -14,7 +14,6 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_4/config
 *)
-
 use plutilLib : script "core/plutil"
 
 use loggerFactory : script "core/logger-factory"
@@ -24,7 +23,7 @@ property logger : missing value
 property filename : "~/applescript-core/config-default.plist"
 property plutil : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)
@@ -91,7 +90,7 @@ on new(pConfigName)
 
 		on getCategoryValue(category, configKey)
 			-- log "getCategoryValue category1: " & category & ", key: " & configKey
-			set IS_SPOT to {"Script Editor", "Script Debugger"} contains the name of current application
+			set IS_SPOT to {"Script Editor", "Script Debugger", "osascript"} contains the name of current application
 
 			-- log "configName: " & configName
 			if categoryPlist is missing value or category is not equal to the configName then

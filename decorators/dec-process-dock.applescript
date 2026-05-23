@@ -16,7 +16,7 @@
 		./scripts/build-lib.sh decorators/dec-process-dock-aware
 
 	@Created: Thu, Feb 27, 2025 at 08:05:29 AM
-	@Last Modified: 2026-03-24 17:31:36
+	@Last Modified: 2026-05-23 09:49:06
 	@Change Logs:
 *)
 use scripting additions
@@ -30,7 +30,7 @@ property logger : missing value
 property dock : missing value
 property VERTICAL_CORRECTION : 4
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)

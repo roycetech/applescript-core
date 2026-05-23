@@ -6,7 +6,7 @@
 		./scripts/build-lib.sh core/speak-and-log
 
 	@Created: Tuesday, December 19, 2023 at 3:35:33 PM
-	@Last Modified: 2026-03-24 17:31:36
+	@Last Modified: 2026-05-23 09:49:05
 *)
 
 use scripting additions
@@ -21,7 +21,7 @@ property logger : missing value
 
 property speech : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)

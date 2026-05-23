@@ -35,7 +35,7 @@ property CONFIG_SYSTEM : "system"
 property CONFIG_KEY_RETRY_MAX : "FIND_RETRY_MAX"
 property CONFIG_KEY_RETRY_SLEEP : "FIND_RETRY_SLEEP"
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)

@@ -13,7 +13,7 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_1/string
 
-	@Last Modified: 2026-04-23 09:37:36
+	@Last Modified: 2026-05-23 09:53:33
 
 	@Change Logs:
 		Thu, Apr 23, 2026, at 09:31:26 AM - Added #indexOfAfter.
@@ -25,8 +25,7 @@ property logger : missing value
 
 property considerCase : false
 
-if {"Script Debugger", "Script Editor"} contains the name of current application then spotCheck()
-
+if {"Script Debugger", "Script Editor", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	set loggerFactory to script "core/logger-factory"

@@ -58,7 +58,7 @@ property isSpot : false
 
 property DEFAULT_CONFIG : "text-to-speech_default"
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then
 	set isSpot to true
 	spotCheck()
 end if

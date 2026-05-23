@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/Level_2/ui-util
 
 	@Created: Pre-2024.
-	@Last Modified: 2026-03-24 17:31:26
+	@Last Modified: 2026-05-23 09:49:05
 
 	TODO: Register 2 new handlers to the Text Expander.
 *)
@@ -21,7 +21,7 @@ use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)

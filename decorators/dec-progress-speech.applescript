@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh decorators/dec-progress-speech
 
 	@Created: Mon, Dec 08, 2025 at 01:56:00 PM
-	@Last Modified: 2026-03-24 17:31:36
+	@Last Modified: 2026-05-23 09:49:06
 	@Change Logs:
 *)
 use loggerFactory : script "core/logger-factory"
@@ -23,7 +23,7 @@ property speech : missing value
 
 property SWITCH_SPEAK_PROGRESS : "app-core: Speak Progress"
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)

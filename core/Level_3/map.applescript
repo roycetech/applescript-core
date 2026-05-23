@@ -35,7 +35,7 @@ property jsonLib : missing value
 
 property ERROR_INVALID_SOURCE_TEXT : 1001
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)

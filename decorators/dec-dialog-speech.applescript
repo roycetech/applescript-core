@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh decorators/dec-dialog-speech
 
 	@Created: Sun, Dec 07, 2025 at 04:08:25 PM
-	@Last Modified: 2026-03-24 17:31:36
+	@Last Modified: 2026-05-23 09:49:06
 	@Change Logs:
 *)
 use scripting additions
@@ -22,7 +22,7 @@ property logger : missing value
 
 property speech : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)

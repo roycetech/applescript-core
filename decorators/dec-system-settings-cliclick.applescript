@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh decorators/dec-system-settings-cliclick
 
 	@Created: Saturday, September 21, 2024 at 10:36:44 AM
-	@Last Modified: 2026-03-24 17:31:36
+	@Last Modified: 2026-05-23 09:49:06
 	@Change Logs:
 *)
 use script "core/Text Utilities"
@@ -24,7 +24,7 @@ property logger : missing value
 property clip : missing value
 property cliclick : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)

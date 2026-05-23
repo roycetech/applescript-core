@@ -12,7 +12,7 @@
 		Mon, Mar 23, 2026, at 08:52:05 AM - Use recomment expandPath and collapsePath.
 		July 26, 2023 4:11 PM - Add replaceText handler.
 
-	@Last Modified: 2026-03-24 17:31:31
+	@Last Modified: 2026-05-23 09:49:05
 *)
 
 use scripting additions
@@ -25,7 +25,7 @@ use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's injectBasic(me)

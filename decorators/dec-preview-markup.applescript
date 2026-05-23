@@ -7,7 +7,7 @@
 		./scripts/build-lib.sh decorators/dec-preview-markup
 
 	@Created: Wednesday, December 4, 2024 at 7:39:09 AM
-	@Last Modified: 2026-03-24 17:31:36
+	@Last Modified: 2026-05-23 09:49:06
 
 	@Change Logs:
 *)
@@ -20,7 +20,7 @@ property logger : missing value
 
 property kb : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)

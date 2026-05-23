@@ -4,7 +4,7 @@
 	@Plists:
 		notification-appname - contains mapping for app id to app name.
 
-	@Last Modified: 2026-03-29 10:16:45
+	@Last Modified: 2026-05-23 09:49:06
 
 	For Mail notifications, the grouping must be set to Off.
 *)
@@ -31,7 +31,7 @@ property notificationCenterHelper : missing value
 	Stacked notification will have the date of the latest notice.
 *)
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)

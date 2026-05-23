@@ -14,7 +14,7 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_5/spot-test
 
-	@Last Modified: 2026-03-31 15:26:33
+	@Last Modified: 2026-05-23 09:49:44
 
 	@Change Logs:
 		Tue, Mar 31, 2026, at 03:14:01 PM - When run direct is detected, make the loaded script the current.
@@ -59,7 +59,7 @@ tell application "System Events"
 	set scriptName to get name of (path to me)
 end tell
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then
 	if scriptName is "spot-test.applescript" then spotCheck()
 end if
 

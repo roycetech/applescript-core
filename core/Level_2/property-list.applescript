@@ -24,7 +24,7 @@ property ERROR_PLIST_NOT_FOUND : 1000
 property ERROR_PLIST_CREATE_ALREADY_EXISTS : 1001
 property ERROR_PLIST_KEY_NOT_FOUND : 1002
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)

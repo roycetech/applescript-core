@@ -9,7 +9,7 @@
 		./scripts/build-lib.sh core/Level_4/dotenv
 
 	@Created: Sat, Mar 14, 2026 at 02:11:57 PM
-	@Last Modified: 2026-03-24 17:31:26
+	@Last Modified: 2026-05-23 09:49:04
 *)
 use fileUtil : script "core/file"
 use listUtil : script "core/list"
@@ -22,7 +22,7 @@ use loggerFactory : script "core/logger-factory"
 
 property logger : missing value
 
-if {"Script Editor", "Script Debugger"} contains the name of current application then spotCheck()
+if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
 	loggerFactory's inject(me)

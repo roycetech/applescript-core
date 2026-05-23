@@ -48,7 +48,7 @@ test-unit:
 	osascript "test/core/Test timed-cache-plist.applescript"
 
 
-watch: watch-unit
+watch-test: watch-unit
 
 watch-unit: test-unit
 	scripts/run-tests_on-change.sh  # This runs test-unit target on change.
