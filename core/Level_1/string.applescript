@@ -13,7 +13,7 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_1/string
 
-	@Last Modified: 2026-05-23 09:53:33
+	@Last Modified: 2026-05-24 18:12:11
 
 	@Change Logs:
 		Thu, Apr 23, 2026, at 09:31:26 AM - Added #indexOfAfter.
@@ -55,6 +55,7 @@ on spotCheck()
 		-- log format("What's missing? {}", missing value)
 		log format("Body: {}", "She said: \"hello?\"")
 		log format("Body: \"{}\"", "She")
+		log decodeUrl("1%0A2")
 
 	else if caseIndex is 2 then
 		log encodeUrl("
@@ -222,11 +223,16 @@ on encodeUrl(theString as text)
 	-- printAsciiNumber(theString)
 
 	-- do shell script "urlencode_grouped_case \"" & theString & "\""
-	set replacedText to replace(theString, linefeed, "%0A")
-	set replacedText to replace(replacedText, " ", "%20")
+	-- Encode literal % first; later replacements insert % and must not be re-encoded.
+	set replacedText to replace(theString, "%", "%25")
+	set replacedText to replace(replacedText, linefeed, "%0A")
+	set replacedText to replace(replacedText, space, "%20")
+	set replacedText to replace(replacedText, "#", "%23")
 	set replacedText to replace(replacedText, "[", "%5B")
 	set replacedText to replace(replacedText, "]", "%5D")
 	set replacedText to replace(replacedText, "=", "%3D")
+	set replacedText to replace(replacedText, "{", "%7B")
+	set replacedText to replace(replacedText, "}", "%7D")
 	set replacedText to replace(replacedText, "|", "%7C")
 	set replacedText to replace(replacedText, "<", "%3C")
 	set replacedText to replace(replacedText, ">", "%3E")
@@ -234,6 +240,7 @@ on encodeUrl(theString as text)
 	set replacedText to replace(replacedText, ":", "%3A")
 	set replacedText to replace(replacedText, "@", "%40")
 	set replacedText to replace(replacedText, "&", "%26")
+	set replacedText to replace(replacedText, "$", "%24")
 	set replacedText to replace(replacedText, "+", "%2b")
 	set replacedText to replace(replacedText, "'", "%27")
 	set replacedText to replace(replacedText, "\"", "%22")
@@ -249,18 +256,23 @@ on decodeUrl(theString as text)
 	-- does not work with %7c
 	-- return do shell script "echo '" & theString & "' | printf \"%b\\n\" \"$(sed 's/+/ /g; s/%\\([0-9a-f][0-9a-f]\\)/\\\\x\\1/g;')\";"
 
-	set newString to replace(theString, "%0A", "
-")
-	set newString to replace(theString, "%20", " ")
+	-- Decode %25 first; other sequences contain % and must not be split early.
+	set newString to replace(theString, "%25", "%")
+	set newString to replace(newString, "%0A", linefeed)
+	set newString to replace(newString, "%20", space)
+	set newString to replace(newString, "%23", "#")
 	set newString to replace(newString, "%5B", "[")
 	set newString to replace(newString, "%5D", "]")
 	set newString to replace(newString, "%3D", "=")
+	set newString to replace(newString, "%7B", "{")
+	set newString to replace(newString, "%7D", "}")
 	set newString to replace(newString, "%7C", "|")
 	set newString to replace(newString, "%3C", "<")
 	set newString to replace(newString, "%3E", ">")
 	set newString to replace(newString, "%2F", "/")
 	set newString to replace(newString, "%3A", ":")
 	set newString to replace(newString, "%40", "@")
+	set newString to replace(newString, "%24", "$")
 	set newString to replace(newString, "%26", "&")
 	set newString to replace(newString, "%2b", "+")
 	set newString to replace(newString, "%27", "'")
