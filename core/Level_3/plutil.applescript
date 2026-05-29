@@ -41,8 +41,9 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2026-04-08 10:54:38
+	@Last Modified: 2026-05-29 15:55:44
 	@Change Logs:
+		Fri, May 29, 2026, at 03:55:41 PM - Added newSession() for simplified access to the default session plist.
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
 use scripting additions
@@ -209,6 +210,15 @@ on spotCheck()
 	spot's finish()
 	logger's finish()
 end spotCheck
+
+
+(*
+	Simplify access to the default session plist.
+*)
+on newSession()
+	set plutil to new()
+	plutil's new("session")
+end newSession
 
 
 on new()
