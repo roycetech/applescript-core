@@ -512,10 +512,10 @@ on _charToKeycode(key)
 	if key is "space" then return 49
 	if key is " " or key is space then return 49
 
-	if key is "up" or key is up then return 126
-	if key is "down" or key is down then return 125
-	if key is "left" or key is left then return 123
-	if key is "right" or key is right then return 124
+	if key is up or key is "up" then return 126
+	if key is down or key is "down" then return 125
+	if key is left or key is "left" then return 123
+	if key is right or key is "right" then return 124
 
 	if key is "F1" or key is "f1" then return 122
 	if key is "F2" or key is "f2" then return 120
