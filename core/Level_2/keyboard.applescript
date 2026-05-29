@@ -13,6 +13,9 @@
 
 	@Build:
 		./scripts/build-lib.sh core/Level_2/keyboard
+
+	@Change Logs:
+		Thu, May 28, 2026, at 03:17:52 PM - Added literals for up, down, left, and right
 *)
 
 use scripting additions
@@ -508,10 +511,11 @@ on _charToKeycode(key)
 	if key is "del" then return 51
 	if key is "space" then return 49
 	if key is " " or key is space then return 49
-	if key is "up" then return 126
-	if key is "down" then return 125
-	if key is "left" then return 123
-	if key is "right" then return 124
+
+	if key is "up" or key is up then return 126
+	if key is "down" or key is down then return 125
+	if key is "left" or key is left then return 123
+	if key is "right" or key is right then return 124
 
 	if key is "F1" or key is "f1" then return 122
 	if key is "F2" or key is "f2" then return 120
