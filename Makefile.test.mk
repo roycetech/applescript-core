@@ -55,18 +55,18 @@ watch-unit: test-unit
 
 
 spot:  # Test single script here.
-	osascript "test/core/Test date-time.applescript"
+# 	osascript "test/core/Test date-time.applescript"
 # 	osascript "test/core/Test decorator.applescript"
 # 	osascript "test/core/Test file.applescript"
 # 	osascript "test/core/Test list.applescript"
 # 	osascript "test/libs/Test log4as.applescript"
 # 	osascript "test/core/Test plutil.applescript"
-	osascript "test/core/Test property-list.applescript"
+# 	osascript "test/core/Test property-list.applescript"
 # 	osascript "test/core/Test speech.applescript"
-	# osascript "test/core/Test string.applescript"
+	osascript "test/core/Test string.applescript"
 # 	osascript "test/core/Test timed-cache-plist.applescript"
 
-spot-watch: spot
+watch-spot: spot
 # 	scripts/run-spot_on-change.sh
 	scripts/run-spot-test_on-change.sh
 

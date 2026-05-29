@@ -215,8 +215,13 @@ script |stringBetween tests|
 		property parent : UnitTest(me)
 		assertEqual("bc", sutScript's stringBetween("abcde", "a", "d"))
 	end script
-end script
 
+	script |Bugged sample|
+		property parent : UnitTest(me)
+		assertEqual("=yo", sutScript's stringBetween("__rt_tab=ssh-pve && __command_id__=yo && ls", "__command_id__", space))
+	end script
+end script
+ 
 
 script |trim tests|
 	property parent : TestSet(me)

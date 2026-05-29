@@ -13,7 +13,7 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_1/string
 
-	@Last Modified: 2026-05-24 18:12:11
+	@Last Modified: 2026-05-24 20:59:55
 
 	@Change Logs:
 		Thu, Apr 23, 2026, at 09:31:26 AM - Added #indexOfAfter.
@@ -142,7 +142,13 @@ on stringBetween(sourceText, substringStart, substringEnd)
 	if sourceText does not contain substringStart then return missing value
 	if sourceText does not contain substringEnd then return missing value
 
-	text ((offset of substringStart in sourceText) + (count of substringStart)) thru ((offset of substringEnd in sourceText) - 1) of sourceText
+	set startOffset to offset of substringStart in sourceText
+	set contentStart to startOffset + (count of substringStart)
+	set tailText to text contentStart thru -1 of sourceText
+	if tailText does not contain substringEnd then return missing value
+
+	set endOffset to contentStart + (offset of substringEnd in tailText) - 1
+	text contentStart thru (endOffset - 1) of sourceText
 end stringBetween
 
 
@@ -150,7 +156,13 @@ on shortestStringBetween(sourceText, substringStart, substringEnd)
 	if sourceText does not contain substringStart then return missing value
 	if sourceText does not contain substringEnd then return missing value
 
-	text (lastIndexOf(sourceText, substringStart) + (count of substringStart)) thru ((offset of substringEnd in sourceText) - 1) of sourceText
+	set startOffset to lastIndexOf(sourceText, substringStart)
+	set contentStart to startOffset + (count of substringStart)
+	set tailText to text contentStart thru -1 of sourceText
+	if tailText does not contain substringEnd then return missing value
+
+	set endOffset to contentStart + (offset of substringEnd in tailText) - 1
+	text contentStart thru (endOffset - 1) of sourceText
 end shortestStringBetween
 
 
