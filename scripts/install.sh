@@ -4,6 +4,8 @@
 # @Purpose:
 # 	Install the core libraries directly from the web.
 
+sudo -v  # Cache the credential briefly for this script
+
 set -e
 
 REPO_DIR="$HOME/Projects/@roycetech/applescript-core"
@@ -27,13 +29,5 @@ sudo dseditgroup -o edit -a "$(whoami)" -t user wheel \
   && sudo chmod g+w "/Library/Script Libraries/core/test" \
   && sudo chmod g+w "/Library/Script Libraries/core/app"
 
-# cd "$REPO_DIR"
-# make set-computer-deploy-type install
-
-# dseditgroup updates wheel membership in the directory service, but this shell
-# still has the old group list. sg starts a subshell where wheel is active.
-# sg wheel -c "cd '$REPO_DIR' && make set-computer-deploy-type install"
-
-newgrp wheel << 'EOF'
-cd "$REPO_DIR" && make set-computer-deploy-type install
-EOF
+# Run this command in a new shell where the directory permission is expected to have taken effect.
+sudo -E bash -c "cd '$REPO_DIR' && make set-computer-deploy-type install"
