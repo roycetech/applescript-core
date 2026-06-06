@@ -27,5 +27,9 @@ sudo dseditgroup -o edit -a "$(whoami)" -t user wheel \
   && sudo chmod g+w "/Library/Script Libraries/core/test" \
   && sudo chmod g+w "/Library/Script Libraries/core/app"
 
-cd "$REPO_DIR"
-make set-computer-deploy-type install
+# cd "$REPO_DIR"
+# make set-computer-deploy-type install
+
+# dseditgroup updates wheel membership in the directory service, but this shell
+# still has the old group list. sg starts a subshell where wheel is active.
+sg wheel -c "cd '$REPO_DIR' && make set-computer-deploy-type install"
