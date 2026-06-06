@@ -32,4 +32,8 @@ sudo dseditgroup -o edit -a "$(whoami)" -t user wheel \
 
 # dseditgroup updates wheel membership in the directory service, but this shell
 # still has the old group list. sg starts a subshell where wheel is active.
-sg wheel -c "cd '$REPO_DIR' && make set-computer-deploy-type install"
+# sg wheel -c "cd '$REPO_DIR' && make set-computer-deploy-type install"
+
+newgrp wheel << 'EOF'
+cd "$REPO_DIR" && make set-computer-deploy-type install
+EOF
