@@ -4,7 +4,7 @@
 	@Plists:
 		notification-appname - contains mapping for app id to app name.
 
-	@Last Modified: 2026-05-23 09:49:06
+	@Last Modified: 2026-06-13 20:03:07
 
 	For Mail notifications, the grouping must be set to Off.
 *)
@@ -17,11 +17,11 @@ use regex : script "core/regex"
 use loggerFactory : script "core/logger-factory"
 
 use loggerLib : script "core/logger"
-use plutilLib : script "core/plutil"
-use notificationCenterHelperLib : script "core/notification-center-helper"
 
+use plutilLib : script "core/plutil"
 
 property logger : missing value
+
 property plutil : missing value
 property notificationCenterHelper : missing value
 
@@ -176,6 +176,7 @@ end spotCheck
 on new()
 	loggerFactory's inject(me)
 	set plutil to plutilLib's new()
+	set notificationCenterHelperLib to script "core/notification-center-helper"
 	notificationCenterHelperLib's inject(me)
 
 	script NotificationCenterInstance

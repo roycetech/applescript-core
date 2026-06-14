@@ -44,6 +44,7 @@ Run `$ make uninstall` to remove the installed scripts under Script Libraries.
 trigger UI controls .
 
 ### Recommended AppleScript applications
+
 * [Create Automator App](apps/User/Create%20Automator%20App.applescript) - For easily creating AppleScript app wrapped by Automator that can be invoked via Spotlight.
 * [Create Menu App](apps/User/Create%20Menu%20App.applescript) - For easily creating stay-open app that can sit in the menu bar.
 

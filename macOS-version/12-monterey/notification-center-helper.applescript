@@ -4,18 +4,15 @@
 
 	@Requires notification-center to be deployed first.
 
-	@Last Modified: 2026-05-23 09:49:06
+	@Last Modified: 2026-06-13 20:03:48
 *)
 
 use scripting additions
 
-use listUtil : script "core/list"
-
 use loggerFactory : script "core/logger-factory"
-use notificationCenterLib : script "core/notification-center"
-
 
 property logger : missing value
+
 property notificationCenter : missing value
 
 if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
@@ -24,6 +21,7 @@ on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
 
+	set listUtil to script "core/list"
 	set cases to listUtil's splitAndTrimParagraphs("
 		Simple Sort
 		First Notice
@@ -86,6 +84,7 @@ end inject
 
 on new()
 	loggerFactory's inject(me)
+	set notificationCenterLib to script "core/notification-center"
 	set notificationCenter to notificationCenterLib's new()
 
 	script NotificationCenterHelperInstance
