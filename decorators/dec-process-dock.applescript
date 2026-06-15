@@ -1,7 +1,4 @@
 (*
-	WIP:
-		Working for bottom dock only. To do the sides as needed.
-
 	@Purpose:
 		Provide handlers that will detect window overlap to the dock
 
@@ -9,14 +6,18 @@
 		1. Save window position with the dock hidden.
 		2. When the dock is not hidden and overlap is detected, reduce the height of the offending window.
 
+	WIP:
+		Working for bottom dock only. To do the sides as needed.
+
 	@Project:
 		applescript-core
 
 	@Build:
-		./scripts/build-lib.sh decorators/dec-process-dock-aware
+		./scripts/build-lib.sh decorators/dec-process-dock
 
 	@Created: Thu, Feb 27, 2025 at 08:05:29 AM
-	@Last Modified: 2026-05-23 09:49:06
+	@Last Modified: 2026-06-14 18:15:01
+
 	@Change Logs:
 *)
 use scripting additions
