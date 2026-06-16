@@ -14,7 +14,7 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_5/spot-test
 
-	@Last Modified: 2026-05-23 09:49:44
+	@Last Modified: 2026-06-15 21:52:14
 
 	@Change Logs:
 		Tue, Mar 31, 2026, at 03:14:01 PM - When run direct is detected, make the loaded script the current.
@@ -187,7 +187,7 @@ on new()
 					end if
 
 					notifyChange({event_type:"spot:event:run-case", case_index:_currentCase as integer})
-					session's deleteKey(SESSION_KEY_RUN_SPOT_DIRECT)
+					if session's hasValue(SESSION_KEY_RUN_SPOT_DIRECT) then session's deleteKey(SESSION_KEY_RUN_SPOT_DIRECT)
 					{_currentCase as integer, item _currentCase of cases}
 				end start
 
