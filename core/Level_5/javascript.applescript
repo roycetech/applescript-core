@@ -127,8 +127,8 @@ on decorate(browserTab)
 		*)
 		on setValueByIdWithTrigger(elementId, newValue, triggerEvent)
 			set javascriptText to format {"
-				let el = document.getElementById('{}');
-				if (el) {
+				rtel = document.getElementById('{}');
+				if (rtel) {
 					el.value = '{}';
 					el.dispatchEvent(new Event('{}', { bubbles: true }));
 				}
@@ -139,8 +139,8 @@ on decorate(browserTab)
 
 		on triggerEventById(elementId, eventName)
 			set javascriptText to format {"
-				let el = document.getElementById('{}');
-				if (el) el.dispatchEvent(new Event('{}', { bubbles: true }));
+				rtel = document.getElementById('{}');
+				if (rtel) el.dispatchEvent(new Event('{}', { bubbles: true }));
 			", {elementId, eventName}}
 			runScriptDirect(javascriptText)
 
@@ -149,8 +149,8 @@ on decorate(browserTab)
 
 		on triggerEventBySelector(selector, eventName)
 			set javascriptText to format {"
-				let el = document.querySelector('{}');
-				if (el) el.dispatchEvent(new Event('{}', { bubbles: true }));
+				rtel = document.querySelector('{}');
+				if (rtel) el.dispatchEvent(new Event('{}', { bubbles: true }));
 			", {selector, eventName}}
 			runScriptDirect(javascriptText)
 		end triggerEventBySelector
@@ -158,8 +158,8 @@ on decorate(browserTab)
 
 		on triggerEventByName(elementName, eventName)
 			set javascriptText to format {"
-				let el = document.getElementsByName('{}')[0];
-				if (el) el.dispatchEvent(new Event('{}', { bubbles: true }));
+				rtel = document.getElementsByName('{}')[0];
+				if (rtel) el.dispatchEvent(new Event('{}', { bubbles: true }));
 			", {elementName, eventName}}
 			runScriptDirect(javascriptText)
 		end triggerEventByName
