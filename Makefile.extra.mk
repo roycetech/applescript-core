@@ -48,11 +48,11 @@ build-process:
 # 	# $(SUDO) ./scripts/build-lib.sh libs/process/process
 # 	yes y | ./scripts/build-lib.sh libs/process/process
 
-install-process-dock:
-	./scripts/factory-insert.sh ProcessInstance core/dec-process-dock
+install-process-dock-aware:
+	./scripts/factory-insert.sh ProcessInstance core/dec-process-dock-aware
 
-uninstall-process-dock:
-	./scripts/factory-remove.sh ProcessInstance core/dec-process-dock
+uninstall-process-dock-aware:
+	./scripts/factory-remove.sh ProcessInstance core/dec-process-dock-aware
 
 
 build-security-cli:
