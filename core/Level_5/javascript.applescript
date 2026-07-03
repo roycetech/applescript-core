@@ -390,8 +390,13 @@ on decorate(browserTab)
 			exec of retry on HrefWaiter for 1 * minutes by 1
 		end waitForHrefPart
 
-		on focusOnId(elementId)
+
+		on focusById(elementId)
 			runScriptPlain(format {"document.getElementById('{}').focus();", elementId})
+		end focusOnId
+
+		on focusOnId(elementId)
+			focusById(elementId)
 		end focusOnId
 
 		on focusSelector(selector)
@@ -474,20 +479,27 @@ on decorate(browserTab)
 			return waitResult
 		end waitForTrueExpression
 
-        (*
-            Like waitForTrueExpression, but retries for @timeoutSeconds (one attempt every 0.25 seconds).
-        *)
-        on waitForExpressionWithTimeOut(expression, timeoutSeconds)
-            set scriptText to expression
-            script TruthWaiter
-                if _runScript(scriptText) then return true
-            end script
+		(*
+			Like waitForTrueExpression, but retries for @timeoutSeconds (one attempt every 0.25 seconds).
+		*)
+		on waitForExpressionWithTimeOut(expression, timeoutSeconds)
+			set scriptText to expression
+			script TruthWaiter
+				if _runScript(scriptText) then return true
+			end script
 
-            set waitResult to exec of retry on TruthWaiter for (timeoutSeconds * 4) by 0.25
-            if waitResult is missing value then return false
+			set waitResult to exec of retry on TruthWaiter for (timeoutSeconds * 4) by 0.25
+			if waitResult is missing value then return false
 
-            return waitResult
-        end waitForExpressionWithTimeOut
+			return waitResult
+		end waitForExpressionWithTimeOut
+
+
+		on isSelectorActive(selector)
+			set scriptText to format {"document.activeElement === document.querySelector('{}')", selector}
+			_runScript(scriptText)
+		end isSelectorActive
+
 
 		on selectorVisible(selectors)
 			if class of selectors is list then

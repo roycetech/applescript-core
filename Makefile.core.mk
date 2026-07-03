@@ -295,7 +295,7 @@ build-decorators:
 # Library Decorators
 install-dvorak:
 	$(call _build-script,core/Level_2/keyboard)
-	$(call _build-script,core/decorators/dec-keyboard-dvorak-cmd)
+	$(call _build-script,decorators/dec-keyboard-dvorak-cmd)
 	yes y | ./scripts/factory-insert.sh KeyboardInstance core/dec-keyboard-dvorak-cmd
 	@echo "Done building Dvorak scripts"
 
