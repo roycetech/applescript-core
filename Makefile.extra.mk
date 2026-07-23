@@ -20,7 +20,7 @@ install-counter: build-counter
 build-log4as:
 	@echo "Building log4as scripts..."
 	$(call _build-script,libs/log4as/log4as)
-	$(call _build-script,core/decorators/dec-logger-log4as)
+	$(call _build-script,decorators/dec-logger-log4as)
 	@echo "Build log4as scripts completed\n"
 
 install-log4as: build-log4as
