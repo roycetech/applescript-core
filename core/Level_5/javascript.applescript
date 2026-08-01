@@ -26,6 +26,7 @@ use loggerFactory : script "core/logger-factory"
 
 use configLib : script "core/config"
 use retryLib : script "core/retry"
+use decoratorLib : script "core/decorator"
 
 property logger : missing value
 
@@ -585,5 +586,7 @@ on decorate(browserTab)
 
 	set findRunMax of JavaScriptDecorator to configSystem's getValue(CONFIG_KEY_RETRY_MAX)
 	set findRetrySleep of JavaScriptDecorator to configSystem's getValue(CONFIG_KEY_RETRY_SLEEP)
-	JavaScriptDecorator
+
+	set decorator to decoratorLib's new(JavaScriptDecorator)
+	decorator's decorate()
 end decorate
