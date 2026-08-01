@@ -137,9 +137,10 @@ on new()
 							session's setValue(SESS_CURRENT_CASE_INDEX, 1)
 							set my _valid to false
 
+							(* NOTE: This doesn't fire when the new script has only one case. *)
 							set noticeText to "Subject Changed, select desired case from menu and re-run"
 							logger's info(noticeText)
-							notifyChange({event_type:"spot:event:new-case", case_index:_currentCase as integer})
+							notifyChange({event_type:"spot:event:new-case", case_index:_currentCase as integer, reset_auto: true})
 							return {0, "Re-run recommended"}
 
 						else
