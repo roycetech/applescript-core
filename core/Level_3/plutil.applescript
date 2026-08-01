@@ -41,8 +41,9 @@
 	@Tests:
 		tests/core/Test plutil.applescript
 
-	@Last Modified: 2026-05-29 15:55:44
+	@Last Modified: 2026-08-01 13:37:36
 	@Change Logs:
+		Sat, Aug 01, 2026, at 01:35:00 PM - Read plist arrays via System Events by default; legacy shell path retained.
 		Fri, May 29, 2026, at 03:55:41 PM - Added newSession() for simplified access to the default session plist.
 		August 3, 2023 11:27 AM - Refactored the escaping inside the shell command.
  *)
@@ -305,6 +306,7 @@ on new()
 				property plistUserPath : localPlistUserPath
 				property plistName : pPlistName
 				property quotedPlistPosixPath : quoted form of localPlistPosixPath
+				property useNativeGetList : true
 
 				-- HANDLERS ==================================================================
 
@@ -425,6 +427,65 @@ on new()
 
 
 				on getList(plistKeyOrKeyList)
+					if useNativeGetList then
+						return _getListNative(plistKeyOrKeyList)
+					end if
+
+					_getListViaShell(plistKeyOrKeyList)
+				end getList
+
+
+				on _getListNative(plistKeyOrKeyList)
+					set nativeValue to _getNativeValue(plistKeyOrKeyList)
+					if nativeValue is missing value then return missing value
+					if class of nativeValue is list then return nativeValue
+
+					missing value
+				end _getListNative
+
+
+				on _getNativeValue(plistKeyOrKeyList)
+					tell application "System Events" to tell property list file plistTildePath
+						try
+							if class of plistKeyOrKeyList is text then
+								set escapedKey to my _escapeStartingNumber(plistKeyOrKeyList)
+								if not (exists property list item escapedKey) then return missing value
+								return value of property list item escapedKey
+							end if
+
+							set keyCount to count of plistKeyOrKeyList
+							if keyCount is 0 then return missing value
+
+							set containerRef to a reference to property list item (my _escapeStartingNumber(item 1 of plistKeyOrKeyList))
+							if not (exists containerRef) then return missing value
+
+							if keyCount is 1 then
+								return value of containerRef
+							end if
+
+							repeat with i from 2 to keyCount
+								set segment to my _escapeStartingNumber(item i of plistKeyOrKeyList)
+								if i is keyCount then
+									if not (exists property list item segment of containerRef) then return missing value
+									return value of property list item segment of containerRef
+								end if
+
+								if not (exists property list item segment of containerRef) then return missing value
+								set containerRef to a reference to property list item segment of containerRef
+							end repeat
+						on error
+							return missing value
+						end try
+					end tell
+				end _getNativeValue
+
+
+				(*
+					Legacy shell/XML pipeline. Uses ~ as an internal delimiter and
+					breaks when elements contain ~. Kept for stability/performance
+					comparison; remove once native path is verified.
+				*)
+				on _getListViaShell(plistKeyOrKeyList)
 					set array to {}
 
 					try
@@ -439,24 +500,6 @@ on new()
 							return missing value
 						end try
 					end try
-
-					-- try
-					-- 	set getArrayTypeShellCommand to format {"plutil -type {}.{} {}", {quotedEspacedPlistKey, 0, quotedPlistPosixPath}}
-					-- 	set arrayType to do shell script getArrayTypeShellCommand
-					-- on error
-					-- 	try
-					-- 		set shellCommand to "plutil -extract " & quotedEspacedPlistKey & " raw " & quotedPlistPosixPath
-					-- 		do shell script shellCommand
-					-- 		return {}
-					-- 	end try
-
-					-- 	return missing value
-					-- end try
-
-					-- Band Aid
-					-- if (offset of "$" in quotedEspacedPlistKey) is greater than 0 then
-					-- 	if quotedEspacedPlistKey contains "$" then set quotedEspacedPlistKey to regex's stringByReplacingMatchesInString("\\$", quotedEspacedPlistKey, "\\\\$")
-					-- end if
 
 					set quotedPlistKey to _quotePlistKey(plistKeyOrKeyList)
 					set isTextParam to class of plistKeyOrKeyList is text
@@ -487,7 +530,7 @@ on new()
 
 					set csv to do shell script getTsvCommand
 					_split(csv, my linesDelimiter, arrayType)
-				end getList
+				end _getListViaShell
 
 
 				on getRecord(plistKeyOrKeyList)

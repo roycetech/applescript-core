@@ -298,6 +298,13 @@ script |plutil getValue tests|
 		TopLevel's xmlUtil's __deleteValue("array")
 	end script
 
+	script |Get string array with tilde|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __insertXml("array", "<array><string>a~b</string><string>c~d</string></array>")
+		assertEqual({"a~b", "c~d"}, sut's getValue("array"))
+		TopLevel's xmlUtil's __deleteValue("array")
+	end script
+
 	script |Get empty array|
 		property parent : unitTest(me)
 		TopLevel's xmlUtil's __insertXml("array", "<array></array>")
@@ -462,6 +469,13 @@ script |getList set|
 		</dict>")
 		assertEqual({1}, sut's getList({"array", "array-sub"}))
 		TopLevel's xmlUtil's __deleteValue("array")
+	end script
+
+	script |getList - String List with tilde|
+		property parent : unitTest(me)
+		TopLevel's xmlUtil's __insertXml("tilde-list", "<array><string>a~b</string><string>c~d</string></array>")
+		assertEqual({"a~b", "c~d"}, sut's getList("tilde-list"))
+		TopLevel's xmlUtil's __deleteValue("tilde-list")
 	end script
 
 	script |#afterClass|
