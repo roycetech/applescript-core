@@ -14,9 +14,11 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_4/switch
 
-	@Last Modified: 2025-03-25 07:09:52
-	@TODO: Migrate to ASUnit.
+	@Last Modified: 2026-08-20 14:06:00
+	
 	@Change Log:
+		August 20, 2026 - Use `my` so decorated setValue is reached from turnOn/toggle/turnOff.
+		August 20, 2026 - Added dynamic decoration via decorator.
 		September 4, 2023 11:42 AM - Removed reference to the built-in unit test.
 		August 4, 2023 12:30 PM
 *)
@@ -24,11 +26,13 @@
 use loggerFactory : script "core/logger-factory"
 
 use plutilLib : script "core/plutil"
+use decoratorLib : script "core/decorator"
 
 property logger : missing value
 
 property switchPlist : missing value
 property switchesPlistName : "switches"
+property skipDecoration : false
 
 property ERROR_MISSING_SWITCH_NAME : 1000
 
@@ -85,19 +89,23 @@ on new(pSwitchName)
 		
 		
 		on turnOn()
-			setValue(true)
+			my setValue(true)
 		end turnOn
 		
 		on toggle()
-			setValue(not active())
+			my setValue(not my active())
 		end toggle
 		
 		on turnOff()
-			setValue(false)
+			my setValue(false)
 		end turnOff
 		
 		on setValue(boolValue)
 			switchPlist's setValue(switchName, boolValue)
 		end setValue
 	end script
+
+	if skipDecoration then return SwitchInstance
+	set decorator to decoratorLib's new(SwitchInstance)
+	decorator's decorateByName("SwitchInstance")
 end new
