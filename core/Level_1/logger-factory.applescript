@@ -7,7 +7,7 @@
 	@Build:
 		./scripts/build-lib.sh core/Level_1/logger-factory
 
-	@Last Modified: 2025-05-22 13:55:29
+	@Last Modified: 2026-08-20 15:28:00
 *)
 
 use loggerLib : script "core/logger"
@@ -38,11 +38,17 @@ end newBasic
 
 (*
 	Injects a basic logger to the target's logger property.
+	If a logger instance is already defined, then it does nothing.
 
 	@returns true if the injection is successful.
 *)
 on injectBasic(target)
 	set objectName to the name of the target
+
+	try
+		if logger of target is not missing value then return
+	end try
+
 	try
 		set logger of target to loggerLib's newBase(objectName)
 	end try

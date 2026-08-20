@@ -8,6 +8,8 @@
 
 	@Build:
 		./scripts/build-lib.sh core/Level_1/logger
+
+	@Last Modified: 2026-08-20 15:28:00
 *)
 
 
@@ -20,6 +22,7 @@ property filename : "applescript-core.log"
 property logOverride : false
 property startSeconds : 0
 property logLite : missing value
+property pathToHomeFolder : missing value
 
 if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
@@ -47,11 +50,11 @@ end spotCheck
 
 (* Instantiates a logger without overrides *)
 on newBase(pObjectName)
-	set pathToHomeFolder to path to home folder
+	if my pathToHomeFolder is missing value then set my pathToHomeFolder to path to home folder
 
 	script LoggerFinalInstance
 		property objectName : pObjectName
-		property logFilePath : (pathToHomeFolder as text) & "applescript-core:logs:" & filename
+		property logFilePath : (my pathToHomeFolder as text) & "applescript-core:logs:" & filename
 		property level : 1
 
 		on start()
