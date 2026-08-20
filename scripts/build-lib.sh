@@ -4,6 +4,10 @@
 # 	Compile a passed AppleScript file and deploy to the user's Script Libraries/core sub directory.
 #
 # @Change Logs:
+#   Thu, Aug 20, 2026, at 11:48:00 AM
+#       - Join core/test and the script name with a slash so xml-util
+#         installs as core/test/xml-util.scpt, not core/testxml-util.scpt.
+#
 #   Tue, Nov 25, 2025, at 02:39:49 PM
 #       - Use the all_arguments $*.
 #       - Detect test scripts and deploy under <script libraries>/core/test
@@ -32,14 +36,17 @@ if [[ $DEPLOY_TYPE != *"error"* ]]; then
 #     echo "DEBUG: Deployment type was not configured, using defaults"
 fi
 
-deploy_subpath="/"
+deploy_subpath=""
 if [[ "$all_arguments" == test/* ]]; then
     deploy_subpath="/test"
 fi
+
+dest_dir="${deployment_path}${deploy_subpath}"
+mkdir -p "$dest_dir"
 
 # NOTE: Compiling directly to the deployment target results in permission error.
 # Using a staging directory resolves that issue.
 staging_directory="/tmp"
 osacompile -o "${staging_directory}/${base_filename}.scpt" "${input_file_path}.applescript"
 
-mv "${staging_directory}/${base_filename}.scpt" "${deployment_path}${deploy_subpath}${base_filename}.scpt"
+mv "${staging_directory}/${base_filename}.scpt" "${dest_dir}/${base_filename}.scpt"

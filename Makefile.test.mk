@@ -11,7 +11,7 @@
 
 
 build-test:
-	yes | mkdir -p $(SCRIPT_LIBRARY_PATH)/core/test
+	yes | mkdir -p "$(SCRIPT_LIBRARY_PATH)/core/test"
 	yes | ./scripts/build-lib.sh  test/xml-util
 .PHONY: build-test
 
@@ -63,7 +63,8 @@ spot:  # Test single script here.
 # 	osascript "test/core/Test plutil.applescript"
 # 	osascript "test/core/Test property-list.applescript"
 # 	osascript "test/core/Test speech.applescript"
-	osascript "test/core/Test string.applescript"
+# 	osascript "test/core/Test string.applescript"
+	osascript "test/core/Test switch.applescript"
 # 	osascript "test/core/Test timed-cache-plist.applescript"
 
 watch-spot: spot
