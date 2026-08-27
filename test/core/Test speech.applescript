@@ -68,20 +68,12 @@ end script
 
 script |speak tests|
 	property parent : TestSet(me)
-	
-	-- on beforeClass()
-	-- 	xmlUtil's __createTestPlist()
-	-- 	set sut to sutScript's newWithLocale(plist)
-	-- end beforeClass
 
 	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
 		set sut to sutScript's newWithLocale(plist)
-	end script	
-	
-	on afterClass()
-		-- xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 	
 	script |Unknown|
 		property parent : UnitTest(me)
@@ -163,33 +155,22 @@ script |speak tests|
 		ok(endTime - startTime > 2)
 	end script
 	*)
-	
-	-- script |afterClass|
-	-- 	property parent : UnitTest(me)
-	-- 	ok(true)
-	-- end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
 end script
 
 (*
 script |speech.speakSynchronously tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 2
-	
-	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-	end setUp
-	on tearDown()
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
 		set sut to sutScript's newWithLocale(plist)
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 	
 	script |Restores the original state to async|
 		property parent : UnitTest(me)
@@ -204,6 +185,11 @@ script |speech.speakSynchronously tests|
 		set synchronous of sut to true
 		sut's speakSynchronously("two")
 		ok(synchronous of sut)
+	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
 	end script
 end script
 *)

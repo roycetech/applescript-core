@@ -43,6 +43,16 @@ loggerFactory's inject(me)
 set xmlUtil to xmlUtilLib's newPlist(plist)
 autorun(suite)
 
+(* #region agent log *)
+on _agentLog(hypId, loc, msg, dataJson)
+	try
+		set ts to do shell script "python3 -c 'import time;print(int(time.time()*1000))'"
+		set payload to "{\"sessionId\":\"bec719\",\"runId\":\"pre-fix\",\"hypothesisId\":\"" & hypId & "\",\"location\":\"" & loc & "\",\"message\":\"" & msg & "\",\"data\":" & dataJson & ",\"timestamp\":" & ts & "}"
+		do shell script "printf '%s\\n' " & quoted form of payload & " >> '/Users/royce/Projects/@roycetech/applescript-core/.cursor/debug-bec719.log'"
+	end try
+end _agentLog
+(* #endregion *)
+
 ---------------------------------------------------------------------------------------
 -- Tests
 ---------------------------------------------------------------------------------------
@@ -78,23 +88,24 @@ end script
 
 script |getHierarchy tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 4
 	property originalFactoryXml : missing value
 	
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
 		set originalFactoryXml to xmlUtil's __grepValueXml("SublimeTextInstance")
+		(* #region agent log *)
+		set xmlLen to 0
+		set xmlMissing to true
+		if originalFactoryXml is not missing value then
+			set xmlMissing to false
+			set xmlLen to length of originalFactoryXml
+		end if
+		set xmlUtilPlist to xmlUtil's plist
+		TopLevel's _agentLog("B", "Test decorator.applescript:setUp", "setUp factory snapshot", "{\"xmlUtilPlist\":\"" & xmlUtilPlist & "\",\"originalFactoryXmlMissing\":" & xmlMissing & ",\"originalFactoryXmlLen\":" & xmlLen & "}")
+		(* #endregion *)
 	end setUp
 	on tearDown()
-		if executedTestCases is equal to the totalTestCases then afterClass()
 		TopLevel's xmlUtil's __writeQuotedValue("SublimeTextInstance", "xml", originalFactoryXml)
 	end tearDown
-	on beforeClass()
-	end beforeClass
-	on afterClass()
-	end afterClass
 	
 	script |No override|
 		property parent : UnitTest(me)
@@ -117,7 +128,25 @@ script |getHierarchy tests|
 		property parent : UnitTest(me)
 		set systemEventsLib to script "core/system-events"
 		set systemEvents to systemEventsLib's new()
+		(* #region agent log *)
+		set seName to name of systemEvents
+		set seParentName to "none"
+		try
+			set seParentName to name of (systemEvents's parent)
+		end try
+		set factoryType to do shell script "output=$(plutil -type 'SystemEventsInstance' ~/applescript-core/config-lib-factory.plist 2>/dev/null) || output=''; echo $output"
+		set factoryCsv to do shell script "output=$(plutil -extract SystemEventsInstance xml1 ~/applescript-core/config-lib-factory.plist -o - 2>/dev/null | awk '/<string>/{gsub(/<[^>]+>/,\"\"); print}' | paste -s -d, -) || output=''; echo $output"
+		set xmlUtilPlist to TopLevel's xmlUtil's plist
+		TopLevel's _agentLog("A", "Test decorator.applescript:Single override", "live factory and instance names", "{\"systemEventsName\":\"" & seName & "\",\"systemEventsParentName\":\"" & seParentName & "\",\"factoryType\":\"" & factoryType & "\",\"factoryCsv\":\"" & factoryCsv & "\",\"xmlUtilPlist\":\"" & xmlUtilPlist & "\"}")
+		(* #endregion *)
 		set sut to sutScript's new(systemEvents)
+		(* #region agent log *)
+		set hierarchy to sut's _getHierarchy()
+		set AppleScript's text item delimiters to ","
+		set hierarchyCsv to hierarchy as text
+		set AppleScript's text item delimiters to ""
+		TopLevel's _agentLog("C", "Test decorator.applescript:Single override", "hierarchy after decorator wrap", "{\"hierarchy\":\"" & hierarchyCsv & "\"}")
+		(* #endregion *)
 		assertEqual({"system-events", "SystemEventsInstance"}, sut's _getHierarchy())
 	end script
 	

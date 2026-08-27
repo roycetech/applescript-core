@@ -75,24 +75,16 @@ end script
 
 script |hasValue tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 2
 	property sut : missing value
- 
+
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
 		set sut to sutScript's new(TopLevel's commonKey)
 	end setUp
-	on tearDown() 
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 	
 	script |No value|
 		property parent : UnitTest(me)
@@ -108,30 +100,27 @@ script |hasValue tests|
 		sut's _setLovPlist(plist, commonKey)
 		ok(sut's hasValue("Unit 2"))
 		xmlUtil's __deleteValue(commonKey)
-	end script	
+	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
 end script
  
 
 script |isBinary tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 2
 	property sut : missing value
- 
+
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
 		set sut to sutScript's new(TopLevel's commonKey)
 	end setUp
-	on tearDown() 
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 	
 	script |2 items|
 		property parent : UnitTest(me)
@@ -155,29 +144,26 @@ script |isBinary tests|
 		notOk(sut's isBinary())
 		xmlUtil's __deleteValue(commonKey)
 	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
 end script
 
 
 script |getNextValue tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 4
 	property sut : missing value
- 
+
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
 		set sut to sutScript's new(TopLevel's commonKey)
 	end setUp
-	on tearDown() 
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 	
 	script |Missing Key|
 		property parent : UnitTest(me)
@@ -224,5 +210,10 @@ script |getNextValue tests|
 		sut's _setLovPlist(plist, commonKey)
 		assertEqual("Unit 1", sut's getNextValue("Unit 3"))
 		xmlUtil's __deleteValue(commonKey)
+	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
 	end script
 end script

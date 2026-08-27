@@ -85,7 +85,6 @@ end script
 
 script |_epochTimestampKey tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
 
 	script |Basic case|
 		property parent : UnitTest(me)
