@@ -12,7 +12,7 @@
 
 	TODO: Reduce the spot checks and move to Test plist-buddy.
 
-	@Last Modified: 2026-05-23 09:49:04
+	@Last Modified: 2026-08-25 13:31:00
 *)
 
 use script "core/Text Utilities"
@@ -255,14 +255,27 @@ on new(pPlistName)
 		end getElementType
 
 		(*
-			@keyName - use the PListBuddy key format.
+			@keyNameOrList - dictionary key, or list of keys for a nested path.
+			Returns first-level keys only; nested dictionary keys are omitted.
+
 			(* Unit Tested *)
 		*)
-		on getDictionaryKeys(keyName)
-			-- set keysPattern to "^\\s*[^[:space:]]+\\s*="
-			set escapedKeyName to _escapeKey(keyName)
-			set keysPattern to "^.*?="
-			set command to format {"{} -c \"Print :'{}'\" {} | grep -E '{}' | awk -F= '{print $1}' | awk '{$1=$1};1' | paste -s -d~ -", {CLI, escapedKeyName, quotedPlistPosixPath, keysPattern}}
+		on getDictionaryKeys(keyNameOrList)
+			if keyNameOrList is missing value then return {}
+
+			if class of keyNameOrList is text then
+				set keyNameList to {keyNameOrList}
+			else
+				set keyNameList to keyNameOrList
+			end if
+
+			set builtKeyName to _buildKeyNameFromList(keyNameList)
+			set command to format {"{} -c \"Print ':{}'\" {} \\
+				| grep '^    .* =' \\
+				| grep -v '        ' \\
+				| awk -F= '{print $1}' \\
+				| awk '{$1=$1};1' \\
+				| paste -s -d~ -", {CLI, builtKeyName, quotedPlistPosixPath}}
 			-- logger's debugf("getDictionaryKeys command: {}", command)
 
 			try

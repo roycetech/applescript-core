@@ -75,24 +75,16 @@ end script
 
 script |getRootKeys tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-    property totalTestCases : 5
 	property sut : missing value
 
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(plist) 
+		set sut to sutScript's new(plist)
 	end setUp
-	on tearDown() 
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 	
 	script |Empty|
 		property parent : UnitTest(me)
@@ -141,28 +133,25 @@ script |getRootKeys tests|
 		xmlUtil's __deleteValue("/\\.6{3,}7?/")
 		xmlUtil's __deleteValue("nested-root")
 	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
 end script
 
 script |getKeys tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 5
 	property sut : missing value
 
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(plist) 
+		set sut to sutScript's new(plist)
 	end setUp
-	on tearDown() 
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 	
 	script |Empty|
 		property parent : UnitTest(me)
@@ -211,29 +200,26 @@ script |getKeys tests|
 		xmlUtil's __deleteValue("/\\.6{3,}7?/")
 		xmlUtil's __deleteValue("nested")
 	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
 end script
 
 
 script |getDictionaryKeys tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 4
 	property sut : missing value
 
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(plist) 
+		set sut to sutScript's new(plist)
 	end setUp
-	on tearDown() 
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 	
 	script |Empty|
 		property parent : UnitTest(me)
@@ -268,29 +254,54 @@ script |getDictionaryKeys tests|
 
 		xmlUtil's __deleteValue(caseKey)
 	end script
+
+	script |Nested path list|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml("host", "<dict>
+			<key>Time</key>
+			<dict>
+				<key>Current Ticket</key>
+				<string>url</string>
+			</dict>
+		</dict>")
+		assertEqual({"Current Ticket"}, sut's getDictionaryKeys({"host", "Time"}))
+		xmlUtil's __deleteValue("host")
+	end script
+
+	script |Nested dict does not leak grandchild keys|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml("host", "<dict>
+			<key>Time</key>
+			<dict>
+				<key>Current Ticket</key>
+				<string>url</string>
+			</dict>
+			<key>Leaf</key>
+			<string>url2</string>
+		</dict>")
+		assertEqual({"Leaf", "Time"}, listUtil's simpleSort(sut's getDictionaryKeys("host")))
+		xmlUtil's __deleteValue("host")
+	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
 end script
 
 
 script |hasValue tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 5
 	property sut : missing value
 
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(plist) 
+		set sut to sutScript's new(plist)
 	end setUp
-	on tearDown() 
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 
 	script |Missing value parameter|
 		property parent : UnitTest(me)
@@ -329,29 +340,26 @@ script |hasValue tests|
 		ok(sut's hasValue({"Animals", "Horse"}))
 		xmlUtil's __deleteValue("Animals")
 	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
 end script
 
 
 script |getValue tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 7
 	property sut : missing value
 
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(plist) 
+		set sut to sutScript's new(plist)
 	end setUp
-	on tearDown() 
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 
 	script |Missing value parameter|
 		property parent : UnitTest(me)
@@ -404,29 +412,26 @@ script |getValue tests|
 		assertEqual("colon-value", sut's getValue("with: colon"))
 		xmlUtil's __deleteValue("with: colon")
 	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
 end script
 
 
 script |getElementType tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 5
 	property sut : missing value
 
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(plist) 
+		set sut to sutScript's new(plist)
 	end setUp
-	on tearDown() 
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass()
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 	
 	script |Missing value parameter|
 		property parent : UnitTest(me)
@@ -466,29 +471,26 @@ script |getElementType tests|
 		assertEqual("string", sut's getElementType("boolean"))
 		xmlUtil's __deleteValue("boolean")
 	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
 end script
 
 
 script |keyExists tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 6
 	property sut : missing value
 
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(plist) 
+		set sut to sutScript's new(plist)
 	end setUp
-	on tearDown() 
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass() 
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 	
 	script |Missing value parameter|
 		property parent : UnitTest(me)
@@ -534,29 +536,26 @@ script |keyExists tests|
 		ok(sut's keyExists({"nested-root", "nested-key"}))
 		xmlUtil's __deleteValue("nested-root")
 	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
 end script
 
 
 script |setValue tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 6
 	property sut : missing value
 
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(plist) 
+		set sut to sutScript's new(plist)
 	end setUp
-	on tearDown() 
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass() 
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 	
 	script |New Value is missing - Single Key|
 		property parent : UnitTest(me)
@@ -614,29 +613,26 @@ script |setValue tests|
 		assertEqual("<dict> <key>nested-key</key> <integer>2</integer> </dict>", xmlUtil's __grepValueXml("root-key"))
 		xmlUtil's __deleteValue("root-key")
 	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
 end script
 
 
 script |addDictionaryKeyValue tests|
 	property parent : TestSet(me)
-	property executedTestCases : 0
-	property totalTestCases : 3
 	property sut : missing value
 
 	on setUp()
-		set executedTestCases to executedTestCases + 1
-		if executedTestCases is 1 then beforeClass()
-		set sut to sutScript's new(plist) 
+		set sut to sutScript's new(plist)
 	end setUp
-	on tearDown() 
-		if executedTestCases is equal to the totalTestCases then afterClass()
-	end tearDown
-	on beforeClass() 
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
 		xmlUtil's __createTestPlist()
-	end beforeClass
-	on afterClass()
-		xmlUtil's __deleteTestPlist()
-	end afterClass
+	end script
 	
 	script |Missing key|
 		property parent : UnitTest(me)
@@ -665,5 +661,10 @@ script |addDictionaryKeyValue tests|
 		</dict>")
 		notOk(sut's addDictionaryKeyValue("root-key", "nested-key-1", 2))
 		xmlUtil's __deleteValue("root-key")
+	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
 	end script
 end script 
