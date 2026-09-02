@@ -28,7 +28,7 @@ property countDailySuffix : "-daily"
 if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's inject(me)
+	loggerFactory's injectBasic(me)
 	logger's start()
 
 	set listUtil to script "core/list"
@@ -83,7 +83,7 @@ end spotCheck
 
 (*  *)
 on decorate(mainScript)
-	loggerFactory's inject(me)
+	loggerFactory's injectBasic(me)
 	set plutil to plutilLib's new()
 
 	set countDailyName to _createPlistIfMissing(mainScript's plistName & countDailySuffix)

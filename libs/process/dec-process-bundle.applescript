@@ -28,7 +28,7 @@ property logger : missing value
 if {"Script Editor", "Script Debugger", "osascript"} contains the name of current application then spotCheck()
 
 on spotCheck()
-	loggerFactory's inject(me)
+	loggerFactory's injectBasic(me)
 	logger's start()
 
 	set listUtil to script "core/list"
@@ -99,7 +99,7 @@ end spotCheck
 
 (*  *)
 on decorate(mainScript)
-	loggerFactory's inject(me)
+	loggerFactory's injectBasic(me)
 
 	script ProcessBundleDecorator
 		property parent : mainScript

@@ -139,7 +139,7 @@ end spotCheck
 
 
 on new()
-	loggerFactory's inject(me)
+	loggerFactory's injectBasic(me)
 
 	script KeyboardInstance
 		property delayAfterKeySeconds : 0.08 -- 0.04 Fails when used with Keyboard Maestro.
