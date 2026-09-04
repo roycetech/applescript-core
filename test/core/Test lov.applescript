@@ -217,3 +217,192 @@ script |getNextValue tests|
 		xmlUtil's __deleteTestPlist()
 	end script
 end script
+
+
+script |getPreviousValue tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	on setUp()
+		set sut to sutScript's new(TopLevel's commonKey)
+	end setUp
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
+		xmlUtil's __createTestPlist()
+	end script
+	
+	script |Missing Key|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml(commonKey, "<array>
+			<string>Unit 1</string>
+			<string>Unit 2</string>
+		</array>") 
+		sut's _setLovPlist(plist, commonKey)
+		assertEqual("Unit 2", sut's getPreviousValue(missing value))
+		xmlUtil's __deleteValue(commonKey)
+	end script	
+
+	script |Non existing|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml(commonKey, "<array>
+			<string>Unit 1</string>
+			<string>Unit 2</string>
+			<string>Unit 3</string>
+		</array>")  
+		sut's _setLovPlist(plist, commonKey)
+		assertEqual("Unit 3", sut's getPreviousValue("Unicorn"))
+		xmlUtil's __deleteValue(commonKey)
+	end script
+
+	script |First Item|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml(commonKey, "<array>
+			<string>Unit 1</string>
+			<string>Unit 2</string>
+			<string>Unit 3</string> 
+		</array>")  
+		sut's _setLovPlist(plist, commonKey)
+		assertEqual("Unit 3", sut's getPreviousValue("Unit 1"))
+		xmlUtil's __deleteValue(commonKey)
+	end script
+
+	script |Last Item|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml(commonKey, "<array>
+			<string>Unit 1</string>
+			<string>Unit 2</string>
+			<string>Unit 3</string> 
+		</array>")  
+		sut's _setLovPlist(plist, commonKey)
+		assertEqual("Unit 2", sut's getPreviousValue("Unit 3"))
+		xmlUtil's __deleteValue(commonKey)
+	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
+end script
+
+
+script |cycleToNext tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	on setUp()
+		set sut to sutScript's new(TopLevel's commonKey)
+	end setUp
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
+		xmlUtil's __createTestPlist()
+	end script
+	
+	script |No saved value|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml(commonKey, "<array>
+			<string>Unit 1</string>
+			<string>Unit 2</string>
+			<string>Unit 3</string>
+		</array>") 
+		sut's _setLovPlist(plist, commonKey)
+		assertEqual("Unit 1", sut's cycleToNext())
+		assertEqual("Unit 1", sut's getSavedValue())
+		xmlUtil's __deleteValue(commonKey)
+	end script	
+
+	script |Middle Item|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml(commonKey, "<array>
+			<string>Unit 1</string>
+			<string>Unit 2</string>
+			<string>Unit 3</string>
+		</array>")  
+		sut's _setLovPlist(plist, commonKey)
+		sut's setSavedValue("Unit 2")
+		assertEqual("Unit 3", sut's cycleToNext())
+		assertEqual("Unit 3", sut's getSavedValue())
+		xmlUtil's __deleteValue(commonKey)
+	end script
+
+	script |Last Item|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml(commonKey, "<array>
+			<string>Unit 1</string>
+			<string>Unit 2</string>
+			<string>Unit 3</string> 
+		</array>")  
+		sut's _setLovPlist(plist, commonKey)
+		sut's setSavedValue("Unit 3")
+		assertEqual("Unit 1", sut's cycleToNext())
+		assertEqual("Unit 1", sut's getSavedValue())
+		xmlUtil's __deleteValue(commonKey)
+	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
+end script
+
+
+script |cycleToPrevious tests|
+	property parent : TestSet(me)
+	property sut : missing value
+
+	on setUp()
+		set sut to sutScript's new(TopLevel's commonKey)
+	end setUp
+
+	script |#beforeClass|
+		property parent : UnitTest(me)
+		xmlUtil's __createTestPlist()
+	end script
+	
+	script |No saved value|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml(commonKey, "<array>
+			<string>Unit 1</string>
+			<string>Unit 2</string>
+			<string>Unit 3</string>
+		</array>") 
+		sut's _setLovPlist(plist, commonKey)
+		assertEqual("Unit 3", sut's cycleToPrevious())
+		assertEqual("Unit 3", sut's getSavedValue())
+		xmlUtil's __deleteValue(commonKey)
+	end script	
+
+	script |Middle Item|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml(commonKey, "<array>
+			<string>Unit 1</string>
+			<string>Unit 2</string>
+			<string>Unit 3</string>
+		</array>")  
+		sut's _setLovPlist(plist, commonKey)
+		sut's setSavedValue("Unit 2")
+		assertEqual("Unit 1", sut's cycleToPrevious())
+		assertEqual("Unit 1", sut's getSavedValue())
+		xmlUtil's __deleteValue(commonKey)
+	end script
+
+	script |First Item|
+		property parent : UnitTest(me)
+		xmlUtil's __insertXml(commonKey, "<array>
+			<string>Unit 1</string>
+			<string>Unit 2</string>
+			<string>Unit 3</string> 
+		</array>")  
+		sut's _setLovPlist(plist, commonKey)
+		sut's setSavedValue("Unit 1")
+		assertEqual("Unit 3", sut's cycleToPrevious())
+		assertEqual("Unit 3", sut's getSavedValue())
+		xmlUtil's __deleteValue(commonKey)
+	end script
+
+	script |#afterClass|
+		property parent : UnitTest(me)
+		xmlUtil's __deleteTestPlist()
+	end script
+end script

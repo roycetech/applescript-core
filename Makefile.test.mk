@@ -56,9 +56,10 @@ watch-unit: test-unit
 
 spot:  # Test single script here.
 # 	osascript "test/core/Test date-time.applescript"
-	osascript "test/core/Test decorator.applescript"
+# 	osascript "test/core/Test decorator.applescript"
 # 	osascript "test/core/Test file.applescript"
 # 	osascript "test/core/Test list.applescript"
+	osascript "test/core/Test lov.applescript"
 # 	osascript "test/libs/Test log4as.applescript"
 # 	osascript "test/core/Test plutil.applescript"
 # 	osascript "test/core/Test property-list.applescript"

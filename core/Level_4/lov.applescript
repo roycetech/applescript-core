@@ -140,6 +140,29 @@ on new(lovName)
 			item 1 of _lov
 		end getNextValue
 		
+		on getPreviousValue(currentValue)
+			if _lov is missing value or (count of _lov) is 0 then return missing value
+			
+			set currentIndex to listUtil's indexOf(_lov, currentValue)
+			if currentIndex > 1 then
+				return item (currentIndex - 1) of _lov
+			end if
+			
+			last item of _lov
+		end getPreviousValue
+		
+		on cycleToNext()
+			set nextValue to my getNextValue(my getSavedValue())
+			my setSavedValue(nextValue)
+			nextValue
+		end cycleToNext
+		
+		on cycleToPrevious()
+			set previousValue to my getPreviousValue(my getSavedValue())
+			my setSavedValue(previousValue)
+			previousValue
+		end cycleToPrevious
+		
 		
 		on getFirstValue()
 			if _lov is missing value or (count of _lov) is 0 then return missing value
