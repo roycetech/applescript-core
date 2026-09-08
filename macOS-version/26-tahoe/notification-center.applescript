@@ -228,6 +228,9 @@ on new()
 	set notificationCenterHelper to notificationCenterHelperLib's new()
 	
 	script NotificationCenterInstance
+		property _cachedAttributedDescriptions : missing value
+		property _cachedNotificationCount : -1
+		
 		on hasNotification()
 			tell application "System Events" to tell process "Notification Center"
 				exists window "Notification Center"
@@ -572,7 +575,8 @@ Is Stacked: {}
 				end toString
 			end script
 			
-			tell NotificationInstance to set its appName to _appNameFromAttributedDescription()
+			set matchTitle to _uiValueFromNotification(theNotification, "title")
+			tell NotificationInstance to set its appName to _appNameFromAttributedDescription(matchTitle)
 			
 			tell application "System Events" to tell process "Notification Center"
 				if exists (first action of theNotification whose description is "Delete") then
@@ -615,12 +619,67 @@ Is Stacked: {}
 		
 		
 		-- Private Codes below ======================================================
+		on _uiValueFromNotification(theNotification, uiId as text)
+			tell application "System Events"
+				repeat with nextStaticText in static texts of theNotification
+					try
+						if (value of attribute "AXIdentifier" of nextStaticText) is uiId then return value of nextStaticText
+					end try
+				end repeat
+			end tell
+			""
+		end _uiValueFromNotification
+		
+		
 		(*
 			AXAttributedDescription is visible in UI Browser but not readable via System Events.
-			Uses Swift/ApplicationServices to read the first non-empty description in Notification Center.
+			Uses Swift/ApplicationServices to collect all notification descriptions, then matches by title.
 		*)
-		on _appNameFromAttributedDescription()
-			set computedAppName to ""
+		on _appNameFromAttributedDescription(matchTitle as text)
+			set allDescriptions to _getAllAttributedDescriptions()
+			if (count of allDescriptions) is 0 then return ""
+			
+			if matchTitle is not "" then
+				repeat with nextDescription in allDescriptions
+					if nextDescription contains matchTitle then return _parseAppNameFromDescription(nextDescription)
+				end repeat
+			end if
+			
+			if (count of allDescriptions) is 1 then return _parseAppNameFromDescription(item 1 of allDescriptions)
+			
+			""
+		end _appNameFromAttributedDescription
+		
+		
+		on _parseAppNameFromDescription(descriptionText as text)
+			set commaOffset to offset of ", " in descriptionText
+			if commaOffset is greater than 0 then
+				set appNamePart to text 1 thru (commaOffset - 1) of descriptionText
+			else
+				set appNamePart to descriptionText
+			end if
+			if appNamePart ends with "," then set appNamePart to text 1 thru -2 of appNamePart
+			appNamePart
+		end _parseAppNameFromDescription
+		
+		
+		on _notificationCount()
+			tell application "System Events" to tell process "Notification Center"
+				if not (window "Notification Center" exists) then return 0
+				try
+					return count of (groups of group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center")
+				on error
+					return 1
+				end try
+			end tell
+		end _notificationCount
+		
+		
+		on _getAllAttributedDescriptions()
+			set currentCount to _notificationCount()
+			if _cachedAttributedDescriptions is not missing value and _cachedNotificationCount is currentCount then return _cachedAttributedDescriptions
+			
+			set allDescriptions to {}
 			try
 				set swiftCode to "import Cocoa
 import ApplicationServices
@@ -633,33 +692,35 @@ var value: CFTypeRef?
 AXUIElementCopyAttributeValue(appElement, kAXWindowsAttribute as CFString, &value)
 guard let windows = value as? [AXUIElement], let frontWindow = windows.first else { exit(0) }
 
-func search(element: AXUIElement) -> Bool {
+var descriptions: [String] = []
+
+func search(element: AXUIElement) {
     var descValue: CFTypeRef?
 
     if AXUIElementCopyAttributeValue(element, \"AXAttributedDescription\" as CFString, &descValue) == .success {
         if let attrString = descValue as? NSAttributedString, !attrString.string.isEmpty {
-            print(attrString.string)
-            return true
+            descriptions.append(attrString.string)
         }
     }
 
     var childrenValue: CFTypeRef?
     if AXUIElementCopyAttributeValue(element, kAXChildrenAttribute as CFString, &childrenValue) == .success {
         if let children = childrenValue as? [AXUIElement] {
-            for child in children {
-                if search(element: child) { return true }
-            }
+            for child in children { search(element: child) }
         }
     }
-    return false
 }
 
-let _ = search(element: frontWindow)"
+search(element: frontWindow)
+for description in descriptions { print(description) }"
 				set notificationRawText to do shell script "echo " & quoted form of swiftCode & " | /usr/bin/swift -"
-				if notificationRawText is not "" then set computedAppName to the first word of notificationRawText
+				if notificationRawText is not "" then set allDescriptions to paragraphs of notificationRawText
 			end try
-			computedAppName
-		end _appNameFromAttributedDescription
+			
+			set _cachedAttributedDescriptions to allDescriptions
+			set _cachedNotificationCount to currentCount
+			allDescriptions
+		end _getAllAttributedDescriptions
 		
 		
 		on _expandNotifications for appName : missing value
