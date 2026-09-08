@@ -196,6 +196,10 @@ on newBase(pObjectName)
 			info("F " & _toString(thisMessage))
 		end fatal
 
+		(* Alias to help AI generating errorf. *)
+		on errorf(thisMessage, tokens)
+			fatalf(thisMessage, tokens)
+		end fatalf
 
 		on fatalf(thisMessage, tokens)
 			fatal(textUtil's format(thisMessage, tokens))
