@@ -91,7 +91,7 @@ on new(pMenuAppObject, menuBarTitle)
 			
 			(sectionMenuItem's setEnabled:false)
 			
-			set boldFont to current application's NSFont's boldSystemFontOfSize:14
+			set boldFont to current application's NSFont's boldSystemFontOfSize:12
 			set labelColor to current application's NSColor's secondaryLabelColor
 			set attrs to current application's NSDictionary's dictionaryWithObjects:{boldFont, labelColor} forKeys:{current application's NSFontAttributeName, current application's NSForegroundColorAttributeName}
 			set attrTitle to (current application's NSAttributedString's alloc()'s initWithString:title attributes:attrs)
