@@ -149,8 +149,8 @@ on new()
 				try
 					-- set noticeGroups to groups of UI element 1 of scroll area 1 of group 1 of window "Notification Center"  -- Sonoma
 					set noticeGroups to groups of group 1 of scroll area 1 of group 1 of group 1 of window "Notification Center"
-				on error the errorMessage number the errorNumber
-					logger's warn(errorMessage)
+				-- on error the errorMessage number the errorNumber
+				-- 	logger's warn(errorMessage)
 
 				end try
 
@@ -197,7 +197,7 @@ on new()
 						set nextNoticeGroup to item i of noticeGroups
 					end if
 				on error the errorMessage number the errorNumber -- Likely when a notification is closed midway.
-					logger's warn(errorMessage)
+					-- logger's warn(errorMessage)
 					exit repeat
 				end try
 
