@@ -15,6 +15,7 @@
 		./scripts/build-lib.sh core/Level_2/keyboard
 
 	@Change Logs:
+		Sun, Sep 13, 2026, at 11:12:27 AM - Added pressShiftControlOptionCommand.
 		Thu, May 28, 2026, at 03:17:52 PM - Added literals for up, down, left, and right
 *)
 
@@ -352,6 +353,14 @@ on new()
 		on pressControlOptionKey(keyToPress)
 			tell application "System Events"
 				key code my _charToKeycode(keyToPress) using {control down, option down}
+			end tell
+			delay delayAfterKeySeconds
+		end pressControlOptionKey
+
+
+		on pressShiftControlOptionCommandKey(keyToPress)
+			tell application "System Events"
+				key code my _charToKeycode(keyToPress) using {shift down, control down, option down, command down}
 			end tell
 			delay delayAfterKeySeconds
 		end pressControlOptionKey

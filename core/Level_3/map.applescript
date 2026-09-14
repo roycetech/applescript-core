@@ -280,12 +280,12 @@ on new()
 
 		(* Simplified Handlers*)
 		on putValue(theKey as text, theValue)
-			setValueForKey(theValue, theKey)
+			my setValueForKey(theValue, theKey)
 		end putValue
 
 
 		on getValue(theKey as text)
-			valueForKey(theKey)
+			my valueForKey(theKey)
 		end getValue
 
 
