@@ -11,9 +11,10 @@
 	@Created:
 		Wed Dec 28 18:24:28 2022
 
-	@Last Modified: 2026-05-23 09:49:04
+	@Last Modified: 2026-09-14 12:46:00
 
 	@Change Logs:
+		Mon, Sep 14, 2026 - getWindowPoints returns missing value when front window is inaccessible.
 		Wed, Mar 18, 2026, at 10:43:28 AM - Added window overlap handlers.
 *)
 use loggerFactory : script "core/logger-factory"
@@ -72,14 +73,17 @@ on spotCheck()
 	else if caseIndex is 7 then
 		set windowPointsOne to sut's getWindowPoints(sutAppNameOne)
 		set windowPointsTwo to sut's getWindowPoints(sutAppNameTwo)
+		if windowPointsOne is missing value or windowPointsTwo is missing value then
+			logger's info("Skipping point-inside checks; one or both front windows are inaccessible")
+		else
+			logger's infof("{}'s x1 and y1 is inside the {} window: {}", {sutAppNameTwo, sutAppNameOne, sut's isPointInsideWindow({windowPointsTwo's x1, windowPointsTwo's y1}, windowPointsOne)})
 
-		logger's infof("{}'s x1 and y1 is inside the {} window: {}", {sutAppNameTwo, sutAppNameOne, sut's isPointInsideWindow({windowPointsTwo's x1, windowPointsTwo's y1}, windowPointsOne)})
+			logger's infof("{}'s x2 and y2 is inside the {} window: {}", {sutAppNameTwo, sutAppNameOne, sut's isPointInsideWindow({windowPointsTwo's x2, windowPointsTwo's y2}, windowPointsOne)})
 
-		logger's infof("{}'s x2 and y2 is inside the {} window: {}", {sutAppNameTwo, sutAppNameOne, sut's isPointInsideWindow({windowPointsTwo's x2, windowPointsTwo's y2}, windowPointsOne)})
+			logger's infof("{}'s x3 and y3 is inside the {} window: {}", {sutAppNameTwo, sutAppNameOne, sut's isPointInsideWindow({windowPointsTwo's x3, windowPointsTwo's y3}, windowPointsOne)})
 
-		logger's infof("{}'s x3 and y3 is inside the {} window: {}", {sutAppNameTwo, sutAppNameOne, sut's isPointInsideWindow({windowPointsTwo's x3, windowPointsTwo's y3}, windowPointsOne)})
-
-		logger's infof("{}'s x4 and y4 is inside the {} window: {}", {sutAppNameTwo, sutAppNameOne, sut's isPointInsideWindow({windowPointsTwo's x4, windowPointsTwo's y4}, windowPointsOne)})
+			logger's infof("{}'s x4 and y4 is inside the {} window: {}", {sutAppNameTwo, sutAppNameOne, sut's isPointInsideWindow({windowPointsTwo's x4, windowPointsTwo's y4}, windowPointsOne)})
+		end if
 
 	else if caseIndex is 8 then
 
@@ -159,6 +163,9 @@ on new()
 		on detectTopMostWindowProcess(processNameOne, processNameTwo)
 			set windowPointsOne to getWindowPoints(processNameOne)
 			set windowPointsTwo to getWindowPoints(processNameTwo)
+			if windowPointsOne is missing value and windowPointsTwo is missing value then return missing value
+			if windowPointsOne is missing value then return processNameTwo
+			if windowPointsTwo is missing value then return processNameOne
 			if windowPointsOne's y1 is less than windowPointsTwo's y1 then return processNameOne
 
 			processNameTwo
@@ -170,6 +177,9 @@ on new()
 		on detectLeftMostWindowProcess(processNameOne, processNameTwo)
 			set windowPointsOne to getWindowPoints(processNameOne)
 			set windowPointsTwo to getWindowPoints(processNameTwo)
+			if windowPointsOne is missing value and windowPointsTwo is missing value then return missing value
+			if windowPointsOne is missing value then return processNameTwo
+			if windowPointsTwo is missing value then return processNameOne
 			if windowPointsOne's x1 is less than windowPointsTwo's x1 then return processNameOne
 
 			processNameTwo
@@ -182,10 +192,11 @@ on new()
 				y-overlap is positive number if it overlaps on the vertical plane, otherwise it is 0.
 		*)
 		on computeOverlap(processNameOne, processNameTwo)
-			set windowPointsTwo to getWindowPoints(processNameTwo)
 			if not isOverlapping(processNameOne, processNameTwo) then return {|x-overlap|:0, |y-overlap|:0}
 
 			set windowPointsOne to getWindowPoints(processNameOne)
+			set windowPointsTwo to getWindowPoints(processNameTwo)
+			if windowPointsOne is missing value or windowPointsTwo is missing value then return {|x-overlap|:0, |y-overlap|:0}
 
 			-- compute x-overlap
 			-- logger's debugf("windowPointsOne's x1: {}", windowPointsOne's x1)
@@ -227,6 +238,7 @@ on new()
 		on isOverlapping(processNameOne, processNameTwo)
 			set windowPointsOne to getWindowPoints(processNameOne)
 			set windowPointsTwo to getWindowPoints(processNameTwo)
+			if windowPointsOne is missing value or windowPointsTwo is missing value then return false
 
 			isPointInsideWindow({windowPointsOne's x1, windowPointsOne's y1}, windowPointsTwo) or isPointInsideWindow({windowPointsOne's x2, windowPointsOne's y2}, windowPointsTwo) or isPointInsideWindow({windowPointsOne's x3, windowPointsOne's y3}, windowPointsTwo) or isPointInsideWindow({windowPointsOne's x4, windowPointsOne's y4}, windowPointsTwo) or isPointInsideWindow({windowPointsTwo's x1, windowPointsTwo's y1}, windowPointsOne) or isPointInsideWindow({windowPointsTwo's x2, windowPointsTwo's y2}, windowPointsOne) or isPointInsideWindow({windowPointsTwo's x3, windowPointsTwo's y3}, windowPointsOne) or isPointInsideWindow({windowPointsTwo's x4, windowPointsTwo's y4}, windowPointsOne)
 		end isOverlapping
@@ -237,6 +249,8 @@ on new()
 			@returns true if points overlap.
 		*)
 		on isPointInsideWindow(pCoordinate, fourPointRecord)
+			if pCoordinate is missing value or fourPointRecord is missing value then return false
+
 			set coordinateRecord to {x:item 1 of pCoordinate, y:item 2 of pCoordinate}
 
 			set hOverlap to coordinateRecord's x is greater than or equal to (fourPointRecord's x1) + (my coordinatesBuffer) and coordinateRecord's x is less than or equal to (fourPointRecord's x2) - (my coordinatesBuffer)
@@ -260,16 +274,23 @@ on new()
 
 
 		(*
-			@returns record of points top-left, top-right, bottom-left, and bottom-right()
+			@returns record of points top-left, top-right, bottom-left, and bottom-right
 				{p1(top-left), p2(top-right), p3(bottom-right), p4(bottom-left)}
+				missing value if the front window is gone or not AX-accessible.
 		*)
 		on getWindowPoints(processName)
+			if not hasWindow(processName) then return missing value
+
 			tell application "System Events" to tell process processName
-				set p to position of front window
-				set s to size of front window
+				try
+					if not (exists front window) then return missing value
+					set p to position of front window
+					set s to size of front window
+				on error
+					return missing value
+				end try
 			end tell
 
-			{p, {(item 1 of p) + (item 1 of s), item 2 of p}, {(item 1 of p), (item 2 of p) + (item 2 of s)}, {(item 1 of p) + (item 1 of s), (item 2 of p) + (item 2 of s)}}
 			{x1:item 1 of p, x2:(item 1 of p) + (item 1 of s), x3:(item 1 of p), x4:(item 1 of p) + (item 1 of s), y1:item 2 of p, y2:item 2 of p, y3:(item 2 of p) + (item 2 of s), y4:(item 2 of p) + (item 2 of s), w:item 1 of s, h:item 2 of s}
 		end getWindowPoints
 
