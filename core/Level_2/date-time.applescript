@@ -1,4 +1,8 @@
 (*
+	Library to manipulate the current date and time.
+
+	Likely needs a redesign.
+
 	@Project:
 		applescript-core
 

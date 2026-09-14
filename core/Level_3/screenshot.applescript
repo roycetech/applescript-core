@@ -41,18 +41,22 @@ if {"Script Editor", "Script Debugger", "osascript"} contains the name of curren
 on spotCheck()
 	loggerFactory's inject(me)
 	logger's start()
-
+	
 	set listUtil to script "core/list"
 	set cases to listUtil's splitAndTrimParagraphs("
 		Manual: Capture App Window to Clipboard
 		Manual: Capture Dimensions to Clipboard
 		Manual: Capture Points to Clipboard
-
 		Manual: Capture App Window to File
 		Manual: Capture Dimensions to File
+		
 		Manual: Capture Points to File
+		Manual: Capture UI Dimensions to Clipboard
+		Manual: Capture UI Dimensions to File
+		Dummy
+		Dummy
 	")
-
+	
 	set spotScript to script "core/spot-test"
 	set spotClass to spotScript's new()
 	set spot to spotClass's new(me, cases)
@@ -61,36 +65,68 @@ on spotCheck()
 		logger's finish()
 		return
 	end if
-
+	
 	set generatedFilePath to missing value
 	set sut to new()
 	if caseIndex is 1 then
 		sut's captureFrontAppToClipboard("Script Editor")
-
+		
 	else if caseIndex is 2 then
 		sut's captureDimensionsToClipboard(100, 100, 200, 100)
-
+		
 	else if caseIndex is 3 then
 		-- sut's capturePointsToClipboard(1000, 900, 1400, 1100)
 		sut's capturePointsToClipboard(0, 93, 950, 535, "Spot.png")
-
+		
 	else if caseIndex is 4 then
 		sut's captureFrontAppToFile("Script Editor", "Spot.png")
-
+		
 	else if caseIndex is 5 then
 		sut's captureDimensionsToFile(100, 100, 200, 100, "Spot.png")
-
+		
 	else if caseIndex is 6 then
 		-- sut's capturePointsToFile(1000, 900, 1400, 1100, "Spot.png")
-
+		
+	else if caseIndex is 7 then
+		(* 
+		tell application "System Events" to tell process "Script Editor"
+			set sutUi to checkbox 1 of group 1 of group 1 of toolbar 1 of front window
+		end tell
+		*)
+		
+		tell application "System Events" to tell process "Cursor"
+			set sutUi to static text 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 3 of group 3 of group 2 of group 1 of group 2 of group 1 of group 1 of group 1 of group 1 of group 1 of group 3 of group 2 of group 1 of group 2 of group 2 of group 1 of group 1 of group 2 of group 1 of UI element 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of front window
+		end tell
+		
+		captureDimensionsAtUiToClipboard of sut at sutUi given width:120, height:40, fromLeft:0, fromTop:0
+		
+	else if caseIndex is 8 then
+		set savePath of sut to "~/Downloads"
+		
+		(* 
+		tell application "System Events" to tell process "Script Editor"
+			set sutUi to checkbox 1 of group 1 of group 1 of toolbar 1 of front window
+		end tell
+		*)
+		
+		tell application "System Events" to tell process "Cursor"
+			set frontmost to true
+			-- set sutUi to static text 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 3 of group 3 of group 2 of group 1 of group 2 of group 1 of group 1 of group 1 of group 1 of group 1 of group 3 of group 2 of group 1 of group 2 of group 2 of group 1 of group 1 of group 2 of group 1 of UI element 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of front window
+			
+			set sutUi to static text 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 2 of group 2 of group 2 of group 1 of group 2 of group 1 of group 1 of group 1 of group 1 of group 1 of group 3 of group 2 of group 1 of group 2 of group 2 of group 1 of group 1 of group 2 of group 1 of UI element 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of front window
+		end tell
+		set sound of sut to false
+		
+		captureDimensionsAtUiToFile of sut at sutUi given width:120, height:40, fromLeft:0, fromTop:0, baseFilename:"Spot.png"
+		
 	end if
-
+	
 	try
 		set generatedFilePath to result
 	end try
 	if generatedFilePath is not missing value then
 		logger's debugf("generatedFilePath: {}", generatedFilePath)
-
+		
 		(*
 			The app script needs to complete before the file becomes revealable in the finder that's why I
 			created an optional Delayed AppleScript app for testing only.
@@ -105,7 +141,7 @@ on spotCheck()
 			end tell
 		end if
 	end if
-
+	
 	spot's finish()
 	logger's finish()
 end spotCheck
@@ -113,10 +149,11 @@ end spotCheck
 
 on new()
 	loggerFactory's inject(me)
-
+	
 	script ScreenshotInstance
 		property savePath : "/Users/" & std's getUsername()
-
+		property sound : true
+		
 		(*
 			All handlers lead here.
 		*)
@@ -126,57 +163,79 @@ on new()
 			else
 				set filePathParam to format {"{}/{}-{}", {savePath, my _nowForScreenShot(), baseFilename}}
 			end if
-
+			
 			set clipboardParam to std's ternary(baseFilename is missing value, " -c", "")
+			if sound is false then set cilpboardParam to clipboardParam & " -x"
+			
 			set command to textUtil's rtrim(format {"screencapture{} -R{},{},{},{} {}", {clipboardParam, x, y, w, h, quoted form of filePathParam}})
 			logger's debugf("command: {}", command)
-
+			
 			do shell script command
 			std's ternary(baseFilename is missing value, missing value, filePathParam)
 		end captureDimensionsToFile
-
-
+		
+		
 		on captureFrontAppToFile(appName, baseFilename)
 			logger's debugf("appName: {}", appName)
 			tell application "System Events" to tell process appName
 				set {x, y} to position of front window
 				set {w, h} to size of front window
 			end tell
-
+			
 			-- logger's debugf("X: {}, Y: {}, W: {}, H: {}", {x, y, w, h})
 			captureDimensionsToFile(x, y, w, h, baseFilename)
 		end captureFrontAppToFile
-
-
+		
+		
 		on capturePointsToFile(x1, y1, x2, y2, baseFilename)
 			set ax1 to Math's abs(x1)
 			set ax2 to Math's abs(x2)
 			set w to std's ternary(ax2 > ax1, ax2 - ax1, ax1 - ax2)
-
+			
 			set ay1 to Math's abs(y1)
 			set ay2 to Math's abs(y2)
 			set h to std's ternary(ay2 > ay1, ay2 - ay1, ay1 - ay2)
-
+			
 			captureDimensionsToFile(x1, y1, w, h, baseFilename)
 		end capturePointsToFile
-
-
+		
+		
 		on captureFrontAppToClipboard(appName)
 			captureFrontAppToFile(appName, missing value)
 		end captureFrontAppToClipboard
-
-
+		
+		
 		(*  @filename base filename with .png extension.  e.g. "spot.png". This will be saved to default location with timestamp prefix. *)
 		on captureDimensionsToClipboard(x, y, w, h)
 			captureDimensionsToFile(x, y, w, h, missing value)
 		end captureDimensionsToClipboard
-
-
+		
+		
 		on capturePointsToClipboard(x1, y1, x2, y2)
 			capturePointsToFile(x1, y1, x2, y2, missing value)
 		end capturePointsToClipboard
+		
+		
+		(*
+			Region anchored to a System Events UI element (same coordinate space as cliclick).
 
-
+			@captureW @captureH - screencapture -R width and height (not corner coordinates).
+			@fromLeft @fromTop - offset from the element's top-left; default 0.
+		*)
+		on captureDimensionsAtUiToFile at theUi given width:captureW, height:captureH, fromLeft:pLeft : 0, fromTop:pTop : 0, baseFilename:baseFilename
+			tell application "System Events" to tell theUi
+				set {x, y} to position
+			end tell
+			
+			captureDimensionsToFile(x + pLeft, y + pTop, captureW, captureH, baseFilename)
+		end captureDimensionsAtUiToFile
+		
+		
+		on captureDimensionsAtUiToClipboard at theUi given width:captureW, height:captureH, fromLeft:pLeft : 0, fromTop:pTop : 0
+			captureDimensionsAtUiToFile at theUi given width:captureW, height:captureH, fromLeft:pLeft, fromTop:pTop, baseFilename:missing value
+		end captureDimensionsAtUiToClipboard
+		
+		
 		on _nowForScreenShot()
 			do shell script "date '+%m%d-%H%M'"
 		end _nowForScreenShot
