@@ -356,24 +356,48 @@ on title(theWord)
 end title
 
 
+(*
+	@Deprecated. Use #lowerCase(theText).
+*)
 on lower(theText)
-	do shell script "echo " & quoted form of theText & " | tr '[:upper:]' '[:lower:]'"
+	lowerCase(theText)
 end lower
 
 
+(*
+	@Deprecated. Use #upperCase(theText).
+*)
 on upper(theText)
-	do shell script "echo " & quoted form of theText & " | tr '[:lower:]' '[:upper:]'"
+	upperCase(theText)
 end upper
 
+
+(*
+	@Deprecated. Use #upperCase(theText).
+*)
 on ucase(theText)
 	upper(theText)
 end ucase
 
 
-(* TODO: Unit test. *)
+(*
+	@Deprecated. Use #lowerCase(theText).
+*)
 on lcase(theText)
 	lower(theText)
 end lcase
+
+
+(* TODO: Unit test. *)
+on lowerCase(theText)
+	do shell script "echo " & quoted form of theText & " | tr '[:upper:]' '[:lower:]'"
+end lowerCase
+
+
+(* TODO: Unit test. *)
+on upperCase(theText)
+	do shell script "echo " & quoted form of theText & " | tr '[:lower:]' '[:upper:]'"
+end upperCase
 
 
 on repeatText(theText, ntimes)
@@ -652,5 +676,3 @@ on unitTest()
 		done()
 	end tell
 end unitTest
-
-
