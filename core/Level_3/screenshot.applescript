@@ -17,9 +17,6 @@
 	@Usage:
 		See #spotCheck.
 
-	@Script Menu
-		View Image From Clipboard - to view the clipboard contents during testing.
-
 	@Redesigned: August 25, 2023 7:19 PM
 *)
 
@@ -115,7 +112,7 @@ on spotCheck()
 			
 			set sutUi to static text 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 2 of group 2 of group 2 of group 1 of group 2 of group 1 of group 1 of group 1 of group 1 of group 1 of group 3 of group 2 of group 1 of group 2 of group 2 of group 1 of group 1 of group 2 of group 1 of UI element 1 of group 1 of group 1 of group 1 of group 1 of group 1 of group 1 of front window
 		end tell
-		set sound of sut to false
+		set playSound of sut to false
 		
 		captureDimensionsAtUiToFile of sut at sutUi given width:120, height:40, fromLeft:0, fromTop:0, baseFilename:"Spot.png"
 		
@@ -125,7 +122,7 @@ on spotCheck()
 		set generatedFilePath to result
 	end try
 	if generatedFilePath is not missing value then
-		logger's debugf("generatedFilePath: {}", generatedFilePath)
+		-- logger's debugf("generatedFilePath: {}", generatedFilePath)
 		
 		(*
 			The app script needs to complete before the file becomes revealable in the finder that's why I
@@ -136,7 +133,7 @@ on spotCheck()
 			tell application optionalAppName
 				activate
 				set theScript to "tell application \"Finder\" to reveal POSIX file \"" & generatedFilePath & "\""
-				logger's debugf("theScript: {}", theScript)
+				-- logger's debugf("theScript: {}", theScript)
 				runScript(theScript, 1)
 			end tell
 		end if
@@ -152,7 +149,7 @@ on new()
 	
 	script ScreenshotInstance
 		property savePath : "/Users/" & std's getUsername()
-		property sound : true
+		property playSound : true
 		
 		(*
 			All handlers lead here.
@@ -165,10 +162,10 @@ on new()
 			end if
 			
 			set clipboardParam to std's ternary(baseFilename is missing value, " -c", "")
-			if sound is false then set cilpboardParam to clipboardParam & " -x"
+			if playSound is false then set cilpboardParam to clipboardParam & " -x"
 			
 			set command to textUtil's rtrim(format {"screencapture{} -R{},{},{},{} {}", {clipboardParam, x, y, w, h, quoted form of filePathParam}})
-			logger's debugf("command: {}", command)
+			-- logger's debugf("command: {}", command)
 			
 			do shell script command
 			std's ternary(baseFilename is missing value, missing value, filePathParam)
@@ -176,7 +173,7 @@ on new()
 		
 		
 		on captureFrontAppToFile(appName, baseFilename)
-			logger's debugf("appName: {}", appName)
+			-- logger's debugf("appName: {}", appName)
 			tell application "System Events" to tell process appName
 				set {x, y} to position of front window
 				set {w, h} to size of front window
