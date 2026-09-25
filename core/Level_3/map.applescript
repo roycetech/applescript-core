@@ -214,6 +214,12 @@ a way to convert the value into AppleScript data type. *)
 on newFromRecord(sourceRecord)
 	if sourceRecord is missing value then return missing value
 
+	if class of sourceRecord is script then
+		try
+			if name of sourceRecord is "ASDictionary" then return sourceRecord
+		end try
+	end if
+
 	set userDictionary to new()
 	if the (count of sourceRecord) is 0 then return userDictionary
 
