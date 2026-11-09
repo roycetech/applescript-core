@@ -157,13 +157,20 @@ on new()
 
 			set sortedGroup to _simpleSort(noticeGroups)
 			repeat with i from (count noticeGroups) to 1 by -1
+				set nextNoticeGroup to missing value
 				try
 					set nextNoticeGroup to item i of noticeGroups
-				on error the errorMessage number the errorNumber -- Likely when a notification is closed midway.
-					exit repeat
-				end try
+				end try -- Stale group after a notification is closed midway; skip this index.
 
-				scriptObj's next(_getNotificationCenterInstance()'s new(nextNoticeGroup))
+				if nextNoticeGroup is not missing value then
+					set nextNotice to missing value
+					try
+						set nextNotice to _getNotificationCenterInstance()'s new(nextNoticeGroup)
+					end try
+					if nextNotice is not missing value then
+						scriptObj's next(nextNotice)
+					end if
+				end if
 			end repeat
 		end _reverseLoop
 

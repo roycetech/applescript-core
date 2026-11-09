@@ -16,6 +16,10 @@
 		./scripts/build-lib.sh macOS-version/15-sequoia/notification-center-helper
 
 	@Created: Sat, Dec 21, 2024 at 8:04:24 AM
+	@Last Modified: Fri, Oct 30, 2026 at 09:07:00 AM
+
+	@Change Logs:
+		Fri, Oct 30, 2026, at 09:07:00 AM - Skip stale notification groups after a dismiss instead of aborting the reverse loop.
 *)
 
 use scripting additions
@@ -181,6 +185,7 @@ on new()
 			set sortedGroup to _simpleSort(noticeGroups)
 			repeat with i from (count noticeGroups) to 1 by -1
 				-- log "i: " & i
+				set nextNoticeGroup to missing value
 				try
 					if i is 1 then
 						tell application "System Events" to tell process "Notification Center"
@@ -196,12 +201,17 @@ on new()
 					else
 						set nextNoticeGroup to item i of noticeGroups
 					end if
-				on error the errorMessage number the errorNumber -- Likely when a notification is closed midway.
-					-- logger's warn(errorMessage)
-					exit repeat
-				end try
+				end try -- Stale group after a notification is closed midway; skip this index.
 
-				scriptObj's next(_getNotificationCenterInstance()'s new(nextNoticeGroup))
+				if nextNoticeGroup is not missing value then
+					set nextNotice to missing value
+					try
+						set nextNotice to _getNotificationCenterInstance()'s new(nextNoticeGroup)
+					end try
+					if nextNotice is not missing value then
+						scriptObj's next(nextNotice)
+					end if
+				end if
 			end repeat
 		end _reverseLoop
 
