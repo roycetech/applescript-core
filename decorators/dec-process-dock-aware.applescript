@@ -19,6 +19,7 @@
 	@Last Modified: 2026-05-23 09:49:06
 	
 	@Change Logs:
+		Fri, Nov 13, 2026, at 10:24:00 AM - Detect overlap via Dock rectangle intersection so windows on other displays are ignored.
 *)
 use scripting additions
 
@@ -126,103 +127,76 @@ on decorate(mainScript)
 		
 		
 		(*
+			True only when the window rectangle intersects the Dock rectangle.
+			Comparing bottom Y alone falsely treats a window on another display as overlapping.
+		*)
+		on doesWindowOverlapDock(winX, winY, winWidth, winHeight)
+			set dockX to dock's getHorizontalPosition()
+			set dockY to dock's getVerticalPosition()
+			set dockWidth to dock's getWidth()
+			set dockHeight to dock's getHeight()
+			set dockPosition to dock's getPosition()
+			if dockPosition as text is equal to "bottom" then
+				set dockY to dockY + VERTICAL_CORRECTION
+			end if
+
+			set winX2 to winX + winWidth
+			set winY2 to winY + winHeight
+			set dockX2 to dockX + dockWidth
+			set dockY2 to dockY + dockHeight
+
+			(winX is less than dockX2) and (winX2 is greater than dockX) and (winY is less than dockY2) and (winY2 is greater than dockY)
+		end doesWindowOverlapDock
+
+
+		(*
 			@returns the amount of overlap length. 0 for no overlap.
 		*)
 		on computeOverlapSize()
 			set winObj to getFirstSystemEventsWindow()
 			if winObj is missing value then return 0
 			if dock's isAutoHide() then return 0
-			
+
 			tell application "System Events"
 				set winPos to position of winObj
 				set winSize to size of winObj
 			end tell
-			
-			set dockPosition to dock's getPosition()
-			-- logger's debugf("dockPosition: {}", dockPosition)
-			
-			-- Extract values
-			set dockWidth to dock's getWidth()
-			set dockHeight to dock's getHeight()
-			
+
 			set {winX, winY} to winPos
 			set {winWidth, winHeight} to winSize
-			
-			set winX2 to winX + winWidth
+			if not doesWindowOverlapDock(winX, winY, winWidth, winHeight) then return 0
+
+			set dockPosition to dock's getPosition()
 			set winY2 to winY + winHeight
-			
-			-- Get screen dimensions
-			set screenBounds to (do shell script "system_profiler SPDisplaysDataType | awk '/Resolution/ {print $2, $4}'")
-			set {screenWidth, screenHeight} to words of screenBounds
-			
 			if dockPosition as text is equal to "bottom" then
 				set dockTopY to (dock's getVerticalPosition()) + VERTICAL_CORRECTION
-				-- logger's debugf("dockTopY: {}", dockTopY)
-				if (winY2 > dockTopY) then return winY2 - dockTopY
-				
-				-- Dock on left
+				return winY2 - dockTopY
+
 			else if dockPosition is "left" then
-				return (winX1 < dockWidth)
-				
-				-- Dock on right
+				return (dock's getWidth()) - winX
+
 			else if dockPosition is "right" then
-				set dockLeftX to (screenWidth - dockWidth)
-				return (winX2 > dockLeftX)
+				set dockLeftX to dock's getHorizontalPosition()
+				return winX + winWidth - dockLeftX
 			end if
-			
+
 			return 0
 		end computeOverlapSize
-		
-		
+
+
 		on isDockOverlappingWindow()
 			set winObj to getFirstSystemEventsWindow()
 			if winObj is missing value then return false
 			if dock's isAutoHide() then return false
-			
+
 			tell application "System Events"
 				set winPos to position of winObj
 				set winSize to size of winObj
 			end tell
-			
-			set dockPosition to dock's getPosition()
-			-- logger's debugf("dockPosition: {}", dockPosition)
-			
-			-- Extract values
-			set dockWidth to dock's getWidth()
-			set dockHeight to dock's getHeight()
-			
+
 			set {winX, winY} to winPos
 			set {winWidth, winHeight} to winSize
-			
-			-- Compute window edges
-			set winX2 to winX + winWidth
-			set winY2 to winY + winHeight
-			-- logger's debugf("winY: {}", winY)
-			-- logger's debugf("winY2: {}", winY2)
-			-- logger's debugf("winHeight: {}", winHeight)
-			
-			-- Get screen dimensions
-			set screenBounds to (do shell script "system_profiler SPDisplaysDataType | awk '/Resolution/ {print $2, $4}'")
-			set {screenWidth, screenHeight} to words of screenBounds
-			
-			-- logger's debugf("dockPosition: {}", dockPosition)
-			-- Dock at bottom
-			if dockPosition as text is equal to "bottom" then
-				set dockTopY to (dock's getVerticalPosition()) + VERTICAL_CORRECTION
-				-- logger's debugf("dockTopY: {}", dockTopY)
-				return (winY2 > dockTopY)
-				
-				-- Dock on left
-			else if dockPosition is "left" then
-				return (winX1 < dockWidth)
-				
-				-- Dock on right
-			else if dockPosition is "right" then
-				set dockLeftX to (screenWidth - dockWidth)
-				return (winX2 > dockLeftX)
-			end if
-			
-			return false
+			doesWindowOverlapDock(winX, winY, winWidth, winHeight)
 		end isDockOverlappingWindow
 	end script
 end decorate
