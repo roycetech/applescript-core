@@ -9,8 +9,13 @@
 		./scripts/build-lib.sh core/Level_4/dotenv
 
 	@Created: Sat, Mar 14, 2026 at 02:11:57 PM
-	@Last Modified: 2026-05-23 09:49:04
+	@Last Modified: Tue, Nov 17, 2026
+
+	@Change Logs:
+		Tue, Nov 17, 2026 - Keep the full value after the first equals so URLs with query parameters stay intact.
 *)
+use scripting additions
+
 use fileUtil : script "core/file"
 use listUtil : script "core/list"
 use mapLib : script "core/map"
@@ -32,6 +37,9 @@ on spotCheck()
 	set cases to listUtil's splitAndTrimParagraphs("
 		NOOP
 		Manual: Read Key
+		Value after first equals
+		Dummy
+		Dummy
 	")
 
 	set spotScript to script "core/spot-test"
@@ -52,7 +60,13 @@ on spotCheck()
 		logger's debugf("sutKeyName: {}", sutKeyName)
 
 		logger's infof("Key name: {}, value: {}", {sutKeyName, sut's getValue(sutKeyName)})
-	else
+
+	else if caseIndex is 3 then
+		set testEnvPath to "/tmp/dotenv-spot.env"
+		do shell script "printf '%s\\n' 'PLAIN=hello' 'URL=https://example.com/path?team=T1&id=D2' > " & quoted form of testEnvPath
+		set sut to new(testEnvPath)
+		logger's infof("PLAIN: {}", sut's getValue("PLAIN"))
+		logger's infof("URL: {}", sut's getValue("URL"))
 
 	end if
 
@@ -77,13 +91,18 @@ on new(pDotEnvFilePath)
 			set envLines to paragraphs of dotEnvFileContents
 			repeat with nextLine in envLines
 				set nextLine to textUtil's trim(nextLine)
-				if nextLine is not "" and nextLine does not start with "#" then
-					-- logger's debugf("nextLine: {}", nextLine)
-
-					set nextLineTokens to listUtil's split(nextLine, "=")
-					set nextKey to first item of nextLineTokens
-					set nextValue to second item of nextLineTokens
-					envMap's putValue(nextKey, nextValue)
+				if nextLine is not "" and nextLine does not start with "#" and nextLine contains "=" then
+					set nextKey to textUtil's trim(textUtil's stringBefore(nextLine, "="))
+					if nextKey is missing value or nextKey is "" then
+						-- Skip malformed lines that start with "=".
+					else
+						if nextLine ends with "=" then
+							set nextValue to ""
+						else
+							set nextValue to textUtil's trim(textUtil's stringAfter(nextLine, "="))
+						end if
+						envMap's putValue(nextKey, nextValue)
+					end if
 				end if
 			end repeat
 		end load
