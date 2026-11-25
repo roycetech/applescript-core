@@ -2,6 +2,7 @@
 	User/client facing library.
 
 	@Change Logs:
+		Wed, Nov 25, 2026, at 08:23:02 AM - AI: Made notice appName lazy via getAppName() to avoid the swift call on every notice (replaces the appName property).
 
 
 	@Plists:
@@ -360,7 +361,7 @@ on new()
 			
 			script DismissBySubTitleScript
 				on next(notice as script)
-					if notice's appName is not equal to appName or notice's title is not equal to theTitle and notices's body is not equal to the subtitle then return
+					if notice's getAppName() is not equal to appName or notice's title is not equal to theTitle and notices's body is not equal to the subtitle then return
 					
 					-- logger's debugf("Dismissed: {} - {}: {}", {appName, theTitle, subtitle})
 					notice's dismiss()
@@ -376,7 +377,7 @@ on new()
 			script DismissByTitleScript
 				on next(notice as script)
 					set appNameWanted to appName is not missing value
-					set appNameMatched to appNameWanted and notice's appName is equal to appName
+					set appNameMatched to appNameWanted and notice's getAppName() is equal to appName
 					if (appNameWanted and not appNameMatched) or notice's title is not equal to theTitle then return
 					
 					-- logger's debugf("Dismissed: {} - {}", {appName, theTitle})
@@ -411,8 +412,8 @@ on new()
 			
 			script DeletePastMailScript
 				on next(notice as script)
-					log notice's appName
-					if notice's appName is not equal to "MAIL" or not notice's isPast() then return
+					log notice's getAppName()
+					if notice's getAppName() is not equal to "MAIL" or not notice's isPast() then return
 					
 					notice's deleteMail()
 				end next
@@ -438,7 +439,7 @@ on new()
 			set appNotifications to {}
 			script AppNotificationsScript
 				on next(notice)
-					if notice's appName is equal to the appName then set end of appNotifications to notice
+					if notice's getAppName() is equal to the appName then set end of appNotifications to notice
 				end next
 			end script
 			notificationCenterHelper's _forEach(result)
@@ -454,7 +455,7 @@ on new()
 			
 			script AppNameScript
 				on next(notice)
-					set end of retval to notice's appName
+					set end of retval to notice's getAppName()
 				end next
 			end script
 			notificationCenterHelper's _forEach(result)
@@ -465,7 +466,9 @@ on new()
 		
 		on new(theNotification)
 			script NotificationInstance
-				property appName : ""
+				property _appName : missing value
+				property _matchTitle : ""
+				property _owner : missing value
 				property when : missing value
 				property header : missing value
 				property title : missing value
@@ -475,6 +478,25 @@ on new()
 				
 				property _actualNotification : theNotification
 				
+				(*
+					Resolved lazily because it shells out to swift (slow). Callers that
+					never need the app name don't pay for it.
+				*)
+				on getAppName()
+					if _appName is not missing value then return _appName
+
+					set resolvedName to missing value
+					tell application "System Events" to tell process "Notification Center"
+						-- Let's assume it is mail if there's a delete action. I don't know another notification with that action, iMessage perhaps?
+						if exists (first action of _actualNotification whose description is "Delete") then set resolvedName to "Mail"
+					end tell
+					if resolvedName is missing value then set resolvedName to _owner's _appNameFromAttributedDescription(_matchTitle)
+
+					set _appName to resolvedName
+					resolvedName
+				end getAppName
+
+
 				on isStacked()
 					tell application "System Events" to tell process "Notification Center"
 						try
@@ -525,7 +547,7 @@ on new()
 						return
 					end if
 					
-					if appName contains "com.apple.MobileSMSSMS;" then
+					if getAppName() contains "com.apple.MobileSMSSMS;" then
 						performAction("Mark as Read")
 					else
 						performAction("Close")
@@ -533,7 +555,7 @@ on new()
 				end dismiss
 				
 				on deleteMail()
-					if appName is not "Mail" then tell me to error "Invalid action for app " & appName
+					if getAppName() is not "Mail" then tell me to error "Invalid action for app " & getAppName()
 					
 					tell application "System Events"
 						try
@@ -571,23 +593,13 @@ Subtitle: {}
 When: {}
 Body: {}
 Is Stacked: {}
-", {my appName, my header, my title, my subtitle, my when, my body, my isStacked()}}
+", {my getAppName(), my header, my title, my subtitle, my when, my body, my isStacked()}}
 				end toString
 			end script
 			
-			set matchTitle to _uiValueFromNotification(theNotification, "title")
-			tell NotificationInstance to set its appName to _appNameFromAttributedDescription(matchTitle)
-			
-			tell application "System Events" to tell process "Notification Center"
-				if exists (first action of theNotification whose description is "Delete") then
-					-- Let's assume it is mail if there's a delete action. I don't know another notification with that action, iMessage perhaps?
-					set appName of NotificationInstance to "Mail"
-				end if
-				
-				-- Below attribute while it shows "Mail" in UI Browser, is not readable by AppleScript.
-				-- value of attribute "AXAttributedDescription" of group 1 of UI element 1 of scroll area 1 of group 1 of front window
-			end tell
-			
+			set NotificationInstance's _matchTitle to _uiValueFromNotification(theNotification, "title")
+			set NotificationInstance's _owner to me
+
 			tell application "System Events"
 				repeat with nextStaticText in static texts of theNotification
 					set uiId to get value of attribute "AXIdentifier" of nextStaticText
@@ -741,7 +753,7 @@ for description in descriptions { print(description) }"
 						return
 					end if
 					
-					set noticeAppName to appName of notice
+					set noticeAppName to notice's getAppName()
 					if noticeAppName is equal to appName then notice's clickNotice()
 				end next
 			end script
